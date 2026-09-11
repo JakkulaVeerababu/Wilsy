@@ -1,47 +1,62 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Welcome to Wilsy." />
-    <title>Welcome to Wilsy</title>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5489149193350421"
-     crossorigin="anonymous"></script>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231c4938'/%3E%3Cpath d='m6 9 4 14 6-10 6 10 4-14' fill='none' stroke='%23f7f8f2' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E" />
-    <style>
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        background: #f7f8f2;
-        color: #1c4938;
-        font-family: Arial, Helvetica, sans-serif;
-      }
-
-      main {
-        display: grid;
-        min-height: 100vh;
-        min-height: 100svh;
-        place-items: center;
-        padding: 2rem;
-      }
-
-      h1 {
-        margin: 0;
-        font-size: clamp(2rem, 7vw, 6rem);
-        font-weight: 700;
-        line-height: 1.15;
-        letter-spacing: -0.035em;
-        text-align: center;
-        text-wrap: balance;
-      }
-    </style>
-  </head>
-  <body>
-    <main>
-      <h1>WELCOME TO WILSY</h1>
-    </main>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173f35">
+  <meta name="description" content="Explore 1,000 global tech employers. Compare sourced annual salaries in USD, browse pay tiers, and go straight to company careers.">
+  <title>WILSY — Find your next great company</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;550;600;650;700&family=Manrope:wght@400;500;600;650;700;750;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5489149193350421" crossorigin="anonymous"></script>
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#companies">Skip to companies</a>
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7M7 7h10v10"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h8m4 0h4M4 17h3m4 0h9"/><circle cx="14" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M5 21V4h14v17M3 21h18M9 8h1m4 0h1M9 12h1m4 0h1M10 21v-5h4v5"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 2.6 6.4L21 12l-6.4 2.6L12 21l-2.6-6.4L3 12l6.4-2.6Z"/></symbol>
+  </defs></svg>
+  <header class="site-header"><div class="header-inner">
+    <a class="brand" href="./" aria-label="Wilsy home"><span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m5 8 5 16 6-11 6 11 5-16"/></svg></span><span>wilsy<span class="brand-period">.</span></span></a>
+    <nav class="main-nav" aria-label="Main navigation"><a class="active" href="#companies">Explore companies</a><button type="button" data-guide>Our pay guide <svg class="icon"><use href="#i-arrow"/></svg></button></nav>
+    <div class="header-meta"><svg class="icon"><use href="#i-globe"/></svg><span>Global directory</span><i></i><span>USD / year</span></div>
+  </div></header>
+  <main class="page-shell">
+    <section class="intro" aria-labelledby="page-title">
+      <div class="intro-copy"><p class="eyebrow"><span></span> YOUR NEXT MOVE, MADE CLEARER</p><h1 id="page-title">Great companies.<br><span>Even greater possibilities.</span></h1><p class="intro-description">Explore 1,000 tech employers. Find your pay range.<br class="desktop-break"> Go straight to the people building what’s next.</p></div>
+      <aside class="intro-note" aria-label="Directory scope"><div class="note-top"><span class="note-label">THE WILSY COLLECTION</span><svg class="icon"><use href="#i-spark"/></svg></div><div class="note-number">1,000<span>companies to discover</span></div><div class="note-bottom"><span class="tiny-dot"></span> Established names. Ambitious startups.</div></aside>
+    </section>
+    <section class="tier-section" aria-labelledby="tier-heading"><div class="section-kicker"><h2 id="tier-heading">A starting point for every ambition</h2><button type="button" class="text-button" data-guide>How pay tiers work <svg class="icon"><use href="#i-info"/></svg></button></div><div id="tier-cards" class="tier-cards"></div></section>
+    <section id="companies" class="directory" aria-labelledby="directory-title">
+      <div class="directory-heading"><div><h2 id="directory-title">Explore companies <span class="count-badge">1,000</span></h2><p>Find the team that feels like your next chapter.</p></div><div class="snapshot"><span class="tiny-dot"></span> Data snapshot <time datetime="2026-09-11">11 Sep 2026</time></div></div>
+      <div class="search-toolbar"><label class="search-box"><svg class="icon"><use href="#i-search"/></svg><span class="sr-only">Search companies, sectors, or skills</span><input id="search" type="search" placeholder="Search companies, sectors, or skills…" autocomplete="off"><kbd aria-hidden="true">/</kbd></label><button class="mobile-filter-button" id="filter-toggle" aria-expanded="false" aria-controls="filters"><svg class="icon"><use href="#i-sliders"/></svg> Filters</button><label class="sort-label"><span>Sort by</span><select id="sort" aria-label="Sort companies"><option value="directory">Directory order</option><option value="pay-desc">Highest listed pay</option><option value="pay-asc">Lowest listed pay</option><option value="name">Company name A–Z</option></select></label><div class="view-toggle" aria-label="Company display"><button id="grid-view" type="button" class="selected" aria-label="Grid view" aria-pressed="true"><svg class="icon"><use href="#i-grid"/></svg></button><button id="list-view" type="button" aria-label="List view" aria-pressed="false"><svg class="icon"><use href="#i-list"/></svg></button></div></div>
+      <div class="directory-body"><aside class="filters" id="filters" aria-label="Filter companies"><div class="filter-header"><h3><svg class="icon"><use href="#i-sliders"/></svg> Filters</h3><button id="reset" type="button">Reset all</button></div>
+        <fieldset><legend>COMPANY STAGE</legend><div id="stage-filters" class="checkbox-group"></div></fieldset>
+        <fieldset><legend>INDUSTRY</legend><div id="sector-filters" class="checkbox-group"></div></fieldset>
+        <div class="select-filter"><label for="region">COMPANY REGION</label><select id="region"><option value="">All regions</option><option>United States</option><option>Europe</option><option>South Asia</option><option>Canada</option><option>Latin America</option><option>East Asia</option><option>Southeast Asia</option><option>Africa</option><option>Oceania</option><option>Middle East and North Africa</option></select></div>
+        <div class="select-filter"><label for="role">EXAMPLE ROLE</label><select id="role"><option value="">All roles</option></select></div>
+        <label class="remote-filter"><span>Remote role listed</span><input id="remote" type="checkbox"><span class="switch" aria-hidden="true"></span></label>
+        <div class="filter-note"><svg class="icon"><use href="#i-info"/></svg><p>A little context goes a long way.<br>Salary ranges reflect an example role, not every job at a company.</p><button type="button" data-guide>Read the pay guide ↗</button></div>
+      </aside><div class="results-area"><div class="results-summary"><p id="results-count" aria-live="polite">Loading companies…</p><button type="button" class="text-button" data-guide>USD · annual salary <svg class="icon"><use href="#i-info"/></svg></button></div><div id="active-filters" class="active-filters" aria-label="Active filters"></div><div id="company-grid" class="company-grid" aria-busy="true"><div class="loading-state"><span class="loading-ring"></span><h3>Finding your next possibility…</h3><p>Loading the WILSY company directory.</p></div></div><nav id="pagination" class="pagination" aria-label="Company result pages"></nav><p class="salary-note">Published pay for an example role. Equity and bonuses are separate unless stated. Open a company for the source and location.</p></div></div>
+    </section>
+  </main>
+  <footer class="site-footer"><a class="brand footer-brand" href="./"><span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m5 8 5 16 6-11 6 11 5-16"/></svg></span><span>wilsy.</span></a><p>A clearer view of your next move.</p><button type="button" data-guide>Sources & methodology <svg class="icon"><use href="#i-arrow"/></svg></button><span>© 2026 WILSY</span></footer>
+  <dialog id="company-dialog" class="company-dialog" aria-labelledby="detail-title"><button type="button" class="dialog-close" aria-label="Close company details"><svg class="icon"><use href="#i-close"/></svg></button><div id="company-detail"></div></dialog>
+  <dialog id="guide-dialog" class="guide-dialog" aria-labelledby="guide-title"><button type="button" class="dialog-close" aria-label="Close pay guide"><svg class="icon"><use href="#i-close"/></svg></button><div class="guide-inner"><p class="eyebrow">A CLEARER PICTURE</p><h2 id="guide-title">Understand the numbers.</h2><p class="guide-lead">Good career decisions start with knowing what a salary figure actually means.</p><h3>One company. One example role.</h3><p>Each card shows salary published for one full-time role, in US dollars per year. Engineering is preferred; other roles are labelled. When multiple engineering ranges are available, we select the middle range by midpoint. These are snapshots of advertised pay, not average company packages or guaranteed offers. Openings can close.</p><h3>Pay tiers, explained</h3><p>We group companies by the midpoint of that example salary. These are WILSY browsing bands, not employer rankings. Roles, seniority, and countries differ, so a tier is a starting point for exploration.</p><div class="guide-tiers"><div><span class="tier-badge tier-1">Tier 1</span><strong>$200k+</strong></div><div><span class="tier-badge tier-2">Tier 2</span><strong>$150k – $199,999</strong></div><div><span class="tier-badge tier-3">Tier 3</span><strong>$100k – $149,999</strong></div><div><span class="tier-badge tier-4">Tier 4</span><strong>Below $100k</strong></div></div><h3>Salary ≠ total compensation</h3><p>“Base salary” appears only when the source identifies it as base pay. Other ranges are labelled “Advertised salary”; they may have role-specific terms. Equity, bonus, commission, and benefits are not added to the range. Disclosed equity is shown separately, without estimating its dollar value. No currencies are converted.</p><h3>What’s in the collection?</h3><p>1,000 global technology employers: established names and active or public YC companies with published USD pay. The YC selection prioritises its top-company designation and reported team size. This is not a ranking of the world’s 1,000 largest companies. Coverage is concentrated in the United States and the YC startup ecosystem.</p><h3>Follow the source</h3><p>Established employers link to their careers websites. Startup links open employer-maintained recruiting pages on Y Combinator, labelled “Company jobs on YC.” Every salary example links to its source. Company details and logos come from employer profiles, public brand assets, and the linked data mirror.</p><div class="source-links"><a href="https://www.ycombinator.com/companies" target="_blank" rel="noopener noreferrer">Y Combinator company directory ↗</a><a href="https://github.com/devasheeshg/yc-api" target="_blank" rel="noopener noreferrer">YC directory data mirror ↗</a><a href="data/companies.json" target="_blank" rel="noopener">View the data snapshot ↗</a></div><p class="guide-footnote">Snapshot retrieved 11 September 2026. Profile and listing update dates vary. Company logos identify their respective owners; no affiliation or endorsement is implied.</p></div></dialog>
+  <noscript><div class="noscript">Enable JavaScript to search the directory, or <a href="data/companies.json">download the company data</a>.</div></noscript>
+</body>
 </html>

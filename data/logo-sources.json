@@ -1,0 +1,68 @@
+[
+  {
+    "name": "Google",
+    "assetUrl": "https://api.iconify.design/logos/google-icon.svg",
+    "provider": "@iconify-json/logos@1.2.14",
+    "source": "https://partnermarketinghub.withgoogle.com"
+  },
+  {
+    "name": "Microsoft",
+    "assetUrl": "https://api.iconify.design/logos/microsoft-icon.svg",
+    "provider": "@iconify-json/logos@1.2.14",
+    "source": "https://cdn.jsdelivr.net/npm/@iconify-json/logos@1.2.14/icons.json"
+  },
+  {
+    "name": "Apple",
+    "assetUrl": "https://api.iconify.design/logos/apple.svg",
+    "provider": "@iconify-json/logos@1.2.14",
+    "source": "https://www.apple.com"
+  },
+  {
+    "name": "Amazon",
+    "assetUrl": "https://assets.aboutamazon.com/2e/d7/ac71f1f344c39f8949f48fc89e71/amazon-logo-squid-ink-smile-orange.png",
+    "provider": "Amazon press center",
+    "source": "https://press.aboutamazon.com/logos"
+  },
+  {
+    "name": "NVIDIA",
+    "assetUrl": "https://api.iconify.design/logos/nvidia.svg",
+    "provider": "@iconify-json/logos@1.2.14",
+    "source": "https://www.nvidia.com/en-us"
+  },
+  {
+    "name": "Salesforce",
+    "assetUrl": "https://api.iconify.design/logos/salesforce.svg",
+    "provider": "@iconify-json/logos@1.2.14",
+    "source": "https://cdn.jsdelivr.net/npm/@iconify-json/logos@1.2.14/icons.json"
+  },
+  {
+    "name": "Stripe",
+    "assetUrl": "https://api.iconify.design/logos/stripe.svg",
+    "provider": "@iconify-json/logos@1.2.14",
+    "source": "https://stripe.com/newsroom/information"
+  },
+  {
+    "name": "OpenAI",
+    "assetUrl": "https://api.iconify.design/logos/openai-icon.svg",
+    "provider": "@iconify-json/logos@1.2.14",
+    "source": "https://cdn.jsdelivr.net/npm/@iconify-json/logos@1.2.14/icons.json"
+  },
+  {
+    "name": "Anthropic",
+    "assetUrl": "https://api.iconify.design/logos/anthropic-icon.svg",
+    "provider": "@iconify-json/logos@1.2.14",
+    "source": "https://www.anthropic.com"
+  },
+  {
+    "name": "Figma",
+    "assetUrl": "https://api.iconify.design/logos/figma.svg",
+    "provider": "@iconify-json/logos@1.2.14",
+    "source": "https://www.figma.com/using-the-figma-brand/"
+  },
+  {
+    "name": "Airbnb",
+    "assetUrl": "https://api.iconify.design/logos/airbnb-icon.svg",
+    "provider": "@iconify-json/logos@1.2.14",
+    "source": "https://www.airbnb.com"
+  }
+]

@@ -1,0 +1,5 @@
+.research/
+.preview/
+node_modules/
+.vercel/
+*.log
