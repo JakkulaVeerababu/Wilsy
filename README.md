@@ -1,10 +1,10 @@
 # WILSY
 
-An independent directory of 1,000 technology employers with sourced salary examples, approximate INR conversions, original USD figures, real company logos, career links, and practical career guides.
+Wilsy Jobs combines a live Supabase job search at `/jobs` with an independent directory of 1,000 technology employers, sourced salary examples, INR estimates, original USD figures, real company logos, and career guides.
 
 ## Run and build
 
-Requires Node.js 20 or later. No npm dependencies are required.
+Use Node.js 22 or later. The static site uses native JavaScript modules and fetch; no runtime CDN imports are needed.
 
 ```sh
 npm start
@@ -41,3 +41,27 @@ The Amazon link is marked `rel="sponsored"` and has an adjacent affiliate disclo
 AdSense review, ad density, Auto ads exclusions, regional privacy configuration, and Search Console verification remain account-level settings. A sitemap is available at `https://www.wilsy.in/sitemap.xml`; it has not been submitted automatically. No implementation guarantees approval, indexing, rankings, or revenue.
 
 Tests cover data uniqueness and source fields, all local logos, salary tier boundaries, filter/sort/pagination behaviour, safe rendering, every generated internal link, page metadata, sitemap coverage, and currency conversion consistency.
+
+## Live jobs and Supabase
+
+The existing `wilsy-jobs` project is `pnkthqatdlozrojwefnc`. `supabase-config.js` holds its existing public anon credential for compatibility. It is intentionally public; never replace it with a service-role or secret key. Website traffic only needs read access. `data-client.js` uses the REST API directly.
+
+The integration extends the existing database; it does not replace its schema or collectors. The migration in `supabase/migrations/` was created through the Supabase CLI and applied to the existing project through the authenticated SQL editor. It adds an RLS-preserving `security_invoker` view and two read-only search/facet functions. It also removes the previous anonymous company-insert policy and write grants. Original company rows were compared field-for-field with the checked-in snapshot: all 1,000 are unchanged.
+
+- Search, filtering and pagination happen in Postgres, in batches of 20. The jobs view excludes closed, expired and past-deadline roles and preserves existing published-row RLS.
+- The view explicitly selects public job fields; raw ingestion payloads and metadata are not returned. Private watchlists and ingestion logs retain RLS with no public policies.
+- Filters include roles, workplace, company, country including secondary locations, career stage, skills, experience, disclosed compensation, visa and relocation. Missing information is not inferred. Minimum salary filters require the original currency and an explicit pay period.
+- Employer posting dates and discovery dates stay separate. Date-only timestamps never qualify for “Last hour.” “Today” uses UTC. “Recently found” sorts by discovery; employer-date sorting puts unknown posting dates last.
+- Job details reload their current record before showing an application link. Saved job IDs stay in device-local browser storage. `?job=ID` shares a detail view. Closed saved roles are excluded from results.
+- Live listings refresh on demand, every five minutes while the page is visible, and when a stale tab is resumed. This is frontend refresh, not a collector schedule.
+- Company directory reads are paginated from Supabase, with the original local snapshot as a labelled outage fallback. Company profile HTML and the compact logo index are still generated from `data/companies.json`; update the reviewed snapshot and redeploy to change those static profiles.
+
+Run `node scripts/verify-jobs-api.mjs` for read-only checks against the real database. It verifies pagination, filters, job-detail access, safe public fields, and exact preservation of the company collection. Normal `npm test` remains offline.
+
+### Collector ownership and observed state
+
+On 12 September 2026, the database contained 186 publicly visible jobs across 62 hiring companies. Ingestion logs contained recent successful **11K Company Hourly Watch** and **Hourly Global Job Radar** runs. The project has `pg_cron` and `pg_net`, but `cron.job` had no scheduled entries at inspection; collection is being orchestrated outside this website checkout. This change reuses that pipeline and does not create duplicate schedules or claim verified round-the-clock coverage.
+
+The watchlist is not the same as verified hiring coverage. Additional local company-batch generators contain synthetic names. Those files and watchlist records were preserved, not republished as verified employers. Public counts come from current published job rows. Employer-verification badges appear only where the database explicitly marks the employer verified.
+
+Supabase advisors were inspected after the change: no error/warning entries were shown. Informational findings concerned intentionally private RLS tables with no public policies and unused indexes in the new database; those protections and indexes were retained.

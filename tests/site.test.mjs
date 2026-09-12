@@ -39,7 +39,7 @@ test('All generated internal links, local images, scripts, and styles resolve',(
 test('Sitemap covers exactly the public pages and excludes the error page',async()=>{
   const xml=await fs.readFile(path.join(root,'sitemap.xml'),'utf8');
   const urls=[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
-  assert.equal(urls.length,1012);assert.equal(new Set(urls).size,1012);
+  assert.equal(urls.length,1013);assert.equal(new Set(urls).size,1013);
   assert.ok(urls.every(url=>url.startsWith('https://www.wilsy.in/')));
   assert.ok(!urls.some(url=>url.endsWith('/404')));
   assert.match(pages.get('404.html'),/noindex,follow/);

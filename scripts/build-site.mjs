@@ -4,6 +4,7 @@ import {site} from '../site-config.js';
 import {usd,inr,salaryRange} from '../pay-format.js';
 import {escapeHtml as e, safeHref} from '../directory-core.js';
 import {guides,policyPages} from './site-content.mjs';
+import {jobsPage} from './jobs-page.mjs';
 
 const data = JSON.parse(await fs.readFile('data/companies.json','utf8'));
 const fx = JSON.parse(await fs.readFile('data/exchange-rate.json','utf8'));
@@ -20,10 +21,10 @@ const pageUrl = c => '/companies/'+encodeURIComponent(c.id);
 const jsonld = value => `<script type="application/ld+json">${JSON.stringify(value).replace(/</g,'\\u003c')}</script>`;
 const brand = `<a class="brand" href="/" aria-label="Wilsy home"><span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m5 8 5 16 6-11 6 11 5-16"/></svg></span><span>wilsy<span class="brand-period">.</span></span></a>`;
 export function header(active='') {
-  return `<header class="site-header"><div class="header-inner">${brand}<nav class="main-nav" aria-label="Main navigation"><a href="/#companies" ${active==='companies'?'class="active" aria-current="page"':''}>Companies</a><a href="/?stage=Established#companies">Established</a><a href="/?stage=Startup#companies">Startups</a><a href="/guides" ${active==='guides'?'class="active" aria-current="page"':''}>Career guides</a><a href="/about" ${active==='about'?'class="active" aria-current="page"':''}>About</a></nav><a class="header-contact" href="/contact">Get in touch <span aria-hidden="true">↗</span></a></div></header>`;
+  return `<header class="site-header"><div class="header-inner">${brand}<nav class="main-nav" aria-label="Main navigation"><a href="/jobs" ${active==='jobs'?'class="active" aria-current="page"':''}>Find jobs</a><a href="/#companies" ${active==='companies'?'class="active" aria-current="page"':''}>Companies</a><a href="/?stage=Startup#companies">Startups</a><a href="/guides" ${active==='guides'?'class="active" aria-current="page"':''}>Career guides</a><a href="/about" ${active==='about'?'class="active" aria-current="page"':''}>About</a></nav><a class="header-contact" href="/contact">Get in touch <span aria-hidden="true">↗</span></a></div></header>`;
 }
 export function footer() {
-  return `<footer class="site-footer premium-footer"><div class="footer-main"><div class="footer-intro">${brand}<p>A clearer view of your next move.</p><span>Independent company research.<br>Real sources. More context.</span></div><nav aria-label="Explore Wilsy"><h2>EXPLORE</h2><a href="/#companies">Company directory</a><a href="/companies">All companies A–Z</a><a href="/guides">Career guides</a><a href="/methodology">Sources & methodology</a></nav><nav aria-label="About Wilsy"><h2>WILSY</h2><a href="/about">About us</a><a href="/contact">Contact & corrections</a><a href="mailto:${site.email}">${site.email}</a></nav><nav aria-label="Policies"><h2>THE DETAILS</h2><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/disclosure">Ads & affiliate disclosure</a><a href="/privacy#choices" data-privacy-choices>Privacy & cookie choices</a></nav></div><div class="footer-bottom"><span>© 2026 WILSY</span><p>Published salary examples, not guaranteed offers. Company logos belong to their respective owners.</p><span>Made for your next move ↗</span></div></footer>`;
+  return `<footer class="site-footer premium-footer"><div class="footer-main"><div class="footer-intro">${brand}<p>A clearer view of your next move.</p><span>Independent company research.<br>Real sources. More context.</span></div><nav aria-label="Explore Wilsy"><h2>EXPLORE</h2><a href="/jobs">Find jobs</a><a href="/#companies">Company directory</a><a href="/companies">All companies A–Z</a><a href="/guides">Career guides</a><a href="/methodology">Sources & methodology</a></nav><nav aria-label="About Wilsy"><h2>WILSY</h2><a href="/about">About us</a><a href="/contact">Contact & corrections</a><a href="mailto:${site.email}">${site.email}</a></nav><nav aria-label="Policies"><h2>THE DETAILS</h2><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/disclosure">Ads & affiliate disclosure</a><a href="/privacy#choices" data-privacy-choices>Privacy & cookie choices</a></nav></div><div class="footer-bottom"><span>© 2026 WILSY</span><p>Published salary examples, not guaranteed offers. Company logos belong to their respective owners.</p><span>Made for your next move ↗</span></div></footer>`;
 }
 const adTag = `<meta name="google-adsense-account" content="${site.publisher}"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${site.publisher}" crossorigin="anonymous"></script>`;
 function documentPage({title,description,route,body,active='',type='website',noindex=false,ads=true,structured}) {
@@ -67,7 +68,9 @@ home=home.replace(/<header class="site-header">[\s\S]*?<\/header>/,header('compa
  .replace('</section>\n  </main>','</section>\n  </main>')
  .replace('<noscript><div class="noscript">Enable JavaScript to search the directory, or <a href="data/companies.json">download the company data</a>.</div></noscript>','<noscript><div class="noscript">Use the <a href="/companies">A–Z company directory</a> to explore every profile without JavaScript.</div></noscript>');
 home=home.replace('<div class="directory-heading">','<div class="directory-heading">').replace('Find the team that feels like your next chapter.','Find your next chapter. <a class="inline-directory-link" href="/companies">Browse all A–Z ↗</a>');
+home=home.replace('<p class="intro-description">','<a class="jobs-home-link" href="/jobs">Explore live job opportunities <span>↗</span></a><p class="intro-description">').replace('</head>','<link rel="stylesheet" href="/jobs.css"></head>');
 await write('/',home);
+await write('/jobs',documentPage({title:'Find your next opportunity',description:'Discover current jobs with direct application links. Filter roles, internships, work arrangements, experience, skills and disclosed salaries on Wilsy Jobs.',route:'/jobs',active:'jobs',body:jobsPage}));
 
 for(const p of policyPages(site.email)) {
   await write('/'+p.slug,documentPage({title:p.title,description:p.description,route:'/'+p.slug,active:p.slug==='about'?'about':'',body:`<main id="main-content" class="editorial-shell">${breadcrumb(p.slug==='about'?'About WILSY':p.title)}${hero(p.eyebrow,p.title,p.slug==='contact'?'Questions, corrections, and ideas are welcome.':'Independent information. Clear expectations.')}<div class="article-layout"><aside class="article-aside"><p class="eyebrow">WILSY / ${p.slug.toUpperCase()}</p><p>Updated 12 Sep 2026</p><a href="/contact">Questions? Get in touch ↗</a></aside><article class="prose">${p.body}</article></div></main>`}));
@@ -97,8 +100,9 @@ await write('/404',documentPage({title:'Page not found',description:'This page i
 await fs.writeFile(path.join(out,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemap.map(route=>`<url><loc>${e(site.origin+route)}</loc><lastmod>${site.updatedAt}</lastmod></url>`).join('\n')}</urlset>`);
 await fs.writeFile(path.join(out,'robots.txt'),`User-agent: *\nAllow: /\n\nSitemap: ${site.origin}/sitemap.xml\n`);
 await fs.writeFile(path.join(out,'ads.txt'),'google.com, pub-5489149193350421, DIRECT, f08c47fec0942fa0\n');
-for(const file of ['app.js','directory-core.js','pay-format.js','styles.css','editorial.css','site.js']) await fs.copyFile(file,path.join(out,file));
+for(const file of ['app.js','directory-core.js','pay-format.js','styles.css','editorial.css','site.js','data-client.js','supabase-config.js','jobs-core.js','jobs.js','jobs.css']) await fs.copyFile(file,path.join(out,file));
 await fs.cp('assets',path.join(out,'assets'),{recursive:true});
 await fs.mkdir(path.join(out,'data'),{recursive:true});
 for(const file of ['companies.json','exchange-rate.json'])await fs.copyFile('data/'+file,path.join(out,'data',file));
+await fs.writeFile(path.join(out,'data/company-index.json'),JSON.stringify(companies.map(({id,name,logo})=>({id,name,logo}))));
 console.log(`Built ${sitemap.length} indexable pages, custom 404, sitemap, robots.txt, and ads.txt in dist.`);

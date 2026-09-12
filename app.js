@@ -1,11 +1,6 @@
 import {PAGE_SIZE,initialState,stateSearch,findCompanies,pageSlice,safeHref,escapeHtml as esc} from './directory-core.js';
 import {usd,inr,salaryRange} from './pay-format.js';
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-const supabase = createClient(
-  'https://pnkthqatdlozrojwefnc.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBua3RocWF0ZGxvenJvandlZm5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxNjg5MDksImV4cCI6MjEwNDc0NDkwOX0.1mtBJeUfbb0yQEabFooA0Cp6OxCl6e10-dIeoQ35tKc'
-);
+import {loadCompanies} from './data-client.js';
 
 const $ = s => document.querySelector(s);
 const icon = (name) => `<svg class="icon" aria-hidden="true"><use href="#i-${name}"/></svg>`;
@@ -87,15 +82,13 @@ async function load(){
     if (!exchange.ok) throw new Error('Directory unavailable');
     fx = await exchange.json();
 
-    const { data: dbData, error: dbError } = await supabase
-      .from('companies')
-      .select('data')
-      .order('order_idx', { ascending: true });
-
-    if (dbError) throw dbError;
-    if (!dbData || dbData.length === 0) throw new Error('Incomplete data');
-
-    companies = dbData.map(row => row.data);
+    const directory = await loadCompanies();
+    companies = directory.companies;
+    if(directory.source==='snapshot') {
+      const notice=document.createElement('p');notice.className='directory-source-note';notice.setAttribute('role','status');
+      notice.textContent='Showing the saved company collection from '+directory.updatedAt+'. The live directory is temporarily unavailable.';
+      document.querySelector('.directory-heading').after(notice);
+    }
     initializeFilters();
     render();
   } catch(error) {
