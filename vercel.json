@@ -1,8 +1,8 @@
 {
   "framework": null,
-  "buildCommand": "",
+  "buildCommand": "node scripts/build-site.mjs",
   "installCommand": "",
-  "outputDirectory": ".",
+  "outputDirectory": "dist",
   "cleanUrls": true,
   "headers": [{
     "source": "/(.*)",
