@@ -1,4 +1,4 @@
-const select=(name,title,options)=>`<label class="job-field"><span>${title}</span><select name="${name}" id="filter-${name}"><option value="">All ${title.toLowerCase()}</option>${options.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></label>`;
+const select=(name,title,options)=>`<label class="job-field"><span>${title}</span><select name="${name}" id="filter-${name}"><option value="">${({role:'All roles',country:'All countries',company:'All companies',mode:'Any workplace',stage:'All career stages',type:'All job types',seniority:'All levels',skill:'All skills',period:'Any pay period',time:'Any posting date'})[name]}</option>${options.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></label>`;
 const roles=[['software-engineering','SDE / Software'],['backend','Backend'],['frontend','Frontend'],['ai-ml','AI / ML'],['genai','GenAI'],['data','Data'],['devops-cloud','DevOps / Cloud'],['cybersecurity','Cybersecurity'],['ece-core','ECE'],['vlsi','VLSI'],['embedded','Embedded']];
 export const jobsPage = `
 <main id="main-content" class="jobs-shell">

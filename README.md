@@ -85,7 +85,7 @@ Events support format, country, theme, team, deadline, cash-prize and saved filt
 
 Automatic refresh preserves drafts and existing results, pauses while editing or viewing details, and keeps the previous results labelled if refreshing fails. Detail descriptions retain paragraphs and lists as escaped text. Clipboard failures and dialog focus return are handled. Motion respects reduced-motion preferences. The homepage's employer preview uses six existing local brand assets linked to their profiles. Saving a job or hackathon shows a dismissible confirmation and a shortcut to saved items; its dismissal timer pauses while hovered or focused. Active filters use readable date, period and INR labels.
 
-Validation: 'npm test' covers 29 offline checks. Read-only hackathon checks are available with 'node scripts/verify-hackathons-api.mjs'. Local DOM integration checks exercised actual data loading plus isolated fixtures for saved events, details, INR prizes, unsafe source text, and outage recovery; no browser screenshot verification was performed.
+Validation: 'npm test' covers 29 offline checks. Read-only hackathon checks are available with 'node scripts/verify-hackathons-api.mjs'. Local DOM integration checks exercise actual data loading plus isolated fixtures for saved events, details, INR prizes, unsafe source text, and outage recovery.
 
 ### Brand and layout refinement
 
@@ -94,6 +94,14 @@ The shared header, footer and favicon use the new SVG Wilsy monogram. Decorative
 Hackathon cards and detail views use original artwork from the event's published source page. `data/hackathon-branding.json` records the source URL and image URL for every local asset. On 13 September 2026, 35 of 36 public events had source artwork available, totalling about 1 MB. The remaining event's Devpost page returned HTTP 410 and receives a text-only layout. New or unmatched events also stay text-only until artwork is sourced. Failed images are removed, with no invented replacement. Source URLs must match the event before an indexed asset is displayed.
 
 Run `node scripts/cache-hackathon-branding.mjs`, review the asset and manifest changes, then rebuild and deploy to refresh event artwork. This reads public event data and source pages; it does not mutate database records. Assets are source-provided thumbnails where available and are not recolored or recreated.
+
+### Responsive wordmark and lightweight motion
+
+The blue W now forms the first letter of the wordmark, followed by black `ilsy`, with no duplicated W. Header and footer gutters match. Homepage collection text has stronger contrast, small-screen detail actions use a full-width application/registration button, and mobile controls have comfortable tap areas. Duplicate hackathon format/location tags are removed.
+
+CSS adds brief entrance transitions, pointer-aware hover feedback, and menu/dialog motion using opacity and transforms. No animation library, scroll listener, extra image, or JavaScript dependency is added. Reduced-motion preferences disable animations and smooth scrolling.
+
+On 13 September 2026, browser layout inspection covered widths of 320, 360, 390, 768, 820, 1024, 1280, 1440 and 1920 pixels, with 55 checks across Home, Jobs, Hackathons, company profiles, A–Z companies, Contact and career guides. No horizontal overflow remained. Populated cards, mobile menus, dialog actions, event artwork, and header/footer alignment were inspected. These are responsive checks in the available Chromium browser on Windows; they are not physical-device tests on macOS, Safari, iOS or Android.
 
 ### Deferred database performance work
 

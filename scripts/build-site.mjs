@@ -19,7 +19,7 @@ const href = url => e(safeHref(url));
 const external = (url,label,cls='') => `<a class="${cls}" href="${href(url)}" target="_blank" rel="noopener noreferrer">${label}</a>`;
 const pageUrl = c => '/companies/'+encodeURIComponent(c.id);
 const jsonld = value => `<script type="application/ld+json">${JSON.stringify(value).replace(/</g,'\\u003c')}</script>`;
-const brand = `<a class="brand" href="/" aria-label="Wilsy home"><img class="brand-emblem" src="/assets/wilsy-mark.svg" alt="" width="42" height="34"><span class="brand-wordmark">wilsy</span></a>`;
+const brand = `<a class="brand" href="/" aria-label="Wilsy home"><img class="brand-emblem" src="/assets/wilsy-mark.svg" alt="" width="36" height="29"><span class="brand-wordmark" aria-hidden="true">ilsy</span></a>`;
 export function header(active='') {
   return `<header class="site-header"><div class="header-inner">${brand}<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-navigation"><span class="nav-toggle-lines" aria-hidden="true"></span><span>Menu</span></button><nav class="main-nav" id="main-navigation" aria-label="Main navigation"><a href="/jobs" ${active==='jobs'?'class="active" aria-current="page"':''}>Find jobs</a><a href="/#companies" ${active==='companies'?'class="active" aria-current="page"':''}>Companies</a><a href="/hackathons" ${active==='hackathons'?'class="active" aria-current="page"':''}>Hackathons</a><a href="/guides" ${active==='guides'?'class="active" aria-current="page"':''}>Career guides</a><a href="/about" ${active==='about'?'class="active" aria-current="page"':''}>About</a></nav><a class="header-contact" href="/contact">Get in touch </a></div></header>`;
 }
