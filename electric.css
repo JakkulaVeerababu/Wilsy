@@ -87,3 +87,25 @@ body:has(.job-detail-dialog[open]),body:has(.hack-detail[open]){overflow:hidden}
 }
 .jobs-connection button,.hack-connection button{background:transparent;color:#0866ff;font:inherit;font-weight:650;padding:3px 5px;text-decoration:underline;text-underline-offset:3px}
 .job-detail-section p,.hack-detail-section p{white-space:pre-line;overflow-wrap:anywhere}
+
+/* A real employer collection gives the home page a useful visual starting point. */
+.intro-note.employer-preview{width:355px;padding:25px;background:#f4f8ff;border-color:#dce9fd;border-radius:17px;box-shadow:0 16px 40px #0866ff08}
+.employer-preview .note-top{color:#456a96;font-size:10px;letter-spacing:1px}
+.employer-preview-heading{display:flex;align-items:center;gap:17px;margin:16px 0 22px}
+.employer-preview-heading>strong{font-family:var(--heading);font-size:51px;letter-spacing:-2.8px;font-weight:700;line-height:1.1;color:#0866ff}
+.employer-preview-heading>span{font-size:12px;line-height:1.7;color:#45658c}
+.employer-preview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.employer-preview-grid>a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:white;min-height:84px;padding:12px 5px;border:1px solid #e0eafb;border-radius:9px;color:#345b8a;transition:transform .18s,border-color .18s,box-shadow .18s}
+.employer-preview-grid>a:hover{transform:translateY(-2px);border-color:#8bb7ff;box-shadow:0 6px 15px #0866ff0a}
+.employer-preview-grid img{width:29px;height:29px;object-fit:contain}
+.employer-preview-grid span{font-size:11px;font-weight:550;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.employer-preview-link{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:650;color:#0866ff;margin-top:19px;padding-top:16px;border-top:1px solid #dbe7fb}
+.saved-notice{position:fixed;bottom:max(24px,env(safe-area-inset-bottom));right:24px;z-index:200;display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:12px;max-width:calc(100vw - 32px);padding:13px 14px 13px 17px;border:1px solid #cdddff;border-radius:12px;background:#fff;color:#294f7f;box-shadow:0 12px 40px #0a3c7e20;font-family:var(--font);font-size:13px;line-height:1.55;animation:notice-in .18s ease-out}
+.saved-notice:before{content:'✓';display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:#edf4ff;color:#0866ff;font-size:14px;font-weight:650}
+.saved-notice>a{font-size:12px;color:#0866ff;white-space:nowrap;font-weight:650;padding:8px 3px;text-decoration:underline;text-underline-offset:3px}
+.saved-notice>button{display:grid;place-items:center;background:transparent;color:#4b6e96;min-width:34px;min-height:34px;border:0;border-radius:6px;padding:0;font-size:21px;font-family:var(--font)}
+.saved-notice>button:hover{background:#edf4ff}.saved-notice[hidden]{display:none!important}
+@keyframes notice-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:1100px){.intro-note.employer-preview{width:305px;padding:22px}.employer-preview-heading{gap:12px}.employer-preview-heading>strong{font-size:43px}.employer-preview-heading>span{font-size:11px}.employer-preview-grid{gap:8px}.employer-preview-grid>a{min-height:78px}.employer-preview-grid span{font-size:10px}}
+@media(max-width:560px){.saved-notice{right:16px;left:16px;bottom:max(16px,env(safe-area-inset-bottom));gap:9px;padding:12px;font-size:12px}.saved-notice:before{width:23px;height:23px}.saved-notice>a{font-size:11px}.saved-notice>button{min-width:32px}}
+@media(prefers-reduced-motion:reduce){.employer-preview-grid>a{transition:none}.employer-preview-grid>a:hover{transform:none}.saved-notice{animation:none}}

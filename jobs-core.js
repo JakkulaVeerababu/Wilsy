@@ -1,6 +1,14 @@
 import {inr,salaryRange,usdTextToInr,salaryPeriod} from './pay-format.js';
 export const PAGE_SIZE=20;
 export const filterKeys=['q','time','stage','mode','role','country','company','skill','type','seniority','experience','salary','period','minimum','visa','relocation','sort'];
+export function filterValue(key,value){
+  if(key==='minimum')return inr(Number(value),1);
+  if(['q','company','country','skill'].includes(key))return value;
+  const descriptions={hour:'Last hour',today:'Today (UTC)',week:'Last 7 days',year:'Per year',month:'Per month',day:'Per day',yes:'Stated'};
+  if(key==='time')return descriptions[value]||label(value);
+  if(key==='period')return ({year:'Per year',month:'Per month',week:'Per week',day:'Per day',hour:'Per hour'})[value]||label(value);
+  return descriptions[value]||label(value);
+}
 export function readState(search='') {
   const p=new URLSearchParams(search),state={};
   for(const k of filterKeys)state[k]=(p.get(k)||'').slice(0,k==='q'?200:120);

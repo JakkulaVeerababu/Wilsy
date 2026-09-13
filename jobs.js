@@ -1,9 +1,9 @@
 import {searchJobs,jobFacets} from './data-client.js';
-import {PAGE_SIZE,filterKeys,readState,stateQuery,apiFilters,applyUrl,label,dateLabel,postingLabel,jobSalary,readSaved} from './jobs-core.js';
+import {PAGE_SIZE,filterValue,filterKeys,readState,stateQuery,apiFilters,applyUrl,label,dateLabel,postingLabel,jobSalary,readSaved} from './jobs-core.js';
 import {escapeHtml as e} from './directory-core.js';
 import {usdTextToInr} from './pay-format.js';
 import {site} from './site-config.js';
-import {sourceText,copyPageLink,isEditing} from './ui-helpers.js';
+import {sourceText,copyPageLink,isEditing,savedNotice} from './ui-helpers.js';
 
 const $=s=>document.querySelector(s), dialog=$('#job-detail');
 let state=readState(location.search),saved=[],companies=[],fx,rows=[],total=0,controller,requestId=0,lastFetch=0,detailRequest=0;
@@ -28,7 +28,7 @@ function controls({preserveDraft=false}={}){
   document.querySelectorAll('[data-quick]').forEach(b=>b.setAttribute('aria-pressed',state[b.dataset.quick]===b.dataset.value));
   $('#saved-toggle').setAttribute('aria-pressed',state.saved);$('#saved-count').textContent=saved.length;
   const active=filterKeys.filter(k=>state[k]&&k!=='sort');
-  $('#job-active-filters').innerHTML=active.map(k=>`<button type="button" data-remove="${k}" aria-label="Remove ${e(k)} filter">${e(({q:'Search',minimum:'Minimum ₹',time:'Posted',stage:'Career stage',mode:'Workplace',salary:'Salary disclosed',visa:'Visa sponsorship'})[k]||label(k))}: ${e(state[k])} ×</button>`).join('')+(state.saved?'<button type="button" data-remove="saved">Saved jobs ×</button>':'');
+  $('#job-active-filters').innerHTML=active.map(k=>`<button type="button" data-remove="${k}" aria-label="Remove ${e(k)} filter">${e(({q:'Search',minimum:'Minimum pay',time:'Posted',stage:'Career stage',mode:'Workplace',salary:'Salary disclosed',visa:'Visa sponsorship'})[k]||label(k))}: ${e(filterValue(k,state[k]))} ×</button>`).join('')+(state.saved?'<button type="button" data-remove="saved">Saved jobs ×</button>':'');
 }
 function render(){
   $('#job-results').setAttribute('aria-busy','false');$('#job-count').textContent=`${total.toLocaleString()} ${state.saved?'saved ':''}opportunit${total===1?'y':'ies'}`;
@@ -62,6 +62,7 @@ function save(id){
   const next=saved.includes(id)?saved.filter(v=>v!==id):[...saved,id];
   if(next.length>500){feedback('You can save up to 500 roles on this device. Remove a saved role to add another.');return;}
   try{localStorage.setItem('wilsy-saved-jobs',JSON.stringify(next));saved=next;}catch{feedback('This browser is blocking local storage. Enable site storage to save jobs on this device.');return;}
+  savedNotice(saved.includes(id)?'Job saved on this device.':'Job removed from saved.','/jobs?saved=1');
   controls({preserveDraft:true});document.querySelectorAll(`[data-save="${id}"]`).forEach(b=>{const active=saved.includes(id);b.setAttribute('aria-pressed',active);b.textContent=active?'♥':'♡';b.setAttribute('aria-label',active?'Unsave job':'Save job');});
   if(state.saved)load();
 }
