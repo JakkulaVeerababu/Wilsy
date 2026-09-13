@@ -1,0 +1,320 @@
+{
+  "checkedAt": "2026-09-13T07:10:56.728Z",
+  "events": {
+    "2": {
+      "title": "BunnieX Hackathon",
+      "logo": "/assets/hackathons/2-b595541175.png",
+      "kind": "event artwork",
+      "sourceUrl": "https://buuniex-hackathon.devpost.com/",
+      "imageUrl": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/156/722/datas/large.png",
+      "officialUrl": "https://buuniex-hackathon.devpost.com/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "3": {
+      "title": "Zero Origin",
+      "logo": "/assets/hackathons/3-cbed8dcf91.png",
+      "kind": "event artwork",
+      "sourceUrl": "https://zero-origin.devpost.com/",
+      "imageUrl": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/168/045/datas/large.png",
+      "officialUrl": "https://zero-origin.devpost.com/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "4": {
+      "title": "CALL-E: Your Code Is Calling",
+      "logo": "/assets/hackathons/4-c365522810.png",
+      "kind": "event artwork",
+      "sourceUrl": "https://call-e.devpost.com/rules",
+      "imageUrl": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/004/977/426/datas/large.png",
+      "officialUrl": "https://call-e.devpost.com/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "5": {
+      "title": "Synapse 1.0 | SIT Flagship Hackathon 2026 | 8-Hour AI Hackathon",
+      "logo": "/assets/hackathons/5-3cd4615de3.png",
+      "kind": "event logo",
+      "sourceUrl": "https://unstop.com/hackathons/sit-flagship-hackathon-2026-8-hour-ai-hackathon-symbiosis-institute-of-technology-sit-pune-1746836/amp",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/uploadedManual-6a95b700f246d_synapse_1_0_logo_final.jpg",
+      "officialUrl": "https://unstop.com/hackathons/sit-flagship-hackathon-2026-8-hour-ai-hackathon-symbiosis-institute-of-technology-sit-pune-1746836",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "6": {
+      "title": "The Black-Box Protocol: Stage 03 - System Convergence",
+      "logo": "/assets/hackathons/6-fa190fc8ae.png",
+      "kind": "event logo",
+      "sourceUrl": "https://unstop.com/hackathons/the-black-box-protocol-stage-03-system-convergence-techhelp4u-1745778/amp",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/uploadedManual-6a91c04589d6e_register_be_a_part_of_the_innovation_1.jpg",
+      "officialUrl": "https://unstop.com/hackathons/the-black-box-protocol-stage-03-system-convergence-techhelp4u-1745778",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "7": {
+      "title": "CraftVerse 2.0",
+      "logo": "/assets/hackathons/7-282967834c.png",
+      "kind": "event logo",
+      "sourceUrl": "https://unstop.com/hackathons/craftverse-20-pimpri-chinchwad-college-of-engineering-research-pccoer-ravet-pimpri-chinchwad-pune-1719658/amp",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/uploadedManual-6a5fedb79afba_final_logo.jpeg",
+      "officialUrl": "https://unstop.com/hackathons/craftverse-20-pimpri-chinchwad-college-of-engineering-research-pccoer-ravet-pimpri-chinchwad-pune-1719658",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "8": {
+      "title": "ARGONYX ’26",
+      "logo": "/assets/hackathons/8-413e0b401c.png",
+      "kind": "event logo",
+      "sourceUrl": "https://api.unstop.com/hackathons/argonyx26-rv-university-1748836",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/uploadedManual-6a996b93139eb_yellowlogo.png",
+      "officialUrl": "https://unstop.com/hackathons/argonyx26-rv-university-1748836",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "9": {
+      "title": "Graphiques Innovation Challenge",
+      "logo": "/assets/hackathons/9-13a067a45b.png",
+      "kind": "event artwork",
+      "sourceUrl": "https://graphiques-challenge.devpost.com/",
+      "imageUrl": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/155/608/datas/large.png",
+      "officialUrl": "https://graphiques-challenge.devpost.com/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "10": {
+      "title": "YC Fall 2026 x Moss: The Zero Latency Builder Sprint",
+      "logo": "/assets/hackathons/10-9fa4aa84fa.jpg",
+      "kind": "event artwork",
+      "sourceUrl": "https://yc-fall-2026-x-moss.devpost.com/rules",
+      "imageUrl": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/170/961/datas/large.jpg",
+      "officialUrl": "https://yc-fall-2026-x-moss.devpost.com/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "11": {
+      "title": "Beginner's Paradise - FirstCommit",
+      "logo": "/assets/hackathons/11-4552fdd46e.png",
+      "kind": "event artwork",
+      "sourceUrl": "https://firstcommit.devpost.com/",
+      "imageUrl": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/152/414/datas/large.png",
+      "officialUrl": "https://firstcommit.devpost.com/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "12": {
+      "title": "Next Byte Hacks: V4",
+      "logo": "/assets/hackathons/12-9dc8031a66.jpg",
+      "kind": "event artwork",
+      "sourceUrl": "https://next-byte-hacks-v4.devpost.com/",
+      "imageUrl": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/267/648/datas/large.jpg",
+      "officialUrl": "https://next-byte-hacks-v4.devpost.com/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "13": {
+      "title": "NextStep Hacks 2026",
+      "logo": "/assets/hackathons/13-4d87e43805.png",
+      "kind": "event artwork",
+      "sourceUrl": "https://nextstep2026.devpost.com/",
+      "imageUrl": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/044/459/datas/large.png",
+      "officialUrl": "https://nextstep2026.devpost.com/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "14": {
+      "title": "TECH HORIZON 2.0 - National Level Hackathon",
+      "logo": "/assets/hackathons/14-04fea8e5d3.png",
+      "kind": "event logo",
+      "sourceUrl": "https://unstop.com/hackathons/tech-horizon-20-national-level-hackathon-guru-nanak-institutions-technical-campus-gnitc-hyderabad-1677311/amp",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/uploadedManual-69e4c35dd9720_screenshot_2026-04-19_172807.png",
+      "officialUrl": "https://unstop.com/hackathons/tech-horizon-20-national-level-hackathon-guru-nanak-institutions-technical-campus-gnitc-hyderabad-1677311/amp",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "15": {
+      "title": "Global SDG AI Hackathon 2026",
+      "logo": "/assets/hackathons/15-2c3ecf0a54.png",
+      "kind": "event logo",
+      "sourceUrl": "https://unstop.com/hackathons/global-sdg-ai-hackathon-2026-bharati-vidyapeeth-college-of-engineering-pune-1748511/amp",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/uploadedManual-6a999187a34be_download.jpg",
+      "officialUrl": "https://unstop.com/hackathons/global-sdg-ai-hackathon-2026-bharati-vidyapeeth-college-of-engineering-pune-1748511/amp",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "16": {
+      "title": "ARC's Line Follower Hackathon",
+      "logo": "/assets/hackathons/16-f6df273302.png",
+      "kind": "event logo",
+      "sourceUrl": "https://unstop.com/competitions/arcs-line-follower-hackathon-ignitrron-26-kpr-institute-of-engineering-and-technology-kpriet-coimbatore-1749704/amp",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/6a9d69f2b97ed_images__6_.png",
+      "officialUrl": "https://unstop.com/competitions/arcs-line-follower-hackathon-ignitrron-26-kpr-institute-of-engineering-and-technology-kpriet-coimbatore-1749704/amp",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "17": {
+      "title": "HackMatrix 5.0",
+      "logo": "/assets/hackathons/17-661a17fd7b.png",
+      "kind": "event logo",
+      "sourceUrl": "https://unstop.com/hackathons/hackmatrix-50-pccoes-gfg-student-chapter-1750988/amp",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/uploadedManual-6a9fc29fb7f3e_hm_logo.webp",
+      "officialUrl": "https://unstop.com/hackathons/hackmatrix-50-pccoes-gfg-student-chapter-1750988/amp",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "18": {
+      "title": "Dogfood | 72-Hour Hackathon",
+      "logo": "/assets/hackathons/18-b4c78624ff.png",
+      "kind": "event logo",
+      "sourceUrl": "https://unstop.com/hackathons/dogfood-72-hour-hackathon-hackathon-raptors-1748391/amp",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/uploadedManual-6a99512cd0385_chatgpt_image_sep_3_2026_04_14_59_pm_1.png",
+      "officialUrl": "https://unstop.com/hackathons/dogfood-72-hour-hackathon-hackathon-raptors-1748391/amp",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "19": {
+      "title": "Hack The Future 3.0 – National Hackathon | Tula’s University",
+      "logo": "/assets/hackathons/19-cabea64139.png",
+      "kind": "event logo",
+      "sourceUrl": "https://unstop.com/hackathons/hack-the-future-3o-tulas-university-1748989/amp",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/uploadedManual-6a99c18bbe0a8_htf_3_0_logo_1.png",
+      "officialUrl": "https://unstop.com/hackathons/hack-the-future-3o-tulas-university-1748989/amp",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "20": {
+      "title": "Quantexa",
+      "logo": "/assets/hackathons/20-1dabb20f0a.png",
+      "kind": "event logo",
+      "sourceUrl": "https://api.unstop.com/hackathons/quantexa-hackhere-1745790",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/6aa546ec9475e_organisation_image-n4FCytWDxs789928907Z9b8i4iU6j.png",
+      "officialUrl": "https://quantexa.hackhere.in/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "21": {
+      "title": "Agentic GraphRAG Hackathon",
+      "logo": "/assets/hackathons/21-9049ca09b6.jpg",
+      "kind": "event logo",
+      "sourceUrl": "https://unstop.com/hackathons/agentic-graphrag-hackathon-tigergraph-1747871/amp",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/6a9998ce1bc04_press-tiger.jpg",
+      "officialUrl": "https://unstop.com/hackathons/agentic-graphrag-hackathon-tigergraph-1747871",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "22": {
+      "title": "PROMPTOTHON 2026: AI Edition | 24-Hour Hackathon",
+      "logo": "/assets/hackathons/22-5f46acf4dc.png",
+      "kind": "event logo",
+      "sourceUrl": "https://unstop.com/hackathons/promptothon-2026-ai-edition-24-hour-hackathon-avn-institute-of-engineering-and-technology-avn-iet-ramdaspally-1744294/amp",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/uploadedManual-6a8e6110429d7_avn_logo.png",
+      "officialUrl": "https://unstop.com/hackathons/promptothon-2026-ai-edition-24-hour-hackathon-avn-institute-of-engineering-and-technology-avn-iet-ramdaspally-1744294",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "23": {
+      "title": "GatewayGS Hackathon 2",
+      "logo": "/assets/hackathons/23-d294526ca0.png",
+      "kind": "event artwork",
+      "sourceUrl": "https://gatewaygs-hackathon-2.devpost.com/",
+      "imageUrl": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/030/054/datas/large.png",
+      "officialUrl": "https://gatewaygs-hackathon-2.devpost.com/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "24": {
+      "title": "Signal Quest – IEEE SPS Hackathon 2026",
+      "logo": "/assets/hackathons/24-9749b9071c.png",
+      "kind": "event logo",
+      "sourceUrl": "https://unstop.com/hackathons/signal-quest-ieee-sps-hackathon-2026-cmr-institute-of-technology-1736521/amp",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/uploadedManual-6a7dcecf3c51b_sps_poster.png",
+      "officialUrl": "https://signal-quest-drab.vercel.app/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "25": {
+      "title": "Agnitia 2026 : 36 Hours National Level Hackathon",
+      "logo": "/assets/hackathons/25-f597af3ea9.png",
+      "kind": "event logo",
+      "sourceUrl": "https://api.unstop.com/hackathons/agnitia-2026-36-hours-national-level-hackathon-prestige-institute-of-engineering-management-and-research-pimr-1750621",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/uploadedManual-6aa03dd1c2741_1000066853.png",
+      "officialUrl": "https://unstop.com/hackathons/agnitia-2026-36-hours-national-level-hackathon-prestige-institute-of-engineering-management-and-research-pimr-1750621",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "26": {
+      "title": "Edge AI Hackathon 2026",
+      "logo": "/assets/hackathons/26-f207cf21ff.png",
+      "kind": "event logo",
+      "sourceUrl": "https://unstop.com/hackathons/edge-ai-hackathon-2026-parala-maharaja-engineering-college-berhampur-1720578/amp",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/uploadedManual-6a611bf17068b_1.jpg__4_.jpeg",
+      "officialUrl": "https://edspmec.github.io/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "27": {
+      "title": "Hack It On'26",
+      "logo": "/assets/hackathons/27-393ffc08d4.png",
+      "kind": "event logo",
+      "sourceUrl": "https://unstop.com/hackathons/hackiton26-kpr-institute-of-engineering-and-technology-kpriet-coimbatore-1746214/amp",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/uploadedManual-6a93b7f4e1277_screenshot_2026-08-30_091039.png",
+      "officialUrl": null,
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "28": {
+      "title": "Quant-A-Maze 3.0",
+      "logo": "/assets/hackathons/28-34d81aac4a.png",
+      "kind": "event logo",
+      "sourceUrl": "https://api.unstop.com/hackathons/quant-a-maze-30-nitte-meenakshi-institute-of-technology-nmit-yelahanka-1744287",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/uploadedManual-6a8e3cbbd84f6_whatsapp_image_2026-08-22_at_11_38_47_am.jpeg",
+      "officialUrl": null,
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "29": {
+      "title": "Hack Devengers 2.0",
+      "logo": "/assets/hackathons/29-3194dc0c8b.png",
+      "kind": "event logo",
+      "sourceUrl": "https://unstop.com/hackathons/hack-devengers-20-devengers-1749441/amp",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/6a9e584be5158_organisation_image-yppaWKWIic47592869J577F1Hk08.png",
+      "officialUrl": "https://unstop.com/hackathons/hack-devengers-20-devengers-1749441/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "30": {
+      "title": "Agentic AI Hackathon",
+      "logo": "/assets/hackathons/30-654aaa5151.png",
+      "kind": "event logo",
+      "sourceUrl": "https://unstop.com/hackathons/agentic-ai-hackathon-product-space-1751529/amp",
+      "imageUrl": "https://d8it4huxumps7.cloudfront.net/uploads/images/75x75/uploadedManual-6aa0b28fb7d5b_p_4.png",
+      "officialUrl": "https://unstop.com/hackathons/agentic-ai-hackathon-product-space-1751529/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "31": {
+      "title": "Hyperbloom September - AI/ML",
+      "logo": "/assets/hackathons/31-41bd5b0c81.png",
+      "kind": "event artwork",
+      "sourceUrl": "https://hyperbloom-september.devpost.com/",
+      "imageUrl": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/154/754/datas/large.png",
+      "officialUrl": "https://hyperbloom-september.devpost.com/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "32": {
+      "title": "Agents for Humans Hackathon",
+      "logo": "/assets/hackathons/32-b0ead0a80e.jpg",
+      "kind": "event artwork",
+      "sourceUrl": "https://agentsforhumans.devpost.com/",
+      "imageUrl": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/064/760/datas/large.jpg",
+      "officialUrl": "https://agentsforhumans.devpost.com/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "33": {
+      "title": "AI Builders Hackathon",
+      "logo": "/assets/hackathons/33-84eb4fd982.png",
+      "kind": "event artwork",
+      "sourceUrl": "https://ai-builders-hackathon-2026.devpost.com/",
+      "imageUrl": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/004/783/650/datas/large.png",
+      "officialUrl": "https://ai-builders-hackathon-2026.devpost.com/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "34": {
+      "title": "RevenueCat Shipaton 2026",
+      "logo": "/assets/hackathons/34-9514be8980.jpg",
+      "kind": "event artwork",
+      "sourceUrl": "https://revenuecat-shipaton-2026.devpost.com/",
+      "imageUrl": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/004/663/632/datas/large.jpg",
+      "officialUrl": "https://revenuecat-shipaton-2026.devpost.com/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "35": {
+      "title": "&HACKS XII",
+      "logo": "/assets/hackathons/35-2d95b5a319.png",
+      "kind": "event artwork",
+      "sourceUrl": "https://hacks-xii.devpost.com/",
+      "imageUrl": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/004/894/232/datas/large.png",
+      "officialUrl": "https://andhacks.cs.wm.edu",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    },
+    "36": {
+      "title": "MLAI Hackathon 2026",
+      "logo": "/assets/hackathons/36-e9d1672d68.jpg",
+      "kind": "event artwork",
+      "sourceUrl": "https://mlai-hackathon.devpost.com/",
+      "imageUrl": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/165/208/datas/large.jpg",
+      "officialUrl": "https://mlai-hackathon.devpost.com/",
+      "checkedAt": "2026-09-13T07:10:56.728Z"
+    }
+  }
+}

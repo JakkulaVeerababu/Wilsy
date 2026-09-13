@@ -14,9 +14,9 @@ const logo = (c,eager=false) => `<div class="company-logo"><img src="${link(c.lo
 let companies = [], state = initialState(location.search), data;
 
 function updateAddress(){const q=stateSearch(state);history.replaceState(null,'',location.pathname+(q?'?'+q:'')+location.hash);}
-function bindImageFallbacks(root){root.querySelectorAll('.company-logo img').forEach(img=>img.addEventListener('error',()=>{const text=document.createElement('span');text.className='logo-fallback';text.textContent=img.alt.replace(/ logo$/,'').slice(0,2).toUpperCase();text.setAttribute('aria-label',img.alt+' unavailable');img.replaceWith(text);},{once:true}));}
+function bindImageFallbacks(root){root.querySelectorAll('.company-logo img').forEach(img=>img.addEventListener('error',()=>{img.parentNode.hidden=true;},{once:true}));}
 function renderTiers(){
-  $('#tier-cards').innerHTML = [1,2,3,4].map(n=>`<button class="tier-card ${state.tier===n?'active':''}" type="button" data-tier="${n}" aria-pressed="${state.tier===n}"><span class="tier-card-top"><span class="tier-glyph level-${n}" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="tier-card-title">Tier ${n}</span><span class="tier-card-count">${companies.filter(c=>c.tier===n).length} companies</span></span><span class="tier-card-bottom"><strong>${tierNames()[n-1]}</strong><span>/ year</span>${icon('arrow')}</span></button>`).join('');
+  $('#tier-cards').innerHTML = [1,2,3,4].map(n=>`<button class="tier-card ${state.tier===n?'active':''}" type="button" data-tier="${n}" aria-pressed="${state.tier===n}"><span class="tier-card-top"><span class="tier-card-title">Tier ${n}</span><span class="tier-card-count">${companies.filter(c=>c.tier===n).length} companies</span></span><span class="tier-card-bottom"><strong>${tierNames()[n-1]}</strong><span>/ year</span></span></button>`).join('');
 }
 function initializeFilters(){
   const renderGroup=(field,id,values)=>{$(id).innerHTML=values.map(value=>`<label class="check-label"><input type="checkbox" data-filter="${field}" value="${esc(value)}"><span>${esc(value)}</span><span>${companies.filter(c=>c[field==='stages'?'stage':'sector']===value).length}</span></label>`).join('');};
@@ -41,7 +41,7 @@ function renderChips(){
 function card(c,i){
   const location=c.regions.find(r=>!['Remote','Partly Remote','Fully Remote','America / Canada'].includes(r))||c.location.split(';')[0];
   const tag2=c.remote?'Remote role listed':(c.tags[0]||c.role);
-  return `<article class="company-card"><div class="card-body"><div class="company-card-top">${logo(c,i<3)}${tierBadge(c.tier)}</div><h3 class="company-title"><a href="/companies/${encodeURIComponent(c.id)}">${esc(c.name)}</a></h3><p class="card-sector">${esc(c.sector)}</p><p class="company-description">${esc(c.description)}</p><div class="card-tags"><span>${esc(c.stage)}</span><span>${esc(tag2)}</span></div><div class="card-pay"><p class="card-pay-label">${esc(c.payKind)} · INR estimate</p><p class="card-pay-amount">${range(c.salary)}<span>/ yr</span></p><p class="card-role" title="${esc(usdTextToInr(c.sample.title,fx.rate))}">${esc(usdTextToInr(c.sample.title,fx.rate))}</p></div><a class="card-details-link" href="/companies/${encodeURIComponent(c.id)}">Company profile & salary source ↗</a></div><div class="card-footer"><span class="card-location" title="${esc(c.location)}">${icon('pin')}<span>${esc(location)}</span></span><a class="careers-link" href="${link(c.careers)}" target="_blank" rel="noopener noreferrer" aria-label="Visit ${esc(c.name)} ${esc(c.careersHost)}" title="${esc(c.careersHost)}">${c.careersHost==='Company jobs on YC'?'YC careers':'Careers'} ${icon('arrow')}</a></div></article>`;
+  return `<article class="company-card"><div class="card-body"><div class="company-card-top">${logo(c,i<3)}${tierBadge(c.tier)}</div><h3 class="company-title"><a href="/companies/${encodeURIComponent(c.id)}">${esc(c.name)}</a></h3><p class="card-sector">${esc(c.sector)}</p><p class="company-description">${esc(c.description)}</p><div class="card-tags"><span>${esc(c.stage)}</span><span>${esc(tag2)}</span></div><div class="card-pay"><p class="card-pay-label">${esc(c.payKind)} · INR estimate</p><p class="card-pay-amount">${range(c.salary)}<span>/ yr</span></p><p class="card-role" title="${esc(usdTextToInr(c.sample.title,fx.rate))}">${esc(usdTextToInr(c.sample.title,fx.rate))}</p></div><a class="card-details-link" href="/companies/${encodeURIComponent(c.id)}">Company profile & salary source</a></div><div class="card-footer"><span class="card-location" title="${esc(c.location)}">${icon('pin')}<span>${esc(location)}</span></span><a class="careers-link" href="${link(c.careers)}" target="_blank" rel="noopener noreferrer" aria-label="Visit ${esc(c.name)} ${esc(c.careersHost)}" title="${esc(c.careersHost)}">${c.careersHost==='Company jobs on YC'?'YC careers':'Careers'} </a></div></article>`;
 }
 function renderPagination(total,pages){
   if(!total){$('#pagination').innerHTML='';return;}
@@ -54,7 +54,7 @@ function render(){
   const found=findCompanies(companies,state), paged=pageSlice(found,state.page);state.page=paged.page;
   $('#results-count').innerHTML=found.length?`Showing <strong>${(state.page-1)*PAGE_SIZE+1}–${Math.min(state.page*PAGE_SIZE,found.length)}</strong> of <strong>${found.length.toLocaleString()}</strong> companies`:'No matching companies';
   const grid=$('#company-grid');grid.classList.toggle('list-view',state.view==='list');grid.setAttribute('aria-busy','false');
-  grid.innerHTML=paged.items.length?paged.items.map(card).join(''):`<div class="empty-state">${icon('search')}<h3>A different search might be the one.</h3><p>Try another company name or remove a filter.</p><button type="button" data-reset>Clear all filters</button></div>`;
+  grid.innerHTML=paged.items.length?paged.items.map(card).join(''):`<div class="empty-state"><h3>A different search might be the one.</h3><p>Try another company name or remove a filter.</p><button type="button" data-reset>Clear all filters</button></div>`;
   bindImageFallbacks(grid);renderPagination(found.length,paged.pages);renderChips();renderTiers();synchronizeControls();updateAddress();
 }
 function reset(){state={...initialState(),view:state.view};render();}
@@ -95,7 +95,7 @@ async function load(){
     console.error(error);
     $('#company-grid').setAttribute('aria-busy','false');
     $('#results-count').textContent='Directory unavailable';
-    $('#company-grid').innerHTML=`<div class="empty-state">${icon('globe')}<h3>We couldn’t load the directory.</h3><p>Please check your connection and try again.</p><button type="button" id="retry">Try again</button></div>`;
+    $('#company-grid').innerHTML=`<div class="empty-state"><h3>We couldn’t load the directory.</h3><p>Please check your connection and try again.</p><button type="button" id="retry">Try again</button></div>`;
     $('#retry').addEventListener('click',()=>{location.reload();});
   }
 }

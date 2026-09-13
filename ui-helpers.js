@@ -16,7 +16,7 @@ export async function copyPageLink(button,href,clipboard){
   let message='Copy the address bar link';
   try{
     if(typeof clipboard?.writeText==='function'){
-      await clipboard.writeText(href);message='Link copied ✓';
+      await clipboard.writeText(href);message='Link copied';
     }
   }catch{}
   if(button?.isConnected)button.textContent=message;
@@ -42,7 +42,7 @@ export function savedNotice(message,href){
   const text=document.createElement('span');text.textContent=message;
   const link=document.createElement('a');link.textContent='View saved';
   link.href=href.startsWith('/')&&!href.startsWith('//')?href:'/';
-  const close=document.createElement('button');close.type='button';close.textContent='×';
+  const close=document.createElement('button');close.type='button';close.textContent='Dismiss';
   close.setAttribute('aria-label','Dismiss saved notification');close.addEventListener('click',hide);
   (document.querySelector('dialog[open]')||document.body).append(notice);
   notice.replaceChildren(text,link,close);notice.hidden=false;schedule();
