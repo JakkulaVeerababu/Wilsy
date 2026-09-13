@@ -22,3 +22,23 @@ document.querySelectorAll('[data-copy-email]').forEach(button => {
     }
   });
 });
+
+const menuButton=document.querySelector('.nav-toggle');
+const navigation=document.querySelector('#main-navigation');
+function closeNavigation(){
+  navigation?.classList.remove('is-open');
+  menuButton?.setAttribute('aria-expanded','false');
+}
+menuButton?.addEventListener('click',()=>{
+  const open=navigation.classList.toggle('is-open');
+  menuButton.setAttribute('aria-expanded',String(open));
+});
+navigation?.addEventListener('click',event=>{if(event.target.closest('a'))closeNavigation();});
+document.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&menuButton?.getAttribute('aria-expanded')==='true'){
+    closeNavigation();menuButton.focus();
+  }
+});
+document.addEventListener('click',event=>{
+  if(!event.target.closest('.header-inner'))closeNavigation();
+});

@@ -15,6 +15,10 @@ export const searchJobs=(filters,offset=0,signal)=>databaseRequest('rpc/wilsy_se
   body:{filters,page_size:20,page_offset:offset},signal
 });
 export const jobFacets=()=>databaseRequest('rpc/wilsy_job_facets',{body:{}});
+export const searchHackathons=(filters,offset=0,signal)=>databaseRequest('rpc/wilsy_search_hackathons',{
+  body:{filters,page_size:12,page_offset:offset},signal
+});
+export const hackathonFacets=()=>databaseRequest('rpc/wilsy_hackathon_facets',{body:{}});
 
 export async function loadCompanies() {
   try {

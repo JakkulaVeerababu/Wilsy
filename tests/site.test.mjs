@@ -15,11 +15,11 @@ test('Every generated company has crawlable salary content and unique metadata',
   for(const file of companyFiles){
     const html=pages.get(file);
     titles.add(html.match(/<title>(.*?)<\/title>/)[1]);
-    assert.match(html,/original USD/);assert.match(html,/INR estimate/);
+    assert.match(html,/INR estimate/);assert.doesNotMatch(html,/original USD|profile-usd/);
     assert.match(html,/Open the salary source/);assert.match(html,/Before you apply/);
     assert.match(html,/https:\/\/www.wilsy.in\/companies\//);
     assert.doesNotMatch(html,/@type["']:\s*["']JobPosting/);
-    assert.match(html,/mailto:veerababu@wilsy.in/);
+    assert.match(html,/mailto:contact@wilsy.in/);
   }
   assert.equal(titles.size,1000);
 });
@@ -39,7 +39,7 @@ test('All generated internal links, local images, scripts, and styles resolve',(
 test('Sitemap covers exactly the public pages and excludes the error page',async()=>{
   const xml=await fs.readFile(path.join(root,'sitemap.xml'),'utf8');
   const urls=[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
-  assert.equal(urls.length,1013);assert.equal(new Set(urls).size,1013);
+  assert.equal(urls.length,1014);assert.equal(new Set(urls).size,1014);
   assert.ok(urls.every(url=>url.startsWith('https://www.wilsy.in/')));
   assert.ok(!urls.some(url=>url.endsWith('/404')));
   assert.match(pages.get('404.html'),/noindex,follow/);
@@ -53,13 +53,14 @@ test('Affiliate and privacy controls are real, disclosed, and consistent',async(
   assert.match(home,/As an Amazon Associate I earn from qualifying purchases/);
   assert.match(home,/data-privacy-choices/);
   assert.match(pages.get('privacy.html'),/Google AdSense/);
-  assert.match(pages.get('contact.html'),/mailto:veerababu@wilsy.in/);
+  assert.match(pages.get('contact.html'),/mailto:contact@wilsy.in/);
+  for(const html of pages.values())assert.doesNotMatch(html,/veerababu@wilsy\.in/);
   assert.doesNotMatch(home,/fonts.googleapis.com|m.media-amazon.com|onmouseover=/);
   assert.equal((home.match(/id="guides-heading"/g)||[]).length,1);
   assert.doesNotMatch(home,/id="guide-dialog"|data-guide(?:\s|>)/);
   assert.equal((await fs.readFile(path.join(root,'ads.txt'),'utf8')).trim(),'google.com, pub-5489149193350421, DIRECT, f08c47fec0942fa0');
 });
-test('INR is a dated estimate and USD stays intact',async()=>{
+test('INR is a dated estimate and original source data stays intact',async()=>{
   const fx=JSON.parse(await fs.readFile(path.join(root,'data/exchange-rate.json'),'utf8'));
   assert.equal(fx.base,'USD');assert.equal(fx.quote,'INR');assert.ok(fx.rate>0);
   assert.match(fx.date,/^\d{4}-\d{2}-\d{2}$/);assert.match(fx.source,/frankfurter/);
@@ -67,5 +68,19 @@ test('INR is a dated estimate and USD stays intact',async()=>{
   assert.equal(inr(200000,95.56),'₹1.91 Cr');
   assert.equal(salaryRange({min:100000,max:200000},usd),'$100k – $200k');
   assert.match(pages.get('methodology.html'),new RegExp(String(fx.rate).replace('.','\\.')));
-  assert.match(pages.get('companies'+path.sep+'google.html'),/\$147k – \$211k/);
+  assert.match(pages.get('companies'+path.sep+'google.html'),/₹1.4 Cr – ₹2.02 Cr/);
+  const snapshot=JSON.parse(await fs.readFile(path.join(root,'data/companies.json'),'utf8'));
+  assert.equal(snapshot.currency,'USD');assert.equal(snapshot.companies.find(c=>c.id==='google').salary.min,147000);
+});
+test('Jobs, hackathons and company research share the electric blue navigation',()=>{
+  for(const html of pages.values()){
+    assert.match(html,/href="\/hackathons"/);
+    assert.match(html,/href="\/electric.css"/);
+    assert.match(html,/name="theme-color" content="#0866ff"/);
+  }
+  assert.match(pages.get('index.html'),/class="platform-paths"/);
+  const hacks=pages.get('hackathons.html');
+  assert.match(hacks,/Build something/);assert.match(hacks,/href="\/hackathons.css"/);
+  assert.match(hacks,/src="\/hackathons.js"/);assert.match(hacks,/Deadlines · next 30 days/);
+  assert.match(pages.get('privacy.html'),/hackathon/);
 });

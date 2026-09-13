@@ -1,5 +1,5 @@
 import {PAGE_SIZE,initialState,stateSearch,findCompanies,pageSlice,safeHref,escapeHtml as esc} from './directory-core.js';
-import {usd,inr,salaryRange} from './pay-format.js';
+import {inr,salaryRange,usdTextToInr} from './pay-format.js';
 import {loadCompanies} from './data-client.js';
 
 const $ = s => document.querySelector(s);
@@ -8,7 +8,7 @@ const link = (url) => esc(safeHref(url));
 let fx;
 const money = n => inr(n,fx.rate);
 const range = s => s.min===s.max ? money(s.min) : `${money(s.min)} – ${money(s.max)}`;
-const tierNames = ['$200k+','$150k–200k','$100k–150k','Below $100k'];
+const tierNames = () => [inr(200000,fx.rate)+'+',inr(150000,fx.rate)+' – '+inr(200000,fx.rate),inr(100000,fx.rate)+' – '+inr(150000,fx.rate),'Below '+inr(100000,fx.rate)];
 const tierBadge = n => `<span class="tier-badge tier-${n}">Tier ${n}</span>`;
 const logo = (c,eager=false) => `<div class="company-logo"><img src="${link(c.logo)}" alt="${esc(c.name)} logo" width="48" height="48" loading="${eager?'eager':'lazy'}" decoding="async"></div>`;
 let companies = [], state = initialState(location.search), data;
@@ -16,7 +16,7 @@ let companies = [], state = initialState(location.search), data;
 function updateAddress(){const q=stateSearch(state);history.replaceState(null,'',location.pathname+(q?'?'+q:'')+location.hash);}
 function bindImageFallbacks(root){root.querySelectorAll('.company-logo img').forEach(img=>img.addEventListener('error',()=>{const text=document.createElement('span');text.className='logo-fallback';text.textContent=img.alt.replace(/ logo$/,'').slice(0,2).toUpperCase();text.setAttribute('aria-label',img.alt+' unavailable');img.replaceWith(text);},{once:true}));}
 function renderTiers(){
-  $('#tier-cards').innerHTML = [1,2,3,4].map(n=>`<button class="tier-card ${state.tier===n?'active':''}" type="button" data-tier="${n}" aria-pressed="${state.tier===n}"><span class="tier-card-top"><span class="tier-glyph level-${n}" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="tier-card-title">Tier ${n}</span><span class="tier-card-count">${companies.filter(c=>c.tier===n).length} companies</span></span><span class="tier-card-bottom"><strong>${tierNames[n-1]}</strong><span>/ year</span>${icon('arrow')}</span></button>`).join('');
+  $('#tier-cards').innerHTML = [1,2,3,4].map(n=>`<button class="tier-card ${state.tier===n?'active':''}" type="button" data-tier="${n}" aria-pressed="${state.tier===n}"><span class="tier-card-top"><span class="tier-glyph level-${n}" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="tier-card-title">Tier ${n}</span><span class="tier-card-count">${companies.filter(c=>c.tier===n).length} companies</span></span><span class="tier-card-bottom"><strong>${tierNames()[n-1]}</strong><span>/ year</span>${icon('arrow')}</span></button>`).join('');
 }
 function initializeFilters(){
   const renderGroup=(field,id,values)=>{$(id).innerHTML=values.map(value=>`<label class="check-label"><input type="checkbox" data-filter="${field}" value="${esc(value)}"><span>${esc(value)}</span><span>${companies.filter(c=>c[field==='stages'?'stage':'sector']===value).length}</span></label>`).join('');};
@@ -41,7 +41,7 @@ function renderChips(){
 function card(c,i){
   const location=c.regions.find(r=>!['Remote','Partly Remote','Fully Remote','America / Canada'].includes(r))||c.location.split(';')[0];
   const tag2=c.remote?'Remote role listed':(c.tags[0]||c.role);
-  return `<article class="company-card"><div class="card-body"><div class="company-card-top">${logo(c,i<3)}${tierBadge(c.tier)}</div><h3 class="company-title"><a href="/companies/${encodeURIComponent(c.id)}">${esc(c.name)}</a></h3><p class="card-sector">${esc(c.sector)}</p><p class="company-description">${esc(c.description)}</p><div class="card-tags"><span>${esc(c.stage)}</span><span>${esc(tag2)}</span></div><div class="card-pay"><p class="card-pay-label">${esc(c.payKind)} · INR estimate</p><p class="card-pay-amount">${range(c.salary)}<span>/ yr</span></p><p class="card-original">${salaryRange(c.salary,usd)} / yr · original USD</p><p class="card-role" title="${esc(c.sample.title)}">${esc(c.sample.title)}</p></div><a class="card-details-link" href="/companies/${encodeURIComponent(c.id)}">Company profile & salary source ↗</a></div><div class="card-footer"><span class="card-location" title="${esc(c.location)}">${icon('pin')}<span>${esc(location)}</span></span><a class="careers-link" href="${link(c.careers)}" target="_blank" rel="noopener noreferrer" aria-label="Visit ${esc(c.name)} ${esc(c.careersHost)}" title="${esc(c.careersHost)}">${c.careersHost==='Company jobs on YC'?'YC careers':'Careers'} ${icon('arrow')}</a></div></article>`;
+  return `<article class="company-card"><div class="card-body"><div class="company-card-top">${logo(c,i<3)}${tierBadge(c.tier)}</div><h3 class="company-title"><a href="/companies/${encodeURIComponent(c.id)}">${esc(c.name)}</a></h3><p class="card-sector">${esc(c.sector)}</p><p class="company-description">${esc(c.description)}</p><div class="card-tags"><span>${esc(c.stage)}</span><span>${esc(tag2)}</span></div><div class="card-pay"><p class="card-pay-label">${esc(c.payKind)} · INR estimate</p><p class="card-pay-amount">${range(c.salary)}<span>/ yr</span></p><p class="card-role" title="${esc(usdTextToInr(c.sample.title,fx.rate))}">${esc(usdTextToInr(c.sample.title,fx.rate))}</p></div><a class="card-details-link" href="/companies/${encodeURIComponent(c.id)}">Company profile & salary source ↗</a></div><div class="card-footer"><span class="card-location" title="${esc(c.location)}">${icon('pin')}<span>${esc(location)}</span></span><a class="careers-link" href="${link(c.careers)}" target="_blank" rel="noopener noreferrer" aria-label="Visit ${esc(c.name)} ${esc(c.careersHost)}" title="${esc(c.careersHost)}">${c.careersHost==='Company jobs on YC'?'YC careers':'Careers'} ${icon('arrow')}</a></div></article>`;
 }
 function renderPagination(total,pages){
   if(!total){$('#pagination').innerHTML='';return;}
