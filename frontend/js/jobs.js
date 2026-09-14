@@ -19,7 +19,7 @@ const bool=value=>value===true?'Stated by source':value===false?'Not offered (so
 const description=j=>String(j.description||'See the employer’s listing for the complete role description.').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
 function tags(j){return [place(j),j.work_mode&&j.work_mode!=='unspecified'?label(j.work_mode):null,label(j.job_type),j.is_new_grad?'New grad':j.is_fresher?'Fresher':null].filter(Boolean).map(v=>`<span ${v==='Remote'?'class="remote-tag"':''}>${e(v)}</span>`).join('');}
 function saveButton(j){const selected=saved.includes(String(j.id));return `<button class="job-save" type="button" data-save="${j.id}" aria-label="${selected?'Unsave':'Save'} ${e(j.title)} at ${e(j.company)}" aria-pressed="${selected}">${selected?'Saved':'Save'}</button>`;}
-function card(j){const pay=jobSalary(j,fx);return `<article class="job-result-card"><div class="job-card-heading"><div class="job-card-copy"><p class="job-company-line">${logo(j)}${e(j.company)}${j.is_company_verified?'<span>EMPLOYER VERIFIED</span>':''}</p><h3 class="job-card-title"><button type="button" data-job="${j.id}">${e(j.title)}</button></h3></div>${saveButton(j)}</div><div class="job-card-tags">${tags(j)}</div><p class="job-card-description">${e(description(j))}</p><div class="job-card-bottom"><div class="job-card-pay"><strong>${e(pay.primary)}</strong>${pay.secondary?`<span>${e(pay.secondary)}</span>`:''}<span>${e(j.ats_platform?label(j.ats_platform):j.source_name||'Source linked')} · ${e(j.category_name||label(j.role_family))}</span></div><div><p class="job-card-time">${e(postingLabel(j))}</p><div class="job-card-links"><button type="button" data-job="${j.id}">View details</button><a class="job-apply-link" href="${e(applyUrl(j.apply_url))}" target="_blank" rel="noopener noreferrer" aria-label="Apply for ${e(j.title)} at ${e(j.company)}">Apply</a></div></div></div></article>`;}
+function card(j){const pay=jobSalary(j,fx);return `<article class="job-result-card"><div class="job-card-heading"><div class="job-card-copy"><p class="job-company-line">${logo(j)}<span class="job-employer-name">${e(j.company)}</span>${j.is_company_verified?'<span class="job-company-badge">Employer verified</span>':''}</p><h3 class="job-card-title"><button type="button" data-job="${j.id}">${e(j.title)}</button></h3></div>${saveButton(j)}</div><div class="job-card-tags">${tags(j)}</div><p class="job-card-description">${e(description(j))}</p><div class="job-card-bottom"><div class="job-card-pay"><strong>${e(pay.primary)}</strong>${pay.secondary?`<span>${e(pay.secondary)}</span>`:''}<span>${e(j.ats_platform?label(j.ats_platform):j.source_name||'Source linked')} · ${e(j.category_name||label(j.role_family))}</span></div><div><p class="job-card-time">${e(postingLabel(j))}</p><div class="job-card-links"><button type="button" data-job="${j.id}">View details</button><a class="job-apply-link" href="${e(applyUrl(j.apply_url))}" target="_blank" rel="noopener noreferrer" aria-label="Apply for ${e(j.title)} at ${e(j.company)}">Apply</a></div></div></div></article>`;}
 function address(push=false){const q=stateQuery(state),url='/jobs'+(q?'?'+q:'');if(location.pathname+location.search!==url)history[push?'pushState':'replaceState'](null,'',url);}
 function controls({preserveDraft=false}={}){
   if(!preserveDraft)$('#job-search').value=state.q;$('#job-sort').value=state.sort;
@@ -76,11 +76,20 @@ function detail(j){
 }
 async function openJob(id,{push=true}={}){
   const token=++detailRequest;state.id=String(id);address(push);
+  const cached=rows.find(job=>String(job.id)===String(id));
   $('#job-detail-body').innerHTML='<div class="job-detail-inner"><h2 id="job-detail-title">Loading job details…</h2><p>Checking the current listing.</p></div>';if(!dialog.open)dialog.showModal();
   try{const result=await searchJobs({id:String(id)},0);if(token!==detailRequest||!dialog.open)return;const job=result.jobs[0];
     if(!job){$('#job-detail-body').innerHTML='<div class="job-detail-inner"><h2 id="job-detail-title">This role is no longer available.</h2><p>It may have closed or expired. Explore the current listings for another opportunity.</p></div>';return;}
     $('#job-detail-body').innerHTML=detail(job);bindLogos(dialog);dialog.scrollTop=0;
-  }catch{if(token!==detailRequest||!dialog.open)return;$('#job-detail-body').innerHTML=`<div class="job-detail-inner"><h2 id="job-detail-title">Couldn’t load this role.</h2><p>Please retry the current source connection.</p><button type="button" data-job="${e(id)}">Retry details</button></div>`;}
+  }catch{
+    if(token!==detailRequest||!dialog.open)return;
+    if(cached){
+      $('#job-detail-body').innerHTML=detail(cached);
+      $('#job-detail-body .job-detail-actions').insertAdjacentHTML('afterend',`<div class="job-detail-notice" role="status"><p>Couldn’t refresh this listing. Showing the details already loaded. Confirm availability on the employer’s site.</p><button type="button" data-job="${e(id)}">Retry details</button></div>`);
+      bindLogos(dialog);dialog.scrollTop=0;return;
+    }
+    $('#job-detail-body').innerHTML=`<div class="job-detail-inner"><h2 id="job-detail-title">Couldn’t load this role.</h2><p>Please retry the current source connection.</p><button type="button" data-job="${e(id)}">Retry details</button></div>`;
+  }
 }
 $('#job-search-form').addEventListener('submit',event=>{event.preventDefault();change({q:$('#job-search').value.trim()});});
 $('#job-filter-form').addEventListener('submit',e=>e.preventDefault());

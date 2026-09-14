@@ -1,8 +1,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import {site} from '../site-config.js';
-import {inr,salaryRange,usdTextToInr} from '../pay-format.js';
-import {escapeHtml as e, safeHref} from '../directory-core.js';
+import {site} from '../js/site-config.js';
+import {inr,salaryRange,usdTextToInr} from '../js/pay-format.js';
+import {escapeHtml as e, safeHref} from '../js/directory-core.js';
 import {guides,policyPages} from './site-content.mjs';
 import {jobsPage} from './jobs-page.mjs';
 import {hackathonsPage} from './hackathons-page.mjs';
@@ -19,7 +19,7 @@ const href = url => e(safeHref(url));
 const external = (url,label,cls='') => `<a class="${cls}" href="${href(url)}" target="_blank" rel="noopener noreferrer">${label}</a>`;
 const pageUrl = c => '/companies/'+encodeURIComponent(c.id);
 const jsonld = value => `<script type="application/ld+json">${JSON.stringify(value).replace(/</g,'\\u003c')}</script>`;
-const brand = `<a class="brand" href="/" aria-label="Wilsy home"><img class="brand-emblem" src="/assets/wilsy-mark.svg" alt="" width="36" height="29"><span class="brand-wordmark" aria-hidden="true">ilsy</span></a>`;
+const brand = `<a class="brand" href="/" aria-label="Wilsy home"><span class="brand-wordmark" aria-hidden="true"><span class="brand-initial">W</span>ilsy</span></a>`;
 export function header(active='') {
   return `<header class="site-header"><div class="header-inner">${brand}<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-navigation"><span class="nav-toggle-lines" aria-hidden="true"></span><span>Menu</span></button><nav class="main-nav" id="main-navigation" aria-label="Main navigation"><a href="/jobs" ${active==='jobs'?'class="active" aria-current="page"':''}>Find jobs</a><a href="/#companies" ${active==='companies'?'class="active" aria-current="page"':''}>Companies</a><a href="/hackathons" ${active==='hackathons'?'class="active" aria-current="page"':''}>Hackathons</a><a href="/guides" ${active==='guides'?'class="active" aria-current="page"':''}>Career guides</a><a href="/about" ${active==='about'?'class="active" aria-current="page"':''}>About</a></nav><a class="header-contact" href="/contact">Get in touch </a></div></header>`;
 }
@@ -29,7 +29,7 @@ export function footer() {
 const adTag = `<meta name="google-adsense-account" content="${site.publisher}"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${site.publisher}" crossorigin="anonymous"></script>`;
 function documentPage({title,description,route,body,active='',type='website',noindex=false,ads=true,structured}) {
   const url = site.origin+route;
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#0866ff"><title>${e(title)} — WILSY</title><meta name="description" content="${e(description)}"><link rel="canonical" href="${e(url)}"><meta property="og:type" content="${type}"><meta property="og:title" content="${e(title)} — WILSY"><meta property="og:description" content="${e(description)}"><meta property="og:url" content="${e(url)}"><meta name="twitter:card" content="summary">${noindex?'<meta name="robots" content="noindex,follow">':''}<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/assets/fonts/fonts.css"><link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/editorial.css">${route==='/jobs'?'<link rel="stylesheet" href="/jobs.css">':route==='/hackathons'?'<link rel="stylesheet" href="/hackathons.css">':''}<link rel="stylesheet" href="/polish.css"><link rel="stylesheet" href="/electric.css"><link rel="stylesheet" href="/refined.css"><script src="/site.js" defer></script>${ads?adTag:''}${structured?jsonld(structured):''}</head><body><a class="skip-link" href="#main-content">Skip to content</a>${header(active)}${body}${footer()}</body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#0866ff"><title>${e(title)} — WILSY</title><meta name="description" content="${e(description)}"><link rel="canonical" href="${e(url)}"><meta property="og:type" content="${type}"><meta property="og:title" content="${e(title)} — WILSY"><meta property="og:description" content="${e(description)}"><meta property="og:url" content="${e(url)}"><meta name="twitter:card" content="summary">${noindex?'<meta name="robots" content="noindex,follow">':''}<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/assets/fonts/fonts.css"><link rel="stylesheet" href="/css/styles.css"><link rel="stylesheet" href="/css/editorial.css">${route==='/jobs'?'<link rel="stylesheet" href="/css/jobs.css">':route==='/hackathons'?'<link rel="stylesheet" href="/css/hackathons.css">':''}<link rel="stylesheet" href="/css/polish.css"><link rel="stylesheet" href="/css/electric.css"><link rel="stylesheet" href="/css/refined.css"><script src="/js/site.js" defer></script>${ads?adTag:''}${structured?jsonld(structured):''}</head><body><a class="skip-link" href="#main-content">Skip to content</a>${header(active)}${body}${footer()}</body></html>`;
 }
 const sitemap = [];
 async function write(route,html,include=true) {
@@ -57,7 +57,7 @@ home=home.replace(/<header class="site-header">[\s\S]*?<\/header>/,header('compa
  .replace(/<meta property="(?:og|twitter):(?:title|description|image|card)"[^>]*>\s*/g,'')
  .replace(/<link rel="preconnect"[^>]*>\s*/g,'')
  .replace(/<link href="https:\/\/fonts.googleapis.com[^>]*>/,'<link rel="stylesheet" href="/assets/fonts/fonts.css">')
- .replace('</head>',`<link rel="stylesheet" href="/editorial.css"><link rel="stylesheet" href="/polish.css"><link rel="stylesheet" href="/electric.css"><link rel="stylesheet" href="/refined.css"><script src="/site.js" defer></script><meta name="google-adsense-account" content="${site.publisher}"><meta property="og:title" content="WILSY — Discover companies. Find your next move."><meta property="og:description" content="Explore 1,000 technology employers, salary examples, and career links."><meta name="twitter:card" content="summary">${jsonld({'@context':'https://schema.org','@type':'WebSite',name:'WILSY',url:site.origin})}</head>`)
+ .replace('</head>',`<link rel="stylesheet" href="/css/editorial.css"><link rel="stylesheet" href="/css/polish.css"><link rel="stylesheet" href="/css/electric.css"><link rel="stylesheet" href="/css/refined.css"><script src="/js/site.js" defer></script><meta name="google-adsense-account" content="${site.publisher}"><meta property="og:title" content="WILSY — Discover companies. Find your next move."><meta property="og:description" content="Explore 1,000 technology employers, salary examples, and career links."><meta name="twitter:card" content="summary">${jsonld({'@context':'https://schema.org','@type':'WebSite',name:'WILSY',url:site.origin})}</head>`)
  .replace(/<div class="promo-card"[\s\S]*?<\/div>/,`<div class="reading-card"><p class="eyebrow">FROM THE BOOKSHELF</p><h3>Cracking the Coding Interview</h3><p>A practice resource to explore alongside the requirements of your target role.</p><span class="affiliate-label">Affiliate link</span><a href="${site.affiliateUrl}" target="_blank" rel="sponsored noopener noreferrer">View book on Amazon</a><p class="affiliate-note">As an Amazon Associate I earn from qualifying purchases.</p><a class="disclosure-link" href="/disclosure">How recommendations support WILSY</a></div>`)
  .replace('INR · annual salary','₹ INR · annual estimate')
  .replace('<h2 id="directory-title">','<h2 id="directory-title" tabindex="-1">')
@@ -104,7 +104,10 @@ await write('/404',documentPage({title:'Page not found',description:'This page i
 await fs.writeFile(path.join(out,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemap.map(route=>`<url><loc>${e(site.origin+route)}</loc><lastmod>${site.updatedAt}</lastmod></url>`).join('\n')}</urlset>`);
 await fs.writeFile(path.join(out,'robots.txt'),`User-agent: *\nAllow: /\n\nSitemap: ${site.origin}/sitemap.xml\n`);
 await fs.writeFile(path.join(out,'ads.txt'),'google.com, pub-5489149193350421, DIRECT, f08c47fec0942fa0\n');
-for(const file of ['app.js','directory-core.js','pay-format.js','styles.css','editorial.css','site.js','data-client.js','supabase-config.js','jobs-core.js','jobs.js','jobs.css','polish.css','electric.css','site-config.js','hackathons.js','hackathon-core.js','hackathons.css','ui-helpers.js','brand-assets.js','refined.css']) await fs.copyFile(file,path.join(out,file));
+await fs.mkdir(path.join(out,'js'),{recursive:true});
+await fs.mkdir(path.join(out,'css'),{recursive:true});
+for(const file of ['app.js','directory-core.js','pay-format.js','site.js','data-client.js','supabase-config.js','jobs-core.js','jobs.js','site-config.js','hackathons.js','hackathon-core.js','ui-helpers.js','brand-assets.js']) await fs.copyFile('js/'+file,path.join(out,'js',file));
+for(const file of ['styles.css','editorial.css','jobs.css','polish.css','electric.css','hackathons.css','refined.css']) await fs.copyFile('css/'+file,path.join(out,'css',file));
 await fs.cp('assets',path.join(out,'assets'),{recursive:true});
 await fs.mkdir(path.join(out,'data'),{recursive:true});
 for(const file of ['companies.json','exchange-rate.json','hackathon-branding.json'])await fs.copyFile('data/'+file,path.join(out,'data',file));

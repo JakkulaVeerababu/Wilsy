@@ -1,8 +1,8 @@
 {
   "framework": null,
-  "buildCommand": "node scripts/build-site.mjs",
+  "buildCommand": "cd frontend && node scripts/build-site.mjs",
   "installCommand": "",
-  "outputDirectory": "dist",
+  "outputDirectory": "frontend/dist",
   "cleanUrls": true,
   "headers": [{
     "source": "/(.*)",

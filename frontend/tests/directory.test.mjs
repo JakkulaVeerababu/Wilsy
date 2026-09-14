@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-import {initialState,stateSearch,findCompanies,pageSlice,payTier,safeHref,escapeHtml} from '../directory-core.js';
+import {initialState,stateSearch,findCompanies,pageSlice,payTier,safeHref,escapeHtml} from '../js/directory-core.js';
 const data=JSON.parse(await fs.readFile(new URL('../data/companies.json',import.meta.url),'utf8'));
 const companies=data.companies;
 

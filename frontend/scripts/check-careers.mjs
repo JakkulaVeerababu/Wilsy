@@ -10,5 +10,5 @@ async function inspect(c){
 }
 async function worker(){while(cursor<data.companies.length){const c=data.companies[cursor++];results.push(await inspect(c));if(results.length%100===0)console.log(`Checked ${results.length}/1000 careers links`);}}
 await Promise.all(Array.from({length:16},worker));
-await fs.mkdir('.research',{recursive:true});await fs.writeFile('.research/careers-audit.json',JSON.stringify(results,null,2));
+await fs.mkdir('../.research',{recursive:true});await fs.writeFile('../.research/careers-audit.json',JSON.stringify(results,null,2));
 console.log(JSON.stringify({total:results.length,ok:results.filter(x=>x.status>=200&&x.status<400).length,unavailable:results.filter(x=>[404,410].includes(x.status)),blockedOrTimeout:results.filter(x=>x.status===0||x.status>=400&&![404,410].includes(x.status)).length}));

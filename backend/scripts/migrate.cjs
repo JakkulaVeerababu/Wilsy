@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = 'https://pnkthqatdlozrojwefnc.supabase.co';
@@ -7,7 +8,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function migrate() {
     console.log('Reading local data...');
-    const rawData = fs.readFileSync('data/companies.json', 'utf8');
+    const rawData = fs.readFileSync(path.join(__dirname, '../../frontend/data/companies.json'), 'utf8');
     const parsed = JSON.parse(rawData);
     const companies = parsed.companies;
     

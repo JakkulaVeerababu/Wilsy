@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import {createHash} from 'node:crypto';
-import {databaseRequest} from '../data-client.js';
+import {databaseRequest} from '../js/data-client.js';
 const events=[];
 for(let offset=0;;offset+=500){
   const page=await databaseRequest(`wilsy_public_hackathons?select=id,title,organizer,official_url,source_url,registration_url&order=id&limit=500&offset=${offset}`);

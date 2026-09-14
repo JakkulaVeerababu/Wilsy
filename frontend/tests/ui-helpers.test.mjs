@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {sourceText,copyPageLink,isEditing} from '../ui-helpers.js';
-import {escapeHtml} from '../directory-core.js';
+import {sourceText,copyPageLink,isEditing} from '../js/ui-helpers.js';
+import {escapeHtml} from '../js/directory-core.js';
 test('Source descriptions retain paragraphs and lists without executing markup',()=>{
   const text=sourceText('<h2>About &amp; you</h2><p>Build things.<br>Learn.</p><ul><li>JavaScript</li><li>SQL</li></ul><script>alert(1)</script>');
   assert.equal(text,'About & you\n\nBuild things.\nLearn.\n\n• JavaScript\n• SQL');

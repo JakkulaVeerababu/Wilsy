@@ -1,6 +1,6 @@
 // Read-only checks; the frontend uses this same public credential and API.
 import assert from 'node:assert/strict';
-import {searchHackathons,hackathonFacets,databaseRequest} from '../data-client.js';
+import {searchHackathons,hackathonFacets,databaseRequest} from '../js/data-client.js';
 const [collection,facets,saved]=await Promise.all([searchHackathons({}),hackathonFacets(),searchHackathons({saved:[]})]);
 assert.ok(Number.isInteger(collection.total)&&collection.total>=0);
 assert.ok(Array.isArray(collection.events));assert.equal(saved.total,0);

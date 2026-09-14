@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import {inr,usd,salaryRange} from '../pay-format.js';
+import {inr,usd,salaryRange} from '../js/pay-format.js';
 const root=path.resolve('dist');
 const files=new Set(await fs.readdir(root,{recursive:true}));
 const htmlFiles=[...files].filter(f=>f.endsWith('.html'));
@@ -75,12 +75,12 @@ test('INR is a dated estimate and original source data stays intact',async()=>{
 test('Jobs, hackathons and company research share the electric blue navigation',()=>{
   for(const html of pages.values()){
     assert.match(html,/href="\/hackathons"/);
-    assert.match(html,/href="\/electric.css"/);
+    assert.match(html,/href="\/css\/electric.css"/);
     assert.match(html,/name="theme-color" content="#0866ff"/);
   }
   assert.match(pages.get('index.html'),/class="platform-paths"/);
   const hacks=pages.get('hackathons.html');
-  assert.match(hacks,/Build something/);assert.match(hacks,/href="\/hackathons.css"/);
-  assert.match(hacks,/src="\/hackathons.js"/);assert.match(hacks,/Deadlines · next 30 days/);
+  assert.match(hacks,/Build something/);assert.match(hacks,/href="\/css\/hackathons.css"/);
+  assert.match(hacks,/src="\/js\/hackathons.js"/);assert.match(hacks,/Deadlines · next 30 days/);
   assert.match(pages.get('privacy.html'),/hackathon/);
 });

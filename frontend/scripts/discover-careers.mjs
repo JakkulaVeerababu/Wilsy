@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+await fs.mkdir('../.research',{recursive:true});
 const {companies}=JSON.parse(await fs.readFile('data/companies.json','utf8'));
 const output={};let cursor=0,done=0,found=0;
 const ats=/(?:jobs|boards|careers)\.(?:ashbyhq|greenhouse|lever|workable|smartrecruiters|recruitee)|myworkdayjobs\.com/;
@@ -13,4 +14,4 @@ for(const m of html.matchAll(/<a\b[^>]*\bhref\s*=\s*["']([^"']+)["'][^>]*>([\s\S
 }
 candidates.sort((a,b)=>b.score-a.score);const best=candidates[0];if(best){const r=await fetch(best.url,{signal:AbortSignal.timeout(8000),method:'HEAD'});if(r.ok){output[c.id]={careers:best.url,careersHost:'Company careers',discoveredOn:c.website,checkedAt:'2026-09-11',status:r.status};found++;}}
 }catch{}finally{done++;if(done%100===0)console.log(JSON.stringify({checked:done,found,total:companies.length}));}}}
-await Promise.all(Array.from({length:12},run));await fs.writeFile('.research/career-links.json',JSON.stringify(output));console.log(JSON.stringify({checked:done,found}));
+await Promise.all(Array.from({length:12},run));await fs.writeFile('../.research/career-links.json',JSON.stringify(output));console.log(JSON.stringify({checked:done,found}));

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-import {hackathonBranding} from '../brand-assets.js';
+import {hackathonBranding} from '../js/brand-assets.js';
 const branding=JSON.parse(await fs.readFile('data/hackathon-branding.json','utf8'));
 test('Event branding uses sourced local assets and never another event’s image',async()=>{
   const entries=Object.entries(branding.events);assert.ok(entries.length>0);

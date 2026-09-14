@@ -1,8 +1,8 @@
 // Read-only production contract checks. No writes or privileged keys.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-import {searchJobs,jobFacets,databaseRequest,loadCompanies} from '../data-client.js';
-import {salaryPeriod} from '../pay-format.js';
+import {searchJobs,jobFacets,databaseRequest,loadCompanies} from '../js/data-client.js';
+import {salaryPeriod} from '../js/pay-format.js';
 const facets=await jobFacets();assert.ok(facets.total>0);assert.ok(facets.companies_count>0);
 const first=await searchJobs({}),second=await searchJobs({},20);
 assert.equal(first.jobs.length,Math.min(20,first.total));

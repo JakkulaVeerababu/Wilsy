@@ -1,11 +1,11 @@
 import fs from 'node:fs/promises';
 
 const snapshot = '2026-09-11';
-const input = JSON.parse(await fs.readFile('.research/yc.json', 'utf8'));
+const input = JSON.parse(await fs.readFile('../.research/yc.json', 'utf8'));
 const featured = JSON.parse(await fs.readFile('data/featured.json', 'utf8'));
 const previous = JSON.parse(await fs.readFile('data/companies.json','utf8').catch(()=>'{}'));
 const cached = new Map((previous.companies||[]).map(c=>[c.id,c]));
-const careers = JSON.parse(await fs.readFile('.research/career-links.json','utf8').catch(()=>'{}'));
+const careers = JSON.parse(await fs.readFile('../.research/career-links.json','utf8').catch(()=>'{}'));
 const key = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 const safeUrl = (s) => { try { const u = new URL(s); return ['https:', 'http:'].includes(u.protocol) ? u.href : null; } catch { return null; } };
 export function parseSalary(s) {

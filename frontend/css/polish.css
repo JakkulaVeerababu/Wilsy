@@ -90,7 +90,7 @@ button,input,select,a{-webkit-tap-highlight-color:transparent}
 .guide-card{box-shadow:0 5px 16px #09265005;border-radius:16px}.guide-card:nth-child(2){background:#edf4ff}
 .contact-box{border-radius:18px;box-shadow:0 8px 30px #09265007}.contact-address{color:#092650}
 .premium-footer{background:#edf4ff;margin-top:20px}.footer-bottom{font-size:12px}
-@media(min-width:1400px){.job-results{grid-template-columns:1fr 1fr}.job-card-title{font-size:17px}.job-result-card{padding:21px}.job-card-bottom>div:last-child{flex-wrap:wrap;gap:10px}.job-card-pay{max-width:100%}.job-card-heading{gap:10px}.job-company-line span{font-size:10px}}
+@media(min-width:1400px){.job-results{grid-template-columns:1fr 1fr}.job-card-title{font-size:17px}.job-result-card{padding:21px}.job-card-bottom>div:last-child{flex-wrap:wrap;gap:10px}.job-card-pay{max-width:100%}.job-card-heading{gap:10px}.job-company-line .job-company-badge{font-size:10px}}
 @media(max-width:1150px){.header-inner{padding-left:28px;padding-right:28px;gap:23px}.main-nav a{padding:0 11px}.intro{gap:35px}.intro-note{width:285px}.jobs-hero{gap:35px}.jobs-columns{grid-template-columns:214px minmax(0,1fr);gap:23px}.jobs-filters{padding:17px}.jobs-toolbar{flex-wrap:wrap}.job-card-bottom>div:last-child{flex-wrap:wrap}.tier-card-bottom strong{font-size:17px}}
 @media(max-width:820px){
  html{scroll-padding-top:90px}.header-inner{min-height:72px;height:72px;flex-wrap:nowrap;padding:12px 22px;gap:16px;position:relative}

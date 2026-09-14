@@ -12,7 +12,11 @@ npm run build
 npm test
 ```
 
-`npm start` builds the site and serves it at `http://127.0.0.1:4173`. The production build creates `dist/`. Vercel uses the build command and output directory in `vercel.json`.
+`npm start` builds the site and serves it at `http://127.0.0.1:4173`. The production build creates `frontend/dist/`. Vercel uses the build command and output directory in `vercel.json`.
+
+## Project layout
+
+The site source, assets, build scripts and tests live under `frontend/`. Run npm commands from the repository root. Direct maintenance-script commands below run from `frontend/`; research inputs remain at the repository root in `.research/`. Legacy backend utilities are kept separately and are not needed for the static build.
 
 ## Content and data
 
@@ -89,7 +93,7 @@ Validation: 'npm test' covers 29 offline checks. Read-only hackathon checks are 
 
 ### Brand and layout refinement
 
-The shared header, footer and favicon use the new SVG Wilsy monogram. Decorative arrow/code tiles and placeholder company initials have been removed. Save, Refresh, Close and pagination controls use plain text; functional search and filter icons remain. `refined.css` aligns headings, cards, forms and details across desktop and mobile layouts.
+The shared header and footer use a single typographic Wilsy wordmark: an electric-blue W and black ilsy in the same typeface. The favicon uses a simple blue W. Decorative arrow/code tiles and placeholder company initials have been removed. Save, Refresh, Close and pagination controls use plain text; functional search and filter icons remain. `refined.css` aligns headings, cards, forms and details across desktop and mobile layouts.
 
 Hackathon cards and detail views use original artwork from the event's published source page. `data/hackathon-branding.json` records the source URL and image URL for every local asset. On 13 September 2026, 35 of 36 public events had source artwork available, totalling about 1 MB. The remaining event's Devpost page returned HTTP 410 and receives a text-only layout. New or unmatched events also stay text-only until artwork is sourced. Failed images are removed, with no invented replacement. Source URLs must match the event before an indexed asset is displayed.
 
@@ -99,9 +103,13 @@ Run `node scripts/cache-hackathon-branding.mjs`, review the asset and manifest c
 
 The blue W now forms the first letter of the wordmark, followed by black `ilsy`, with no duplicated W. Header and footer gutters match. Homepage collection text has stronger contrast, small-screen detail actions use a full-width application/registration button, and mobile controls have comfortable tap areas. Duplicate hackathon format/location tags are removed.
 
-CSS adds brief entrance transitions, pointer-aware hover feedback, and menu/dialog motion using opacity and transforms. No animation library, scroll listener, extra image, or JavaScript dependency is added. Reduced-motion preferences disable animations and smooth scrolling.
+Native IntersectionObserver and Web Animations add one-time reveals to editorial sections. Content remains visible without JavaScript. CSS coordinates brief result entrances, pointer-aware hover and press feedback, mobile menus, saved-state feedback, and dialog/backdrop transitions. Movement uses opacity and transforms, with no animation library, scroll listener, extra image, or production dependency. Reduced-motion preferences disable animation and smooth scrolling; changing that preference or hiding the tab cancels active section reveals.
+
+Company-logo wrappers no longer inherit badge padding. Fixed, non-shrinking image frames use contain sizing, with room around each mark in cards and detail views.
 
 On 13 September 2026, browser layout inspection covered widths of 320, 360, 390, 768, 820, 1024, 1280, 1440 and 1920 pixels, with 55 checks across Home, Jobs, Hackathons, company profiles, A–Z companies, Contact and career guides. No horizontal overflow remained. Populated cards, mobile menus, dialog actions, event artwork, and header/footer alignment were inspected. These are responsive checks in the available Chromium browser on Windows; they are not physical-device tests on macOS, Safari, iOS or Android.
+
+On 14 September 2026, the revised job logo was checked at 320, 390, 768 and 1440 pixels, including Google in the card and detail flow. Mobile event details and navigation were inspected. All 29 offline checks and the Jobs/Hackathons DOM interaction checks passed. If a job-detail refresh fails, already-loaded listing details remain available with a clear retry notice; a confirmed unavailable listing still shows the unavailable state.
 
 ### Deferred database performance work
 

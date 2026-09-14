@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readHackathonState,hackathonQuery,hackathonFilters,prizeValue,teamLabel,eventPhase,registrationLink,readSavedHackathons} from '../hackathon-core.js';
+import {readHackathonState,hackathonQuery,hackathonFilters,prizeValue,teamLabel,eventPhase,registrationLink,readSavedHackathons} from '../js/hackathon-core.js';
 const fx={rate:95.56,date:'2026-09-11'};
 test('Hackathon filters, pagination and saved detail URLs round-trip',()=>{
   const state=readHackathonState('?q=AI+build&mode=online&country=India&theme=AI&when=deadline&team=solo&cash=yes&saved=1&event=42&page=2&sort=deadline');

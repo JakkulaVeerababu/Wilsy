@@ -26,4 +26,4 @@ export const jobsPage = `
 </main>
 <dialog class="job-detail-dialog" id="job-detail" aria-labelledby="job-detail-title"><button class="job-dialog-close" id="job-detail-close" type="button" aria-label="Close job details">Close</button><div id="job-detail-body"></div></dialog>
 <noscript><div class="noscript">Live job search needs JavaScript. You can still browse the <a href="/companies">company directory and career links</a>.</div></noscript>
-<script type="module" src="/jobs.js"></script>`;
+<script type="module" src="/js/jobs.js"></script>`;

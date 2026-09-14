@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readState,stateQuery,apiFilters,jobSalary,postingLabel,applyUrl,readSaved} from '../jobs-core.js';
-import {usdTextToInr,salaryPeriod,inr} from '../pay-format.js';
+import {readState,stateQuery,apiFilters,jobSalary,postingLabel,applyUrl,readSaved} from '../js/jobs-core.js';
+import {usdTextToInr,salaryPeriod,inr} from '../js/pay-format.js';
 const fx={rate:95.56,date:'2026-09-11'};
 
 test('Job filters, page, saved view and selected job survive a shared URL',()=>{
