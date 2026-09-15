@@ -11,7 +11,7 @@ try{saved=readSaved(localStorage);}catch{}
 const feedback=text=>{$('#job-feedback').textContent=text;};
 const normalized=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const companyProfile=j=>companies.find(c=>c.id===j.company_slug)||companies.find(c=>normalized(c.name)===normalized(j.company));
-function logo(j){const c=companyProfile(j);if(c?.logo)return `<span class="job-logo" aria-hidden="true"><img src="${e(c.logo)}" alt="" loading="lazy" decoding="async"></span>`;const domain=`${normalized(j.company)}.com`;return `<span class="job-logo" aria-hidden="true"><img src="https://logo.clearbit.com/${e(domain)}" alt="" loading="lazy" decoding="async" onerror="this.parentNode.remove()"></span>`;}
+function logo(j){const c=companyProfile(j);if(c?.logo)return `<span class="job-logo" aria-hidden="true"><img src="${e(c.logo)}" alt="" loading="lazy" decoding="async"></span>`;const domain=`${normalized(j.company)}.com`;return `<span class="job-logo" aria-hidden="true"><img src="https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://${e(domain)}&size=128" alt="" loading="lazy" decoding="async" onerror="this.parentNode.remove()"></span>`;}
 function bindLogos(root){root.querySelectorAll('.job-logo img').forEach(img=>img.addEventListener('error',()=>{img.parentNode.remove();},{once:true}));}
 const place=j=>j.location||[j.city,j.state_region,j.country].filter(Boolean).join(', ')||'Location not specified';
 const text=value=>value==null||value===''?'Not specified':String(value);
