@@ -1,6 +1,6 @@
 # WILSY
 
-Wilsy Jobs combines a live Supabase job search at `/jobs` with an independent directory of 1,000 technology employers, sourced salary examples, INR salary estimates, real company logos, and career guides.
+Wilsy Jobs combines a live job search on the homepage (`/`), with `/jobs` retained for existing links with an independent directory of 1,000 technology employers, sourced salary examples, INR salary estimates, real company logos, and career guides.
 
 ## Run and build
 
@@ -13,6 +13,8 @@ npm test
 ```
 
 `npm start` builds the site and serves it at `http://127.0.0.1:4173`. The production build creates `frontend/dist/`. Vercel uses the build command and output directory in `vercel.json`.
+
+The homepage contains the jobs hero, live counters, search and filters, job results, source guidance, and shared navigation/footer. Company search is at `/companies`, with the crawlable A–Z index at `/companies/all`. Home is canonical for the jobs page; the `/jobs` alias is excluded from the sitemap.
 
 ## Project layout
 

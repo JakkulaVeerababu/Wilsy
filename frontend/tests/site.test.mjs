@@ -7,7 +7,7 @@ const root=path.resolve('dist');
 const files=new Set(await fs.readdir(root,{recursive:true}));
 const htmlFiles=[...files].filter(f=>f.endsWith('.html'));
 const pages=new Map(await Promise.all(htmlFiles.map(async f=>[f,await fs.readFile(path.join(root,f),'utf8')])));
-const companyFiles=htmlFiles.filter(f=>f.startsWith('companies'+path.sep));
+const companyFiles=htmlFiles.filter(f=>f.startsWith('companies'+path.sep)&&f!=='companies'+path.sep+'all.html');
 
 test('Every generated company has crawlable salary content and unique metadata',()=>{
   assert.equal(companyFiles.length,1000);
@@ -42,6 +42,8 @@ test('Sitemap covers exactly the public pages and excludes the error page',async
   assert.equal(urls.length,1014);assert.equal(new Set(urls).size,1014);
   assert.ok(urls.every(url=>url.startsWith('https://www.wilsy.in/')));
   assert.ok(!urls.some(url=>url.endsWith('/404')));
+  assert.ok(!urls.some(url=>url.endsWith('/jobs')),'The jobs alias uses the homepage canonical');
+  assert.ok(urls.includes('https://www.wilsy.in/companies/all'));
   assert.match(pages.get('404.html'),/noindex,follow/);
   assert.doesNotMatch(pages.get('404.html'),/pagead2.googlesyndication/);
   const robots=await fs.readFile(path.join(root,'robots.txt'),'utf8');
@@ -49,14 +51,15 @@ test('Sitemap covers exactly the public pages and excludes the error page',async
 });
 test('Affiliate and privacy controls are real, disclosed, and consistent',async()=>{
   const home=pages.get('index.html');
-  assert.match(home,/rel="sponsored noopener noreferrer"/);
-  assert.match(home,/As an Amazon Associate I earn from qualifying purchases/);
+  const directory=pages.get('companies.html');
+  assert.match(directory,/rel="sponsored noopener noreferrer"/);
+  assert.match(directory,/As an Amazon Associate I earn from qualifying purchases/);
   assert.match(home,/data-privacy-choices/);
   assert.match(pages.get('privacy.html'),/Google AdSense/);
   assert.match(pages.get('contact.html'),/mailto:contact@wilsy.in/);
   for(const html of pages.values())assert.doesNotMatch(html,/veerababu@wilsy\.in/);
   assert.doesNotMatch(home,/fonts.googleapis.com|m.media-amazon.com|onmouseover=/);
-  assert.equal((home.match(/id="guides-heading"/g)||[]).length,1);
+  assert.equal((directory.match(/id="guides-heading"/g)||[]).length,1);
   assert.doesNotMatch(home,/id="guide-dialog"|data-guide(?:\s|>)/);
   assert.equal((await fs.readFile(path.join(root,'ads.txt'),'utf8')).trim(),'google.com, pub-5489149193350421, DIRECT, f08c47fec0942fa0');
 });
@@ -78,7 +81,19 @@ test('Jobs, hackathons and company research share the electric blue navigation',
     assert.match(html,/href="\/css\/electric.css"/);
     assert.match(html,/name="theme-color" content="#0866ff"/);
   }
-  assert.match(pages.get('index.html'),/class="platform-paths"/);
+  const home=pages.get('index.html'),jobs=pages.get('jobs.html');
+  for(const html of [home,jobs]){
+    assert.match(html,/id="job-search-form"/);
+    assert.match(html,/id="job-results"/);
+    assert.match(html,/src="\/js\/jobs.js"/);
+    assert.match(html,/href="\/css\/jobs.css"/);
+    assert.match(html,/<link rel="canonical" href="https:\/\/www.wilsy.in\/"/);
+    assert.doesNotMatch(html,/class="platform-paths"|id="company-grid"|src="\/js\/app.js"/);
+    assert.match(html,/href="\/companies#companies"/);
+  }
+  assert.match(pages.get('companies.html'),/id="company-grid"/);
+  assert.match(pages.get('companies.html'),/src="\/js\/app.js"/);
+  assert.match(pages.get('companies.html'),/<link rel="canonical" href="https:\/\/www.wilsy.in\/companies"/);
   const hacks=pages.get('hackathons.html');
   assert.match(hacks,/Build something/);assert.match(hacks,/href="\/css\/hackathons.css"/);
   assert.match(hacks,/src="\/js\/hackathons.js"/);assert.match(hacks,/Deadlines · next 30 days/);
