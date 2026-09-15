@@ -11,16 +11,21 @@ try{saved=readSaved(localStorage);}catch{}
 const feedback=text=>{$('#job-feedback').textContent=text;};
 const normalized=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const companyProfile=j=>companies.find(c=>c.id===j.company_slug)||companies.find(c=>normalized(c.name)===normalized(j.company));
-function logo(j){const c=companyProfile(j);return c?.logo?`<span class="job-logo" aria-hidden="true"><img src="${e(c.logo)}" alt="" loading="lazy" decoding="async"></span>`:'';}
+function logo(j){const c=companyProfile(j);if(c?.logo)return `<span class="job-logo" aria-hidden="true"><img src="${e(c.logo)}" alt="" loading="lazy" decoding="async"></span>`;const domain=\`\${normalized(j.company)}.com\`;return `<span class="job-logo" aria-hidden="true"><img src="https://logo.clearbit.com/\${e(domain)}" alt="" loading="lazy" decoding="async" onerror="this.parentNode.remove()"></span>`;}
 function bindLogos(root){root.querySelectorAll('.job-logo img').forEach(img=>img.addEventListener('error',()=>{img.parentNode.remove();},{once:true}));}
 const place=j=>j.location||[j.city,j.state_region,j.country].filter(Boolean).join(', ')||'Location not specified';
 const text=value=>value==null||value===''?'Not specified':String(value);
 const bool=value=>value===true?'Stated by source':value===false?'Not offered (source record)':'Not specified';
-const description=j=>String(j.description||'See the employer’s listing for the complete role description.').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
-function tags(j){return [place(j),j.work_mode&&j.work_mode!=='unspecified'?label(j.work_mode):null,label(j.job_type),j.is_new_grad?'New grad':j.is_fresher?'Fresher':null].filter(Boolean).map(v=>`<span ${v==='Remote'?'class="remote-tag"':''}>${e(v)}</span>`).join('');}
+const description=j=>String(j.description||'Full role details on the employer’s site.').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+function tags(j){
+  const known=value=>value&&!['unspecified','unknown','not specified'].includes(String(value).trim().toLowerCase());
+  const values=[place(j),known(j.work_mode)?label(j.work_mode):null,known(j.job_type)?label(j.job_type):null,j.is_new_grad?'New grad':j.is_fresher?'Fresher':null];
+  const seen=new Set();
+  return values.filter(value=>{if(!value)return false;const key=value.trim().toLowerCase();if(seen.has(key))return false;seen.add(key);return true;}).map(value=>`<span ${value.toLowerCase()==='remote'?'class="remote-tag"':''}>${e(value)}</span>`).join('');
+}
 function saveButton(j){const selected=saved.includes(String(j.id));return `<button class="job-save" type="button" data-save="${j.id}" aria-label="${selected?'Unsave':'Save'} ${e(j.title)} at ${e(j.company)}" aria-pressed="${selected}">${selected?'Saved':'Save'}</button>`;}
-function card(j){const pay=jobSalary(j,fx);return `<article class="job-result-card"><div class="job-card-heading"><div class="job-card-copy"><p class="job-company-line">${logo(j)}<span class="job-employer-name">${e(j.company)}</span>${j.is_company_verified?'<span class="job-company-badge">Employer verified</span>':''}</p><h3 class="job-card-title"><button type="button" data-job="${j.id}">${e(j.title)}</button></h3></div>${saveButton(j)}</div><div class="job-card-tags">${tags(j)}</div><p class="job-card-description">${e(description(j))}</p><div class="job-card-bottom"><div class="job-card-pay"><strong>${e(pay.primary)}</strong>${pay.secondary?`<span>${e(pay.secondary)}</span>`:''}<span>${e(j.ats_platform?label(j.ats_platform):j.source_name||'Source linked')} · ${e(j.category_name||label(j.role_family))}</span></div><div><p class="job-card-time">${e(postingLabel(j))}</p><div class="job-card-links"><button type="button" data-job="${j.id}">View details</button><a class="job-apply-link" href="${e(applyUrl(j.apply_url))}" target="_blank" rel="noopener noreferrer" aria-label="Apply for ${e(j.title)} at ${e(j.company)}">Apply</a></div></div></div></article>`;}
-function address(push=false){const q=stateQuery(state),url='/jobs'+(q?'?'+q:'');if(location.pathname+location.search!==url)history[push?'pushState':'replaceState'](null,'',url);}
+function card(j){const pay=jobSalary(j,fx);return `<article class="job-result-card"><div class="job-card-heading"><div class="job-card-copy"><p class="job-company-line">${logo(j)}<span class="job-employer-name">${e(j.company)}</span>${j.is_company_verified?'<span class="job-company-badge">Employer verified</span>':''}</p><h3 class="job-card-title"><button type="button" data-job="${j.id}">${e(j.title)}</button></h3></div>${saveButton(j)}</div><div class="job-card-tags">${tags(j)}</div><p class="job-card-description">${e(description(j))}</p><div class="job-card-bottom"><div class="job-card-pay${pay.primary==='Salary not disclosed'?' is-undisclosed':''}"><strong>${e(pay.primary)}</strong>${pay.secondary?`<span>${e(pay.secondary)}</span>`:''}<span>${e([j.ats_platform?label(j.ats_platform):j.source_name||'Source linked',j.category_name||(j.role_family&&j.role_family!=='unspecified'?label(j.role_family):'')].filter(Boolean).join(' · '))}</span></div><div><p class="job-card-time">${e(postingLabel(j))}</p><div class="job-card-links"><button type="button" data-job="${j.id}">View details</button><a class="job-apply-link" href="${e(applyUrl(j.apply_url))}" target="_blank" rel="noopener noreferrer" aria-label="Apply for ${e(j.title)} at ${e(j.company)}">Apply</a></div></div></div></article>`;}
+function address(push=false){const q=stateQuery(state),url=location.pathname+(q?'?'+q:'');if(location.pathname+location.search!==url)history[push?'pushState':'replaceState'](null,'',url);}
 function controls({preserveDraft=false}={}){
   if(!preserveDraft)$('#job-search').value=state.q;$('#job-sort').value=state.sort;
   for(const k of filterKeys){const el=$('#filter-'+k);if(el){if(el.type==='checkbox')el.checked=state[k]==='yes';else{if(state[k]&&el.tagName==='SELECT'&&![...el.options].some(o=>o.value===state[k]))el.add(new Option(label(state[k]),state[k]));el.value=state[k];}}}
@@ -52,7 +57,7 @@ async function load({facets=false,background=false}={}){
   try{const result=await searchJobs(apiFilters(state,saved,fx),(state.page-1)*PAGE_SIZE,controller.signal);if(current!==requestId)return;
     const changed=JSON.stringify(rows)!==JSON.stringify(result.jobs)||total!==result.total;rows=result.jobs;total=result.total;lastFetch=Date.now();
     if(state.page>1&&!rows.length&&total>0){state.page=Math.ceil(total/PAGE_SIZE);address();return load();}
-    if(!keepResults||changed)render();else $('#job-results').setAttribute('aria-busy','false');$('#job-connection').textContent=`Connected to current listings · Refreshed ${dateLabel(result.as_of)}${state.sort==='posted'?' · Unknown posting dates appear last.':''}`;
+    if(!keepResults||changed)render();else $('#job-results').setAttribute('aria-busy','false');$('#job-connection').textContent=`Listings updated ${dateLabel(result.as_of)}${state.sort==='posted'?' · Unknown posting dates appear last.':''}`;
   }catch(error){if(current!==requestId)return;if(keepResults){$('#job-results').setAttribute('aria-busy','false');$('#job-connection').innerHTML='Couldn’t refresh. Showing the previous results. <button type="button" data-retry>Retry live search</button>';return;}rows=[];$('#job-results').setAttribute('aria-busy','false');$('#job-count').textContent='Unable to load jobs';$('#job-connection').textContent='The live connection is temporarily unavailable.';$('#job-results').innerHTML='<div class="jobs-empty"><h3>Let’s reconnect.</h3><p>Your filters and saved jobs are safe. Retry the live search or explore the company directory while the connection returns.</p><button type="button" data-retry>Try again</button><p><a href="/companies">Browse company career links</a></p></div>';}
   if(facets)await refreshFacets();
 }
@@ -62,7 +67,7 @@ function save(id){
   const next=saved.includes(id)?saved.filter(v=>v!==id):[...saved,id];
   if(next.length>500){feedback('You can save up to 500 roles on this device. Remove a saved role to add another.');return;}
   try{localStorage.setItem('wilsy-saved-jobs',JSON.stringify(next));saved=next;}catch{feedback('This browser is blocking local storage. Enable site storage to save jobs on this device.');return;}
-  savedNotice(saved.includes(id)?'Job saved on this device.':'Job removed from saved.','/jobs?saved=1');
+  savedNotice(saved.includes(id)?'Job saved on this device.':'Job removed from saved.',location.pathname+'?saved=1');
   controls({preserveDraft:true});document.querySelectorAll(`[data-save="${id}"]`).forEach(b=>{const active=saved.includes(id);b.setAttribute('aria-pressed',active);b.textContent=active?'Saved':'Save';b.setAttribute('aria-label',active?'Unsave job':'Save job');});
   if(state.saved)load();
 }
@@ -119,6 +124,6 @@ setInterval(()=>{if(!document.hidden&&!dialog.open&&!isEditing(document.activeEl
 
 async function start(){
   try{const [rate,index]=await Promise.all([fetch('/data/exchange-rate.json'),fetch('/data/company-index.json')]);if(!rate.ok||!index.ok)throw new Error('Site assets unavailable');fx=await rate.json();companies=await index.json();await Promise.all([load(),refreshFacets()]);if(state.id)openJob(state.id,{push:false});}
-  catch{$('#job-results').setAttribute('aria-busy','false');$('#job-count').textContent='Site data unavailable';$('#job-connection').textContent='Reload the page to try again.';$('#job-results').innerHTML='<div class="jobs-empty"><h3>Please reload WILSY.</h3><p>The page assets could not be loaded. Check your connection and try again.</p><a href="/jobs">Reload jobs</a></div>';}
+  catch{$('#job-results').setAttribute('aria-busy','false');$('#job-count').textContent='Site data unavailable';$('#job-connection').textContent='Reload the page to try again.';$('#job-results').innerHTML='<div class="jobs-empty"><h3>Please reload WILSY.</h3><p>The page assets could not be loaded. Check your connection and try again.</p><a href="/">Reload jobs</a></div>';}
 }
 start();
