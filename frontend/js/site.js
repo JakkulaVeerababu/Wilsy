@@ -73,3 +73,17 @@ function mountSectionMotion(){
   document.addEventListener('visibilitychange',()=>{if(document.hidden){for(const animation of running)animation.cancel();running.clear();}});
 }
 mountSectionMotion();
+
+document.addEventListener('DOMContentLoaded', () => {
+  const toggle = document.getElementById('theme-toggle');
+  if (toggle) {
+    if (document.documentElement.classList.contains('dark-theme')) {
+      toggle.textContent = 'Light Mode';
+    }
+    toggle.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.toggle('dark-theme');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      toggle.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+    });
+  }
+});
