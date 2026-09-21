@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     toggle.addEventListener('click', () => {
       const isDark = document.documentElement.classList.toggle('dark-theme');
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      try{localStorage.setItem('theme', isDark ? 'dark' : 'light');}catch{}
       toggle.textContent = isDark ? 'Light Mode' : 'Dark Mode';
     });
   }

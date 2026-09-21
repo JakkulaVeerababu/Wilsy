@@ -188,7 +188,7 @@ body{min-width:0}
 .jobs-hero h1{font-size:clamp(46px,4.8vw,66px);letter-spacing:-2.7px;line-height:1.08}
 .jobs-insight{border-radius:16px;padding:28px;box-shadow:0 10px 32px #0866ff12}
 .insight-total strong{font-weight:600;letter-spacing:-2px}
-.jobs-insight>p{line-height:1.8}.jobs-insight .insight-bottom span{line-height:1.6}
+.jobs-insight>p{line-height:1.8}.jobs-insight>p span{display:block}.jobs-insight .insight-bottom span{line-height:1.6}
 .jobs-search{border-radius:12px;padding:7px;border-color:#cbdcf1;box-shadow:0 6px 24px #15345506}
 .jobs-search:focus-within{border-color:#0866ff;box-shadow:0 0 0 3px #0866ff0d,0 8px 24px #15345506}
 .jobs-search-submit{border-radius:7px;justify-content:center;white-space:nowrap;min-width:134px}
@@ -205,6 +205,7 @@ body{min-width:0}
 .job-card-links button{min-height:40px;padding:8px 0;color:#355578}
 .job-card-title>button:hover{color:#0866ff}
 .job-pagination{padding-top:22px}.job-pagination button{min-height:42px;border-radius:7px}
+.jobs-results-area{min-width:0}.job-card-copy{min-width:0}.job-card-title{overflow-wrap:anywhere}
 @media(max-width:760px){
  .jobs-hero h1{font-size:46px;letter-spacing:-2px}
  .jobs-hero{gap:25px;padding-bottom:28px}
@@ -212,7 +213,7 @@ body{min-width:0}
  .insight-top{grid-column:1/-1}.insight-total{margin:0}.insight-total strong{font-size:36px}
  .insight-bottom{border-top:0;border-left:1px solid #ffffff35;padding:0 0 0 16px;gap:12px;align-items:center}
  .insight-bottom strong{font-size:21px}.insight-total>span,.insight-bottom span{font-size:11px}
- .jobs-insight>p{grid-column:1/-1;margin:0;padding-top:12px;border-top:1px solid #ffffff25;font-size:11px}
+ .jobs-insight>p{grid-column:1/-1;margin:0;padding-top:12px;border-top:1px solid #ffffff25;font-size:11px;display:grid;gap:3px}
  .jobs-search-submit{min-width:108px;max-width:none;padding:12px;font-size:12px!important}
  .jobs-search-input{padding:10px 7px;gap:10px}.jobs-search-input>svg{width:19px;flex-shrink:0}
  .jobs-quick{gap:7px}.jobs-quick>button{padding:9px 12px}

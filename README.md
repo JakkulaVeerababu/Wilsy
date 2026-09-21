@@ -16,6 +16,10 @@ npm test
 
 The homepage contains the jobs hero, live counters, search and filters, job results, source guidance, and shared navigation/footer. Company search is at `/companies`, with the crawlable A–Z index at `/companies/all`. Home is canonical for the jobs page; the `/jobs` alias is excluded from the sitemap.
 
+The jobs workspace supports up to eight saved searches on the current browser, shareable filter links, and a persistent comfortable/compact display preference. Saved searches reopen fresh results and do not preserve a stale page, selected detail or device-specific saved-job list. Local storage failures show a useful fallback.
+
+Visitors can compare up to three roles across search pages. The comparison is a temporary snapshot for the current visit, with source pay periods, location, experience, skills, sponsorship and recorded verification times. It does not infer missing details or send user data to another service. Direct applications open the employer's HTTPS listing. `job-workspace.css` provides responsive tools, comparison controls and lightweight motion; reduced-motion preferences are respected.
+
 ## Project layout
 
 The site source, assets, build scripts and tests live under `frontend/`. Run npm commands from the repository root. Direct maintenance-script commands below run from `frontend/`; research inputs remain at the repository root in `.research/`. Legacy backend utilities are kept separately and are not needed for the static build.
