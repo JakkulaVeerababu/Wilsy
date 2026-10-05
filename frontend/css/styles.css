@@ -15,3 +15,4 @@ html.dark-theme svg:not(.icon) {
     filter: invert(1) hue-rotate(180deg);
 }
 
+html:not(.dark-theme) .brand img { filter: invert(1) hue-rotate(180deg); }
