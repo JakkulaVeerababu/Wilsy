@@ -39,7 +39,7 @@ test('All generated internal links, local images, scripts, and styles resolve',(
 test('Sitemap covers exactly the public pages and excludes the error page',async()=>{
   const xml=await fs.readFile(path.join(root,'sitemap.xml'),'utf8');
   const urls=[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
-  assert.equal(urls.length,1014);assert.equal(new Set(urls).size,1014);
+  assert.equal(urls.length,1015);assert.equal(new Set(urls).size,1015);
   assert.ok(urls.every(url=>url.startsWith('https://www.wilsy.in/')));
   assert.ok(!urls.some(url=>url.endsWith('/404')));
   assert.ok(!urls.some(url=>url.endsWith('/jobs')),'The jobs alias uses the homepage canonical');
@@ -97,5 +97,16 @@ test('Jobs, hackathons and company research share the electric blue navigation',
   const hacks=pages.get('hackathons.html');
   assert.match(hacks,/Build something/);assert.match(hacks,/href="\/css\/hackathons.css"/);
   assert.match(hacks,/src="\/js\/hackathons.js"/);assert.match(hacks,/Deadlines · next 30 days/);
-  assert.match(pages.get('privacy.html'),/hackathon/);
+ assert.match(pages.get('privacy.html'),/hackathon/);
+});
+test('Homepage leads with the premium opportunity index and clear routes',()=>{
+ const home=pages.get('index.html');
+ assert.match(home,/Find the work<br><span>that moves you forward\.<\/span>/);
+ assert.match(home,/class="jobs-hero-actions"/);
+ assert.match(home,/Search opportunities/);
+ assert.match(home,/class="jobs-route-strip"/);
+ assert.match(home,/href="\/government-jobs"/);
+ assert.match(home,/href="\/hackathons"/);
+ assert.match(home,/Source-aware context/);
+ assert.match(home,/id="how-jobs-work"/);
 });

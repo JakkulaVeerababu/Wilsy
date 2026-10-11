@@ -1,0 +1,2037 @@
+/*
+   Government jobs page
+   Source-first styling for the static WILSY public-sector tracker.
+   All rules are scoped to the page so shared site behaviour stays intact.
+*/
+
+.gov-jobs-shell {
+  --gov-ink: #092650;
+  --gov-body: #29496f;
+  --gov-muted: #5a718d;
+  --gov-blue: #0866ff;
+  --gov-blue-dark: #0052db;
+  --gov-blue-soft: #edf4ff;
+  --gov-line: #d9e6f4;
+  --gov-soft: #f7faff;
+  --gov-amber: #825707;
+  --gov-amber-soft: #fff8e8;
+  --gov-red: #96463f;
+  --gov-red-soft: #fff4f2;
+  --gov-heading: var(--heading, 'Manrope', sans-serif);
+
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 42px 36px 72px;
+  color: var(--gov-ink);
+  font-family: var(--font, 'DM Sans', sans-serif);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.gov-jobs-shell,
+.gov-jobs-shell *,
+.gov-jobs-shell *::before,
+.gov-jobs-shell *::after {
+  box-sizing: border-box;
+}
+
+.gov-jobs-shell [hidden] {
+  display: none !important;
+}
+
+.gov-jobs-shell :is(h1, h2, h3, p, dl, dd) {
+  margin: 0;
+}
+
+.gov-jobs-shell :is(h1, h2, h3) {
+  font-family: var(--gov-heading);
+}
+
+.gov-jobs-shell :is(a, button, input, select, summary) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gov-jobs-shell a {
+  color: var(--gov-blue-dark);
+  text-underline-offset: 4px;
+}
+
+.gov-jobs-shell a:hover {
+  text-decoration: underline;
+}
+
+.gov-jobs-shell :is(button, input, select) {
+  font: inherit;
+}
+
+.gov-jobs-shell button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 9px 14px;
+  border: 1px solid #bfd1e8;
+  border-radius: 7px;
+  background: #fff;
+  color: var(--gov-body);
+  font-weight: 650;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.gov-jobs-shell button:not(:disabled):hover {
+  border-color: #8fb5ec;
+  background: var(--gov-blue-soft);
+  color: var(--gov-blue-dark);
+}
+
+.gov-jobs-shell :is(button, input, select):disabled {
+  cursor: default;
+  opacity: .62;
+}
+
+.gov-jobs-shell :is(a, button, input, select, summary):focus-visible {
+  outline: 3px solid var(--gov-blue-dark);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px #0866ff18;
+}
+
+/* Hero: a calm navy panel supports the electric-blue actions. */
+.gov-jobs-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(270px, .65fr);
+  align-items: center;
+  gap: 56px;
+  padding: 22px 0 38px;
+  border-bottom: 1px solid var(--gov-line);
+}
+
+.gov-jobs-hero > *,
+.gov-jobs-hero-copy > *,
+.gov-jobs-hero-panel > * {
+  min-width: 0;
+}
+
+.gov-jobs-hero-copy {
+  min-width: 0;
+}
+
+.gov-jobs-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--gov-blue-dark);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.35px;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+
+.gov-jobs-eyebrow > span {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 50%;
+  background: var(--gov-blue);
+}
+
+.gov-jobs-hero h1 {
+  max-width: 800px;
+  margin: 17px 0 20px;
+  color: var(--gov-ink);
+  font-size: clamp(48px, 5vw, 60px);
+  font-weight: 750;
+  letter-spacing: -3px;
+  line-height: 1.06;
+  text-wrap: balance;
+}
+
+.gov-jobs-hero h1 span {
+  color: var(--gov-blue);
+}
+
+.gov-jobs-hero-copy > p:not(.gov-jobs-eyebrow) {
+  max-width: 650px;
+  color: var(--gov-body);
+  font-size: 16px;
+  line-height: 1.85;
+}
+
+.gov-jobs-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 11px;
+  margin-top: 26px;
+}
+
+.gov-jobs-primary,
+.gov-jobs-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  min-width: 44px;
+  min-height: 46px;
+  padding: 10px 17px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none !important;
+}
+
+.gov-jobs-primary {
+  border-color: var(--gov-blue);
+  background: var(--gov-blue);
+  color: #fff !important;
+  box-shadow: 0 6px 16px #0866ff1a;
+}
+
+.gov-jobs-primary:hover {
+  border-color: var(--gov-blue-dark);
+  background: var(--gov-blue-dark);
+}
+
+.gov-jobs-secondary {
+  border-color: #bfd2ea;
+  background: #fff;
+  color: var(--gov-blue-dark) !important;
+}
+
+.gov-jobs-secondary:hover {
+  border-color: #8fb5ec;
+  background: var(--gov-blue-soft);
+}
+
+.gov-jobs-hero-panel {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 27px 28px;
+  border: 1px solid #234b7b;
+  border-radius: 15px;
+  background: linear-gradient(145deg, #153d6c, #092650);
+  color: #fff;
+  box-shadow: 0 14px 32px #09265016;
+}
+
+.gov-jobs-hero-panel::before {
+  position: absolute;
+  z-index: -1;
+  right: -95px;
+  top: -90px;
+  width: 230px;
+  height: 230px;
+  border: 1px solid #ffffff2b;
+  border-radius: 50%;
+  box-shadow: 0 0 0 22px #ffffff08, 0 0 0 44px #ffffff04;
+  content: '';
+}
+
+.gov-jobs-hero-panel > p {
+  color: #cfe0fa;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.35px;
+}
+
+.gov-jobs-hero-panel > strong {
+  display: block;
+  margin-top: 15px;
+  color: #fff;
+  font-family: var(--gov-heading);
+  font-size: 56px;
+  font-weight: 650;
+  letter-spacing: -2px;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.gov-jobs-hero-panel > span {
+  display: block;
+  margin-top: 6px;
+  color: #dce8ff;
+  font-size: 12px;
+}
+
+.gov-jobs-hero-panel > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 22px;
+  padding-top: 15px;
+  border-top: 1px solid #ffffff2a;
+}
+
+.gov-jobs-hero-panel b {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.gov-jobs-hero-panel small {
+  color: #cfe0fa;
+  font-size: 11px;
+}
+
+.gov-jobs-hero-panel :focus-visible {
+  outline-color: #fff;
+  box-shadow: 0 0 0 5px #8cb8ff40;
+}
+
+/* Optional link tabs keep the two opportunity indexes connected. */
+.opportunity-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0 0 25px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--gov-line);
+}
+
+.opportunity-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: var(--gov-body);
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.opportunity-nav a:hover,
+.opportunity-nav a[aria-current='page'],
+.opportunity-nav a[aria-current='true'],
+.opportunity-nav a[data-active='true'] {
+  background: var(--gov-blue-soft);
+  color: var(--gov-blue-dark);
+}
+
+/* Freshness and coverage stay visible without competing with the index. */
+.gov-jobs-notice,
+.gov-jobs-freshness {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  margin: 24px 0 28px;
+  padding: 16px 18px;
+  border: 1px solid var(--gov-line);
+  border-inline-start: 3px solid var(--gov-blue);
+  border-radius: 9px;
+  background: var(--gov-soft);
+  color: var(--gov-body);
+}
+
+.gov-jobs-notice-mark {
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border: 1px solid #a8c6f2;
+  border-radius: 50%;
+  background: var(--gov-blue-soft);
+  color: var(--gov-blue-dark);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.gov-jobs-notice .gov-jobs-eyebrow,
+.gov-jobs-freshness .gov-jobs-eyebrow {
+  margin-bottom: 5px;
+}
+
+.gov-jobs-notice h2,
+.gov-jobs-freshness h2 {
+  color: var(--gov-ink);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.gov-jobs-notice p:last-child,
+.gov-jobs-freshness p:last-child {
+  margin-top: 5px;
+  color: var(--gov-muted);
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.gov-jobs-notice[data-state='closing'],
+.gov-jobs-freshness[data-state='closing'] {
+  border-inline-start-color: #ba8b30;
+  background: var(--gov-amber-soft);
+}
+
+.gov-jobs-notice[data-state='closed'],
+.gov-jobs-freshness[data-state='closed'] {
+  border-inline-start-color: #9aabbe;
+}
+
+.gov-jobs-notice a,
+.gov-jobs-freshness a {
+  font-weight: 650;
+}
+
+.gov-jobs-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 11px;
+  margin: 0 0 35px;
+}
+
+.gov-jobs-metrics > div,
+.gov-jobs-metric {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+  min-height: 86px;
+  padding: 15px 17px;
+  border: 1px solid var(--gov-line);
+  border-radius: 9px;
+  background: var(--gov-soft);
+}
+
+.gov-jobs-metrics strong,
+.gov-jobs-metric strong {
+  color: var(--gov-ink);
+  font-family: var(--gov-heading);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -.8px;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.gov-jobs-metrics span,
+.gov-jobs-metric :is(span, small, p) {
+  color: var(--gov-muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.gov-jobs-metric[data-state='open'] strong,
+.gov-jobs-metrics > div[data-state='open'] strong {
+  color: var(--gov-blue-dark);
+}
+
+.gov-jobs-metric[data-state='closing'] strong,
+.gov-jobs-metrics > div[data-state='closing'] strong {
+  color: var(--gov-amber);
+}
+
+.gov-jobs-metric[data-state='closed'] strong,
+.gov-jobs-metrics > div[data-state='closed'] strong {
+  color: var(--gov-muted);
+}
+
+/* Search, fields and sort controls share one clear control rhythm. */
+.gov-jobs-workspace {
+  min-width: 0;
+  scroll-margin-top: 100px;
+}
+
+.gov-jobs-search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+  min-width: 0;
+  padding: 7px;
+  border: 1px solid #c2d5ec;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 6px 20px #09265007;
+}
+
+.gov-jobs-search:focus-within {
+  border-color: var(--gov-blue);
+  box-shadow: 0 0 0 3px #0866ff14;
+}
+
+.gov-jobs-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.gov-jobs-search input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--gov-soft);
+  color: var(--gov-ink);
+  font-size: 15px;
+}
+
+.gov-jobs-search input::placeholder {
+  color: var(--gov-muted);
+  opacity: 1;
+}
+
+.gov-jobs-search input:focus-visible {
+  outline-offset: 1px;
+  box-shadow: none;
+}
+
+.gov-jobs-search button {
+  min-width: 132px;
+  border-color: var(--gov-blue);
+  background: var(--gov-blue);
+  color: #fff;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.gov-jobs-search button:not(:disabled):hover {
+  border-color: var(--gov-blue-dark);
+  background: var(--gov-blue-dark);
+  color: #fff;
+}
+
+.gov-jobs-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  gap: 12px;
+  align-items: end;
+  margin-top: 13px;
+  padding: 16px;
+  border: 1px solid var(--gov-line);
+  border-radius: 10px;
+  background: var(--gov-soft);
+}
+
+.gov-jobs-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.gov-jobs-field > span,
+.gov-jobs-sort > span {
+  color: var(--gov-body);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.gov-jobs-field select,
+.gov-jobs-sort select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 9px 30px 9px 11px;
+  border: 1px solid #c3d5eb;
+  border-radius: 7px;
+  background: #fff;
+  color: var(--gov-ink);
+  font-size: 13px;
+  text-overflow: ellipsis;
+}
+
+.gov-jobs-field select:hover,
+.gov-jobs-sort select:hover {
+  border-color: #8fb5ec;
+}
+
+.gov-jobs-filters > button {
+  white-space: nowrap;
+}
+
+.gov-jobs-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 32px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--gov-line);
+}
+
+.gov-jobs-toolbar > div {
+  min-width: 0;
+}
+
+.gov-jobs-toolbar .gov-jobs-eyebrow {
+  margin-bottom: 6px;
+  color: var(--gov-muted);
+  font-size: 10px;
+  letter-spacing: 1.15px;
+}
+
+.gov-jobs-toolbar h2 {
+  color: var(--gov-ink);
+  font-size: 24px;
+  font-weight: 750;
+  letter-spacing: -.6px;
+  line-height: 1.35;
+}
+
+.gov-jobs-sort {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 0 1 220px;
+  min-width: 160px;
+}
+
+.gov-jobs-sort select {
+  flex: 1;
+}
+
+.gov-jobs-feedback {
+  min-height: 0;
+  margin: 12px 0;
+  color: var(--gov-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.gov-jobs-feedback:empty {
+  display: none;
+}
+
+/* Cards use a restrained state rail and keep pay and eligibility scannable. */
+.gov-jobs-results {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 17px;
+  min-width: 0;
+}
+
+.gov-jobs-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid var(--gov-line);
+  border-inline-start: 3px solid #82aef0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 10px #09265006;
+}
+
+.gov-jobs-card:hover {
+  border-color: #adc8ed;
+  box-shadow: 0 9px 24px #0926500c;
+}
+
+.gov-jobs-card:focus-within {
+  border-color: #82aef0;
+  box-shadow: 0 0 0 3px #0866ff12, 0 8px 22px #09265009;
+}
+
+.gov-jobs-card[data-state='open'],
+.gov-jobs-card[data-gov-jobs-status='Open'],
+.gov-jobs-card[data-gov-jobs-status='open'] {
+  border-inline-start-color: #5794ed;
+}
+
+.gov-jobs-card[data-state='closing'] {
+  border-inline-start-color: #bd8c30;
+}
+
+.gov-jobs-card[data-state='closed'] {
+  border-inline-start-color: #a3b2c4;
+  background: #fbfcfe;
+}
+
+.gov-jobs-card[data-state='upcoming'] {
+  border-inline-start-color: #6f86a7;
+}
+
+.gov-jobs-card[data-state='unknown'] {
+  border-inline-start-color: #b0bac8;
+}
+
+.gov-jobs-card[data-state='review'] {
+  border-inline-start-color: #7e91aa;
+}
+
+.gov-jobs-card-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.gov-jobs-rank,
+.gov-jobs-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 9px;
+  border: 1px solid #cbd9eb;
+  border-radius: 5px;
+  background: var(--gov-soft);
+  color: var(--gov-body);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.gov-jobs-rank {
+  justify-content: center;
+  min-width: 34px;
+  color: var(--gov-blue-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.gov-jobs-card[data-gov-jobs-rank='1'] .gov-jobs-rank,
+.gov-jobs-card[data-rank='1'] .gov-jobs-rank,
+.gov-jobs-card[data-gov-jobs-rank='top'] .gov-jobs-rank,
+.gov-jobs-card[data-rank='top'] .gov-jobs-rank {
+  border-color: var(--gov-ink);
+  background: var(--gov-ink);
+  color: #fff;
+}
+
+.gov-jobs-status {
+  max-width: 100%;
+  text-transform: capitalize;
+}
+
+.gov-jobs-card[data-state='open'] .gov-jobs-status,
+.gov-jobs-card[data-gov-jobs-status='Open'] .gov-jobs-status,
+.gov-jobs-card[data-gov-jobs-status='open'] .gov-jobs-status {
+  border-color: #bfd5f7;
+  background: var(--gov-blue-soft);
+  color: var(--gov-blue-dark);
+}
+
+.gov-jobs-card[data-state='closing'] .gov-jobs-status {
+  border-color: #e5cc98;
+  background: var(--gov-amber-soft);
+  color: var(--gov-amber);
+}
+
+.gov-jobs-card[data-state='closed'] .gov-jobs-status {
+  border-color: #d1dce9;
+  background: #eef2f7;
+  color: #546981;
+}
+
+.gov-jobs-card[data-state='review'] .gov-jobs-status,
+.gov-jobs-card[data-state='unknown'] .gov-jobs-status {
+  border-color: #cbd7e5;
+  background: #f2f5f9;
+  color: #536b86;
+}
+
+.gov-jobs-card-kicker {
+  margin-bottom: 7px !important;
+  color: var(--gov-body);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.6;
+}
+
+.gov-jobs-card h3 {
+  color: var(--gov-ink);
+  font-size: 20px;
+  font-weight: 750;
+  letter-spacing: -.4px;
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+.gov-jobs-card-department {
+  margin-top: 6px !important;
+  color: var(--gov-muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.gov-jobs-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 16px 0 18px;
+}
+
+.gov-jobs-tags span {
+  max-width: 100%;
+  padding: 5px 8px;
+  border: 1px solid #e0e8f3;
+  border-radius: 4px;
+  background: #f5f8fc;
+  color: var(--gov-body);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.gov-jobs-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 18px;
+  margin: 0;
+  padding: 0;
+}
+
+.gov-jobs-facts > div {
+  min-width: 0;
+  padding: 13px 0;
+  border-top: 1px solid #e5edf6;
+}
+
+.gov-jobs-facts dt {
+  color: var(--gov-muted);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.gov-jobs-facts dd {
+  margin-top: 5px;
+  color: var(--gov-body);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.gov-jobs-facts > div:first-child,
+.gov-jobs-pay {
+  border-top-color: #c6daf7;
+  border-radius: 7px;
+  background: var(--gov-blue-soft);
+}
+
+.gov-jobs-facts > div:first-child {
+  padding: 13px 12px;
+}
+
+.gov-jobs-facts > div:first-child dt,
+.gov-jobs-pay :is(dt, span) {
+  color: var(--gov-blue-dark);
+}
+
+.gov-jobs-facts > div:first-child dd,
+.gov-jobs-pay :is(dd, strong) {
+  color: var(--gov-ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.gov-jobs-pay {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 13px 12px;
+  border: 1px solid #c6daf7;
+}
+
+.gov-jobs-deadline {
+  margin-top: 5px !important;
+  padding-top: 13px;
+  border-top: 1px dashed #d4e1f0;
+  color: var(--gov-body);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.7;
+}
+
+.gov-jobs-deadline[data-gov-jobs-deadline-state='today'],
+.gov-jobs-deadline[data-gov-jobs-deadline-state='tomorrow'] {
+  color: var(--gov-amber);
+}
+
+.gov-jobs-deadline[data-gov-jobs-deadline-state='closed'] {
+  color: var(--gov-muted);
+}
+
+.gov-jobs-deadline[data-gov-jobs-deadline-state='unknown'] {
+  color: var(--gov-muted);
+}
+
+.gov-jobs-verification {
+  margin-top: 12px !important;
+  color: var(--gov-muted);
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.gov-jobs-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-top: auto;
+  padding-top: 17px;
+  border-top: 1px solid var(--gov-line);
+}
+
+.gov-jobs-card-actions a {
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 9px 11px;
+  border: 1px solid #c1d4ec;
+  border-radius: 6px;
+  color: var(--gov-blue-dark);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.gov-jobs-card-actions a:first-child {
+  border-color: var(--gov-blue);
+  background: var(--gov-blue);
+  color: #fff;
+}
+
+.gov-jobs-card-actions a:hover {
+  border-color: #8fb5ec;
+  background: var(--gov-blue-soft);
+  text-decoration: none;
+}
+
+.gov-jobs-card-actions a:first-child:hover {
+  border-color: var(--gov-blue-dark);
+  background: var(--gov-blue-dark);
+  color: #fff;
+}
+
+/* Optional full-disclosure details stay compact until a reader asks for them. */
+.gov-jobs-card-details {
+  margin-top: 15px;
+  border-top: 1px dashed #d4e1f0;
+}
+
+.gov-jobs-card-details > summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 9px 0;
+  color: var(--gov-blue-dark);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.gov-jobs-card-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.gov-jobs-card-details > summary::after {
+  width: 7px;
+  height: 7px;
+  margin: 0 0 4px auto;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  content: '';
+  transform: rotate(45deg);
+}
+
+.gov-jobs-card-details[open] > summary::after {
+  margin-bottom: -3px;
+  transform: rotate(225deg);
+}
+
+.gov-jobs-card-details > :not(summary) {
+  color: var(--gov-muted);
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.gov-jobs-card-details > :not(summary) + :not(summary) {
+  margin-top: 9px;
+}
+
+/* Source hubs are visibly official, but remain quieter than primary actions. */
+.gov-jobs-sources {
+  margin-top: 58px;
+  padding-top: 30px;
+  border-top: 1px solid var(--gov-line);
+}
+
+.gov-jobs-section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+.gov-jobs-section-heading > * {
+  min-width: 0;
+}
+
+.gov-jobs-section-heading h2 {
+  margin-top: 9px;
+  color: var(--gov-ink);
+  font-size: 28px;
+  font-weight: 750;
+  letter-spacing: -.8px;
+  line-height: 1.35;
+}
+
+.gov-jobs-section-heading > p {
+  max-width: 410px;
+  color: var(--gov-muted);
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.gov-jobs-source-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.gov-jobs-source-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 190px;
+  padding: 20px;
+  border: 1px solid var(--gov-line);
+  border-radius: 10px;
+  background: var(--gov-soft);
+  color: var(--gov-ink);
+  text-decoration: none !important;
+}
+
+.gov-jobs-source-card:hover {
+  border-color: #9ebce8;
+  background: #fbfdff;
+  box-shadow: 0 7px 18px #09265008;
+}
+
+.gov-jobs-source-domain {
+  color: var(--gov-blue-dark);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .4px;
+}
+
+.gov-jobs-source-card h3 {
+  margin-top: 9px;
+  color: var(--gov-ink);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.gov-jobs-source-card p {
+  margin-top: 8px;
+  color: var(--gov-muted);
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.gov-jobs-source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  margin-top: auto;
+  padding-top: 12px;
+  color: var(--gov-blue-dark);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.gov-jobs-portal-filter {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  max-width: 420px;
+  min-height: 44px;
+  margin: 0 0 18px auto;
+  padding: 6px 10px;
+  border: 1px solid #c3d5eb;
+  border-radius: 7px;
+  background: #fff;
+}
+
+.gov-jobs-portal-filter label {
+  flex: 0 0 auto;
+  color: var(--gov-body);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.gov-jobs-portal-filter input {
+  width: 100%;
+  min-width: 0;
+  min-height: 32px;
+  padding: 5px 2px;
+  border: 0;
+  background: transparent;
+  color: var(--gov-ink);
+  font-size: 13px;
+}
+
+.gov-jobs-portal-filter:focus-within {
+  border-color: var(--gov-blue);
+  box-shadow: 0 0 0 3px #0866ff14;
+}
+
+.gov-jobs-portal-filter input:focus-visible {
+  outline-offset: 1px;
+  box-shadow: none;
+}
+
+.gov-jobs-methodology {
+  display: grid;
+  grid-template-columns: minmax(220px, .8fr) minmax(0, 1.2fr);
+  gap: 46px;
+  margin-top: 54px;
+  padding: 28px;
+  border: 1px solid var(--gov-line);
+  border-radius: 12px;
+  background: var(--gov-soft);
+}
+
+.gov-jobs-methodology h2 {
+  margin-top: 9px;
+  color: var(--gov-ink);
+  font-size: 24px;
+  font-weight: 750;
+  letter-spacing: -.6px;
+  line-height: 1.45;
+}
+
+.gov-jobs-methodology-copy {
+  min-width: 0;
+}
+
+.gov-jobs-methodology-copy p {
+  color: var(--gov-body);
+  font-size: 13px;
+  line-height: 1.85;
+}
+
+.gov-jobs-methodology-copy p + p {
+  margin-top: 12px;
+}
+
+.gov-jobs-text-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.gov-jobs-empty {
+  display: flex;
+  grid-column: 1 / -1;
+  min-height: 230px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 44px 28px;
+  border: 1px dashed #bcd0e9;
+  border-radius: 11px;
+  background: var(--gov-soft);
+  text-align: center;
+}
+
+.gov-jobs-empty h3 {
+  color: var(--gov-ink);
+  font-size: 24px;
+  font-weight: 750;
+  letter-spacing: -.6px;
+  line-height: 1.4;
+}
+
+.gov-jobs-empty p:not(.gov-jobs-eyebrow) {
+  max-width: 520px;
+  color: var(--gov-muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.gov-jobs-empty button {
+  border-color: var(--gov-blue);
+  background: var(--gov-blue);
+  color: #fff;
+}
+
+.gov-jobs-empty button:hover {
+  border-color: var(--gov-blue-dark);
+  background: var(--gov-blue-dark);
+  color: #fff;
+}
+
+.gov-jobs-noscript {
+  max-width: 1360px;
+  margin: 0 auto 28px;
+  padding: 14px 36px;
+  border-top: 1px solid var(--gov-line);
+  color: var(--gov-muted);
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+@media (max-width: 1100px) {
+  .gov-jobs-shell {
+    padding-right: 28px;
+    padding-left: 28px;
+  }
+
+  .gov-jobs-hero {
+    gap: 34px;
+  }
+
+  .gov-jobs-hero h1 {
+    font-size: 52px;
+  }
+
+  .gov-jobs-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gov-jobs-filters > button {
+    justify-self: start;
+  }
+
+  .gov-jobs-source-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .gov-jobs-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  .gov-jobs-hero-panel {
+    max-width: 460px;
+  }
+
+  .gov-jobs-methodology {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+  }
+}
+
+@media (max-width: 700px) {
+  .gov-jobs-shell {
+    padding: 32px 24px 54px;
+  }
+
+  .gov-jobs-hero {
+    padding: 10px 0 30px;
+  }
+
+  .gov-jobs-hero h1 {
+    font-size: clamp(42px, 8vw, 50px);
+    letter-spacing: -2.4px;
+  }
+
+  .gov-jobs-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 28px;
+  }
+
+  .gov-jobs-toolbar {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .gov-jobs-sort {
+    flex-basis: 100%;
+  }
+
+  .gov-jobs-results {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gov-jobs-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .gov-jobs-source-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .gov-jobs-shell {
+    padding: 26px 18px 44px;
+  }
+
+  .gov-jobs-hero h1 {
+    font-size: 40px;
+    letter-spacing: -2px;
+  }
+
+  .gov-jobs-hero-copy > p:not(.gov-jobs-eyebrow) {
+    font-size: 15px;
+  }
+
+  .gov-jobs-hero-panel {
+    padding: 22px;
+  }
+
+  .gov-jobs-hero-panel > strong {
+    font-size: 48px;
+  }
+
+  .gov-jobs-hero-actions {
+    align-items: stretch;
+  }
+
+  .gov-jobs-primary,
+  .gov-jobs-secondary {
+    width: 100%;
+  }
+
+  .gov-jobs-notice,
+  .gov-jobs-freshness {
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: 14px;
+  }
+
+  .gov-jobs-metrics > div,
+  .gov-jobs-metric {
+    min-height: 82px;
+    padding: 13px;
+  }
+
+  .gov-jobs-metrics strong,
+  .gov-jobs-metric strong {
+    font-size: 23px;
+  }
+
+  .gov-jobs-search {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gov-jobs-search button {
+    width: 100%;
+  }
+
+  .gov-jobs-filters {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 14px;
+  }
+
+  .gov-jobs-filters > button {
+    width: 100%;
+  }
+
+  .gov-jobs-card {
+    padding: 21px 18px;
+  }
+
+  .gov-jobs-card h3 {
+    font-size: 18px;
+  }
+
+  .gov-jobs-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gov-jobs-source-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gov-jobs-portal-filter {
+    max-width: none;
+    margin-left: 0;
+  }
+
+  .gov-jobs-methodology {
+    margin-top: 40px;
+    padding: 22px 18px;
+  }
+
+  .gov-jobs-methodology h2,
+  .gov-jobs-section-heading h2 {
+    font-size: 24px;
+  }
+
+  .gov-jobs-noscript {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gov-jobs-shell :is(a, button, input, select, summary),
+  .gov-jobs-card,
+  .gov-jobs-source-card,
+  .gov-jobs-search {
+    transition: background-color .16s ease, border-color .16s ease,
+      box-shadow .16s ease, color .16s ease;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gov-jobs-shell,
+  .gov-jobs-shell *,
+  .gov-jobs-shell *::before,
+  .gov-jobs-shell *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Beginner guide layer: the catalog remains useful when the live index is empty. */
+.gov-jobs-guide-section,
+.gov-jobs-live-section {
+  margin-top: 58px;
+  scroll-margin-top: 92px;
+}
+
+.gov-jobs-guide-notice {
+  border-inline-start-color: #5c7bd8;
+}
+
+.gov-jobs-guide-notice p + p {
+  margin-top: 8px;
+}
+
+.gov-jobs-anchor {
+  position: relative;
+  top: -90px;
+  height: 0;
+}
+
+.gov-exam-browse-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.gov-exam-browse-grid-wide {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.gov-exam-browse-grid-five {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.gov-exam-browse-card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 142px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 7px;
+  padding: 17px;
+  border: 1px solid var(--gov-line);
+  border-radius: 10px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.gov-exam-browse-card:hover {
+  border-color: #91b4e8;
+  background: var(--gov-blue-soft);
+  box-shadow: 0 8px 20px #0926500d;
+}
+
+.gov-exam-browse-count {
+  color: var(--gov-blue-dark);
+  font-family: var(--gov-heading);
+  font-size: 22px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.gov-exam-browse-card strong {
+  max-width: calc(100% - 24px);
+  color: var(--gov-ink);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.gov-exam-browse-card small {
+  display: block;
+  color: var(--gov-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.gov-exam-browse-arrow {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  color: var(--gov-blue-dark);
+  font-size: 17px;
+}
+
+.gov-jobs-ranking-section {
+  padding: 25px;
+  border: 1px solid var(--gov-line);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f8fbff, #fff);
+}
+
+.gov-jobs-editorial-note,
+.gov-study-disclaimer {
+  margin-top: 16px !important;
+  padding: 13px 15px;
+  border: 1px solid #d8e3f0;
+  border-inline-start: 3px solid #879bb7;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: var(--gov-muted);
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.gov-eligibility-section {
+  padding: 27px;
+  border: 1px solid #c9dbf2;
+  border-radius: 12px;
+  background: #f7faff;
+}
+
+.gov-eligibility-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 13px;
+  align-items: end;
+  margin-top: 22px;
+}
+
+.gov-eligibility-form > .gov-jobs-primary {
+  width: 100%;
+  min-height: 44px;
+}
+
+.gov-eligibility-results {
+  margin-top: 20px;
+}
+
+.gov-eligibility-empty {
+  padding: 18px;
+  border: 1px dashed #b9cde7;
+  border-radius: 9px;
+  color: var(--gov-muted);
+  font-size: 13px;
+  line-height: 1.75;
+  text-align: center;
+}
+
+.gov-eligibility-summary,
+.gov-exam-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 18px;
+  margin-bottom: 13px;
+  color: var(--gov-muted);
+  font-size: 12px;
+}
+
+.gov-eligibility-summary strong,
+.gov-exam-toolbar strong {
+  color: var(--gov-ink);
+  font-family: var(--gov-heading);
+  font-size: 18px;
+}
+
+.gov-eligibility-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.gov-eligibility-result {
+  min-width: 0;
+  padding: 17px;
+  border: 1px solid #cbdcf2;
+  border-inline-start: 3px solid #5a91df;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.gov-eligibility-result-review {
+  border-inline-start-color: #9a7a37;
+}
+
+.gov-eligibility-result > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 7px;
+}
+
+.gov-eligibility-status,
+.gov-eligibility-family {
+  color: var(--gov-blue-dark);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: .55px;
+  text-transform: uppercase;
+}
+
+.gov-eligibility-result-review .gov-eligibility-status {
+  color: #816323;
+}
+
+.gov-eligibility-result h3 {
+  margin-top: 12px;
+  color: var(--gov-ink);
+  font-size: 17px;
+  line-height: 1.4;
+}
+
+.gov-eligibility-result p {
+  margin-top: 8px;
+  color: var(--gov-body);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.gov-eligibility-result .gov-eligibility-reason {
+  color: var(--gov-muted);
+  font-size: 11px;
+}
+
+.gov-eligibility-result a {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  margin-top: 11px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.gov-study-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.gov-study-step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  min-width: 0;
+  padding: 17px;
+  border: 1px solid var(--gov-line);
+  border-radius: 9px;
+  background: var(--gov-soft);
+}
+
+.gov-study-step > span {
+  color: var(--gov-blue-dark);
+  font-family: var(--gov-heading);
+  font-size: 20px;
+  font-weight: 750;
+}
+
+.gov-study-step h3 {
+  color: var(--gov-ink);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.gov-study-step p {
+  margin-top: 5px;
+  color: var(--gov-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.gov-exam-catalog-section {
+  padding-top: 7px;
+}
+
+.gov-exam-filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) repeat(4, minmax(125px, 1fr)) auto;
+  gap: 11px;
+  align-items: end;
+  margin-top: 22px;
+  padding: 15px;
+  border: 1px solid var(--gov-line);
+  border-radius: 10px;
+  background: var(--gov-soft);
+}
+
+.gov-exam-query-field {
+  min-width: 0;
+}
+
+.gov-exam-query-field input {
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 11px;
+  border: 1px solid #c3d5eb;
+  border-radius: 7px;
+  background: #fff;
+  color: var(--gov-ink);
+  font-size: 13px;
+}
+
+.gov-exam-filters > button {
+  white-space: nowrap;
+}
+
+.gov-exam-results {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.gov-exam-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 21px;
+  border: 1px solid var(--gov-line);
+  border-inline-start: 3px solid #83aef0;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 3px 10px #09265006;
+}
+
+.gov-exam-card:hover {
+  border-color: #a9c7ee;
+  box-shadow: 0 8px 21px #0926500d;
+}
+
+.gov-exam-card-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.gov-exam-category,
+.gov-exam-competition {
+  color: var(--gov-blue-dark);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: .55px;
+  text-transform: uppercase;
+}
+
+.gov-exam-competition {
+  color: var(--gov-muted);
+}
+
+.gov-exam-card h3 {
+  margin-top: 13px;
+  color: var(--gov-ink);
+  font-size: 22px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.gov-exam-name {
+  margin-top: 5px !important;
+  color: var(--gov-muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.gov-exam-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 14px 0 16px;
+}
+
+.gov-exam-tags span {
+  padding: 4px 7px;
+  border: 1px solid #dce6f2;
+  border-radius: 4px;
+  background: #f6f9fd;
+  color: var(--gov-body);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.gov-exam-eligibility {
+  padding: 12px;
+  border: 1px solid #d3e2f5;
+  border-radius: 7px;
+  background: var(--gov-blue-soft);
+  color: var(--gov-body);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.gov-exam-eligibility strong {
+  color: var(--gov-blue-dark);
+}
+
+.gov-exam-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 15px;
+  margin-top: 9px;
+}
+
+.gov-exam-facts > div {
+  min-width: 0;
+  padding: 11px 0;
+  border-top: 1px solid #e5edf6;
+}
+
+.gov-exam-facts dt {
+  color: var(--gov-muted);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.gov-exam-facts dd {
+  margin-top: 4px;
+  color: var(--gov-body);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.gov-exam-details {
+  margin-top: 12px;
+  border-top: 1px dashed #d4e1f0;
+}
+
+.gov-exam-details summary {
+  display: flex;
+  min-height: 43px;
+  align-items: center;
+  color: var(--gov-blue-dark);
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.gov-exam-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  padding: 3px 0 9px;
+}
+
+.gov-exam-detail-grid h4 {
+  margin-top: 9px;
+  color: var(--gov-ink);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.gov-exam-detail-grid p,
+.gov-exam-detail-grid li {
+  color: var(--gov-muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.gov-exam-detail-grid p {
+  margin-top: 6px;
+}
+
+.gov-exam-detail-grid ul,
+.gov-exam-detail-grid ol {
+  margin: 5px 0 0;
+  padding-left: 18px;
+}
+
+.gov-exam-detail-grid h4 + h4 {
+  margin-top: 15px;
+}
+
+.gov-exam-alert {
+  color: #806322 !important;
+  font-weight: 700;
+}
+
+.gov-exam-editorial {
+  padding: 9px;
+  border: 1px solid #dce5ef;
+  border-radius: 6px;
+  background: #f8fafc;
+}
+
+.gov-exam-update {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e5edf6;
+  color: var(--gov-muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.gov-exam-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--gov-line);
+}
+
+.gov-exam-card-actions a {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  padding: 7px 10px;
+  border: 1px solid var(--gov-blue);
+  border-radius: 6px;
+  background: var(--gov-blue);
+  color: #fff !important;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.gov-exam-card-actions span {
+  color: var(--gov-muted);
+  font-size: 10px;
+}
+
+.gov-jobs-exam-portals {
+  margin-top: 27px;
+  padding-top: 23px;
+  border-top: 1px solid var(--gov-line);
+}
+
+.gov-jobs-exam-portals > h3 {
+  color: var(--gov-ink);
+  font-size: 18px;
+}
+
+.gov-jobs-exam-portal-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 13px;
+}
+
+.gov-jobs-exam-portal {
+  display: flex;
+  min-width: 0;
+  min-height: 110px;
+  flex-direction: column;
+  gap: 5px;
+  padding: 13px;
+  border: 1px solid var(--gov-line);
+  border-radius: 8px;
+  background: #fff;
+  text-decoration: none !important;
+}
+
+.gov-jobs-exam-portal:hover {
+  border-color: #9dbce8;
+  background: var(--gov-blue-soft);
+}
+
+.gov-jobs-exam-portal span {
+  color: var(--gov-blue-dark);
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.gov-jobs-exam-portal strong {
+  color: var(--gov-ink);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.gov-jobs-exam-portal small {
+  margin-top: auto;
+  color: var(--gov-muted);
+  font-size: 10px;
+}
+
+@media (max-width: 1100px) {
+  .gov-exam-filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .gov-exam-query-field {
+    grid-column: 1 / -1;
+  }
+
+  .gov-exam-browse-grid-wide,
+  .gov-exam-browse-grid-five {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .gov-jobs-exam-portal-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .gov-eligibility-form,
+  .gov-eligibility-grid,
+  .gov-study-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gov-exam-results {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .gov-exam-browse-grid,
+  .gov-exam-browse-grid-wide,
+  .gov-exam-browse-grid-five,
+  .gov-eligibility-form,
+  .gov-eligibility-grid,
+  .gov-study-grid,
+  .gov-exam-detail-grid,
+  .gov-jobs-exam-portal-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gov-eligibility-section,
+  .gov-jobs-ranking-section {
+    padding: 20px 17px;
+  }
+
+  .gov-exam-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gov-exam-query-field {
+    grid-column: auto;
+  }
+
+  .gov-exam-filters > button {
+    width: 100%;
+  }
+
+  .gov-exam-card {
+    padding: 18px;
+  }
+
+  .gov-exam-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
