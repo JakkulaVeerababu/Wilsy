@@ -350,8 +350,8 @@ html body :is(.home-path-tabs button){border-radius:999px!important}
 
 /* Surfaces: tinted and borderless, separated by space instead of shadow. */
 html body :is(.job-result-card,.guide-card,.home-guide-card,.home-featured-company,.company-card,.gov-jobs-card,.hack-card,.tier-card,.related-grid>a,.home-stat-card,.home-studio-grid a,.gov-jobs-metrics>div,.research-card,.correction-card,.mini-guide,.profile-pay-panel,.contact-box,.gov-jobs-notice,.dsa-start article,.hack-principles article,.salary-example,.home-index-row){background-color:var(--tint)!important;border-color:transparent!important;box-shadow:none!important}
-html body .dsa-page .pattern-card{background-color:var(--tint)!important;border-color:transparent!important;box-shadow:none!important}
-html body :is(.job-result-card,.guide-card,.home-guide-card,.home-featured-company,.company-card,.gov-jobs-card,.hack-card,.tier-card,.related-grid>a,.home-studio-grid a,.gov-jobs-metrics>div,.mini-guide,.home-index-row):hover,html body .dsa-page .pattern-card:hover{background-color:var(--tint-hover)!important;box-shadow:none!important;border-color:transparent!important}
+html body.dsa-page .pattern-card{background-color:var(--tint)!important;border-color:transparent!important;box-shadow:none!important}
+html body :is(.job-result-card,.guide-card,.home-guide-card,.home-featured-company,.company-card,.gov-jobs-card,.hack-card,.tier-card,.related-grid>a,.home-studio-grid a,.gov-jobs-metrics>div,.mini-guide,.home-index-row):hover,html body.dsa-page .pattern-card:hover{background-color:var(--tint-hover)!important;box-shadow:none!important;border-color:transparent!important}
 html body :is(.job-result-card,.home-guide-card,.home-featured-company,.company-card,.gov-jobs-card,.hack-card,.guide-card,.research-card,.correction-card,.profile-pay-panel){border-radius:28px!important}
 html body :is(.home-stat-card,.home-studio-grid a,.home-index-row,.gov-jobs-metrics>div,.tier-card,.related-grid>a,.mini-guide){border-radius:20px!important}
 /* Inner panels sit on the tint as clean white plates. */
@@ -372,3 +372,58 @@ html body :is(.jobs-quick,.hack-quick,.dsa-topic-nav,.job-density) button:not([a
 /* Section rhythm: more air between blocks. */
 html body .home-section-heading{margin-bottom:56px}
 html body .home-kicker{opacity:.9}
+
+/* ===== Device and contrast fixes ===== */
+/* Pinned tools follow the header: when it slides away on scroll, they move up with it. */
+.jobs-search,.jobs-filters,.article-aside{transition:top .45s var(--ease)}
+body:has(.site-header.is-hidden) .jobs-search{top:12px!important}
+body:has(.site-header.is-hidden) .jobs-filters{top:100px!important}
+body:has(.site-header.is-hidden) .article-aside{top:24px!important}
+/* A ring of page colour keeps scrolled content from showing around the pinned search pill. */
+html body .jobs-search{box-shadow:0 0 0 8px var(--paper)!important}
+html body .jobs-search:focus-within{box-shadow:0 0 0 4px color-mix(in srgb,var(--blue) 12%,transparent),0 0 0 8px var(--paper)!important}
+
+/* Homepage studio preview: keep its top bar inside the window on phones. */
+.home-studio-bar{min-width:0}
+@media(max-width:520px){.home-studio-crumbs span{display:none}.home-studio-bar{gap:12px}}
+
+/* Mobile menu: the theme button reads clearly against the open panel. */
+@media(max-width:900px){.site-header .main-nav .theme-toggle{align-self:center;background:var(--tint)!important;border-color:var(--line)!important;color:var(--ink)!important}}
+
+/* Feature cards keep their brand-blue fill. */
+html body :is(.guide-card:nth-child(3),.mini-guide){background-color:var(--blue)!important;background-image:none!important;color:#fff!important}
+html body :is(.guide-card:nth-child(3),.mini-guide):hover{background-color:var(--blue-hover)!important}
+html body :is(.guide-card:nth-child(3),.mini-guide) *{color:#fff!important}
+
+/* Light mode: small labels with enough contrast. */
+html:not(.dark-theme) :is(.gov-jobs-status,.home-verified-label){color:#047857!important}
+html:not(.dark-theme) .gov-jobs-status{background:#e7f8f0!important}
+html body.dsa-page .control-btn{color:var(--ink)!important}
+html body .home-stat-note{color:#5d6b82}
+
+/* Dark mode: older pages hard-code navy text; give it light equivalents. */
+html.dark-theme :is(.gov-jobs-section-heading,.gov-jobs-notice,.gov-jobs-metrics,.gov-exam-browse-grid,.gov-study-grid,.gov-jobs-sources,.gov-jobs-methodology,.gov-jobs-exam-portals,.gov-jobs-toolbar,.gov-exam-card,.gov-eligibility-result) :is(h2,h3,h4,strong,b){color:var(--ink)!important}
+html.dark-theme :is(.gov-jobs-section-heading,.gov-jobs-notice,.gov-jobs-metrics,.gov-exam-browse-grid,.gov-study-grid,.gov-jobs-sources,.gov-jobs-methodology,.gov-jobs-exam-portals,.gov-jobs-toolbar,.gov-exam-card,.gov-eligibility-result) :is(p,span,small,li,dd,label):not(.gov-jobs-eyebrow){color:var(--muted)!important}
+html.dark-theme .gov-jobs-shell>:not(.gov-jobs-hero) .gov-jobs-eyebrow{color:#8fa8ff!important}
+html.dark-theme .gov-exam-browse-grid>*{background-color:var(--tint)!important;border-color:transparent!important}
+html.dark-theme :is(.hack-tags span){background:var(--tint)!important;border-color:transparent!important;color:var(--ink-soft)!important}
+html.dark-theme .hack-prize small{color:var(--muted)!important}
+html.dark-theme :is(.prose,.table-scroll) :is(table,thead,tbody,tr,td,th){background:transparent!important;border-color:var(--line)!important}
+html.dark-theme :is(.prose,.table-scroll) td{color:var(--ink-soft)!important}
+html.dark-theme :is(.prose,.table-scroll) th{color:var(--ink)!important}
+html.dark-theme .tier-badge{background:var(--blue-soft)!important;color:#c9d6ff!important}
+html.dark-theme .tier-badge.tier-1{background:var(--blue)!important;color:#fff!important}
+html.dark-theme :is(.count-badge,.directory-source-note,.filter-note,.saved-search-heading,.salary-display-label,.editorial-cta){background:var(--tint)!important;border-color:transparent!important}
+html.dark-theme :is(.count-badge,.directory-source-note,.filter-note p,.salary-display-label){color:var(--ink-soft)!important}
+html.dark-theme .search-toolbar{background:var(--surface)!important;border-color:var(--line)!important}
+html.dark-theme :is(.directory-heading .snapshot,.directory-heading time,.sort-label span,.saved-search-empty,.job-pagination span){color:var(--muted)!important}
+html.dark-theme .gov-jobs-shell>:not(.gov-jobs-hero) :is(h2,h3,h4,strong,b,th){color:var(--ink)!important}
+html.dark-theme .gov-jobs-shell>:not(.gov-jobs-hero) :is(p,span,small,li,dd,dt,label,td,legend):not(.gov-jobs-eyebrow,.gov-jobs-status,.gov-jobs-card-kicker,.gov-jobs-rank,.gov-jobs-card-actions *,.gov-jobs-facts>div:first-child dd,button *,a.gov-jobs-primary *){color:var(--muted)!important}
+html.dark-theme .gov-jobs-shell>:not(.gov-jobs-hero) :is(input,select,textarea){background:var(--surface)!important;color:var(--ink)!important;border-color:var(--line)!important}
+html body .home-stat-wide .home-stat-note{color:#047857!important}
+html.dark-theme body .home-stat-wide .home-stat-note{color:#42d39a!important}
+html.dark-theme .gov-jobs-shell :is(.gov-exam-card,.gov-jobs-exam-portal,.gov-study-step,.gov-jobs-source-card,.gov-jobs-empty,.gov-study-disclaimer,.gov-eligibility-section,.gov-jobs-search,.gov-jobs-filters,.gov-exam-filters,.gov-jobs-methodology,.gov-jobs-editorial-note,.gov-exam-eligibility,.gov-exam-editorial){background-color:var(--tint)!important;border-color:var(--line)!important}
+html.dark-theme .gov-jobs-shell :is(.gov-exam-card,.gov-jobs-exam-portal,.gov-study-step,.gov-jobs-source-card) :is(p,div)>span,html.dark-theme .gov-jobs-shell .gov-exam-card span:not(.gov-jobs-eyebrow){background-color:transparent}
+html.dark-theme .gov-jobs-shell>:not(.gov-jobs-hero) span{background-color:transparent}
+html.dark-theme .gov-jobs-shell .gov-jobs-notice-mark{background:var(--blue-soft)!important;color:#c9d6ff!important}
+html.dark-theme .gov-jobs-shell>:not(.gov-jobs-hero) :is(summary,.gov-jobs-text-link,a:not([class*=primary]):not(.gov-jobs-card-actions a):not(.gov-exam-card-actions a)){color:#9fb6ff!important}
