@@ -5,8 +5,13 @@ import {inr,salaryRange,usdTextToInr} from '../js/pay-format.js';
 import {escapeHtml as e, safeHref} from '../js/directory-core.js';
 import {guides,policyPages} from './site-content.mjs';
 import {jobsPage} from './jobs-page.mjs';
+import {homePage} from './home-page.mjs';
+import {brandLink, themeToggle} from './brand.mjs';
 import {hackathonsPage} from './hackathons-page.mjs';
 import {governmentJobsPage} from './government-jobs-page.mjs';
+import {fetchJobSnapshot} from './job-snapshot.mjs';
+import {loadDsaProject,dsaPage,writeDsaAssets} from './dsa-page.mjs';
+import {icon} from '../js/icons.js';
 
 const data = JSON.parse(await fs.readFile('data/companies.json','utf8'));
 const fx = JSON.parse(await fs.readFile('data/exchange-rate.json','utf8'));
@@ -20,17 +25,39 @@ const href = url => e(safeHref(url));
 const external = (url,label,cls='') => `<a class="${cls}" href="${href(url)}" target="_blank" rel="noopener noreferrer">${label}</a>`;
 const pageUrl = c => '/companies/'+encodeURIComponent(c.id);
 const jsonld = value => `<script type="application/ld+json">${JSON.stringify(value).replace(/</g,'\\u003c')}</script>`;
-const brand = `<a class="brand" href="/" aria-label="Wilsy home"><img src="/assets/wilsy-logo.png" alt="Wilsy Logo" style="height: 60px; width: auto;"></a>`;
+const dsaProject = await loadDsaProject();
+
+const fallbackHomeSnapshot = JSON.parse(await fs.readFile('data/jobs-home.json','utf8'));
+async function loadHomeSnapshot() {
+  // Deterministic/offline by default. Deployments may explicitly refresh public data.
+  if(process.env.WILSY_REFRESH_JOBS !== '1') return fallbackHomeSnapshot;
+  try {
+    return await fetchJobSnapshot();
+  } catch {
+    console.warn('Live snapshot refresh unavailable; using the dated public snapshot.');
+    return fallbackHomeSnapshot;
+  }
+}
 export function header(active='') {
-  return `<header class="site-header"><div class="header-inner">${brand}<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-navigation"><span class="nav-toggle-lines" aria-hidden="true"></span><span>Menu</span></button><nav class="main-nav" id="main-navigation" aria-label="Main navigation"><a href="/" ${active==='jobs'?'class="active" aria-current="page"':''}>Find jobs</a><a href="/government-jobs" ${active==='government-jobs'?'class="active" aria-current="page"':''}>Gov jobs</a><a href="/companies#companies" ${active==='companies'?'class="active" aria-current="page"':''}>Companies</a><a href="/hackathons" ${active==='hackathons'?'class="active" aria-current="page"':''}>Hackathons</a><a href="/guides" ${active==='guides'?'class="active" aria-current="page"':''}>Career guides</a><a href="/about" ${active==='about'?'class="active" aria-current="page"':''}>About</a><button id="theme-toggle" type="button" class="theme-toggle" aria-label="Toggle dark mode">Dark Mode</button></nav><a class="header-contact" href="/contact">Get in touch </a></div></header>`;
+  const links=[['/jobs','Find jobs','jobs'],['/government-jobs','Gov jobs','government-jobs'],['/companies#companies','Companies','companies'],['/hackathons','Hackathons','hackathons'],['/dsa','DSA roadmap','dsa'],['/guides','Career guides','guides']];
+  return `<header class="site-header"><div class="header-inner">${brandLink()}<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-navigation"><span class="nav-toggle-lines" aria-hidden="true"></span><span>Menu</span></button><nav class="main-nav" id="main-navigation" aria-label="Main navigation">${links.map(([url,name,key])=>`<a href="${url}"${key===active?' class="active" aria-current="page"':''}>${name}</a>`).join('')}${themeToggle}<a class="nav-cta" href="/jobs">Start searching ${icon('arrow')}</a></nav></div><span class="scroll-progress" aria-hidden="true"></span></header>`;
 }
 export function footer() {
-  return `<footer class="site-footer premium-footer"><div class="footer-main"><div class="footer-intro">${brand}<p>A clearer view of your next move.</p><span>Independent company research.<br>Real sources. More context.</span></div><nav aria-label="Explore Wilsy"><h2>EXPLORE</h2><a href="/">Find jobs</a><a href="/government-jobs">Government jobs</a><a href="/hackathons">Hackathons</a><a href="/companies#companies">Company directory</a><a href="/companies/all">All companies A–Z</a><a href="/guides">Career guides</a><a href="/methodology">Sources & methodology</a></nav><nav aria-label="About Wilsy"><h2>WILSY</h2><a href="/about">About us</a><a href="/contact">Contact & corrections</a><a href="mailto:${site.email}">${site.email}</a></nav><nav aria-label="Policies"><h2>THE DETAILS</h2><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/disclosure">Ads & affiliate disclosure</a><a href="/privacy#choices" data-privacy-choices>Privacy & cookie choices</a></nav></div><div class="footer-bottom"><span>© 2026 WILSY</span><p>Published salary examples, not guaranteed offers. Company logos belong to their respective owners.</p><span>Made for your next move</span></div></footer>`;
+  return `<footer class="site-footer premium-footer"><div class="footer-main">
+    <div class="footer-intro">${brandLink()}<p>A clearer view of your next move.</p><span>Real sources. More context.<br>Made for thoughtful decisions.</span><div class="footer-newsletter"><p class="footer-label">WILSY FIELD NOTES</p><a href="mailto:${site.email}?subject=WILSY%20newsletter%20interest">Request email updates ${icon('arrow')}</a><small>Opens your email app. Newsletter subscriptions are not yet automated.</small></div></div>
+    <nav aria-label="Explore Wilsy"><h2>EXPLORE</h2><a href="/">Home</a><a href="/jobs">Find jobs</a><a href="/government-jobs">Government jobs</a><a href="/hackathons">Hackathons</a><a href="/companies#companies">Company directory</a><a href="/companies/all">All companies A–Z</a></nav>
+    <nav aria-label="About Wilsy"><h2>LEARN &amp; CONNECT</h2><a href="/dsa">DSA roadmap</a><a href="/guides">Career guides</a><a href="/about">About WILSY</a><a href="/methodology">Sources &amp; methodology</a><a href="/contact">Contact &amp; corrections</a><a href="mailto:${site.email}">${site.email}</a></nav>
+    <nav aria-label="Policies"><h2>THE DETAILS</h2><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/disclosure">Ads &amp; affiliate disclosure</a><a href="/privacy#choices" data-privacy-choices>Privacy &amp; cookie choices</a></nav>
+  </div><div class="footer-bottom"><span>© 2026 WILSY</span><p>Published salary examples, not guaranteed offers. Company logos belong to their respective owners.</p><span>Made for your next move</span></div><div class="footer-giant" aria-hidden="true">wilsy<span>.in</span></div></footer>`;
 }
 const adTag = `<meta name="google-adsense-account" content="${site.publisher}"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${site.publisher}" crossorigin="anonymous"></script>`;
 function documentPage({title,description,route,body,active='',type='website',noindex=false,ads=true,structured,canonicalRoute=route}) {
   const url = site.origin+canonicalRoute;
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><script>try{if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-theme')}catch{}</script><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#0866ff"><title>${e(title)} — WILSY</title><meta name="description" content="${e(description)}"><link rel="canonical" href="${e(url)}"><meta property="og:type" content="${type}"><meta property="og:title" content="${e(title)} — WILSY"><meta property="og:description" content="${e(description)}"><meta property="og:url" content="${e(url)}"><meta name="twitter:card" content="summary">${noindex?'<meta name="robots" content="noindex,follow">':''}<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/assets/fonts/fonts.css"><link rel="stylesheet" href="/css/styles.css"><link rel="stylesheet" href="/css/editorial.css">${active==='jobs'?'<link rel="stylesheet" href="/css/jobs.css">':route==='/hackathons'?'<link rel="stylesheet" href="/css/hackathons.css">':active==='government-jobs'?'<link rel="stylesheet" href="/css/government-jobs.css">':''}<link rel="stylesheet" href="/css/polish.css"><link rel="stylesheet" href="/css/electric.css"><link rel="stylesheet" href="/css/refined.css">${active==='jobs'?'<link rel="stylesheet" href="/css/job-workspace.css">':''}<script src="/js/site.js" defer></script>${ads?adTag:''}${structured?jsonld(structured):''}</head><body><a class="skip-link" href="#main-content">Skip to content</a>${header(active)}${body}${footer()}</body></html>`;
+  const isHome = route === '/';
+  const legacy = isHome || active==='dsa' ? [] : ['editorial',...(active==='jobs'?['jobs']:active==='hackathons'?['hackathons']:active==='government-jobs'?['government-jobs']:[]),'polish', 'refined',...(active==='jobs'?['job-workspace']:[])];
+  const pageCss = [...legacy,'tokens','electric','shell',...(isHome||active==='jobs'?['jobs-premium']:[]),...(isHome?['homepage']:active==='dsa'?['dsa']:[]),'premium'].map(name=>`<link rel="stylesheet" href="/css/${name}.css">`).join('');
+  const themeInit = "try{const t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark-theme')}catch{}";
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><script>${themeInit}</script><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#0866ff"><title>${e(title)} — WILSY</title><meta name="description" content="${e(description)}"><link rel="canonical" href="${e(url)}"><meta property="og:type" content="${type}"><meta property="og:title" content="${e(title)} — WILSY"><meta property="og:description" content="${e(description)}"><meta property="og:url" content="${e(url)}"><meta name="twitter:card" content="summary">${noindex?'<meta name="robots" content="noindex,follow">':''}<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/assets/fonts/fonts.css"><link rel="stylesheet" href="/css/styles.css">${pageCss}<script src="/js/site.js" defer></script>${ads?adTag:''}${structured?jsonld(structured):''}</head><body class="has-hero ${isHome?'home-page':active==='jobs'?'jobs-page':active==='dsa'?'dsa-page':active?active+'-page':'editorial-page'}"><a class="skip-link" href="#main-content">Skip to content</a>${header(active)}${body.replaceAll('href="/?company=','href="/jobs?company=')}${footer()}</body></html>`;
 }
 const sitemap = [];
 async function write(route,html,include=true) {
@@ -58,8 +85,9 @@ home=home.replace(/<header class="site-header">[\s\S]*?<\/header>/,header('compa
  .replace(/<meta property="(?:og|twitter):(?:title|description|image|card)"[^>]*>\s*/g,'')
  .replace(/<link rel="preconnect"[^>]*>\s*/g,'')
  .replace(/<link href="https:\/\/fonts.googleapis.com[^>]*>/,'<link rel="stylesheet" href="/assets/fonts/fonts.css">')
- .replace('</head>',`<link rel="stylesheet" href="/css/editorial.css"><link rel="stylesheet" href="/css/polish.css"><link rel="stylesheet" href="/css/electric.css"><link rel="stylesheet" href="/css/refined.css"><script src="/js/site.js" defer></script><meta name="google-adsense-account" content="${site.publisher}"><meta property="og:title" content="WILSY — Discover companies. Find your next move."><meta property="og:description" content="Explore 1,000 technology employers, salary examples, and career links."><meta name="twitter:card" content="summary">${jsonld({'@context':'https://schema.org','@type':'WebSite',name:'WILSY',url:site.origin})}</head>`)
- .replace('<head>', "<head><script>try{if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-theme')}catch{}</script>")
+ .replace('</head>',`<link rel="stylesheet" href="/css/editorial.css"><link rel="stylesheet" href="/css/polish.css"><link rel="stylesheet" href="/css/electric.css"><link rel="stylesheet" href="/css/refined.css"><link rel="stylesheet" href="/css/tokens.css"><link rel="stylesheet" href="/css/shell.css"><link rel="stylesheet" href="/css/premium.css"><script src="/js/site.js" defer></script><meta name="google-adsense-account" content="${site.publisher}"><meta property="og:title" content="WILSY — Discover companies. Find your next move."><meta property="og:description" content="Explore 1,000 technology employers, salary examples, and career links."><meta name="twitter:card" content="summary">${jsonld({'@context':'https://schema.org','@type':'WebSite',name:'WILSY',url:site.origin})}</head>`)
+ .replace('<head>', "<head><script>try{const t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark-theme')}catch{}</script>")
+ .replace('<body>','<body class="has-hero companies-page">')
  .replace(/<div class="promo-card"[\s\S]*?<\/div>/,`<div class="reading-card"><p class="eyebrow">FROM THE BOOKSHELF</p><h3>Cracking the Coding Interview</h3><p>A practice resource to explore alongside the requirements of your target role.</p><span class="affiliate-label">Affiliate link</span><a href="${site.affiliateUrl}" target="_blank" rel="sponsored noopener noreferrer">View book on Amazon</a><p class="affiliate-note">As an Amazon Associate I earn from qualifying purchases.</p><a class="disclosure-link" href="/disclosure">How recommendations support WILSY</a></div>`)
  .replace('INR · annual salary','₹ INR · annual estimate')
  .replace('<h2 id="directory-title">','<h2 id="directory-title" tabindex="-1">')
@@ -77,14 +105,18 @@ home=home.replace(/<aside class="intro-note"[^>]*>[\s\S]*?<\/aside>/, `<aside cl
 home=home.replace(/(<link rel="canonical" href=")[^"]+/, '$1'+site.origin+'/companies')
  .replace(/(<meta property="(?:og|twitter):url" content=")[^"]+/g, '$1'+site.origin+'/companies');
 await write('/companies',home);
-const jobsMeta={title:'Find your next opportunity',description:'Discover current jobs with direct application links. Filter roles, internships, work arrangements, experience, skills and disclosed salaries on Wilsy Jobs.',active:'jobs',body:jobsPage};
-await write('/',documentPage({...jobsMeta,route:'/',structured:{'@context':'https://schema.org','@type':'WebSite',name:'Wilsy Jobs',url:site.origin+'/'}}));
-// Keep existing job URLs and saved links working, with the homepage as canonical.
-await write('/jobs',documentPage({...jobsMeta,route:'/jobs',canonicalRoute:'/'}),false);
+const snapshot = await loadHomeSnapshot();
+const jobsMeta={title:'Find your next opportunity',description:'Discover current jobs with direct application links. Filter roles, internships, work arrangements, experience, skills and disclosed salaries on Wilsy Jobs.',active:'jobs',body:jobsPage({snapshot,companies,fx})};
+await write('/',documentPage({title:'Find the work that moves you forward',description:'Source-linked jobs, 1,000 company profiles, government exams, hackathons, DSA preparation and INR salary context. Discover your next move with WILSY.',active:'home',route:'/',body:homePage({snapshot,companies,fx,guides,dsaStats:dsaProject.stats}),structured:{'@context':'https://schema.org','@type':'WebSite',name:'WILSY',url:site.origin+'/'}}));
+// /jobs is now the canonical full workspace; old root queries are forwarded client-side.
+await write('/jobs',documentPage({...jobsMeta,route:'/jobs'}));
+await write('/dsa',documentPage({title:'DSA roadmap — patterns, practice & progress',description:`Explore ${dsaProject.stats.patterns} DSA patterns across ${dsaProject.stats.categories} topics with an interactive mind-map, Python templates and browser-saved progress.`,route:'/dsa',active:'dsa',ads:false,body:dsaPage(dsaProject)}));
+await writeDsaAssets(out,dsaProject);
 await write('/hackathons',documentPage({title:'Hackathons & challenges',description:'Explore verified hackathons with eligibility, dates, prize breakdowns and official registration links. Save your next challenge on WILSY.',route:'/hackathons',active:'hackathons',body:hackathonsPage}));
 await write('/government-jobs',documentPage({title:'India government jobs',description:'Browse a dated, source-first snapshot of active India government-job notices with official links, dates, pay bands and eligibility guidance.',route:'/government-jobs',active:'government-jobs',body:governmentJobsPage}));
 
 for(const p of policyPages(site.email)) {
+  if(p.slug==='privacy')p.body+='<h2>DSA learning progress</h2><p>The DSA roadmap stores completed pattern IDs in this browser. Clearing site storage removes that device’s progress. Optional cloud sign-in, when configured, sends your email and authentication details directly to the separate DSA Supabase project and synchronises pattern IDs with your account. Guest progress is not automatically uploaded, and account caches are kept separate. The job search does not use DSA accounts. Practice links open external learning platforms, whose privacy policies apply.</p>';
   await write('/'+p.slug,documentPage({title:p.title,description:p.description,route:'/'+p.slug,active:p.slug==='about'?'about':'',body:`<main id="main-content" class="editorial-shell">${breadcrumb(p.slug==='about'?'About WILSY':p.title)}${hero(p.eyebrow,p.title,p.slug==='contact'?'Questions, corrections, and ideas are welcome.':'Independent information. Clear expectations.')}<div class="article-layout"><aside class="article-aside"><p class="eyebrow">WILSY / ${p.slug.toUpperCase()}</p><p>Updated ${p.updatedAt||'13 Sep 2026'}</p><a href="/contact">Questions? Get in touch</a></aside><article class="prose">${p.body}</article></div></main>`}));
 }
 
@@ -114,8 +146,8 @@ await fs.writeFile(path.join(out,'robots.txt'),`User-agent: *\nAllow: /\n\nSitem
 await fs.writeFile(path.join(out,'ads.txt'),'google.com, pub-5489149193350421, DIRECT, f08c47fec0942fa0\n');
 await fs.mkdir(path.join(out,'js'),{recursive:true});
 await fs.mkdir(path.join(out,'css'),{recursive:true});
-for(const file of ['app.js','directory-core.js','pay-format.js','site.js','data-client.js','supabase-config.js','jobs-core.js','jobs.js','job-workspace-core.js','site-config.js','hackathons.js','hackathon-core.js','government-exam-core.js','government-jobs.js','ui-helpers.js','brand-assets.js']) await fs.copyFile('js/'+file,path.join(out,'js',file));
-for(const file of ['styles.css','editorial.css','jobs.css','polish.css','electric.css','hackathons.css','government-jobs.css','refined.css','job-workspace.css']) await fs.copyFile('css/'+file,path.join(out,'css',file));
+for(const file of ['app.js','directory-core.js','pay-format.js','site.js','data-client.js','supabase-config.js','jobs-core.js','jobs.js','job-workspace-core.js','site-config.js','hackathons.js','hackathon-core.js','government-exam-core.js','government-jobs.js','ui-helpers.js','brand-assets.js','icons.js','job-card.js','job-text.js','home.js','dsa-cloud.js','dsa-enhancements.js']) await fs.copyFile('js/'+file,path.join(out,'js',file));
+for(const file of ['styles.css','editorial.css','jobs.css','polish.css','electric.css','hackathons.css','government-jobs.css','refined.css','job-workspace.css','tokens.css','shell.css','homepage.css','jobs-premium.css','dsa.css','premium.css']) await fs.copyFile('css/'+file,path.join(out,'css',file));
 await fs.cp('assets',path.join(out,'assets'),{recursive:true});
 await fs.mkdir(path.join(out,'data'),{recursive:true});
 for(const file of ['companies.json','exchange-rate.json','hackathon-branding.json','government-jobs.json'])await fs.copyFile('data/'+file,path.join(out,'data',file));

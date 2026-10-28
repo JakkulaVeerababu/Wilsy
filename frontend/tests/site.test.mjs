@@ -39,10 +39,11 @@ test('All generated internal links, local images, scripts, and styles resolve',(
 test('Sitemap covers exactly the public pages and excludes the error page',async()=>{
   const xml=await fs.readFile(path.join(root,'sitemap.xml'),'utf8');
   const urls=[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
-  assert.equal(urls.length,1015);assert.equal(new Set(urls).size,1015);
+  assert.equal(urls.length,1017);assert.equal(new Set(urls).size,1017);
   assert.ok(urls.every(url=>url.startsWith('https://www.wilsy.in/')));
   assert.ok(!urls.some(url=>url.endsWith('/404')));
-  assert.ok(!urls.some(url=>url.endsWith('/jobs')),'The jobs alias uses the homepage canonical');
+  assert.ok(urls.includes('https://www.wilsy.in/jobs'));
+  assert.ok(urls.includes('https://www.wilsy.in/dsa'));
   assert.ok(urls.includes('https://www.wilsy.in/companies/all'));
   assert.match(pages.get('404.html'),/noindex,follow/);
   assert.doesNotMatch(pages.get('404.html'),/pagead2.googlesyndication/);
@@ -75,19 +76,28 @@ test('INR is a dated estimate and original source data stays intact',async()=>{
   const snapshot=JSON.parse(await fs.readFile(path.join(root,'data/companies.json'),'utf8'));
   assert.equal(snapshot.currency,'USD');assert.equal(snapshot.companies.find(c=>c.id==='google').salary.min,147000);
 });
-test('Jobs, hackathons and company research share the electric blue navigation',()=>{
+test('WILSY routes share the premium shell and preserved feature entry points',()=>{
   for(const html of pages.values()){
     assert.match(html,/href="\/hackathons"/);
     assert.match(html,/href="\/css\/electric.css"/);
     assert.match(html,/name="theme-color" content="#0866ff"/);
   }
   const home=pages.get('index.html'),jobs=pages.get('jobs.html');
-  for(const html of [home,jobs]){
+  assert.match(home,/class="home-shell"/);
+  assert.match(home,/href="\/css\/homepage.css"/);
+  assert.match(home,/src="\/js\/home.js"/);
+  assert.match(home,/id="home-job-results"/);
+  assert.match(home,/href="\/dsa"/);
+  assert.match(home,/Every listing links to its source/);
+  assert.match(home,/id="stat-total">[0-9,]+</);
+  assert.doesNotMatch(home,/id="stat-total">—</);
+  assert.match(jobs,/href="https:\/\/www\.wilsy\.in\/jobs"/);
+  for(const html of [jobs]){
     assert.match(html,/id="job-search-form"/);
     assert.match(html,/id="job-results"/);
     assert.match(html,/src="\/js\/jobs.js"/);
     assert.match(html,/href="\/css\/jobs.css"/);
-    assert.match(html,/<link rel="canonical" href="https:\/\/www.wilsy.in\/"/);
+    assert.match(html,/<link rel="canonical" href="https:\/\/www.wilsy.in\/jobs"/);
     assert.doesNotMatch(html,/class="platform-paths"|id="company-grid"|src="\/js\/app.js"/);
     assert.match(html,/href="\/companies#companies"/);
   }
@@ -97,16 +107,19 @@ test('Jobs, hackathons and company research share the electric blue navigation',
   const hacks=pages.get('hackathons.html');
   assert.match(hacks,/Build something/);assert.match(hacks,/href="\/css\/hackathons.css"/);
   assert.match(hacks,/src="\/js\/hackathons.js"/);assert.match(hacks,/Deadlines · next 30 days/);
- assert.match(pages.get('privacy.html'),/hackathon/);
+  assert.match(pages.get('privacy.html'),/hackathon/);
+  const dsa=pages.get('dsa.html');
+  assert.match(dsa,/class="dsa-shell"/);assert.match(dsa,/src="\/dsa\/data\.js"/);assert.match(dsa,/src="\/dsa\/app\.js"/);assert.match(dsa,/src="\/js\/dsa-enhancements\.js"/);assert.match(dsa,/127/);
 });
 test('Homepage leads with the premium opportunity index and clear routes',()=>{
  const home=pages.get('index.html');
- assert.match(home,/Find the work<br><span>that moves you forward\.<\/span>/);
- assert.match(home,/class="jobs-hero-actions"/);
- assert.match(home,/Search opportunities/);
- assert.match(home,/class="jobs-route-strip"/);
+ assert.match(home,/Find the work<br><em>that moves you forward\.<\/em>/);
+ assert.match(home,/class="home-search"/);
+ assert.match(home,/Search <svg/);
+ assert.match(home,/class="home-path-grid"/);
  assert.match(home,/href="\/government-jobs"/);
  assert.match(home,/href="\/hackathons"/);
- assert.match(home,/Source-aware context/);
+ assert.match(home,/class="home-dsa-banner"/);
+ assert.match(home,/class="home-featured-rail"/);
  assert.match(home,/id="how-jobs-work"/);
 });

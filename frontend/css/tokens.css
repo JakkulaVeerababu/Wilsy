@@ -1,0 +1,131 @@
+/* WILSY design tokens: shared by the light and dark surfaces. */
+:root {
+  --ink: #0b1220;
+  --ink-soft: #334155;
+  --muted: #56657a;
+  --muted-strong: #475569;
+  --paper: #f7f9fc;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-subtle: #f1f5fa;
+  --surface-tint: #eef4ff;
+  --line: #e2e8f0;
+  --line-strong: #cbd5e1;
+  --blue: #0866ff;
+  --blue-hover: #0057dc;
+  --blue-soft: #eaf2ff;
+  --violet: #7c5cff;
+  --teal: #17a9a1;
+  --success: #0e9f6e;
+  --warning: #b7791f;
+  --focus: #004bc4;
+  --shadow-xs: 0 1px 2px rgba(11, 18, 32, .04);
+  --shadow-sm: 0 8px 24px rgba(11, 18, 32, .06);
+  --shadow-md: 0 18px 50px rgba(11, 18, 32, .09);
+  --shadow-lg: 0 30px 80px rgba(11, 18, 32, .13);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --font: 'Manrope', sans-serif;
+  --heading: 'Manrope', sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  --container: 1200px;
+  --gutter: 28px;
+  --section-space: 120px;
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-6: 48px;
+  --space-8: 64px;
+  --space-12: 96px;
+  --text-small: .8125rem;
+  --text-body: 1rem;
+  --text-lede: 1.125rem;
+  --text-display: clamp(3rem, 5.7vw, 5rem);
+  --text: var(--ink);
+  --text-secondary: var(--ink-soft);
+  --border: var(--line);
+  --green: var(--blue);
+  --navy: var(--ink);
+  color-scheme: light;
+}
+
+html.dark-theme {
+  --ink: #f8fafc;
+  --ink-soft: #cbd5e1;
+  --muted: #94a3b8;
+  --muted-strong: #aab8c9;
+  --paper: #090e18;
+  --surface: #101827;
+  --surface-raised: #151f31;
+  --surface-subtle: #111b2b;
+  --surface-tint: #14264a;
+  --line: #25344a;
+  --line-strong: #3a4d68;
+  --blue: #0866ff;
+  --blue-hover: #0057dc;
+  --blue-soft: #142b54;
+  --violet: #a390ff;
+  --teal: #5bd1c7;
+  --success: #42d39a;
+  --warning: #e0ae58;
+  --focus: #9bc2ff;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, .18);
+  --shadow-sm: 0 8px 24px rgba(0, 0, 0, .22);
+  --shadow-md: 0 18px 50px rgba(0, 0, 0, .32);
+  --shadow-lg: 0 30px 80px rgba(0, 0, 0, .46);
+  color-scheme: dark;
+}
+
+html.dark-theme,
+html.dark-theme body {
+  filter: none;
+}
+
+html.dark-theme img,
+html.dark-theme video,
+html.dark-theme svg {
+  filter: none;
+}
+
+html:not(.dark-theme) .brand img,
+html.dark-theme .brand img {
+  filter: none;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  transition: background-color .2s ease, color .2s ease;
+}
+
+::selection {
+  background: var(--blue);
+  color: #fff;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --gutter: 20px;
+    --section-space: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --gutter: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  body {
+    transition: none;
+  }
+}

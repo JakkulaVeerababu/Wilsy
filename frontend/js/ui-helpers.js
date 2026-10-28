@@ -1,13 +1,15 @@
+import {decodeEntities} from './job-text.js';
 // Source content is displayed as plain text, with readable paragraph boundaries.
 // No employer or organizer markup is inserted into the page.
 export function sourceText(value){
-  return String(value||'')
+  let decoded=String(value||'');
+  for(let pass=0;pass<4;pass++)decoded=decodeEntities(decoded);
+  return decoded
     .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi,'')
     .replace(/<li\b[^>]*>/gi,'\n• ')
     .replace(/<br\s*\/?>/gi,'\n')
     .replace(/<\/(p|div|h[1-6]|ul|ol|section)>/gi,'\n\n')
     .replace(/<[^>]*>/g,'')
-    .replace(/&(amp|quot|apos|lt|gt|nbsp|#39|#x27);/gi,(_,entity)=>({amp:'&',quot:'"',apos:"'",lt:'<',gt:'>',nbsp:' ','#39':"'",'#x27':"'"})[entity.toLowerCase()])
     .replace(/\r\n?/g,'\n').split('\n').map(line=>line.replace(/[\t ]+/g,' ').trim()).join('\n')
     .replace(/\n{3,}/g,'\n\n').trim();
 }

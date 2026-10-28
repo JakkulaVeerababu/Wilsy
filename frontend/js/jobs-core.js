@@ -42,7 +42,29 @@ export function postingLabel(job) {
   if(job.posted_at)return `Posted ${dateLabel(job.posted_at,{time:!['date_only','date','unknown'].includes(job.posted_at_precision)})}`;
   return `Found ${dateLabel(job.first_seen_at||job.discovered_at,{time:false})}`;
 }
+export function relativePostingLabel(job,reference=Date.now()) {
+  const value=job.posted_at||job.first_seen_at||job.discovered_at;
+  const stamp=Date.parse(value||'');
+  if(!Number.isFinite(stamp))return 'Posting date not provided';
+  if(job.posted_at && ['date_only','date','unknown'].includes(job.posted_at_precision))return `Posted ${dateLabel(value,{time:false})}`;
+  if(stamp>reference)return postingLabel(job);
+  const delta=Math.max(0,reference-stamp);
+  const minutes=Math.floor(delta/60000);
+  const hours=Math.floor(minutes/60);
+  const days=Math.floor(hours/24);
+  if(job.posted_at){
+    if(minutes<1)return 'Just posted';
+    if(minutes<60)return `${minutes}m ago`;
+    if(hours<24)return `${hours}h ago`;
+    if(days<7)return `${days}d ago`;
+    return `Posted ${dateLabel(value,{time:false})}`;
+  }
+  if(days<1)return `Added ${Math.max(1,hours)}h ago`;
+  if(days<30)return `Added ${days}d ago`;
+  return `Added ${dateLabel(value,{time:false})}`;
+}
 export function jobSalary(job,fx) {
+  fx=fx||{};
   const range={min:job.salary_min,max:job.salary_max};
   if(range.min==null&&range.max==null)return {primary:job.salary_currency==='USD'?usdTextToInr(job.salary_text,fx.rate)||'Salary not disclosed':job.salary_text||'Salary not disclosed',secondary:job.salary_currency==='USD'&&job.salary_text?'INR estimate':'',note:''};
   const knownPeriod=salaryPeriod(job.salary_period,job.salary_text);

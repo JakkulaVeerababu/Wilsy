@@ -5,10 +5,14 @@ import {usdTextToInr} from './pay-format.js';
 import {site} from './site-config.js';
 import {sourceText,copyPageLink,isEditing,savedNotice} from './ui-helpers.js';
 import {SEARCH_KEY,readSearches,searchQuery,searchName,addSearch,toggleComparison} from './job-workspace-core.js';
+import {renderJobCard,jobTags} from './job-card.js';
 
 const $=s=>document.querySelector(s), dialog=$('#job-detail');
 let state=readState(location.search),saved=[],companies=[],fx,rows=[],total=0,controller,requestId=0,lastFetch=0,detailRequest=0;
 let searches=[],comparison=[],density='comfortable';
+const initial=JSON.parse($('#jobs-initial-data').textContent);
+fx=initial.fx;companies=initial.companies;
+if(!stateQuery({...state,id:''})){rows=initial.jobs;total=initial.total;}
 try{saved=readSaved(localStorage);}catch{}
 try{searches=readSearches(localStorage);density=localStorage.getItem('wilsy-job-density')==='compact'?'compact':'comfortable';}catch{}
 const feedback=text=>{$('#job-feedback').textContent=text;};
@@ -19,22 +23,10 @@ function bindLogos(root){root.querySelectorAll('.job-logo img').forEach(img=>img
 const place=j=>j.location||[j.city,j.state_region,j.country].filter(Boolean).join(', ')||'Location not specified';
 const text=value=>value==null||value===''?'Not specified':String(value);
 const bool=value=>value===true?'Stated by source':value===false?'Not offered (source record)':'Not specified';
-const description=j=>String(j.description||'Full role details on the employer’s site.').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
-function tags(j){
-  const known=value=>value&&!['unspecified','unknown','not specified'].includes(String(value).trim().toLowerCase());
-  const values=[place(j),known(j.work_mode)?label(j.work_mode):null,known(j.job_type)?label(j.job_type):null,j.is_new_grad?'New grad':j.is_fresher?'Fresher':null];
-  const seen=new Set();
-  return values.filter(value=>{if(!value)return false;const key=value.trim().toLowerCase();if(seen.has(key))return false;seen.add(key);return true;}).map(value=>`<span ${value.toLowerCase()==='remote'?'class="remote-tag"':''}>${e(value)}</span>`).join('');
-}
+const tags=jobTags;
 function saveButton(j){const selected=saved.includes(String(j.id));return `<button class="job-save" type="button" data-save="${j.id}" aria-label="${selected?'Unsave':'Save'} ${e(j.title)} at ${e(j.company)}" aria-pressed="${selected}">${selected?'Saved':'Save'}</button>`;}
 function card(j){
-  const pay=jobSalary(j,fx),selected=comparison.some(v=>String(v.id)===String(j.id)),url=applyUrl(j.apply_url);
-  return `<article class="job-result-card">
-    <div class="job-card-heading"><div class="job-card-copy"><p class="job-company-line">${logo(j)}<span class="job-employer-name">${e(j.company)}</span>${j.is_company_verified?'<span class="job-company-badge">Employer verified</span>':''}</p><h3 class="job-card-title"><button type="button" data-job="${j.id}">${e(j.title)}</button></h3></div>${saveButton(j)}</div>
-    <div class="job-card-tags">${tags(j)}</div><p class="job-card-description">${e(description(j))}</p>
-    <div class="job-card-bottom"><div class="job-card-pay${pay.primary==='Salary not disclosed'?' is-undisclosed':''}"><strong>${e(pay.primary)}</strong>${pay.secondary?`<span>${e(pay.secondary)}</span>`:''}<span>${e([j.ats_platform?label(j.ats_platform):j.source_name||'Source linked',j.category_name||(j.role_family&&j.role_family!=='unspecified'?label(j.role_family):'')].filter(Boolean).join(' · '))}</span></div><p class="job-card-time">${e(postingLabel(j))}</p></div>
-    <div class="job-card-footer"><button type="button" class="job-compare" data-compare="${j.id}" aria-pressed="${selected}" aria-label="Compare ${e(j.title)} at ${e(j.company)}">${selected?'Selected':'Compare'}</button><div class="job-card-links"><button type="button" data-job="${j.id}">View details</button>${url?`<a class="job-apply-link" href="${e(url)}" target="_blank" rel="noopener noreferrer" aria-label="Apply for ${e(j.title)} at ${e(j.company)}">Apply</a>`:''}</div></div>
-  </article>`;
+  return renderJobCard(j,{companies,fx,saved,comparison,interactive:true,compare:true});
 }
 function address(push=false){const q=stateQuery(state),url=location.pathname+(q?'?'+q:'');if(location.pathname+location.search!==url)history[push?'pushState':'replaceState'](null,'',url);}
 function controls({preserveDraft=false}={}){
@@ -43,8 +35,9 @@ function controls({preserveDraft=false}={}){
   $('#filter-minimum').disabled=!state.period;
   document.querySelectorAll('[data-quick]').forEach(b=>b.setAttribute('aria-pressed',state[b.dataset.quick]===b.dataset.value));
   $('#saved-toggle').setAttribute('aria-pressed',state.saved);$('#saved-count').textContent=saved.length;
+  $('#saved-toggle').hidden=!saved.length&&!state.saved;
   const active=filterKeys.filter(k=>state[k]&&k!=='sort');
-  $('#job-active-filters').innerHTML=active.map(k=>`<button type="button" data-remove="${k}" aria-label="Remove ${e(k)} filter">${e(({q:'Search',minimum:'Minimum pay',time:'Posted',stage:'Career stage',mode:'Workplace',salary:'Salary disclosed',visa:'Visa sponsorship'})[k]||label(k))}: ${e(filterValue(k,state[k]))} ×</button>`).join('')+(state.saved?'<button type="button" data-remove="saved">Saved jobs ×</button>':'');
+  $('#job-active-filters').innerHTML=active.map(k=>`<button type="button" data-remove="${k}" aria-label="Remove ${e(k)} filter">${e(({q:'Search',minimum:'Minimum pay',time:'Posted',stage:'Career stage',mode:'Workplace',salary:'Salary disclosed',visa:'Visa sponsorship'})[k]||label(k))}: ${e(filterValue(k,state[k]))} ×</button>`).join('')+(state.saved?'<button type="button" data-remove="saved">Saved jobs ×</button>':'')+(active.length||state.saved?'<button type="button" data-clear>Clear all</button>':'');
   searchControls();
 }
 const workspaceMessage=message=>{$('#workspace-status').textContent=message;};
@@ -52,6 +45,7 @@ function searchControls(){
   const query=searchQuery(state),exists=searches.includes(query);
   $('#save-search').disabled=!query||exists;$('#save-search').textContent=exists?'Search saved':'Save this search';
   $('#searches-count').textContent=String(searches.length);
+  $('#searches-count').hidden=!searches.length;
   $('#saved-search-list').innerHTML=searches.length?searches.map((q,i)=>`<div class="saved-search-item"><button type="button" data-reopen-search="${i}"><strong>${e(searchName(q))}</strong><span>View current matches</span></button><button type="button" data-delete-search="${i}" aria-label="Remove saved search: ${e(searchName(q))}">Remove</button></div>`).join(''):'<p class="saved-search-empty">Your next search, one click away. Choose a keyword or filter, then select “Save this search”.</p>';
 }
 function persistSearches(next){
@@ -111,7 +105,7 @@ async function load({facets=false,background=false}={}){
   const keepResults=background&&rows.length>0;
   const current=++requestId;controller?.abort();controller=new AbortController();
   controls({preserveDraft:background});$('#job-results').setAttribute('aria-busy','true');$('#job-connection').textContent='Refreshing current listings…';
-  if(!keepResults){$('#job-results').innerHTML='<div class="job-skeleton"></div><div class="job-skeleton"></div><div class="job-skeleton"></div>';$('#job-pagination').innerHTML='';}
+  if(!keepResults){$('#job-results').innerHTML='<div class="job-skeleton" aria-hidden="true"></div><div class="job-skeleton" aria-hidden="true"></div><span class="sr-only">Loading matching roles</span>';$('#job-count').textContent='Job results';$('#job-pagination').innerHTML='';}
   try{const result=await searchJobs(apiFilters(state,saved,fx),(state.page-1)*PAGE_SIZE,controller.signal);if(current!==requestId)return;
     const changed=JSON.stringify(rows)!==JSON.stringify(result.jobs)||total!==result.total;rows=result.jobs;total=result.total;lastFetch=Date.now();
     if(state.page>1&&!rows.length&&total>0){state.page=Math.ceil(total/PAGE_SIZE);address();return load();}
@@ -160,8 +154,17 @@ $('#job-filter-form').addEventListener('change',event=>{const el=event.target;if
 $('#job-sort').addEventListener('change',event=>change({sort:event.target.value}));
 $('#job-refresh').addEventListener('click',()=>{feedback('');load({facets:true});});
 $('#saved-toggle').addEventListener('click',()=>change({saved:!state.saved}));
-$('#job-filter-toggle').addEventListener('click',()=>{const open=$('#jobs-filters').classList.toggle('open');$('#job-filter-toggle').setAttribute('aria-expanded',open);if(open)$('#filter-role').focus();});
-$('#job-filter-apply').addEventListener('click',()=>{$('#jobs-filters').classList.remove('open');$('#job-filter-toggle').setAttribute('aria-expanded','false');$('#job-results-heading').focus();$('#job-results-heading').scrollIntoView({block:'start'});});
+const filterDialog=$('#jobs-filter-dialog'),filterPanel=$('#jobs-filters'),filterHome=filterPanel.parentNode;
+function closeFilters(){if(filterDialog.open)filterDialog.close();}
+$('#job-filter-toggle').addEventListener('click',()=>{
+  filterDialog.append(filterPanel);filterPanel.classList.add('open');filterDialog.showModal();
+  document.body.classList.add('filters-open');$('#job-filter-toggle').setAttribute('aria-expanded','true');$('#job-filter-close').focus();
+});
+filterDialog.addEventListener('close',()=>{filterHome.prepend(filterPanel);filterPanel.classList.remove('open');document.body.classList.remove('filters-open');$('#job-filter-toggle').setAttribute('aria-expanded','false');$('#job-filter-toggle').focus({preventScroll:true});});
+filterDialog.addEventListener('click',event=>{if(event.target===filterDialog)closeFilters();});
+$('#job-filter-close').addEventListener('click',closeFilters);
+$('#job-filter-apply').addEventListener('click',()=>{closeFilters();$('#job-results-heading').focus();$('#job-results-heading').scrollIntoView({block:'start'});});
+matchMedia('(max-width:760px)').addEventListener('change',event=>{if(!event.matches)closeFilters();});
 $('#job-detail-close').addEventListener('click',()=>dialog.close());
 dialog.addEventListener('close',()=>{++detailRequest;const closedId=state.id;state.id='';address();(document.querySelector(`[data-job="${closedId}"]`)||$('#job-results-heading')).focus({preventScroll:true});});
 document.addEventListener('click',event=>{
@@ -170,7 +173,7 @@ document.addEventListener('click',event=>{
   const reopen=event.target.closest('[data-reopen-search]');if(reopen){const query=searches[Number(reopen.dataset.reopenSearch)];if(!query)return;state=readState('?'+query);$('#saved-searches').open=false;workspaceMessage('Saved search restored. Showing current matches.');address(true);load();$('#job-results-heading').focus({preventScroll:true});return;}
   const removeSearch=event.target.closest('[data-delete-search]');if(removeSearch){if(persistSearches(searches.filter((_,i)=>i!==Number(removeSearch.dataset.deleteSearch)))){workspaceMessage('Saved search removed.');$('#saved-searches summary').focus();}return;}
   const saveEl=event.target.closest('[data-save]');if(saveEl){save(saveEl.dataset.save);return;}
-  const job=event.target.closest('[data-job]');if(job){openJob(job.dataset.job);return;}
+  const job=event.target.closest('[data-job]');if(job){if(event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;event.preventDefault();openJob(job.dataset.job);return;}
   const quick=event.target.closest('[data-quick]');if(quick){const key=quick.dataset.quick,value=quick.dataset.value;change({[key]:state[key]===value?(key==='sort'?'found':''):value});return;}
   const remove=event.target.closest('[data-remove]');if(remove){change({[remove.dataset.remove]:remove.dataset.remove==='saved'?false:''});return;}
   if(event.target.closest('[data-clear]')){reset();return;}
@@ -187,7 +190,11 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!document
 setInterval(()=>{if(!document.hidden&&!document.querySelector('dialog[open]')&&!isEditing(document.activeElement))load({facets:true,background:true});},300000);
 
 async function start(){
-  try{const [rate,index]=await Promise.all([fetch('/data/exchange-rate.json'),fetch('/data/company-index.json')]);if(!rate.ok||!index.ok)throw new Error('Site assets unavailable');fx=await rate.json();companies=await index.json();await Promise.all([load(),refreshFacets()]);if(state.id)openJob(state.id,{push:false});}
-  catch{$('#job-results').setAttribute('aria-busy','false');$('#job-count').textContent='Site data unavailable';$('#job-connection').textContent='Reload the page to try again.';$('#job-results').innerHTML='<div class="jobs-empty"><h3>Please reload WILSY.</h3><p>The page assets could not be loaded. Check your connection and try again.</p><a href="/">Reload jobs</a></div>';}
+  controls();
+  if(rows.length)render();
+  // The server-rendered snapshot is useful offline; never discard it for an asset failure.
+  fetch('/data/company-index.json').then(r=>r.ok?r.json():companies).then(index=>{companies=index;}).catch(()=>{});
+  await Promise.all([load({background:rows.length>0}),refreshFacets()]);
+  if(state.id)openJob(state.id,{push:false});
 }
 start();
