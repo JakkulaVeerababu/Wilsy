@@ -40,7 +40,7 @@ async function loadHomeSnapshot() {
 }
 export function header(active='') {
   const links=[['/jobs','Find jobs','jobs'],['/government-jobs','Gov jobs','government-jobs'],['/companies#companies','Companies','companies'],['/hackathons','Hackathons','hackathons'],['/dsa','DSA roadmap','dsa'],['/guides','Career guides','guides']];
-  return `<header class="site-header"><div class="header-inner">${brandLink()}<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-navigation"><span class="nav-toggle-lines" aria-hidden="true"></span><span>Menu</span></button><nav class="main-nav" id="main-navigation" aria-label="Main navigation">${links.map(([url,name,key])=>`<a href="${url}"${key===active?' class="active" aria-current="page"':''}>${name}</a>`).join('')}${themeToggle}<a class="nav-cta" href="/jobs">Start searching ${icon('arrow')}</a></nav></div><span class="scroll-progress" aria-hidden="true"></span></header>`;
+  return `<header class="site-header"><div class="header-inner">${brandLink()}<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-navigation"><span class="nav-toggle-lines" aria-hidden="true"></span><span>Menu</span></button><nav class="main-nav" id="main-navigation" aria-label="Main navigation">${links.map(([url,name,key])=>`<a href="${url}"${key===active?' class="active" aria-current="page"':''}>${name}</a>`).join('')}${themeToggle}<a class="nav-cta" href="/jobs">Start searching ${icon('arrow')}</a></nav></div></header>`;
 }
 export function footer() {
   return `<footer class="site-footer premium-footer"><div class="footer-main">
