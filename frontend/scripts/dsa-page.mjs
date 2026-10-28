@@ -3,11 +3,11 @@ import vm from 'node:vm';
 import {escapeHtml as e} from '../js/directory-core.js';
 import {icon} from '../js/icons.js';
 
-const sourceRoot = new URL('../../DSA RM/', import.meta.url);
+// The roadmap content and engine are vendored from the DSA RM project so deploys build from the repo alone.
+const sourceRoot = new URL('../dsa-source/', import.meta.url);
 export async function loadDsaProject() {
   // Only the public learning data is evaluated, in an isolated, time-bounded context.
-  // Never copy the project directory: it also contains .env, .git and node_modules.
-  const source = await fs.readFile(new URL('js/data.js',sourceRoot),'utf8');
+  const source = await fs.readFile(new URL('data.js',sourceRoot),'utf8');
   const context = {window:{}};
   vm.runInNewContext(source,context,{timeout:1000,contextCodeGeneration:{strings:false,wasm:false}});
   const data = JSON.parse(JSON.stringify(context.window.dsaData));
@@ -23,7 +23,7 @@ export async function writeDsaAssets(out,project) {
   await fs.mkdir(`${out}/dsa`,{recursive:true});
   // Explicit allowlist: the original data and interaction engine only.
   await fs.writeFile(`${out}/dsa/data.js`,'window.dsaData = '+JSON.stringify(project.data).replace(/</g,'\\u003c')+';\n');
-  await fs.copyFile(new URL('js/app.js',sourceRoot),`${out}/dsa/app.js`);
+  await fs.copyFile(new URL('app.js',sourceRoot),`${out}/dsa/app.js`);
   const config = publicDsaConfig(process.env);
   await fs.writeFile(`${out}/dsa/config.js`,'window.wilsyDsaConfig = '+JSON.stringify(config).replace(/</g,'\\u003c')+';\n');
   if(config.enabled)await fs.copyFile(new URL('../../node_modules/@supabase/supabase-js/dist/umd/supabase.js',import.meta.url),`${out}/dsa/supabase-sdk.js`);
