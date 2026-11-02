@@ -24,7 +24,8 @@ export async function loadCompanies() {
   try {
     const rows=[];
     for(let offset=0;;offset+=500){
-      const batch=await databaseRequest(`companies?select=data&order=order_idx.asc,id.asc&limit=500&offset=${offset}`);
+      // Collectors also store partial company records here; the directory needs reviewed profiles only.
+      const batch=await databaseRequest(`companies?select=data&data->>id=not.is.null&data->salary=not.is.null&data->>tier=not.is.null&order=order_idx.asc,id.asc&limit=500&offset=${offset}`);
       if(!Array.isArray(batch))throw new Error('Invalid company data');
       rows.push(...batch);
       if(batch.length<500)break;

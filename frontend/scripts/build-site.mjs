@@ -61,12 +61,14 @@ function documentPage({title,description,route,body,active='',type='website',noi
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><script>${themeInit}</script><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#0866ff"><title>${e(title)} — WILSY</title><meta name="description" content="${e(description)}"><link rel="canonical" href="${e(url)}"><meta property="og:type" content="${type}"><meta property="og:title" content="${e(title)} — WILSY"><meta property="og:description" content="${e(description)}"><meta property="og:url" content="${e(url)}"><meta name="twitter:card" content="summary">${noindex?'<meta name="robots" content="noindex,follow">':''}<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/assets/fonts/fonts.css"><link rel="stylesheet" href="/css/styles.css">${pageCss}<script src="/js/site.js" defer></script>${ads?adTag:''}${structured?jsonld(structured):''}</head><body class="has-hero ${isHome?'home-page':active==='jobs'?'jobs-page':active==='dsa'?'dsa-page':active?active+'-page':'editorial-page'}"><a class="skip-link" href="#main-content">Skip to content</a>${header(active)}${body.replaceAll('href="/?company=','href="/jobs?company=')}${footer()}</body></html>`;
 }
 const sitemap = [];
+// Vercel Web Analytics is cookie-free and served only by Vercel deployments.
+const analyticsTag = process.env.VERCEL ? `<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)}</script><script defer src="/_vercel/insights/script.js"></script>` : '';
 async function write(route,html,include=true) {
   const file=route==='/'?'index.html':route.slice(1)+'.html';
   const target=path.join(out,file);
   if(!target.startsWith(out+path.sep))throw new Error('Unsafe output route');
   await fs.mkdir(path.dirname(target),{recursive:true});
-  await fs.writeFile(target,html);
+  await fs.writeFile(target,html.replace('</head>',`${analyticsTag}</head>`));
   if(include)sitemap.push(route);
 }
 const hero = (eyebrow,title,description) => `<div class="editorial-hero"><p class="eyebrow">${e(eyebrow)}</p><h1>${e(title)}</h1><p>${e(description)}</p></div>`;

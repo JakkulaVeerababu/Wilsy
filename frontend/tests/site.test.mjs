@@ -27,7 +27,7 @@ test('All generated internal links, local images, scripts, and styles resolve',(
   for(const [file,html] of pages){
     for(const match of html.matchAll(/(?:href|src)="([^"]*)"/g)){
       const url=match[1].replace(/&amp;/g,'&');
-      if(!url||/^(?:https?:|mailto:|data:|#)/.test(url))continue;
+      if(!url||/^(?:https?:|mailto:|data:|#|\/_vercel\/)/.test(url))continue;
       const pathname=decodeURIComponent(new URL(url,'https://www.wilsy.in/'+file.replaceAll(path.sep,'/')).pathname);
       let target=pathname==='/'?'index.html':pathname.slice(1);
       if(!path.extname(target))target+='.html';

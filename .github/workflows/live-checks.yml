@@ -1,0 +1,25 @@
+# Read-only checks against the production database. GitHub emails the repository owner when a scheduled run fails.
+name: Live checks
+on:
+  schedule:
+    - cron: '17 */3 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  production:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Collectors are publishing
+        run: node scripts/check-freshness.mjs
+      - name: Jobs API contract
+        run: node scripts/verify-jobs-api.mjs
+      - name: Hackathons API contract
+        run: node scripts/verify-hackathons-api.mjs
