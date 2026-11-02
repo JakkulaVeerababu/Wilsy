@@ -127,6 +127,14 @@ On 2 November 2026 the migration was tested on a local Postgres 18 copy of the s
 
 Under RLS, Postgres cannot use a GIN index for `@@` because the operator is not leakproof, so `anon` searches still scanned every stored vector, and cold searches could exceed the 3-second statement timeout. `20261102130000_wilsy_job_search_use_index.sql` adds `wilsy_match_job_ids`, an owner-run lookup that uses the index and applies the same publication rules as `wilsy_public_jobs`, so it never returns draft or closed jobs. The search function still reads rows as the invoker. Locally, as `anon` with a non-superuser owner, output was identical across 26 cases and the plan used the index. It only replaces functions, so it takes no table lock. It was applied on 2 November 2026 through the Supabase connector. In production, as `anon`, cold searches that had timed out now return in 0.4–0.7 s. `20261102140000_wilsy_private_match_job_ids.sql` then moved the lookup into `wilsy_private`, a schema the REST API does not expose. `anon` can still run it through `wilsy_search_jobs` but cannot call it directly, which clears Supabase's "security definer function executable" warnings. The collector's own `wilsy_internal` schema is left untouched.
 
+### Database size (free plan: 500 MB)
+
+On 2 November 2026 the database was at 399 MB. `jobs` was 367 MB: 296 MB of TOAST, about 125 MB of it dead row versions, plus 56 MB of raw ATS payloads and 79 MB of search vectors.
+
+- `20261102160000_worker_d_skip_unchanged.sql` patches the live `wilsy_internal.worker_d_run` with exact, count-checked text replacements. A job is rewritten only when a visible field changes, when it reopens, or every 12 hours to refresh `last_seen_at`. New raw payloads are stored as `{}`. Before (version 3.0), each run rewrote every job it saw (about 4,600 rows an hour). Rolled-back production tests exercised the skip, update, refresh and re-insert paths.
+- `20261102170000_search_vector_5000_chars.sql` indexes the first 5,000 description characters (median 7,250). Search vectors shrank from 79 MB to 50 MB. Titles, companies and skills remain fully indexed. Trade-off: terms that appear only late in long descriptions no longer match (for example, "kubernetes" went from 646 to 473 matches).
+- Pending: clearing the 9,301 existing raw payloads (about 56 MB) needs explicit approval. Dead rows are reclaimed only by `vacuum full public.jobs`, which locks the table while it runs (about a minute), so run it at a low-traffic hour.
+
 ## Accounts and sync
 
 Accounts are optional. The header's **Sign in** button (`js/account.js`) opens a dialog. Sign-in uses a one-time email code or link, or Google once that provider is enabled; there are no passwords. `js/auth-client.js` is a small dependency-free Supabase Auth client. Email links and Google use PKCE, so tokens never appear in URLs, and the session is stored under `wilsy-auth`.
