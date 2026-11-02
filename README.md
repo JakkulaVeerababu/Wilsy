@@ -133,7 +133,9 @@ On 2 November 2026 the database was at 399 MB. `jobs` was 367 MB: 296 MB of TOAS
 
 - `20261102160000_worker_d_skip_unchanged.sql` patches the live `wilsy_internal.worker_d_run` with exact, count-checked text replacements. A job is rewritten only when a visible field changes, when it reopens, or every 12 hours to refresh `last_seen_at`. New raw payloads are stored as `{}`. Before (version 3.0), each run rewrote every job it saw (about 4,600 rows an hour). Rolled-back production tests exercised the skip, update, refresh and re-insert paths.
 - `20261102170000_search_vector_5000_chars.sql` indexes the first 5,000 description characters (median 7,250). Search vectors shrank from 79 MB to 50 MB. Titles, companies and skills remain fully indexed. Trade-off: terms that appear only late in long descriptions no longer match (for example, "kubernetes" went from 646 to 473 matches).
-- Pending: clearing the 9,301 existing raw payloads (about 56 MB) needs explicit approval. Dead rows are reclaimed only by `vacuum full public.jobs`, which locks the table while it runs (about a minute), so run it at a low-traffic hour.
+- Existing raw payloads on 9,301 jobs (about 56 MB) are kept by decision; new and updated jobs no longer store them.
+- Dead row versions are reclaimed only by `vacuum full`, which locks `jobs` while it runs. A one-off pg_cron job, `wilsy-compact-jobs-once`, runs `vacuum (full, analyze) public.jobs` at 21:30 UTC on 2 November (03:00 IST). `wilsy-compact-jobs-cleanup` unschedules both jobs at 21:45. Scheduled jobs inherit the global 2-minute `statement_timeout`, which also bounds any lock wait; if compaction needs longer, it is cancelled with no change.
+- Side effect found and fixed: once `search_vector` existed, Worker D 3.0's hourly rewrite of about 4,600 rows exceeded the 2-minute timeout at 15:36 UTC, and that run rolled back. Version 3.1 skips unchanged rows.
 
 ## Accounts and sync
 
