@@ -1,0 +1,33 @@
+# Weekly job-board discovery for the reviewed company directory. Results are kept as a workflow
+# artifact; they are applied to the database only when the SUPABASE_SERVICE_ROLE_KEY secret exists.
+name: Discover job boards
+on:
+  schedule:
+    - cron: '23 20 * * 0'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency: discover-boards
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Find boards
+        run: node collectors/discover.mjs --out discovery.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: discovery-${{ github.run_id }}
+          path: discovery.json
+          retention-days: 30
+      - name: Apply to watchlist
+        env:
+          SUPABASE_URL: https://pnkthqatdlozrojwefnc.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then echo "No SUPABASE_SERVICE_ROLE_KEY secret; results kept as an artifact only."; exit 0; fi
+          node collectors/apply-discovery.mjs discovery.json

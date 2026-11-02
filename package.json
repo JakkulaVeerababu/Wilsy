@@ -6,9 +6,10 @@
   "scripts": {
     "start": "cd frontend && node scripts/build-site.mjs && node scripts/serve.mjs",
     "build": "cd frontend && node scripts/build-site.mjs",
-    "test": "cd frontend && node --test tests/*.test.mjs",
+    "test": "cd frontend && node --test tests/*.test.mjs && cd .. && node --test collectors/tests/*.test.mjs",
     "build:data": "cd frontend && node scripts/build-data.mjs",
-    "snapshot:jobs": "cd frontend && node scripts/refresh-job-snapshot.mjs"
+    "snapshot:jobs": "cd frontend && node scripts/refresh-job-snapshot.mjs",
+    "discover": "node collectors/discover.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0"

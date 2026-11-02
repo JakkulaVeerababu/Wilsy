@@ -137,6 +137,31 @@ On 2 November 2026 the database was at 399 MB. `jobs` was 367 MB: 296 MB of TOAS
 - Dead row versions are reclaimed only by `vacuum full`, which locks `jobs` while it runs. A one-off pg_cron job, `wilsy-compact-jobs-once`, runs `vacuum (full, analyze) public.jobs` at 21:30 UTC on 2 November (03:00 IST). `wilsy-compact-jobs-cleanup` unschedules both jobs at 21:45. Scheduled jobs inherit the global 2-minute `statement_timeout`, which also bounds any lock wait; if compaction needs longer, it is cancelled with no change.
 - Side effect found and fixed: once `search_vector` existed, Worker D 3.0's hourly rewrite of about 4,600 rows exceeded the 2-minute timeout at 15:36 UTC, and that run rolled back. Version 3.1 skips unchanged rows.
 
+## Job collection
+
+### What exists
+
+- **Worker D** (in Postgres): `wilsy_internal.worker_d_run(80)`, scheduled by pg_cron at :36 every hour. It reads Greenhouse and Ashby boards for verified watchlist rows, 80 companies per run, one request at a time.
+- **Watchlist reality** (2 November 2026): `company_watchlist_11k` has 11,000 rows. 8,977 are `LEGACY_UNRESOLVED_…` placeholders and about 905 are generator-made names ("Iron LLC", "Beta Hub 240"), which leaves about 1,100 real companies. Before discovery, only 95 had a readable board.
+
+### Collector code (`collectors/`, no dependencies)
+
+- `ats.mjs`: link patterns and light API reads for Greenhouse, Lever, Ashby, Workable, SmartRecruiters and Recruitee. Workday, Dover, Rippling, Gem, BambooHR and Work at a Startup links are recognised and recorded but cannot be read yet. Also detects placeholder and generated names.
+- `discover.mjs`: finds each reviewed directory company's board. It tries the careers link first, then the company's own careers pages, and confirms every board through the service's API. A page linking to more than three boards is ambiguous. Boards found only by guessing a name are always `probable` and never applied automatically. Placeholder and generated names are skipped without any requests.
+- `public.wilsy_apply_discovery(results)` (service role only, `20261102180000`) matches results by official domain, then normalised name. It sets a board when none exists, replaces a board only after two or more consecutive failed checks, never overwrites a working board, and only records probable or ambiguous results. A rolled-back production test confirmed each path.
+- `boards.mjs`: full readers for the six services. They produce plain text with paragraph breaks (Greenhouse returns entity-escaped HTML, which Worker D stored as escaped markup), salary ranges where the source provides them (Ashby, Lever, Recruitee), Greenhouse first-published dates, internship detection and workplace type. Apply URLs follow Worker D's format because `apply_url` is the unique key.
+- `public.wilsy_ingest_board(board)` (service role only, `20261102190000`) applies Worker D 3.1's rules (technical roles only; rewrite only on visible change, reopening or a 12-hour sighting refresh) and adds salary fields. It rejects a board that does not match its watchlist row. Calls carry at most 50 jobs, and a final call with the board's complete `live_urls` closes roles that disappeared. A rolled-back production test with a real Ashby board updated 2 rows with salaries, left them unchanged on a repeat call, and rejected a mismatched board.
+- `collect.mjs`: one agent. It reads its shard (`master_rank % shards`) of verified, readable boards, ingests them in chunks, and logs a `job_ingestion_runs` row (`Wilsy collector fleet`).
+
+### Schedules (GitHub Actions)
+
+- `collect-jobs.yml`: 10 agents (matrix shards 0–9) every hour at :07.
+- `discover-boards.yml`: weekly discovery, kept as an artifact.
+
+Both write only when the `SUPABASE_SERVICE_ROLE_KEY` repository secret exists; until then they exit without writing. Once the fleet's runs are confirmed in `job_ingestion_runs`, unschedule Worker D (`select cron.unschedule('wilsy-worker-d-internal')`) so each board is read by one collector.
+
+`npm test` runs the collector tests (`collectors/tests`) after the site tests.
+
 ## Accounts and sync
 
 Accounts are optional. The header's **Sign in** button (`js/account.js`) opens a dialog. Sign-in uses a one-time email code or link, or Google once that provider is enabled; there are no passwords. `js/auth-client.js` is a small dependency-free Supabase Auth client. Email links and Google use PKCE, so tokens never appear in URLs, and the session is stored under `wilsy-auth`.
