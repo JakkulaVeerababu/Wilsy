@@ -1,15 +1,18 @@
 import {supabaseConfig} from './supabase-config.js';
 
-export async function databaseRequest(path,{body,signal}={}) {
+// token: a signed-in user's access token, for their own account rows. prefer: PostgREST Prefer header.
+export async function databaseRequest(path,{body,signal,method=body?'POST':'GET',token,prefer}={}) {
   const timeout=AbortSignal.timeout(15000);
   const response=await fetch(`${supabaseConfig.url}/rest/v1/${path}`,{
-    method:body?'POST':'GET',
-    headers:{apikey:supabaseConfig.publishableKey,'Content-Type':'application/json'},
+    method,
+    headers:{apikey:supabaseConfig.publishableKey,'Content-Type':'application/json',
+      ...(token?{Authorization:`Bearer ${token}`}:{}),...(prefer?{Prefer:prefer}:{})},
     body:body?JSON.stringify(body):undefined,
     signal:signal?AbortSignal.any([signal,timeout]):timeout
   });
   if(!response.ok)throw new Error(`Data service unavailable (${response.status})`);
-  return response.json();
+  const text=await response.text();
+  return text?JSON.parse(text):null;
 }
 export const searchJobs=(filters,offset=0,signal)=>databaseRequest('rpc/wilsy_search_jobs',{
   body:{filters,page_size:20,page_offset:offset},signal

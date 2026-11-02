@@ -127,6 +127,22 @@ On 2 November 2026 the migration was tested on a local Postgres 18 copy of the s
 
 Under RLS, Postgres cannot use a GIN index for `@@` because the operator is not leakproof, so `anon` searches still scanned every stored vector, and cold searches could exceed the 3-second statement timeout. `20261102130000_wilsy_job_search_use_index.sql` adds `wilsy_match_job_ids`, an owner-run lookup that uses the index and applies the same publication rules as `wilsy_public_jobs`, so it never returns draft or closed jobs. The search function still reads rows as the invoker. Locally, as `anon` with a non-superuser owner, output was identical across 26 cases and the plan used the index. It only replaces functions, so it takes no table lock. It was applied on 2 November 2026 through the Supabase connector. In production, as `anon`, cold searches that had timed out now return in 0.4–0.7 s. `20261102140000_wilsy_private_match_job_ids.sql` then moved the lookup into `wilsy_private`, a schema the REST API does not expose. `anon` can still run it through `wilsy_search_jobs` but cannot call it directly, which clears Supabase's "security definer function executable" warnings. The collector's own `wilsy_internal` schema is left untouched.
 
+## Accounts and sync
+
+Accounts are optional. The header's **Sign in** button (`js/account.js`) opens a dialog. Sign-in uses a one-time email code or link, or Google once that provider is enabled; there are no passwords. `js/auth-client.js` is a small dependency-free Supabase Auth client. Email links and Google use PKCE, so tokens never appear in URLs, and the session is stored under `wilsy-auth`.
+
+`20261102150000_wilsy_accounts.sql` adds `user_saved_items` (saved jobs and hackathons) and `user_saved_searches` (with an `alert` of `off`, `daily` or `weekly`). RLS restricts every row to its owner, `anon` has no access, signed-in users can update only `alert`, and triggers enforce the website's limits (500 items of each kind, eight searches). Before it was applied, a rolled-back run against production checked two-user isolation, cross-user writes, the column grant, both limits and `anon` denial; all nine checks passed.
+
+`js/account-sync.js` uses a three-way merge between the last synced snapshot (`wilsy-sync-state`), this browser and the account. Local edits since the last sync win, so a first sign-in adds the device's saves to the account. Everything else follows the account, so removals on another device reach this one. Sync runs at sign-in, on page load, after every save (pages call `announceSaved()`), when a tab becomes visible, and when the browser comes back online. Changed lists are re-announced as `storage` events, so open pages refresh through their existing listeners. Signing out removes the account's copy from the browser and keeps it in the account.
+
+**Dashboard settings required (Supabase → Authentication):**
+- **URL Configuration:** Site URL `https://www.wilsy.in`. Redirect URLs `https://www.wilsy.in/**`, `https://wilsy.in/**`, `http://127.0.0.1:4173/**`.
+- **Email Templates:** add the code to both *Magic Link* and *Confirm signup*, for example `<p>Your WILSY sign-in code: <strong>{{ .Token }}</strong></p>`, alongside the existing link. Without it, sign-in works by link only.
+- **SMTP:** the built-in sender allows only a few emails per hour. Use a custom SMTP provider (Resend) before launch.
+- **Google:** add an OAuth client under Providers → Google. The Google button appears automatically once it is enabled.
+
+Alert preferences are stored now. The daily and weekly digest sender is not built yet; it needs the email provider above. The account dialog says so.
+
 ## Operations
 
 - **CI** (`.github/workflows/ci.yml`) runs `npm ci`, the build and the offline tests on every push to `main` and on pull requests.

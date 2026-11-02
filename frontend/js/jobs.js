@@ -3,7 +3,7 @@ import {PAGE_SIZE,filterValue,filterKeys,readState,stateQuery,apiFilters,applyUr
 import {escapeHtml as e} from './directory-core.js';
 import {usdTextToInr} from './pay-format.js';
 import {site} from './site-config.js';
-import {sourceText,copyPageLink,isEditing,savedNotice} from './ui-helpers.js';
+import {sourceText,copyPageLink,isEditing,savedNotice,savedPlace,announceSaved} from './ui-helpers.js';
 import {SEARCH_KEY,readSearches,searchQuery,searchName,addSearch,toggleComparison} from './job-workspace-core.js';
 import {renderJobCard,jobTags} from './job-card.js';
 
@@ -49,7 +49,7 @@ function searchControls(){
   $('#saved-search-list').innerHTML=searches.length?searches.map((q,i)=>`<div class="saved-search-item"><button type="button" data-reopen-search="${i}"><strong>${e(searchName(q))}</strong><span>View current matches</span></button><button type="button" data-delete-search="${i}" aria-label="Remove saved search: ${e(searchName(q))}">Remove</button></div>`).join(''):'<p class="saved-search-empty">Your next search, one click away. Choose a keyword or filter, then select “Save this search”.</p>';
 }
 function persistSearches(next){
-  try{localStorage.setItem(SEARCH_KEY,JSON.stringify(next));searches=next;searchControls();return true;}
+  try{localStorage.setItem(SEARCH_KEY,JSON.stringify(next));searches=next;searchControls();announceSaved();return true;}
   catch{workspaceMessage('This browser is blocking storage. You can copy the search link instead.');return false;}
 }
 function displayDensity(value){
@@ -118,8 +118,8 @@ function reset(){state=readState();address(true);feedback('');workspaceMessage('
 function save(id){
   const next=saved.includes(id)?saved.filter(v=>v!==id):[...saved,id];
   if(next.length>500){feedback('You can save up to 500 roles on this device. Remove a saved role to add another.');return;}
-  try{localStorage.setItem('wilsy-saved-jobs',JSON.stringify(next));saved=next;}catch{feedback('This browser is blocking local storage. Enable site storage to save jobs on this device.');return;}
-  savedNotice(saved.includes(id)?'Job saved on this device.':'Job removed from saved.',location.pathname+'?saved=1');
+  try{localStorage.setItem('wilsy-saved-jobs',JSON.stringify(next));saved=next;announceSaved();}catch{feedback('This browser is blocking local storage. Enable site storage to save jobs on this device.');return;}
+  savedNotice(saved.includes(id)?`Job saved ${savedPlace()}.`:'Job removed from saved.',location.pathname+'?saved=1');
   controls({preserveDraft:true});document.querySelectorAll(`[data-save="${id}"]`).forEach(b=>{const active=saved.includes(id);b.setAttribute('aria-pressed',active);b.textContent=active?'Saved':'Save';b.setAttribute('aria-label',active?'Unsave job':'Save job');});
   if(state.saved)load();
 }

@@ -28,6 +28,10 @@ export function isEditing(element){
   return !!element&&(['INPUT','TEXTAREA','SELECT'].includes(element.tagName)||!!element.isContentEditable);
 }
 
+// Saved lists sync to the visitor's account while signed in (account.js listens for wilsy:saved).
+export const savedPlace=()=>{try{return localStorage.getItem('wilsy-auth')?'to your account':'on this device';}catch{return 'on this device';}};
+export const announceSaved=()=>window.dispatchEvent(new Event('wilsy:saved'));
+
 let noticeTimer;
 export function savedNotice(message,href){
   let notice=document.querySelector('#saved-notice');

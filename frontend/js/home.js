@@ -1,7 +1,7 @@
 import {searchJobs,jobFacets} from './data-client.js';
 import {readState,stateQuery,readSaved,filterKeys} from './jobs-core.js';
 import {renderJobCard} from './job-card.js';
-import {isEditing,savedNotice} from './ui-helpers.js';
+import {isEditing,savedNotice,savedPlace,announceSaved} from './ui-helpers.js';
 
 // Preserve old root search/detail links after moving the workspace to /jobs.
 const query = new URLSearchParams(location.search);
@@ -51,7 +51,7 @@ function initHome() {
     const button=event.target.closest('[data-save]');if(!button)return;
     const id=button.dataset.save,next=saved.includes(id)?saved.filter(v=>v!==id):[...saved,id];
     if(next.length>500){$('#home-jobs-status').textContent='Remove a saved role before adding more than 500.';return;}
-    try{localStorage.setItem('wilsy-saved-jobs',JSON.stringify(next));saved=next;updateSaved();savedNotice(saved.includes(id)?'Role saved on this device.':'Role removed from saved.','/jobs?saved=1');}
+    try{localStorage.setItem('wilsy-saved-jobs',JSON.stringify(next));saved=next;updateSaved();announceSaved();savedNotice(saved.includes(id)?`Role saved ${savedPlace()}.`:'Role removed from saved.','/jobs?saved=1');}
     catch{$('#home-jobs-status').textContent='This browser is blocking storage. Open the role and bookmark its link instead.';}
   });
   document.addEventListener('keydown',event=>{if(event.key==='/'&&!event.metaKey&&!event.ctrlKey&&!event.altKey&&!isEditing(document.activeElement)){event.preventDefault();$('#job-search').focus();}});
