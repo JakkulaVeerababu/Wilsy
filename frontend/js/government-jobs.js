@@ -122,7 +122,9 @@ function start() {
       empty.hidden = matching.length > 0;
       results.append(empty);
     }
-    if (resultCount) resultCount.textContent = `${matching.length} active government job notice${matching.length === 1 ? '' : 's'}`;
+    // A notice whose deadline has passed since the snapshot is still listed, but is not counted as active.
+    const closed = matching.filter(job => cardById.get(text(job.id))?.dataset.state === 'closed').length, open = matching.length - closed;
+    if (resultCount) resultCount.textContent = `${open} active government job notice${open === 1 ? '' : 's'}${closed ? ` · ${closed} closed` : ''}`;
     if (feedback) feedback.textContent = matching.length ? '' : 'No rows match these filters. The source hubs below may have broader official coverage.';
   }
 

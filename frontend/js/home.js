@@ -50,7 +50,7 @@ function initHome() {
       $('#home-snapshot-status').textContent='Live totals refreshed · Feed previews are a dated snapshot.';
     }
   }
-  mountPathTabs();mountManifesto();mountReveal();
+  mountPathTabs();mountManifesto();mountReveal();mountHeroSpotlight();mountRailNav();
   updateSaved();
   $('#home-job-results').addEventListener('click',event=>{
     const button=event.target.closest('[data-save]');if(!button)return;
@@ -102,4 +102,25 @@ function mountReveal() {
     if(el.getBoundingClientRect().top<innerHeight)return;
     el.classList.add('reveal');el.style.transitionDelay=el.matches('.home-why-grid article,.home-guide-card')?`${(i%3)*80}ms`:'';observer.observe(el);
   });
+}
+
+// A soft light follows the pointer across the hero. Pointer devices only; one style write per frame.
+function mountHeroSpotlight() {
+  const hero=document.querySelector('.home-hero'),grid=hero?.querySelector('.home-hero-grid');
+  if(!grid||!matchMedia('(hover:hover) and (pointer:fine)').matches||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  let x=50,y=30,queued=false;
+  hero.addEventListener('pointermove',event=>{
+    const box=hero.getBoundingClientRect();x=(event.clientX-box.left)/box.width*100;y=(event.clientY-box.top)/box.height*100;
+    if(!queued){queued=true;requestAnimationFrame(()=>{queued=false;grid.style.setProperty('--mx',x.toFixed(1)+'%');grid.style.setProperty('--my',y.toFixed(1)+'%');});}
+  },{passive:true});
+}
+
+// Arrow buttons for the featured-company rail; they appear only when the rail actually scrolls.
+function mountRailNav() {
+  const rail=document.querySelector('.home-featured-rail'),nav=document.querySelector('.home-rail-nav');
+  if(!rail||!nav)return;
+  const [prev,next]=nav.querySelectorAll('button');
+  const sync=()=>{const max=rail.scrollWidth-rail.clientWidth;nav.hidden=max<8;prev.disabled=rail.scrollLeft<8;next.disabled=rail.scrollLeft>max-8;};
+  nav.addEventListener('click',event=>{const button=event.target.closest('[data-rail]');if(button)rail.scrollBy({left:Number(button.dataset.rail)*rail.clientWidth*.8,behavior:'smooth'});});
+  rail.addEventListener('scroll',sync,{passive:true});addEventListener('resize',sync);sync();
 }

@@ -566,3 +566,105 @@ html body .hack-card-footer a:hover{filter:brightness(1.08);transform:translateY
 html body .hack-card{position:relative}
 html body .hack-card-top{padding-right:76px;min-height:44px}
 html body .hack-card-top .hack-save{position:absolute;top:22px;right:22px;margin:0}
+
+/* ===== Home signature (12 Nov): light, depth and motion on the front page ===== */
+/* Reading progress along the top edge, where the browser supports scroll timelines. */
+@supports (animation-timeline:scroll()){
+  .home-shell::before{content:"";position:fixed;inset:0 0 auto 0;height:3px;z-index:300;pointer-events:none;background:linear-gradient(90deg,#2b59ff,#7dd8ff 55%,#7dffc4);transform-origin:0 50%;transform:scaleX(0);animation:wilsy-progress linear both;animation-timeline:scroll(root)}
+  @keyframes wilsy-progress{to{transform:scaleX(1)}}
+}
+/* Hero: a fine grid that fades at the edges, with a soft light under the pointer. */
+.home-hero-grid{position:absolute;inset:0;z-index:-1;pointer-events:none;--mx:50%;--my:28%;
+  background:radial-gradient(420px circle at var(--mx) var(--my),rgba(255,255,255,.2),transparent 65%),linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px) 0 0/56px 56px,linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px) 0 0/56px 56px;
+  -webkit-mask-image:radial-gradient(75% 70% at 50% 38%,#000 30%,transparent 100%);mask-image:radial-gradient(75% 70% at 50% 38%,#000 30%,transparent 100%)}
+html body .home-hero h1 em{color:transparent!important;background:linear-gradient(100deg,#fff 0%,#cfe4ff 28%,#a8ffdb 50%,#cfe4ff 72%,#fff 100%) 0 0/220% 100%!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent;animation:wilsy-sheen 8s linear infinite}
+@keyframes wilsy-sheen{to{background-position:-220% 0}}
+.home-hero-proof{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 26px;margin:26px 0 0;padding:0;list-style:none;font:500 13.5px/1.4 var(--font);color:rgba(255,255,255,.86)}
+.home-hero-proof li{display:inline-flex;align-items:center;gap:8px}
+.home-hero-proof svg{width:16px;height:16px;padding:2px;border-radius:50%;background:rgba(125,255,196,.22);color:#a8ffdb}
+/* The product preview floats on coloured light. */
+.home-console::before{content:"";position:absolute;inset:10% 5% -3%;z-index:-1;border-radius:40px;background:linear-gradient(90deg,#2b59ff,#7dd8ff 45%,#7dffc4 70%,#ffc08a);filter:blur(64px);opacity:.38;pointer-events:none}
+html.dark-theme .home-console::before{opacity:.28}
+/* Section labels as small pills. */
+html body .home-kicker{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:color-mix(in srgb,var(--blue) 9%,transparent);letter-spacing:.12em}
+html body .home-kicker::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+html body :is(.home-paths,.home-final-cta) .home-kicker{background:rgba(127,160,255,.14)}
+html body :is(.home-studio-promo,.home-dsa-banner) .home-kicker{padding:0;background:none}
+html body :is(.home-studio-promo,.home-dsa-banner) .home-kicker::before{display:none}
+/* Logo strip fades out at both ends. */
+.home-trust-logos{-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+/* Featured companies: no scrollbar, arrows instead, a fade where more cards wait. */
+html body .home-featured-rail{scrollbar-width:none;padding:6px 2px 30px;margin:-6px -2px -18px;-webkit-mask-image:linear-gradient(90deg,#000 92%,transparent);mask-image:linear-gradient(90deg,#000 92%,transparent)}
+html body .home-featured-rail::-webkit-scrollbar{display:none}
+.home-rail-tools{display:flex;align-items:center;gap:20px}
+.home-rail-nav{display:inline-flex;gap:8px}.home-rail-nav[hidden]{display:none}
+.home-rail-nav button{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;border:1px solid color-mix(in srgb,var(--ink) 14%,transparent);background:var(--surface);color:var(--ink);cursor:pointer;transition:background .2s,border-color .2s,transform .3s var(--ease),opacity .2s}
+.home-rail-nav button svg{width:16px;height:16px}.home-rail-nav button:first-child svg{transform:rotate(180deg)}
+.home-rail-nav button:hover:not(:disabled){border-color:var(--blue);color:var(--blue);transform:translateY(-1px)}
+.home-rail-nav button:disabled{opacity:.35;cursor:default}
+/* How WILSY works: three plates with large numerals. */
+html body .home-why-grid{gap:20px}
+html body .home-why-grid article{position:relative;overflow:hidden;padding:30px 30px 34px!important;border:1px solid color-mix(in srgb,var(--ink) 9%,transparent)!important;border-radius:24px;background:var(--surface);box-shadow:0 1px 2px rgba(16,24,40,.04),0 14px 32px -14px rgba(16,24,40,.1);transition:transform .3s var(--ease),border-color .3s,box-shadow .3s}
+html body .home-why-grid article::after{content:"";position:absolute;top:-70px;right:-70px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--blue) 16%,transparent),transparent 70%);pointer-events:none}
+html body .home-why-grid article:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--blue) 42%,transparent)!important;box-shadow:0 1px 2px rgba(16,24,40,.04),0 26px 48px -18px color-mix(in srgb,var(--blue) 34%,transparent)}
+html body .home-why-num{padding:0;margin-bottom:34px;border:0;font:600 clamp(3rem,4.6vw,4.25rem)/1 var(--heading);letter-spacing:-.06em;color:transparent;background:linear-gradient(135deg,var(--blue),#5fb4ff 55%,#4fe0a8);-webkit-background-clip:text;background-clip:text}
+html.dark-theme body .home-why-grid article{border-color:color-mix(in srgb,#fff 9%,transparent)!important;box-shadow:0 18px 40px -18px rgba(0,0,0,.6)}
+@media(max-width:760px){.home-hero-proof{gap:8px 18px;font-size:12.5px}.home-rail-nav{display:none}}
+@media(prefers-reduced-motion:reduce){html body .home-hero h1 em{animation:none}.home-shell::before{display:none}}
+/* The hero column may never grow wider than the screen (long chip rows used to push it to 522px on phones). */
+html body .home-hero{grid-template-columns:minmax(0,1fr)}
+html body .home-hero-copy{min-width:0;max-width:100%}
+@media(max-width:760px){html body .home-quick-links{flex-wrap:wrap;justify-content:center;overflow:visible}}
+
+/* ── Device fixes: phone and tablet layout, comfortable tap targets ───────────── */
+html body .home-stat-note{display:block}
+@media (max-width:760px){
+  /* Live-index rows stack on phones so a long salary never squeezes the job title. */
+  html body .home-index-row[class]{grid-template-columns:minmax(0,1fr);gap:8px;padding:16px}
+  html body .home-index-role strong{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.35}
+  html body .home-index-pay{text-align:left;flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+  html body .home-index-pay strong{white-space:normal}
+  html body .home-trust-line{display:block;text-align:center;padding:0 18px;line-height:1.6}
+  html body .home-trust-line .icon{display:inline-block;vertical-align:-3px;margin-right:6px}
+}
+@media (max-width:767px){
+  html body :is(#grid-view,#list-view){min-width:44px;min-height:44px}
+  html body .page-buttons :is(button,a){min-width:44px;min-height:44px}
+  html body .company-card :is(.text-button,.card-details-link,.careers-link){min-height:44px;display:inline-flex;align-items:center}
+  html body .breadcrumbs a{display:inline-flex;align-items:center;min-height:44px}
+  html body .article-aside a{display:flex;align-items:center;min-height:44px}
+  html body :is(#job-location,#gov-jobs-eligibility-age,.jobs-search select,.gov-jobs-filters :is(select,input)){min-height:44px}
+  html body a.dsa-eyebrow{display:inline-flex;align-items:center;min-height:44px;margin-bottom:4px}
+  html body.dsa-page .mastery-checkbox{width:28px;height:28px;border-radius:8px}
+  html body.dsa-page .mastery-checkbox-wrapper{width:32px;padding-top:0}
+}
+@media (max-width:767px){
+  html body .results-summary .text-button{min-height:44px;display:inline-flex;align-items:center}
+  html body .home-studio-promo a{min-height:44px;display:inline-flex;align-items:center}
+  html body [data-hack-reset]{min-height:44px;padding-inline:14px}
+  html body :is(.profile-source a,.correction-card a){min-height:44px;display:flex;align-items:center}
+  html body.jobs-page .jobs-search-input,html body .jobs-search-input{padding-block:2px}
+  html body .jobs-search-input input{min-height:44px}
+  html body .hack-card h3 button{padding-block:6px;margin-block:-6px}
+}
+html body .jobs-search-submit .btn-label-full{display:inline}
+html body .jobs-search-submit .btn-label-short{display:none}
+@media (max-width:760px){
+  html body .jobs-search-submit .btn-label-full{display:none}
+  html body .jobs-search-submit .btn-label-short{display:inline}
+  html body .jobs-search-submit[class]{white-space:nowrap;padding-inline:20px}
+  html body .job-workbench .saved-searches{grid-column:1/-1}
+}
+/* Sticky search and filters glide with the header instead of jumping under it. */
+@media (prefers-reduced-motion:no-preference){
+  html body :is(.jobs-search,.jobs-filters,.article-aside){transition:top .5s var(--ease),box-shadow .3s,border-color .3s}
+}
+/* Guide notice: the body copy sits below its heading in size, not above it. */
+html body .gov-jobs-notice h2{font-size:17px;letter-spacing:-.01em;line-height:1.4}
+html body .gov-jobs-notice p:not(.gov-jobs-eyebrow){font-size:14px;line-height:1.7;color:var(--muted);margin-top:6px}
+/* Dark console rows keep a visible card edge. */
+html.dark-theme body .home-index-row[class]{background-color:rgba(255,255,255,.035)!important;border:1px solid rgba(255,255,255,.07)!important}
+html.dark-theme body .home-index-row[class]:hover{background-color:rgba(255,255,255,.06)!important;border-color:rgba(122,150,255,.35)!important}
+/* Hackathon card headers stay on one line so every title starts at the same height. */
+html body .hack-card-top{padding-right:70px}
+html body .hack-card-top :is(.hack-phase,.hack-closing){white-space:nowrap}

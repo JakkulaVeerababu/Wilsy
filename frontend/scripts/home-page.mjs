@@ -59,7 +59,9 @@ export function homePage({snapshot, companies, guides, fx, dsaStats}) {
         <button class="home-search-submit" type="submit">Search ${icon('arrow')}</button>
       </form>
       <nav class="home-quick-links" aria-label="Quick job searches"><span>Try</span><a href="/jobs?stage=internship">Internships</a><a href="/jobs?stage=fresher">Freshers</a><a href="/jobs?mode=remote">Remote</a><a href="/government-jobs">Government</a><a href="/jobs?time=today">Today</a></nav>
+      <ul class="home-hero-proof"><li>${icon('check')} Refreshed every hour</li><li>${icon('check')} Direct employer links</li><li>${icon('check')} Free to use</li></ul>
     </div>
+    <div class="home-hero-grid" aria-hidden="true"></div>
     <div class="home-hero-chips" aria-hidden="true">
       <span class="hero-chip hero-chip-1">${icon('check')} Source verified</span>
       <span class="hero-chip hero-chip-4">${icon('rupee')} INR salary context</span>
@@ -76,7 +78,7 @@ export function homePage({snapshot, companies, guides, fx, dsaStats}) {
           <dl class="home-stat-grid">
             <div class="home-stat-card home-stat-wide"><dt>Published jobs</dt><dd id="stat-total">${count(snapshot.stats.total)}</dd><span class="home-stat-note">Every role links to its source</span></div>
             <div class="home-stat-card"><dt>Companies hiring</dt><dd id="stat-companies">${count(snapshot.stats.companies)}</dd><span class="home-stat-note">With at least one open role</span></div>
-            <div class="home-stat-card"><dt>Remote roles</dt><dd id="stat-remote">${count(snapshot.stats.remote)}</dd><span class="home-stat-note"><span id="stat-remote-share">${remoteShare}</span>% of published roles</span><span class="home-stat-bar home-stat-bar-teal" aria-hidden="true"><i id="stat-remote-bar" style="width:${remoteShare}%"></i></span></div>
+            <div class="home-stat-card"><dt>Remote roles</dt><dd id="stat-remote">${count(snapshot.stats.remote)}</dd><span class="home-stat-note"><span><span id="stat-remote-share">${remoteShare}</span>% of published roles</span></span><span class="home-stat-bar home-stat-bar-teal" aria-hidden="true"><i id="stat-remote-bar" style="width:${remoteShare}%"></i></span></div>
           </dl>
           <div class="home-feed-track">${(snapshot.feed.length?snapshot.feed:jobs).slice(0,3).map(job=>feedCard(job,companies,fx,now)).join('')}</div>
           <div class="home-console-foot"><a class="home-index-link" href="/jobs">Browse the full opportunity index ${icon('arrow')}</a><p class="home-feed-note" id="home-snapshot-status">Snapshot ${e(date)} · Availability can change.</p></div>
@@ -136,7 +138,7 @@ function homeSections({snapshot,jobs,featured,companies,guideCard,guides,fx,now,
     <a class="home-saved-link" href="/jobs?saved=1" hidden>View your saved roles ${icon('arrow')}</a>
   </section>
   <section class="home-featured home-section" aria-labelledby="featured-title">
-    <div class="home-section-heading"><div><p class="home-kicker">GET TO KNOW THE TEAM</p><h2 id="featured-title">A company is more than its open roles.</h2></div><a class="home-section-link" href="/companies/all">All 1,000 companies ${icon('arrow')}</a></div>
+    <div class="home-section-heading"><div><p class="home-kicker">GET TO KNOW THE TEAM</p><h2 id="featured-title">A company is more than its open roles.</h2></div><div class="home-rail-tools"><a class="home-section-link" href="/companies/all">All 1,000 companies ${icon('arrow')}</a><span class="home-rail-nav" hidden><button type="button" data-rail="-1" aria-label="Previous companies">${icon('arrow')}</button><button type="button" data-rail="1" aria-label="More companies">${icon('arrow')}</button></span></div></div>
     <div class="home-featured-rail" tabindex="0" role="region" aria-label="Featured companies; scroll horizontally for more">${featured.map(item=>featuredCard(item,companies)).join('')}</div>
     <p class="home-results-status">Role counts from ${e(date)}. Employer verification is shown only when recorded by the source.</p>
   </section>
