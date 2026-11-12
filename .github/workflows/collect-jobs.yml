@@ -20,6 +20,8 @@ jobs:
     timeout-minutes: 20
     strategy:
       fail-fast: false
+      # Ten writers at once hit the database's 8-second statement timeout on the free plan.
+      max-parallel: 2
       matrix:
         shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     concurrency: collect-jobs-shard-${{ matrix.shard }}
