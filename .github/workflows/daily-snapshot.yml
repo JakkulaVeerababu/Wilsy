@@ -1,10 +1,9 @@
 # Keeps the homepage's built-in job snapshot current. Once a day it reads the public job search
 # API (read-only, public key), rebuilds, runs the tests and commits the refreshed snapshot.
 # The commit redeploys the site, so first paint, crawlers and no-JavaScript visitors see today's roles.
+# Started daily at 01:41 UTC (07:11 IST) by Supabase pg_cron (wilsy-dispatch-daily-snapshot).
 name: Daily job snapshot
 on:
-  schedule:
-    - cron: '41 1 * * *'
   workflow_dispatch:
 permissions:
   contents: write

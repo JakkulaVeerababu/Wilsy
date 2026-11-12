@@ -55,5 +55,8 @@ select cron.schedule('wilsy-dispatch-collect-hackathons', '23 * * * *',
 -- Production health checks at :50, so a broken public search is reported within the hour.
 select cron.schedule('wilsy-dispatch-live-checks', '50 * * * *',
   $$select wilsy_private.dispatch_workflow('live-checks.yml')$$);
+-- Homepage snapshot once a day at 01:41 UTC (07:11 IST).
+select cron.schedule('wilsy-dispatch-daily-snapshot', '41 1 * * *',
+  $$select wilsy_private.dispatch_workflow('daily-snapshot.yml')$$);
 
 commit;

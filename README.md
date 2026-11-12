@@ -159,7 +159,7 @@ On 2 November 2026 the database was at 399 MB. `jobs` was 367 MB: 296 MB of TOAS
 - `collect-hackathons.yml`: every hour at :23.
 - `discover-boards.yml`: weekly discovery, kept as an artifact.
 
-GitHub's own cron started the hourly collectors up to 14 hours late, so both are started from the database instead. pg_cron jobs `wilsy-dispatch-collect-jobs` and `wilsy-dispatch-collect-hackathons` call `wilsy_private.dispatch_workflow(...)` (`20261112020000`), which sends a `workflow_dispatch` request to GitHub using a fine-grained token stored in Vault as `github_dispatch_token` (Wilsy only, Actions: read and write). A 204 in `net._http_response` means GitHub accepted it; a 403 means the token lost that permission or expired. To replace the token:
+GitHub's own cron started the hourly collectors up to 14 hours late, so they are started from the database instead. pg_cron jobs `wilsy-dispatch-collect-jobs` (:07), `wilsy-dispatch-collect-hackathons` (:23), `wilsy-dispatch-live-checks` (:50) and `wilsy-dispatch-daily-snapshot` (01:41 UTC) call `wilsy_private.dispatch_workflow(...)` (`20261112020000`), which sends a `workflow_dispatch` request to GitHub using a fine-grained token stored in Vault as `github_dispatch_token` (Wilsy only, Actions: read and write). A 204 in `net._http_response` means GitHub accepted it; a 403 means the token lost that permission or expired. To replace the token:
 
 ```sql
 select vault.update_secret((select id from vault.secrets where name = 'github_dispatch_token'), '<new token>');
