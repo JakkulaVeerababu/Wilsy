@@ -42,6 +42,11 @@ function initHome() {
     } else $('#home-jobs-status').textContent='Live refresh unavailable. Showing the dated snapshot; check availability on the employer’s site.';
     if(stats.status==='fulfilled'){
       setCount('#stat-total',stats.value.total);setCount('#stat-companies',stats.value.companies_count);setCount('#stat-remote',stats.value.remote_count);
+      const total=Number(stats.value.total),remote=Number(stats.value.remote_count);
+      if(total>0&&remote>=0){const share=Math.min(100,Math.round(remote/total*100));$('#stat-remote-share').textContent=share;$('#stat-remote-bar').style.width=share+'%';}
+      // The totals are live now, so the summary carries today's date (India time).
+      const now=new Date(),today=new Intl.DateTimeFormat('en-IN',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Kolkata'}).format(now);
+      document.querySelectorAll('[data-snapshot-date]').forEach(el=>{el.textContent=today;el.dateTime=now.toISOString();});
       $('#home-snapshot-status').textContent='Live totals refreshed · Feed previews are a dated snapshot.';
     }
   }
@@ -82,13 +87,19 @@ function mountPathTabs() {
 function mountManifesto() {
   const segments=[...document.querySelectorAll('.m-seg')];
   if(!segments.length||!document.documentElement.classList.contains('js-motion'))return;
-  const update=()=>{const line=innerHeight*.62;segments.forEach(seg=>seg.classList.toggle('is-lit',seg.getBoundingClientRect().top<line));};
+  // The dimmed state exists only once this code is running, so a failed script never leaves faint text.
+  document.querySelector('.home-manifesto')?.classList.add('is-scrub');
+  const update=()=>{const line=innerHeight*.85;segments.forEach(seg=>seg.classList.toggle('is-lit',seg.getBoundingClientRect().top<line));};
   addEventListener('scroll',update,{passive:true});addEventListener('resize',update);update();
 }
 
 function mountReveal() {
   if(!document.documentElement.classList.contains('js-motion'))return;
-  const targets=document.querySelectorAll('.home-console,.home-section-heading,.home-path-grid,.home-studio-copy,.home-studio-frame,.home-giant,.home-why-grid article,.home-guide-card,.home-dsa-banner,.home-final-cta,.home-featured-rail');
-  const observer=new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting){entry.target.classList.add('is-in');observer.unobserve(entry.target);}},{rootMargin:'0px 0px -6% 0px',threshold:.06});
-  targets.forEach((el,i)=>{el.classList.add('reveal');el.style.transitionDelay=el.matches('.home-why-grid article,.home-guide-card')?`${(i%3)*80}ms`:'';observer.observe(el);});
+  const targets=document.querySelectorAll('.home-section-heading,.home-studio-copy,.home-giant,.home-why-grid article,.home-guide-card,.home-dsa-banner,.home-featured-rail');
+  const observer=new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting){entry.target.classList.add('is-in');observer.unobserve(entry.target);}},{rootMargin:'0px 0px -3% 0px',threshold:0});
+  targets.forEach((el,i)=>{
+    // Content already on screen is never hidden after it has painted.
+    if(el.getBoundingClientRect().top<innerHeight)return;
+    el.classList.add('reveal');el.style.transitionDelay=el.matches('.home-why-grid article,.home-guide-card')?`${(i%3)*80}ms`:'';observer.observe(el);
+  });
 }

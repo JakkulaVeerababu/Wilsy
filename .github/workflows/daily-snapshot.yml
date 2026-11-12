@@ -1,0 +1,35 @@
+# Keeps the homepage's built-in job snapshot current. Once a day it reads the public job search
+# API (read-only, public key), rebuilds, runs the tests and commits the refreshed snapshot.
+# The commit redeploys the site, so first paint, crawlers and no-JavaScript visitors see today's roles.
+name: Daily job snapshot
+on:
+  schedule:
+    - cron: '41 1 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: daily-snapshot
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Refresh the public snapshot
+        run: npm run snapshot:jobs
+      - run: npm run build
+      - run: npm test
+      - name: Commit when the snapshot changed
+        run: |
+          if git diff --quiet -- frontend/data/jobs-home.json; then echo "Snapshot unchanged."; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add frontend/data/jobs-home.json
+          git commit -m "chore: daily public job snapshot"
+          git push
+          echo "### Snapshot refreshed" >> "$GITHUB_STEP_SUMMARY"

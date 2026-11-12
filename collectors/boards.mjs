@@ -55,16 +55,21 @@ function job(fields) {
 // Same role filter as the collector in Postgres (wilsy_ingest_board applies it authoritatively).
 export const TECH_ROLE=/(software|developer|engineer|engineering|frontend|front-end|backend|back-end|full[- ]?stack|mobile|ios|android|machine learning|(^|[^a-z])ml([^a-z]|$)|artificial intelligence|(^|[^a-z])ai([^a-z]|$)|data scientist|data engineer|analytics engineer|devops|site reliability|(^|[^a-z])sre([^a-z]|$)|platform engineer|cloud engineer|security engineer|cyber|firmware|embedded|fpga|rtl|asic|vlsi|verification engineer|hardware engineer|electrical engineer|electronics|computer vision|nlp|research engineer|solutions architect|technical architect|qa engineer|sdet|test automation|database engineer|systems engineer|network engineer|robotics)/;
 
+// A reader must fail loudly when a service answers with an unexpected shape: an empty list would
+// otherwise be treated as "this company has no open roles".
+const list=(value,service)=>{if(!Array.isArray(value))throw new Error(`Unexpected ${service} response`);return value;};
+const SMARTRECRUITERS_MAX=5000;
+
 export const READERS={
   async greenhouse(slug,get) {
     const data=await get(`https://boards-api.greenhouse.io/v1/boards/${encodeURIComponent(slug)}/jobs?content=true`);
-    return (data.jobs||[]).map(j=>job({external_id:j.id,title:j.title,url:j.absolute_url,location:j.location?.name,description:plainText(j.content),
+    return list(data?.jobs,'Greenhouse').map(j=>job({external_id:j.id,title:j.title,url:j.absolute_url,location:j.location?.name,description:plainText(j.content),
       department:(j.departments||[]).map(d=>d.name).filter(Boolean).join(' / '),job_type:jobType('',j.title),work_mode:workMode(j.location?.name),
       posted_at:j.first_published||j.updated_at,workplace_type_raw:j.location?.name}));
   },
   async ashby(slug,get) {
     const data=await get(`https://api.ashbyhq.com/posting-api/job-board/${encodeURIComponent(slug)}?includeCompensation=true`);
-    return (data.jobs||[]).filter(j=>j.isListed!==false).map(j=>{
+    return list(data?.jobs,'Ashby').filter(j=>j.isListed!==false).map(j=>{
       const pay=(j.compensation?.summaryComponents||[]).find(c=>/salary/i.test(c.compensationType||''));
       return job({external_id:j.id,title:j.title,url:j.applyUrl||j.jobUrl,source_url:j.jobUrl,location:j.location,
         description:j.descriptionPlain||plainText(j.descriptionHtml),department:j.department,team:j.team,job_type:jobType(j.employmentType,j.title),
@@ -86,7 +91,7 @@ export const READERS={
   },
   async workable(slug,get) {
     const data=await get(`https://apply.workable.com/api/v1/widget/accounts/${encodeURIComponent(slug)}?details=true`);
-    return (data.jobs||[]).map(j=>{
+    return list(data?.jobs,'Workable').map(j=>{
       const location=[j.city,j.state,j.country].filter(Boolean).join(', ');
       return job({external_id:j.shortcode||j.code,title:j.title,url:j.application_url||j.url||j.shortlink,source_url:j.url||j.shortlink,location,
         description:plainText(j.description),department:j.department,job_type:jobType(j.employment_type,j.title),
@@ -94,11 +99,13 @@ export const READERS={
     });
   },
   async smartrecruiters(slug,get) {
-    const postings=[];
-    for(let offset=0;offset<1000;offset+=100){
+    const postings=[];let partial=false;
+    for(let offset=0;;offset+=100){
+      if(offset>=SMARTRECRUITERS_MAX){partial=true;break;}
       const page=await get(`https://api.smartrecruiters.com/v1/companies/${encodeURIComponent(slug)}/postings?limit=100&offset=${offset}`);
-      postings.push(...(page.content||[]));
-      if(!page.content?.length||postings.length>=(page.totalFound||0))break;
+      const content=list(page?.content,'SmartRecruiters');
+      postings.push(...content);
+      if(!content.length||postings.length>=(page.totalFound||0))break;
     }
     // Descriptions need one request per posting, so they are fetched only for likely technical roles.
     const out=[];
@@ -114,11 +121,13 @@ export const READERS={
         work_mode:workMode(p.location?.remote&&'remote',p.location?.hybrid&&'hybrid',location),posted_at:p.releasedDate,
         employment_type_raw:p.typeOfEmployment?.label}));
     }
+    // A truncated inventory must never be used to close roles.
+    if(partial)out.partial=true;
     return out;
   },
   async recruitee(slug,get) {
     const data=await get(`https://${encodeURIComponent(slug)}.recruitee.com/api/offers/`);
-    return (data.offers||[]).map(j=>job({external_id:j.id,title:j.title,url:j.careers_apply_url||j.careers_url,source_url:j.careers_url,
+    return list(data?.offers,'Recruitee').map(j=>job({external_id:j.id,title:j.title,url:j.careers_apply_url||j.careers_url,source_url:j.careers_url,
       location:j.location,description:[plainText(j.description),plainText(j.requirements)].filter(Boolean).join('\n\n'),department:j.department,
       job_type:jobType(j.employment_type_code,j.title),work_mode:workMode(j.remote&&'remote',j.hybrid&&'hybrid',j.on_site&&'onsite',j.location),
       posted_at:j.published_at||j.created_at,employment_type_raw:j.employment_type_code,salary_min:j.salary?.min,salary_max:j.salary?.max,

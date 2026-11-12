@@ -61,6 +61,9 @@ body.has-hero{overflow-x:clip}
   .site-header .theme-toggle{margin:4px 0 0}
 }
 @media(max-width:1180px) and (min-width:901px){.site-header .main-nav a,.site-header .main-nav button{padding:0 9px;font-size:13.5px}}
+/* Narrow desktop and tablet landscape: the full menu must never run under the wordmark. */
+@media(max-width:1140px) and (min-width:901px){.site-header .main-nav a.nav-cta{display:none}.site-header .main-nav a,.site-header .main-nav button{padding:0 7px;font-size:13px}}
+@media(max-width:1000px) and (min-width:901px){.site-header .header-inner{gap:8px}.site-header .main-nav{gap:0}.site-header .main-nav a,.site-header .main-nav button{padding:0 5px;font-size:12.5px}}
 
 /* ===== The electric hero band, shared by every route ===== */
 :is(.jobs-page-heading,.gov-jobs-hero,.hack-hero,.dsa-intro,.page-shell>.intro,.editorial-hero,.profile-hero){position:relative!important;isolation:isolate;color:#fff!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding-top:clamp(36px,4.5vw,72px)!important;padding-bottom:clamp(56px,6.5vw,96px)!important;margin-bottom:clamp(40px,5vw,80px)!important;overflow:visible!important}
@@ -154,7 +157,8 @@ main :is(select,input[type=number],input[type=date]):focus{border-color:var(--bl
 .footer-giant span{background:linear-gradient(180deg,#2b59ff,rgba(43,89,255,.1) 85%);-webkit-background-clip:text;background-clip:text}
 
 /* ===== Reveal-on-scroll (site.js adds .reveal and .js-motion) ===== */
-.js-motion .reveal{opacity:0;transform:translateY(32px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+.js-motion .reveal{opacity:0;transform:translateY(14px);transition:opacity .55s var(--ease),transform .55s var(--ease)}
+@media print{.js-motion .reveal,.home-manifesto.is-scrub .m-seg{opacity:1!important;transform:none!important}}
 .js-motion .reveal.is-in{opacity:1;transform:none}
 
 @media(max-width:760px){
@@ -420,10 +424,99 @@ html.dark-theme :is(.directory-heading .snapshot,.directory-heading time,.sort-l
 html.dark-theme .gov-jobs-shell>:not(.gov-jobs-hero) :is(h2,h3,h4,strong,b,th){color:var(--ink)!important}
 html.dark-theme .gov-jobs-shell>:not(.gov-jobs-hero) :is(p,span,small,li,dd,dt,label,td,legend):not(.gov-jobs-eyebrow,.gov-jobs-status,.gov-jobs-card-kicker,.gov-jobs-rank,.gov-jobs-card-actions *,.gov-jobs-facts>div:first-child dd,button *,a.gov-jobs-primary *){color:var(--muted)!important}
 html.dark-theme .gov-jobs-shell>:not(.gov-jobs-hero) :is(input,select,textarea){background:var(--surface)!important;color:var(--ink)!important;border-color:var(--line)!important}
-html body .home-stat-wide .home-stat-note{color:#047857!important}
-html.dark-theme body .home-stat-wide .home-stat-note{color:#42d39a!important}
 html.dark-theme .gov-jobs-shell :is(.gov-exam-card,.gov-jobs-exam-portal,.gov-study-step,.gov-jobs-source-card,.gov-jobs-empty,.gov-study-disclaimer,.gov-eligibility-section,.gov-jobs-search,.gov-jobs-filters,.gov-exam-filters,.gov-jobs-methodology,.gov-jobs-editorial-note,.gov-exam-eligibility,.gov-exam-editorial){background-color:var(--tint)!important;border-color:var(--line)!important}
 html.dark-theme .gov-jobs-shell :is(.gov-exam-card,.gov-jobs-exam-portal,.gov-study-step,.gov-jobs-source-card) :is(p,div)>span,html.dark-theme .gov-jobs-shell .gov-exam-card span:not(.gov-jobs-eyebrow){background-color:transparent}
 html.dark-theme .gov-jobs-shell>:not(.gov-jobs-hero) span{background-color:transparent}
 html.dark-theme .gov-jobs-shell .gov-jobs-notice-mark{background:var(--blue-soft)!important;color:#c9d6ff!important}
 html.dark-theme .gov-jobs-shell>:not(.gov-jobs-hero) :is(summary,.gov-jobs-text-link,a:not([class*=primary]):not(.gov-jobs-card-actions a):not(.gov-exam-card-actions a)){color:#9fb6ff!important}
+
+/* ===== Finish pass: one type system, real glyphs, quieter labels =====
+   Only Manrope is self-hosted, so the display accent and labels stay in it rather than
+   falling back to a different serif or monospace on each platform. System fonts after
+   Manrope supply the ₹ sign, which the self-hosted latin subset does not include. */
+:root{
+  --font:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans',sans-serif;
+  --heading:var(--font);
+  --serif:var(--font);
+  --label:600 11.5px/1.4 var(--font);
+  --ease-out:cubic-bezier(.22,1,.36,1);
+}
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+body{font-family:var(--font);font-feature-settings:'kern','liga','calt'}
+
+/* Display type: confident weight, tight but legible tracking, balanced lines. */
+html body main :is(h1,h2){font-weight:600!important;text-wrap:balance}
+html body main h1{letter-spacing:-.038em!important}
+html body main h2{letter-spacing:-.03em!important}
+html body main h3{font-weight:600!important;letter-spacing:-.018em!important;text-wrap:balance}
+html body .home-hero h1{font-weight:600!important;letter-spacing:-.045em!important;line-height:1.02!important}
+html body .home-giant{font-weight:600!important}
+html body .home-manifesto-text{font-weight:450!important}
+html body main :is(p,li){text-wrap:pretty}
+
+/* The accent phrase keeps its emphasis through colour, not a fallback italic. */
+html body :is(.home-shell em,.home-final-cta h2,.premium-footer .footer-intro>p),
+html body :is(.jobs-page-heading,.gov-jobs-hero,.hack-hero,.dsa-intro,.page-shell>.intro,.editorial-hero) h1>span{font-family:var(--font)!important;font-style:normal!important;font-weight:600!important;letter-spacing:-.04em!important}
+html body .home-hero h1 em,html body :is(.jobs-page-heading,.gov-jobs-hero,.hack-hero,.dsa-intro,.page-shell>.intro,.editorial-hero) h1>span{color:rgba(255,255,255,.74)!important}
+html body .home-shell section:not(.home-hero):not(.home-final-cta) h2 em{color:var(--blue)!important}
+html body .home-final-cta h2 em{color:rgba(255,255,255,.7)!important}
+
+/* Eyebrows and labels: one quiet small-caps style instead of a code font. */
+html body :is(.eyebrow,.dsa-eyebrow,.gov-jobs-eyebrow,.home-kicker,.home-live-pill,.home-quick-links span,.home-trust-strip>p:first-child,.home-path-index,.home-studio-tag,.home-guide-meta,.premium-footer .footer-main nav h2,.footer-label,.gov-jobs-card-kicker,.gov-jobs-facts dt,.gov-jobs-rank,.company-card .card-pay-label,.page-shell .filters legend,.page-shell .select-filter label,.jobs-page-heading .eyebrow,.jobs-page .jobs-toolbar .eyebrow,.guide-card-meta,.profile-pay-top .eyebrow,.article-aside .eyebrow){font-family:var(--font)!important;font-weight:650!important;letter-spacing:.1em!important}
+html body :is(.premium-footer .footer-bottom,.jobs-page-stats,:is(.home-page,.jobs-page) .job-card-time,:is(.home-page,.jobs-page) .job-card-pay>span){font-family:var(--font)!important;letter-spacing:0}
+
+/* Figures line up: money, counts and dates use tabular numerals. */
+:is(.home-stat-card dd,.profile-inr,.job-card-pay,.card-pay,.hack-prize,.gov-jobs-facts dd,.jobs-page-stats,.tier-card,.salary-example p,.home-index-pay,.home-dsa-stat,.home-featured-company p,.jobs-toolbar h2,.job-card-time){font-variant-numeric:tabular-nums lining-nums}
+
+/* Interaction: one easing, gentle lift, crisp press. */
+:is(a,button,summary,.job-result-card,.company-card,.hack-card,.gov-jobs-card,.guide-card,.home-guide-card){transition-timing-function:var(--ease-out)}
+:is(.primary-button,.nav-cta,.home-search-submit,.home-pill-button,.jobs-search button[type=submit],.hack-search button[type=submit]):active{transform:translateY(1px) scale(.985)}
+html body :is(.job-result-card,.company-card,.hack-card,.gov-jobs-card,.guide-card,.home-guide-card,.home-featured-company){transition:background-color .25s var(--ease-out),transform .25s var(--ease-out)}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){html body :is(.job-result-card,.company-card,.hack-card,.gov-jobs-card,.guide-card,.home-guide-card,.home-featured-company):hover{transform:translateY(-2px)}}
+
+/* Phones: quick filters scroll in one row and the search tools sit in a tidy grid. */
+@media(max-width:640px){
+ html body.jobs-page .jobs-quick{display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:calc(-1 * var(--gutter));padding-inline:var(--gutter);scroll-padding-inline:var(--gutter);-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent)}
+ html body.jobs-page .jobs-quick::-webkit-scrollbar{display:none}
+ html body.jobs-page .jobs-quick>*{flex:0 0 auto}
+ html body .job-workbench{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:stretch}
+ html body .job-workbench>*{min-width:0;margin:0}
+ html body .job-workbench .job-density{grid-column:1/-1}
+ html body .home-quick-links{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;scrollbar-width:none;margin-inline:calc(-1 * var(--gutter));padding-inline:var(--gutter)}
+ html body .home-quick-links::-webkit-scrollbar{display:none}
+ html body .home-quick-links>*{flex:0 0 auto}
+}
+
+/* Homepage hero: two quiet facts instead of four floating badges; employer logos here read as endorsements. */
+html body .home-hero .hero-chip-logo{display:none}
+html body .home-hero .hero-chip{padding:9px 15px;font-size:13.5px;font-weight:600;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.28);box-shadow:0 10px 30px rgba(10,30,120,.18);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+html body .home-hero .hero-chip-1{left:8%;top:38%}
+html body .home-hero .hero-chip-4{right:8%;top:56%}
+/* The chips need clear space beside the headline; below this width they would sit on it. */
+@media(max-width:1280px){html body .home-hero .home-hero-chips{display:none}}
+
+
+/* ===== Jobs workspace refinements ===== */
+/* Loading keeps the current cards in place; first load shows card-shaped placeholders. */
+#job-results.is-loading{opacity:.5;pointer-events:none;transition:opacity .2s var(--ease)}
+html body .job-skeleton{position:relative;min-height:260px;padding:26px;border-radius:28px;background:var(--tint)!important;overflow:hidden;animation:none}
+.job-skeleton :is(i,b,span){display:block;border-radius:10px;background:var(--line)}
+.job-skeleton i{width:46px;height:46px;border-radius:14px;margin-bottom:22px}
+.job-skeleton b{height:16px;margin-bottom:12px;width:78%}
+.job-skeleton b+b{width:52%}
+.job-skeleton span{height:38px;width:40%;margin-top:34px;border-radius:999px}
+.job-skeleton::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);transform:translateX(-100%);animation:wilsy-shimmer 1.4s ease-in-out infinite}
+html.dark-theme .job-skeleton::after{background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.07) 50%,transparent 70%)}
+@keyframes wilsy-shimmer{to{transform:translateX(100%)}}
+@media(prefers-reduced-motion:reduce){.job-skeleton::after{animation:none;display:none}}
+/* A role added to the comparison is visibly selected. */
+html body .job-result-card:has(.job-compare[aria-pressed=true]){box-shadow:inset 0 0 0 2px var(--blue)!important}
+/* One primary colour for the main action everywhere. */
+html body .job-result-card .job-apply-link{background:var(--blue);color:#fff}
+html body .job-result-card .job-apply-link:hover{filter:brightness(1.08)}
+/* Company marks are drawn for light backgrounds, so their tile stays white in both themes. */
+html.dark-theme body :is(.job-company-line,.home-featured-company,.home-index-row,#job-detail) .job-logo:not(.job-logo-generic){background:#fff!important;border-color:transparent!important}
+/* Filter sheet and detail dialog sit on a plain surface. */
+html body #jobs-filter-dialog .jobs-filters{background:transparent!important;border-radius:0!important}
+html body .job-detail-dialog .job-card-tags span{background:var(--tint)!important}
+.job-detail-section p{max-width:72ch}

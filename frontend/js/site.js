@@ -93,7 +93,13 @@ document.addEventListener('DOMContentLoaded', () => {
   ].join(',');
   const observer=new IntersectionObserver(entries=>{
     for(const entry of entries){if(!entry.isIntersecting)continue;entry.target.classList.add('is-in');observer.unobserve(entry.target);}
-  },{rootMargin:'0px 0px -6% 0px',threshold:.06});
+  },{rootMargin:'0px 0px -3% 0px',threshold:0});
+  // Safety net: after a jump or a fast scroll, nothing above the bottom of the screen stays hidden.
+  let sweeping=false;
+  window.addEventListener('scroll',()=>{
+    if(sweeping)return;sweeping=true;
+    setTimeout(()=>{sweeping=false;document.querySelectorAll('.reveal:not(.is-in)').forEach(el=>{if(el.getBoundingClientRect().top<innerHeight)el.classList.add('is-in');});},160);
+  },{passive:true});
   const mount=()=>{
     const seen=new Map();
     document.querySelectorAll(auto).forEach(el=>{

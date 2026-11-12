@@ -88,15 +88,16 @@ $('#compare-close').addEventListener('click',()=>$('#compare-dialog').close());
 $('#compare-dialog').addEventListener('close',()=>($('#compare-open').disabled?$('#compare-clear'):$('#compare-open')).focus({preventScroll:true}));
 displayDensity(density);searchControls();
 function render(){
-  $('#job-results').setAttribute('aria-busy','false');$('#job-count').textContent=`${total.toLocaleString()} ${state.saved?'saved ':''}opportunit${total===1?'y':'ies'}`;
+  $('#job-results').classList.remove('is-loading');
+  $('#job-results').setAttribute('aria-busy','false');$('#job-count').textContent=`${total.toLocaleString('en-IN')} ${state.saved?'saved ':''}opportunit${total===1?'y':'ies'}`;
   if(!rows.length){$('#job-results').innerHTML=`<div class="jobs-empty"><h3>${state.saved?'Your next move is worth saving.':'Let’s open up the possibilities.'}</h3><p>${state.saved?'Save roles with the Save button. Only currently published saved jobs are shown.':state.time?'No current listings match these employer posting dates and filters. Roles with unknown posting dates are excluded.':'No current jobs match this combination. Try a broader role, location, or fewer filters.'}</p><button type="button" data-clear>Explore all jobs</button></div>`;}
   else $('#job-results').innerHTML=rows.map(card).join('');
   bindLogos($('#job-results'));
   const pages=Math.max(1,Math.ceil(total/PAGE_SIZE));
-  $('#job-pagination').innerHTML=total?`<span>${(state.page-1)*PAGE_SIZE+1}–${Math.min(state.page*PAGE_SIZE,total)} of ${total.toLocaleString()}</span><div><button type="button" data-page="${state.page-1}" ${state.page===1?'disabled':''}>Previous</button><button type="button" data-page="${state.page+1}" ${state.page>=pages?'disabled':''}>Next</button></div>`:'';
+  $('#job-pagination').innerHTML=total?`<span>${(state.page-1)*PAGE_SIZE+1}–${Math.min(state.page*PAGE_SIZE,total)} of ${total.toLocaleString('en-IN')}</span><div><button type="button" data-page="${state.page-1}" ${state.page===1?'disabled':''}>Previous</button><button type="button" data-page="${state.page+1}" ${state.page>=pages?'disabled':''}>Next</button></div>`:'';
 }
 async function refreshFacets(){
-  try{const f=await jobFacets();$('#stat-total').textContent=f.total.toLocaleString();$('#stat-companies').textContent=f.companies_count.toLocaleString();$('#stat-remote').textContent=f.remote_count.toLocaleString();
+  try{const f=await jobFacets();$('#stat-total').textContent=f.total.toLocaleString('en-IN');$('#stat-companies').textContent=f.companies_count.toLocaleString('en-IN');$('#stat-remote').textContent=f.remote_count.toLocaleString('en-IN');
     for(const [key,values] of [['company',f.companies],['country',f.countries.filter(v=>v!=='Multiple')],['skill',f.skills],['seniority',f.seniority]]){const el=$('#filter-'+key);el.innerHTML=`<option value="">All ${key==='company'?'companies':key==='country'?'countries':key==='skill'?'skills':'levels'}</option>`;for(const value of values)el.add(new Option(key==='seniority'?label(value):value,value));}
     controls({preserveDraft:true});
   }catch{feedback('Collection totals could not be refreshed. Job search can still be retried below.');}
@@ -105,12 +106,16 @@ async function load({facets=false,background=false}={}){
   const keepResults=background&&rows.length>0;
   const current=++requestId;controller?.abort();controller=new AbortController();
   controls({preserveDraft:background});$('#job-results').setAttribute('aria-busy','true');$('#job-connection').textContent='Refreshing current listings…';
-  if(!keepResults){$('#job-results').innerHTML='<div class="job-skeleton" aria-hidden="true"></div><div class="job-skeleton" aria-hidden="true"></div><span class="sr-only">Loading matching roles</span>';$('#job-count').textContent='Job results';$('#job-pagination').innerHTML='';}
+  // While a new search loads, the current cards stay in place (dimmed) so the page never collapses.
+  if(!keepResults){
+    if(rows.length)$('#job-results').classList.add('is-loading');
+    else{$('#job-results').innerHTML='<div class="job-skeleton" aria-hidden="true"><i></i><b></b><b></b><span></span></div>'.repeat(6)+'<span class="sr-only">Loading matching roles</span>';$('#job-count').textContent='Finding roles…';$('#job-pagination').innerHTML='';}
+  }
   try{const result=await searchJobs(apiFilters(state,saved,fx),(state.page-1)*PAGE_SIZE,controller.signal);if(current!==requestId)return;
     const changed=JSON.stringify(rows)!==JSON.stringify(result.jobs)||total!==result.total;rows=result.jobs;total=result.total;lastFetch=Date.now();
     if(state.page>1&&!rows.length&&total>0){state.page=Math.ceil(total/PAGE_SIZE);address();return load();}
     if(!keepResults||changed)render();else $('#job-results').setAttribute('aria-busy','false');$('#job-connection').textContent=`Listings updated ${dateLabel(result.as_of)}${state.sort==='posted'?' · Unknown posting dates appear last.':''}`;
-  }catch(error){if(current!==requestId)return;if(keepResults){$('#job-results').setAttribute('aria-busy','false');$('#job-connection').innerHTML='Couldn’t refresh. Showing the previous results. <button type="button" data-retry>Retry live search</button>';return;}rows=[];$('#job-results').setAttribute('aria-busy','false');$('#job-count').textContent='Unable to load jobs';$('#job-connection').textContent='The live connection is temporarily unavailable.';$('#job-results').innerHTML='<div class="jobs-empty"><h3>Let’s reconnect.</h3><p>Your filters and saved jobs are safe. Retry the live search or explore the company directory while the connection returns.</p><button type="button" data-retry>Try again</button><p><a href="/companies">Browse company career links</a></p></div>';}
+  }catch(error){if(current!==requestId)return;$('#job-results').classList.remove('is-loading');if(keepResults){$('#job-results').setAttribute('aria-busy','false');$('#job-connection').innerHTML='Couldn’t refresh. Showing the previous results. <button type="button" data-retry>Retry live search</button>';return;}rows=[];$('#job-results').setAttribute('aria-busy','false');$('#job-count').textContent='Unable to load jobs';$('#job-connection').textContent='The live connection is temporarily unavailable.';$('#job-results').innerHTML='<div class="jobs-empty"><h3>Let’s reconnect.</h3><p>Your filters and saved jobs are safe. Retry the live search or explore the company directory while the connection returns.</p><button type="button" data-retry>Try again</button><p><a href="/companies">Browse company career links</a></p></div>';}
   if(facets)await refreshFacets();
 }
 function change(update){Object.assign(state,update,{page:1,id:''});feedback('');workspaceMessage('');address(true);load();}
@@ -120,7 +125,7 @@ function save(id){
   if(next.length>500){feedback('You can save up to 500 roles on this device. Remove a saved role to add another.');return;}
   try{localStorage.setItem('wilsy-saved-jobs',JSON.stringify(next));saved=next;announceSaved();}catch{feedback('This browser is blocking local storage. Enable site storage to save jobs on this device.');return;}
   savedNotice(saved.includes(id)?`Job saved ${savedPlace()}.`:'Job removed from saved.',location.pathname+'?saved=1');
-  controls({preserveDraft:true});document.querySelectorAll(`[data-save="${id}"]`).forEach(b=>{const active=saved.includes(id);b.setAttribute('aria-pressed',active);b.textContent=active?'Saved':'Save';b.setAttribute('aria-label',active?'Unsave job':'Save job');});
+  controls({preserveDraft:true});document.querySelectorAll(`[data-save="${id}"]`).forEach(b=>{const active=saved.includes(id);b.setAttribute('aria-pressed',active);b.textContent=active?'Saved':'Save';});
   if(state.saved)load();
 }
 const detailPair=(name,value)=>`<div><dt>${e(name)}</dt><dd>${e(text(value))}</dd></div>`;

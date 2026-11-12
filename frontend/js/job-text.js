@@ -40,8 +40,13 @@ export function plainJobText(value, fallback = 'See the employer listing for the
   return text || fallback;
 }
 
+// Card previews skip the section heading many listings open with ("ABOUT THE TEAM", "Company overview:").
+const namedHeading = /^(?:about (?:us|the (?:team|role|company|job|position|opportunity))|who we are|company (?:overview|description)|job (?:description|summary|overview)|role (?:overview|summary)|position summary|overview|the role)\b[\s:—–-]*(?=[A-Z])/i;
+const capsHeading = /^(?:[A-Z][A-Z&'’]+\s+){2,5}(?=[A-Z][a-z])/;
 export function previewJobText(value, max = 150) {
-  const text = plainJobText(value);
+  const full = plainJobText(value);
+  const stripped = full.replace(namedHeading, '').replace(capsHeading, '').trim();
+  const text = stripped.length > 40 ? stripped[0].toUpperCase() + stripped.slice(1) : full;
   if (text.length <= max) return text;
   const clipped = text.slice(0, max).replace(/\s+\S*$/, '').trim();
   return `${clipped || text.slice(0, max).trim()}…`;

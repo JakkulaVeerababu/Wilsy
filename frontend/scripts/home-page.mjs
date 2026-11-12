@@ -40,18 +40,17 @@ function marquee(featured,companies) {
   return `<div class="home-trust-logos home-marquee">${row(false)}${row(true)}</div>`;
 }
 
-const sparkline = `<svg class="home-spark" viewBox="0 0 200 56" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="spark-fill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".22"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M0 48 C30 46 52 42 80 40 S130 32 150 26 S185 12 200 8 V56 H0Z" fill="url(#spark-fill)"/><path d="M0 48 C30 46 52 42 80 40 S130 32 150 26 S185 12 200 8" fill="none" stroke="currentColor" stroke-width="2"/></svg>`;
 
 export function homePage({snapshot, companies, guides, fx, dsaStats}) {
   const jobs = snapshot.jobs.slice(0,6), featured = snapshot.featured.slice(0,6);
   const now = Date.now();
   const date = new Intl.DateTimeFormat('en-IN',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Kolkata'}).format(new Date(snapshot.updatedAt));
-  const chipLogos = featured.map(item=>profileFor({company:item.name,company_slug:item.slug},companies)).filter(Boolean).slice(0,2);
+  const remoteShare = snapshot.stats.total>0 ? Math.min(100,Math.round(snapshot.stats.remote/snapshot.stats.total*100)) : 0;
   const guideCard = guide => `<a class="home-guide-card" href="/guides/${e(guide.slug)}"><span class="home-guide-meta">${e(guide.category)} · ${e(guide.minutes)} MIN READ</span><h3>${e(guide.title)}</h3><p>${e(guide.description)}</p><span class="home-text-link">Read the guide ${icon('arrow')}</span></a>`;
   return `<main id="main-content" class="home-shell">
   <section class="home-hero" aria-labelledby="home-title">
     <div class="home-hero-copy">
-      <p class="home-live-pill"><span></span> INTRODUCING THE WILSY INDEX</p>
+      <p class="home-live-pill"><span></span> SOURCE-LINKED ROLES · UPDATED <time data-snapshot-date datetime="${e(snapshot.updatedAt)}">${e(date)}</time></p>
       <h1 id="home-title">Find the work<br><em>that moves you forward.</em></h1>
       <p class="home-hero-lede">Real opportunities, researched for you. Every role links to its source, with INR salary context.</p>
       <form class="home-search" id="job-search-form" action="/jobs" method="get" role="search">
@@ -63,23 +62,21 @@ export function homePage({snapshot, companies, guides, fx, dsaStats}) {
     </div>
     <div class="home-hero-chips" aria-hidden="true">
       <span class="hero-chip hero-chip-1">${icon('check')} Source verified</span>
-      ${chipLogos[0]?`<span class="hero-chip hero-chip-logo hero-chip-2"><img src="/${e(chipLogos[0].logo)}" alt="" width="34" height="34">${e(chipLogos[0].name)}</span>`:''}
-      ${chipLogos[1]?`<span class="hero-chip hero-chip-logo hero-chip-3"><img src="/${e(chipLogos[1].logo)}" alt="" width="34" height="34">${e(chipLogos[1].name)}</span>`:''}
       <span class="hero-chip hero-chip-4">${icon('rupee')} INR salary context</span>
     </div>
   </section>
   <section class="home-console" aria-label="A preview of the live job index">
     <div class="home-live-panel">
-      <div class="home-console-bar"><span class="home-console-brand">${brandMark(26)}wilsy</span><span class="home-console-tabs"><span class="is-active">${icon('sparkle')} Live index</span><span>${icon('government')} Government</span><span>${icon('bolt')} Hackathons</span><span>${icon('building')} Companies</span></span><span class="home-console-search">${icon('search')} Search the index</span></div>
+      <div class="home-console-bar"><span class="home-console-brand">${brandMark(26)}wilsy</span><nav class="home-console-tabs" aria-label="Sections of the index"><a class="is-active" href="/jobs">${icon('sparkle')} Live index</a><a href="/government-jobs">${icon('government')} Government</a><a href="/hackathons">${icon('bolt')} Hackathons</a><a href="/companies#companies">${icon('building')} Companies</a></nav><a class="home-console-search" href="#job-search-form">${icon('search')} Search the index</a></div>
       <div class="home-console-body">
         <div class="home-console-main">
           <p class="home-console-prompt">Show me today’s opportunity summary</p>
-          <h2>Daily opportunity summary — ${e(date)}</h2>
+          <h2>Daily opportunity summary — <time data-snapshot-date datetime="${e(snapshot.updatedAt)}">${e(date)}</time></h2>
           <p class="home-console-lede">Here’s what the index holds right now. Every role below opens its source; availability can change.</p>
           <dl class="home-stat-grid">
-            <div class="home-stat-card home-stat-wide"><dt>Published jobs</dt><dd id="stat-total">${count(snapshot.stats.total)}</dd><span class="home-stat-note">${icon('arrow')} Source-linked roles</span>${sparkline}</div>
-            <div class="home-stat-card"><dt>Companies hiring</dt><dd id="stat-companies">${count(snapshot.stats.companies)}</dd><span class="home-stat-note">Across the snapshot</span><span class="home-stat-bar" aria-hidden="true"><i></i></span></div>
-            <div class="home-stat-card"><dt>Remote roles</dt><dd id="stat-remote">${count(snapshot.stats.remote)}</dd><span class="home-stat-note">Work from anywhere</span><span class="home-stat-bar home-stat-bar-teal" aria-hidden="true"><i></i></span></div>
+            <div class="home-stat-card home-stat-wide"><dt>Published jobs</dt><dd id="stat-total">${count(snapshot.stats.total)}</dd><span class="home-stat-note">Every role links to its source</span></div>
+            <div class="home-stat-card"><dt>Companies hiring</dt><dd id="stat-companies">${count(snapshot.stats.companies)}</dd><span class="home-stat-note">With at least one open role</span></div>
+            <div class="home-stat-card"><dt>Remote roles</dt><dd id="stat-remote">${count(snapshot.stats.remote)}</dd><span class="home-stat-note"><span id="stat-remote-share">${remoteShare}</span>% of published roles</span><span class="home-stat-bar home-stat-bar-teal" aria-hidden="true"><i id="stat-remote-bar" style="width:${remoteShare}%"></i></span></div>
           </dl>
           <div class="home-feed-track">${(snapshot.feed.length?snapshot.feed:jobs).slice(0,3).map(job=>feedCard(job,companies,fx,now)).join('')}</div>
           <div class="home-console-foot"><a class="home-index-link" href="/jobs">Browse the full opportunity index ${icon('arrow')}</a><p class="home-feed-note" id="home-snapshot-status">Snapshot ${e(date)} · Availability can change.</p></div>
@@ -156,5 +153,5 @@ function homeSections({snapshot,jobs,featured,companies,guideCard,guides,fx,now,
     <div class="home-guide-grid">${guides.slice(0,3).map(guideCard).join('')}</div>
     <a class="home-dsa-banner" href="/dsa"><span class="home-dsa-stat"><b>${dsaStats?.patterns || dsaStats?.categories || 16}</b><small>${dsaStats?.patterns ? 'patterns' : 'topics'}</small></span><span><span class="home-kicker">WILSY / DSA ROADMAP</span><strong>Build the patterns behind your next interview.</strong><span>${dsaStats?.categories || 16} topics. ${dsaStats?.patterns || ''} patterns. An interactive mind-map and a place to track your progress.</span></span>${icon('arrow')}</a>
   </section>
-  <section class="home-final-cta" aria-labelledby="final-cta-title"><div><p class="home-kicker">YOUR NEXT MOVE</p><h2 id="final-cta-title">For the most deliberate<br><em>job seekers in India.</em></h2><p>Start with a role. Leave with more context.</p></div><div class="home-final-actions"><a class="home-cta-primary" href="#job-search-form">Find your next role ${icon('arrow')}</a><a class="home-cta-secondary" href="/dsa">Prepare for what comes next ${icon('arrow')}</a></div></section>`;
+  <section class="home-final-cta" aria-labelledby="final-cta-title"><div><p class="home-kicker">YOUR NEXT MOVE</p><h2 id="final-cta-title">For the most deliberate<br><em>job seekers in India.</em></h2><p>Start with a role. Leave with more context.</p></div><div class="home-final-actions"><a class="home-cta-primary" href="/jobs">Browse live jobs ${icon('arrow')}</a><a class="home-cta-secondary" href="/dsa">Prepare for what comes next ${icon('arrow')}</a></div></section>`;
 }

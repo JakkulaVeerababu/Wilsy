@@ -23,3 +23,11 @@ test('Automatic refresh pauses for active text and filter inputs',()=>{
   assert.equal(isEditing({tagName:'INPUT'}),true);assert.equal(isEditing({tagName:'SELECT'}),true);
   assert.equal(isEditing({tagName:'DIV',isContentEditable:true}),true);assert.equal(isEditing({tagName:'BUTTON'}),false);
 });
+test('Card previews skip opening section headings but keep real first words',async()=>{
+  const {previewJobText}=await import('../js/job-text.js');
+  assert.equal(previewJobText('ABOUT THE TEAM The platform team builds tools for every engineer here.'),'The platform team builds tools for every engineer here.');
+  assert.equal(previewJobText('COMPANY OVERVIEW Deepgram is the leading voice AI platform for builders.'),'Deepgram is the leading voice AI platform for builders.');
+  assert.equal(previewJobText('About us: we design accessible products for millions of people.'),'We design accessible products for millions of people.');
+  assert.equal(previewJobText('AI Engineers wanted to build the future of agents at scale here.'),'AI Engineers wanted to build the future of agents at scale here.');
+  assert.equal(previewJobText('NASA JPL is hiring engineers to build spacecraft software today.'),'NASA JPL is hiring engineers to build spacecraft software today.');
+});

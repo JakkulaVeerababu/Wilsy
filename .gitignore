@@ -10,3 +10,12 @@ dist/
 !.env.example
 supabase/.temp/
 .opencode/
+
+# Personal and working files that are not part of the site
+DSA RM/
+/current-page.png
+/sarvam-x-wilsy*
+/wilsy-logo.png
+/out.log
+.claude/
+frontend/dist/

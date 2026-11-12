@@ -1,10 +1,17 @@
 # The collector fleet: 10 agents, each reading a tenth of the watchlist's job boards every hour.
-# Needs the SUPABASE_SERVICE_ROLE_KEY repository secret; without it every agent exits without writing.
+# Needs the SUPABASE_SERVICE_ROLE_KEY repository secret; without it every agent fails loudly.
+# Each agent writes its totals to the run summary and fails when it reads nothing or more than
+# 30% of its boards fail.
 name: Collect jobs
 on:
   schedule:
     - cron: '7 * * * *'
   workflow_dispatch:
+    inputs:
+      shard:
+        description: Run only this shard (0-9); leave empty to run all ten
+        required: false
+        default: ''
 permissions:
   contents: read
 jobs:
@@ -17,14 +24,17 @@ jobs:
         shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     concurrency: collect-jobs-shard-${{ matrix.shard }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
       - name: Collect shard ${{ matrix.shard }}
         env:
           SUPABASE_URL: https://pnkthqatdlozrojwefnc.supabase.co
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ONLY_SHARD: ${{ inputs.shard }}
+          SHARD: ${{ matrix.shard }}
         run: |
-          if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then echo "No SUPABASE_SERVICE_ROLE_KEY secret yet; skipping."; exit 0; fi
-          node collectors/collect.mjs --shard ${{ matrix.shard }} --shards 10
+          if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then echo "::error::SUPABASE_SERVICE_ROLE_KEY is missing; nothing was collected."; exit 1; fi
+          if [ -n "$ONLY_SHARD" ] && [ "$ONLY_SHARD" != "$SHARD" ]; then echo "Only shard $ONLY_SHARD requested; skipping shard $SHARD."; exit 0; fi
+          node collectors/collect.mjs --shard "$SHARD" --shards 10
