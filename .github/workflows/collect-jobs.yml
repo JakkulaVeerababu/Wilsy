@@ -2,10 +2,10 @@
 # Needs the SUPABASE_SERVICE_ROLE_KEY repository secret; without it every agent fails loudly.
 # Each agent writes its totals to the run summary and fails when it reads nothing or more than
 # 30% of its boards fail.
+# Started at :07 every hour by Supabase pg_cron (supabase/migrations/20261112020000_wilsy_hourly_dispatch.sql);
+# GitHub's own cron ran it hours late, so there is no schedule trigger here.
 name: Collect jobs
 on:
-  schedule:
-    - cron: '7 * * * *'
   workflow_dispatch:
     inputs:
       shard:

@@ -153,10 +153,17 @@ On 2 November 2026 the database was at 399 MB. `jobs` was 367 MB: 296 MB of TOAS
 - `public.wilsy_ingest_board(board)` (service role only, `20261102190000`) applies Worker D 3.1's rules (technical roles only; rewrite only on visible change, reopening or a 12-hour sighting refresh) and adds salary fields. It rejects a board that does not match its watchlist row. Calls carry at most 50 jobs, and a final call with the board's complete `live_urls` closes roles that disappeared. A rolled-back production test with a real Ashby board updated 2 rows with salaries, left them unchanged on a repeat call, and rejected a mismatched board.
 - `collect.mjs`: one agent. It reads its shard (`master_rank % shards`) of verified, readable boards, ingests them in chunks, and logs a `job_ingestion_runs` row (`Wilsy collector fleet`).
 
-### Schedules (GitHub Actions)
+### Schedules
 
 - `collect-jobs.yml`: 10 agents (matrix shards 0–9) every hour at :07.
+- `collect-hackathons.yml`: every hour at :23.
 - `discover-boards.yml`: weekly discovery, kept as an artifact.
+
+GitHub's own cron started the hourly collectors up to 14 hours late, so both are started from the database instead. pg_cron jobs `wilsy-dispatch-collect-jobs` and `wilsy-dispatch-collect-hackathons` call `wilsy_private.dispatch_workflow(...)` (`20261112020000`), which sends a `workflow_dispatch` request to GitHub using a fine-grained token stored in Vault as `github_dispatch_token` (Wilsy only, Actions: read and write). A 204 in `net._http_response` means GitHub accepted it; a 403 means the token lost that permission or expired. To replace the token:
+
+```sql
+select vault.update_secret((select id from vault.secrets where name = 'github_dispatch_token'), '<new token>');
+```
 
 Both write only when the `SUPABASE_SERVICE_ROLE_KEY` repository secret exists; until then they exit without writing. Once the fleet's runs are confirmed in `job_ingestion_runs`, unschedule Worker D (`select cron.unschedule('wilsy-worker-d-internal')`) so each board is read by one collector.
 
@@ -164,7 +171,7 @@ Both write only when the `SUPABASE_SERVICE_ROLE_KEY` repository secret exists; u
 
 ## Hackathon collection
 
-The original hackathon worker ("Daily Deep Job + Hackathon Research") last ran on 13 September 2026. `collectors/hackathons.mjs` replaces it and runs hourly at :23 (`.github/workflows/collect-hackathons.yml`).
+The original hackathon worker ("Daily Deep Job + Hackathon Research") last ran on 13 September 2026. `collectors/hackathons.mjs` replaces it and runs hourly at :23 (`.github/workflows/collect-hackathons.yml`, started by pg_cron as described under Schedules).
 
 - **Sources.** Unstop's listing API (its robots.txt explicitly allows `/api/public/*`) and Devfolio's open-registration search (robots.txt allows all paths; no anti-automation clause in its terms). Devpost is not read because its terms forbid scraping, and MLH is not read because its terms forbid commercial reuse.
 - **Stored.** Event facts only: title, organiser, description, dates, location, team size, themes, skills and prizes. Participant lists, judges, contact e-mails and raw payloads are never stored.

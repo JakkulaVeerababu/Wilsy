@@ -1,9 +1,8 @@
 # Hourly hackathon collector: open registrations from Unstop's public API and Devfolio.
 # Adds new events, refreshes known ones and closes events whose registration has ended.
+# Started at :23 every hour by Supabase pg_cron (supabase/migrations/20261112020000_wilsy_hourly_dispatch.sql).
 name: Collect hackathons
 on:
-  schedule:
-    - cron: '23 * * * *'
   workflow_dispatch:
 permissions:
   contents: read
