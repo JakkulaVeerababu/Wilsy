@@ -1,0 +1,54 @@
+%%{init: {"flowchart": {"nodeSpacing": 15, "rankSpacing": 45, "useMaxWidth": false, "htmlLabels": true, "padding": 8}, "themeVariables": {"fontSize": "14px"}}}%%
+flowchart LR
+    subgraph S1 ["<b>1 · CLIENT & UI LAYER</b><br/>Zero-Framework Jamstack"]
+        direction TB
+        A1["<b>Pre-Rendered SSG Pages</b><br/>1,014+ static HTML pages · Vanilla CSS<br/>SEO canonicals, sitemap & A–Z index<br/><small>scripts/build-site.mjs · shell.css</small>"]
+        A2["<b>Live Workspaces & Portals</b><br/>Jobs search, Hackathons & Gov exam radar<br/>DSA interactive roadmap & Python code<br/><small>frontend/js/jobs.js · hackathons.js</small>"]
+        A3["<b>Client State & Storage</b><br/>localStorage: 8 saved searches, bookmarks<br/>3-role transient comparison & theme state<br/><small>frontend/js/job-workspace-core.js · site.js</small>"]
+        A1 --- A2 --- A3
+    end
+
+    subgraph S2 ["<b>2 · EDGE & RESILIENCE</b><br/>Vercel CDN & Outage Cache"]
+        direction TB
+        B1["<b>Vercel Edge Network</b><br/>Global CDN edge deployment<br/>Clean URLs & automatic routing<br/><small>vercel.json · frontend/dist/</small>"]
+        B2["<b>HTTP Security & Monetization</b><br/>nosniff & strict-origin headers<br/>Google AdSense TCF v2.2 & Amazon affiliate<br/><small>vercel.json · frontend/js/site-config.js</small>"]
+        B3["<b>Static Snapshot Fallback</b><br/>Automatic switch if API unavailable<br/>Checked-in 1,000 company snapshot<br/><small>data/companies.json · jobs-home.json</small>"]
+        B1 --- B2 --- B3
+    end
+
+    subgraph S3 ["<b>3 · API & SECURITY LAYER</b><br/>Supabase PostgREST Gateway"]
+        direction TB
+        C1["<b>Direct PostgREST Client</b><br/>Native fetch with 15s timeout<br/>Read-only public anon credentials<br/><small>frontend/js/data-client.js</small>"]
+        C2["<b>SQL Search Functions (RPC)</b><br/>wilsy_search_jobs (20/batch)<br/>wilsy_search_hackathons (12/batch)<br/><small>rpc/wilsy_search_jobs · facets</small>"]
+        C3["<b>Row-Level Security (RLS)</b><br/>security_invoker public views<br/>Revoked anon writes & mutations<br/><small>wilsy_public_jobs · public_hackathons</small>"]
+        C1 --- C2 --- C3
+    end
+
+    subgraph S4 ["<b>4 · DATA & INGESTION</b><br/>PostgreSQL & Upstream Feeds"]
+        direction TB
+        D1["<b>PostgreSQL Database Core</b><br/>Tables: jobs, hackathons, companies<br/>Categories, locations, user_progress<br/><small>pnkthqatdlozrojwefnc.supabase.co</small>"]
+        D2["<b>Dual-Currency Normalizer</b><br/>Dynamic INR/USD range matching<br/>Postgres full-text to_tsvector<br/><small>supabase/migrations/20260912060431_*.sql</small>"]
+        D3["<b>Autonomous Ingestion Workers</b><br/>Hourly Global Job Radar & ATS Scrapers<br/>ECB FX rates via Frankfurter API<br/><small>Upstream pipelines · exchange-rate.json</small>"]
+        D1 --- D2 --- D3
+    end
+
+    S1 ==>|Pre-rendered deployment & CDN cache| S2
+    S1 ==>|Direct REST fetch & RPC calls| S3
+    S2 -.->|Instant offline fallback on network error| S1
+    S3 ==>|Executes RPC search queries & RLS view enforcement| S4
+    S4 -.->|Provides verified ingestion feeds & dated FX rates| S2
+
+    classDef stage1 fill:#EFF6FF,stroke:#2563EB,stroke-width:2px,color:#1E3A8A;
+    classDef stage2 fill:#F0FDF4,stroke:#16A34A,stroke-width:2px,color:#14532D;
+    classDef stage3 fill:#FAF5FF,stroke:#9333EA,stroke-width:2px,color:#581C87;
+    classDef stage4 fill:#FFFBEB,stroke:#D97706,stroke-width:2px,color:#78350F;
+
+    class A1,A2,A3 stage1;
+    class B1,B2,B3 stage2;
+    class C1,C2,C3 stage3;
+    class D1,D2,D3 stage4;
+
+    style S1 fill:#F8FAFC,stroke:#2563EB,stroke-width:2px,color:#0F172A;
+    style S2 fill:#F8FAFC,stroke:#16A34A,stroke-width:2px,color:#0F172A;
+    style S3 fill:#F8FAFC,stroke:#9333EA,stroke-width:2px,color:#0F172A;
+    style S4 fill:#F8FAFC,stroke:#D97706,stroke-width:2px,color:#0F172A;
