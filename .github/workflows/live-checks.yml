@@ -19,6 +19,9 @@ jobs:
           node-version: 22
       - name: Collectors are publishing
         run: node scripts/check-freshness.mjs
+      - name: Hackathon collector is verifying events
+        if: ${{ !cancelled() }}
+        run: node scripts/check-hackathon-freshness.mjs
       - name: Jobs API contract
         if: ${{ !cancelled() }}
         run: node scripts/verify-jobs-api.mjs

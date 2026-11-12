@@ -162,6 +162,17 @@ Both write only when the `SUPABASE_SERVICE_ROLE_KEY` repository secret exists; u
 
 `npm test` runs the collector tests (`collectors/tests`) after the site tests.
 
+## Hackathon collection
+
+The original hackathon worker ("Daily Deep Job + Hackathon Research") last ran on 13 September 2026. `collectors/hackathons.mjs` replaces it and runs hourly at :23 (`.github/workflows/collect-hackathons.yml`).
+
+- **Sources.** Unstop's listing API (its robots.txt explicitly allows `/api/public/*`) and Devfolio's open-registration search (robots.txt allows all paths; no anti-automation clause in its terms). Devpost is not read because its terms forbid scraping, and MLH is not read because its terms forbid commercial reuse.
+- **Stored.** Event facts only: title, organiser, description, dates, location, team size, themes, skills and prizes. Participant lists, judges, contact e-mails and raw payloads are never stored.
+- **Matching.** The tables have no unique keys, so events are matched by source and the source's own event ID (older Unstop rows by the ID at the end of their URL).
+- **Closing.** Events past their registration deadline or end date are closed, whatever their source. Events no longer listed are closed only when their source was read successfully and returned events; a failed or empty read closes nothing.
+- **Monitoring.** Each run writes a `hackathon_ingestion_runs` row (`Wilsy hackathon collector`) and a run summary. Live checks fail when the newest verified event is older than eight hours (`MAX_HACKATHON_AGE_HOURS`).
+- New events show without artwork until `scripts/cache-hackathon-branding.mjs` is run for them.
+
 ## Accounts and sync
 
 Accounts are optional. The header's **Sign in** button (`js/account.js`) opens a dialog. Sign-in uses a one-time email code or link, or Google once that provider is enabled; there are no passwords. `js/auth-client.js` is a small dependency-free Supabase Auth client. Email links and Google use PKCE, so tokens never appear in URLs, and the session is stored under `wilsy-auth`.
