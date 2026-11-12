@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {normaliseUnstop,normaliseDevfolio,readUnstop,readDevfolio,isListable,plan,existingKey} from '../hackathons.mjs';
+import {normaliseUnstop,normaliseDevfolio,readUnstop,readDevfolio,isListable,plan,existingKey,markdownText} from '../hackathons.mjs';
 
 const NOW=new Date('2026-11-12T00:00:00Z');
 const unstop=(over={})=>({id:1801814,title:'Code Sprint',public_url:'hackathons/code-sprint-1801814',seo_url:'https://unstop.com/hackathons/code-sprint-1801814',
@@ -40,6 +40,14 @@ test('Devfolio events link to the event page and never store contact details or 
   assert.equal(e.row.registration_deadline_at,'2026-11-13T18:30:00.000Z');
   assert.equal(e.prizes[0].prize_name,'Best Beginner Team');assert.equal(e.row.has_cash_prize,null);
   assert.ok(!JSON.stringify(e).includes('x@y.z'));assert.ok(!JSON.stringify(e).includes('someone'));
+});
+
+test('Devfolio Markdown is stored as readable plain text',()=>{
+  const desc='# CLASH OF COMMITS\n### Build Your Clan\n\nGather your squad of **4-5 members** and join the [WhatsApp group](https://chat.whatsapp.com/x).\n\n---\n- *Round 1*: idea deck\n- Round 2: `24h` build\n\n![banner](https://x/y.png)';
+  const e=normaliseDevfolio(devfolio({tagline:null,desc,prizes:[{name:'Winner',desc:'**₹10,000** cash'}]}));
+  assert.equal(e.row.description,'CLASH OF COMMITS\nBuild Your Clan\n\nGather your squad of 4-5 members and join the WhatsApp group.\n\n• Round 1: idea deck\n• Round 2: 24h build');
+  assert.equal(e.prizes[0].description,'₹10,000 cash');
+  assert.equal(markdownText('snake_case_name and 2*3*4 stay'),'snake_case_name and 2*3*4 stay');
 });
 
 test('Readers page through the listings and reject unexpected responses',async()=>{

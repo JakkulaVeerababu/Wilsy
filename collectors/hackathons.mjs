@@ -14,6 +14,23 @@ import {createClient} from './http.mjs';
 
 export const SOURCE_UNSTOP='Unstop',SOURCE_DEVFOLIO='Devfolio';
 const MAX_PAGES=20,PAGE_SIZE=100;
+// Devfolio descriptions are Markdown; the site shows plain text, so keep the words and drop the syntax.
+export function markdownText(value,max) {
+  const md=String(value??'').replace(/\r\n?/g,'\n')
+    .replace(/```[\s\S]*?```/g,' ')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g,' ')                    // images
+    .replace(/\[([^\]]*)\]\([^)]*\)/g,'$1')                  // [text](url) -> text
+    .replace(/<(https?:[^>]+)>/g,'$1')
+    .replace(/^[ \t]*#{1,6}[ \t]*/gm,'')                     // headings
+    .replace(/^[ \t]*>[ \t]?/gm,'')                          // quotes
+    .replace(/^[ \t]*(?:-{3,}|\*{3,}|_{3,})[ \t]*$/gm,'')    // rules
+    .replace(/^[ \t]*[-*+][ \t]+/gm,'• ')                     // bullets
+    .replace(/(\*\*|__)(?=\S)([\s\S]*?\S)\1/g,'$2')         // bold
+    .replace(/(^|[^\w*])\*(?=\S)([^*\n]*?\S)\*(?!\w)/g,'$1$2') // italic
+    .replace(/(^|\W)_(?=\S)([^_\n]*?\S)_(?!\w)/g,'$1$2')
+    .replace(/\*\*/g,'').replace(/`([^`]*)`/g,'$1');
+  return plainText(md,max);
+}
 const https=url=>{try{const u=new URL(String(url||''));return u.protocol==='https:'?u.toString():null;}catch{return null;}};
 const iso=value=>{if(!value)return null;const d=new Date(String(value).replace(' GMT','').replace(/ (?=\d{2}:)/,'T'));return Number.isNaN(d.getTime())?null:d.toISOString();};
 const text=(value,max=300)=>{const t=String(value??'').replace(/\s+/g,' ').trim();return t?t.slice(0,max):null;};
@@ -67,8 +84,8 @@ export function normaliseDevfolio(item) {
   const url=slug&&/^[a-z0-9-]+$/i.test(slug)?`https://${slug}.devfolio.co/`:null;
   const prizes=(Array.isArray(item.prizes)?item.prizes:[]).filter(p=>!p.parent_prize_uuid).slice(0,20).map((p,i)=>({
     prize_rank:String(i+1),prize_name:text(p.name,120),prize_type:null,amount:null,currency:null,value_text:null,
-    description:plainText(p.desc,400),quantity:1,source_url:url}));
-  const description=[text(item.tagline,300),plainText(item.desc,6000)].filter(Boolean).join('\n\n')||null;
+    description:markdownText(p.desc,400),quantity:1,source_url:url}));
+  const description=[text(item.tagline,300),markdownText(item.desc,6000)].filter(Boolean).join('\n\n')||null;
   return event({source_name:SOURCE_DEVFOLIO,external_hackathon_id:text(item.uuid,64),title:item.name,organizer:item.hosted_by?.name||null,
     description,eligibility:setting.women_only?'Women only.':null,
     themes:uniq((item.themes||[]).map(t=>typeof t==='string'?t:t?.name)),skills:[],

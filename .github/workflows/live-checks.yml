@@ -1,8 +1,7 @@
-# Read-only checks against the production database. GitHub emails the repository owner when a scheduled run fails.
+# Read-only checks against the production database. GitHub emails the repository owner when a run fails.
+# Started at :50 every hour by Supabase pg_cron (wilsy-dispatch-live-checks); GitHub's own cron ran hours late.
 name: Live checks
 on:
-  schedule:
-    - cron: '17 */3 * * *'
   workflow_dispatch:
 permissions:
   contents: read

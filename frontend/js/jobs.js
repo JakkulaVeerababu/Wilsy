@@ -98,6 +98,7 @@ function render(){
 }
 async function refreshFacets(){
   try{const f=await jobFacets();$('#stat-total').textContent=f.total.toLocaleString('en-IN');$('#stat-companies').textContent=f.companies_count.toLocaleString('en-IN');$('#stat-remote').textContent=f.remote_count.toLocaleString('en-IN');
+    const asOf=$('#stat-as-of');if(asOf)asOf.textContent='Live collection · refreshed hourly';
     for(const [key,values] of [['company',f.companies],['country',f.countries.filter(v=>v!=='Multiple')],['skill',f.skills],['seniority',f.seniority]]){const el=$('#filter-'+key);el.innerHTML=`<option value="">All ${key==='company'?'companies':key==='country'?'countries':key==='skill'?'skills':'levels'}</option>`;for(const value of values)el.add(new Option(key==='seniority'?label(value):value,value));}
     controls({preserveDraft:true});
   }catch{feedback('Collection totals could not be refreshed. Job search can still be retried below.');}

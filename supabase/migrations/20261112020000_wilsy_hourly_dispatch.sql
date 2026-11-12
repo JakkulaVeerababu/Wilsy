@@ -12,8 +12,11 @@
 
 begin;
 
+-- wilsy_private already holds functions the public site calls (wilsy_match_job_ids, used by
+-- wilsy_search_jobs), so the schema must stay usable by anon and authenticated. Only the
+-- dispatch function itself is locked down below.
 create schema if not exists wilsy_private;
-revoke all on schema wilsy_private from public, anon, authenticated;
+grant usage on schema wilsy_private to anon, authenticated, service_role;
 
 create or replace function wilsy_private.dispatch_workflow(workflow text)
 returns bigint
@@ -42,12 +45,15 @@ begin
     timeout_milliseconds := 10000);
 end;
 $$;
-revoke all on function wilsy_private.dispatch_workflow(text) from public, anon, authenticated;
+revoke all on function wilsy_private.dispatch_workflow(text) from public, anon, authenticated, service_role;
 
 -- Jobs at :07 (all ten shards), hackathons at :23. Re-running this file updates the jobs in place.
 select cron.schedule('wilsy-dispatch-collect-jobs', '7 * * * *',
   $$select wilsy_private.dispatch_workflow('collect-jobs.yml')$$);
 select cron.schedule('wilsy-dispatch-collect-hackathons', '23 * * * *',
   $$select wilsy_private.dispatch_workflow('collect-hackathons.yml')$$);
+-- Production health checks at :50, so a broken public search is reported within the hour.
+select cron.schedule('wilsy-dispatch-live-checks', '50 * * * *',
+  $$select wilsy_private.dispatch_workflow('live-checks.yml')$$);
 
 commit;
