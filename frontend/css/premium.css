@@ -520,3 +520,49 @@ html.dark-theme body :is(.job-company-line,.home-featured-company,.home-index-ro
 html body #jobs-filter-dialog .jobs-filters{background:transparent!important;border-radius:0!important}
 html body .job-detail-dialog .job-card-tags span{background:var(--tint)!important}
 .job-detail-section p{max-width:72ch}
+
+/* ===== Signature cards (12 Nov): white plates, hairline borders, soft depth, lettered avatars ===== */
+html body :is(.job-result-card,.hack-card,.company-card,.gov-jobs-card,.guide-card,.home-guide-card,.home-featured-company)[class]{background-color:var(--surface)!important;border:1px solid color-mix(in srgb,var(--ink) 9%,transparent)!important;border-radius:24px!important;box-shadow:0 1px 2px rgba(16,24,40,.04),0 14px 32px -14px rgba(16,24,40,.1)!important;transition:transform .3s var(--ease),box-shadow .3s var(--ease),border-color .3s var(--ease)!important}
+html body :is(.job-result-card,.hack-card,.company-card,.gov-jobs-card,.guide-card,.home-guide-card,.home-featured-company)[class]:hover{background-color:var(--surface)!important;border-color:color-mix(in srgb,var(--blue) 42%,transparent)!important;box-shadow:0 1px 2px rgba(16,24,40,.04),0 26px 48px -18px color-mix(in srgb,var(--blue) 34%,transparent)!important}
+html.dark-theme body :is(.job-result-card,.hack-card,.company-card,.gov-jobs-card,.guide-card,.home-guide-card,.home-featured-company)[class]{border-color:color-mix(in srgb,#fff 9%,transparent)!important;box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 18px 40px -18px rgba(0,0,0,.6)!important}
+html.dark-theme body :is(.job-result-card,.hack-card,.company-card,.gov-jobs-card,.guide-card,.home-guide-card,.home-featured-company)[class]:hover{border-color:color-mix(in srgb,var(--blue) 60%,transparent)!important}
+/* Inner chips and plates now sit on white, so they take the tint. */
+html body :is(.job-card-tags span,.gov-jobs-tags span,.company-card .card-tags span,.hack-tags span){background:var(--tint)!important;border-color:transparent!important;border-radius:999px!important;padding:4px 10px!important}
+html body :is(.company-card .card-pay,.gov-jobs-facts>div){background:var(--tint)!important}
+html body :is(.company-card .company-logo,.job-company-line .job-logo,.home-featured-company .job-logo){border:1px solid color-mix(in srgb,var(--ink) 9%,transparent)!important}
+html body .job-result-card .job-card-description{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+html body .job-result-card .job-card-title a{transition:color .2s}
+html body .job-result-card:hover .job-card-title a{color:var(--blue)}
+
+/* Lettered avatars for companies and organisers without a logo. */
+html body .mono.mono[class]{display:grid;place-items:center;font:700 13px/1 var(--heading);letter-spacing:.02em;color:hsl(var(--mh) 62% 36%)!important;background:hsl(var(--mh) 90% 96%)!important;border:1px solid hsl(var(--mh) 70% 89%)!important}
+html.dark-theme body .mono.mono[class]{color:hsl(var(--mh) 85% 80%)!important;background:hsl(var(--mh) 45% 15%)!important;border-color:hsl(var(--mh) 40% 25%)!important}
+.mono-0{--mh:226}.mono-1{--mh:262}.mono-2{--mh:190}.mono-3{--mh:152}.mono-4{--mh:24}.mono-5{--mh:338}.mono-6{--mh:206}.mono-7{--mh:42}
+html body .event-mono{width:44px!important;height:44px!important;margin:0!important;border-radius:13px;font-size:14px!important;flex:none}
+
+/* A disclosed salary is the strongest signal on a card. */
+html body .job-result-card .job-card-pay:not(.is-undisclosed) strong{display:inline-flex;align-items:center;padding:4px 11px;border-radius:999px;background:color-mix(in srgb,#12b76a 12%,transparent);color:#05603a;font-weight:650}
+html.dark-theme body .job-result-card .job-card-pay:not(.is-undisclosed) strong{background:color-mix(in srgb,#12b76a 18%,transparent);color:#75e0a7}
+
+/* Hackathon cards: status and deadline at a glance, prize only shouts when there is one. */
+html body .hack-card-top{gap:8px;flex-wrap:wrap}
+html body .hack-card-top .hack-save{margin-left:auto}
+html body .hack-phase{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:999px;font:600 11.5px/1.3 var(--font)!important;letter-spacing:0!important;text-transform:none!important;background:var(--tint)!important;color:var(--ink-soft)!important}
+html body .hack-phase::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.7}
+html body .hack-phase[data-phase=in-progress]{background:color-mix(in srgb,#12b76a 13%,transparent)!important;color:#05603a!important}
+html body .hack-phase[data-phase=upcoming]{background:color-mix(in srgb,var(--blue) 11%,transparent)!important;color:var(--blue)!important}
+html.dark-theme body .hack-phase[data-phase=in-progress]{color:#75e0a7!important}
+html body .hack-closing{display:inline-flex;align-items:center;padding:5px 11px;border-radius:999px;font:600 11.5px/1.3 var(--font);background:color-mix(in srgb,#f79009 14%,transparent);color:#93370d}
+html body .hack-closing.is-soon{background:color-mix(in srgb,#f04438 13%,transparent);color:#b42318}
+html.dark-theme body .hack-closing{color:#fdb022}html.dark-theme body .hack-closing.is-soon{color:#fda29b}
+html body .hack-prize{border-radius:16px!important;border:1px solid color-mix(in srgb,var(--blue) 16%,transparent)!important;background:linear-gradient(135deg,color-mix(in srgb,var(--blue) 8%,var(--surface)),color-mix(in srgb,#12b76a 7%,var(--surface)))!important}
+html body .hack-prize>strong{color:var(--ink)!important;letter-spacing:-.02em}
+html body .hack-prize.is-undisclosed{padding:10px 14px!important;background:var(--tint)!important;border-color:transparent!important}
+html body .hack-prize.is-undisclosed>span{display:none}
+html body .hack-prize.is-undisclosed>strong{font:500 13px/1.5 var(--font)!important;color:var(--muted)!important;letter-spacing:0}
+html body .hack-card-footer a{display:inline-flex;align-items:center;min-height:38px;padding:0 16px;border-radius:999px;background:var(--blue);color:#fff!important;font-weight:600;text-decoration:none;transition:filter .2s,transform .3s var(--ease)}
+html body .hack-card-footer a:hover{filter:brightness(1.08);transform:translateY(-1px)}
+@media(prefers-reduced-motion:reduce){html body :is(.job-result-card,.hack-card,.company-card,.gov-jobs-card,.guide-card,.home-guide-card,.home-featured-company)[class]{transition:none!important}}
+html body .hack-card{position:relative}
+html body .hack-card-top{padding-right:76px;min-height:44px}
+html body .hack-card-top .hack-save{position:absolute;top:22px;right:22px;margin:0}

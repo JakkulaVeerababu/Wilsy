@@ -53,3 +53,11 @@ export function savedNotice(message,href){
   (document.querySelector('dialog[open]')||document.body).append(notice);
   notice.replaceChildren(text,link,close);notice.hidden=false;schedule();
 }
+
+// A lettered avatar for a company or organiser with no logo: initials plus one of eight steady colours.
+export function monogram(name){
+  const words=String(name||'').replace(/[^\p{L}\p{N} ]/gu,' ').trim().split(/\s+/).filter(Boolean);
+  const letters=((words[0]?.[0]||'')+(words[1]?.[0]||'')).toUpperCase()||'•';
+  let hash=0;for(const ch of String(name||''))hash=(hash*31+ch.codePointAt(0))>>>0;
+  return {letters,tone:hash%8};
+}

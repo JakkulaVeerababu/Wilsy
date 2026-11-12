@@ -2,6 +2,7 @@ import {escapeHtml as e} from './directory-core.js';
 import {applyUrl, jobSalary, label, relativePostingLabel, postingLabel} from './jobs-core.js';
 import {previewJobText} from './job-text.js';
 import {icon} from './icons.js';
+import {monogram} from './ui-helpers.js';
 
 const normalized = value => String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 export function profileFor(job, companies = []) {
@@ -12,11 +13,11 @@ export function jobLogo(job, companies = []) {
   const local = String(profile?.logo || '').replace(/^\//, '');
   return /^assets\/logos\/[a-zA-Z0-9._/-]+$/.test(local)
     ? `<span class="job-logo"><img src="/${e(local)}" alt="" width="36" height="36" loading="lazy" decoding="async"></span>`
-    : `<span class="job-logo job-logo-generic" aria-hidden="true">${icon('building')}</span>`;
+    : (m => `<span class="job-logo job-logo-generic mono mono-${m.tone}" aria-hidden="true">${e(m.letters)}</span>`)(monogram(job.company));
 }
 export function jobTags(job) {
   const known = value => value && !['unspecified', 'unknown', 'not specified', 'other'].includes(String(value).toLowerCase());
-  const values = [job.location || [job.city,job.state_region,job.country].filter(Boolean).join(', '), known(job.work_mode) && label(job.work_mode), known(job.job_type) && label(job.job_type)];
+  const values = [String(job.location || [job.city,job.state_region,job.country].filter(Boolean).join(', ')).replace(/(?:\s*,){2,}/g, ',').replace(/^[\s,]+|[\s,]+$/g, ''), known(job.work_mode) && label(job.work_mode), known(job.job_type) && label(job.job_type)];
   return [...new Set(values.filter(Boolean))].slice(0, 3).map(value => `<span>${e(value)}</span>`).join('');
 }
 export function renderJobCard(job, {companies = [], fx, saved = [], comparison = [], interactive = false, compare = false, now = Date.now()} = {}) {
