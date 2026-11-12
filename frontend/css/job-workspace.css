@@ -140,7 +140,7 @@ body.has-comparison{padding-bottom:110px}body.has-comparison>.saved-notice{botto
 .job-compare:hover{border-color:#98bcf6;background:#edf5ff;color:#0866ff}
 .job-compare[aria-pressed=true]{border-color:#0866ff;background:#eaf3ff;color:#0758d4}
 .job-result-card:has(.job-compare[aria-pressed=true]){border-color:#75aafa;background:linear-gradient(180deg,#fff,#fbfdff);box-shadow:0 0 0 2px #0866ff12,0 8px 22px #123c7310}
-.compare-tray{bottom:max(16px,env(safe-area-inset-bottom));padding:13px 16px;border-color:#b9d2f0;background:#fffffff2;backdrop-filter:blur(14px);box-shadow:0 16px 55px #143c6530}
+.compare-tray{bottom:max(16px,env(safe-area-inset-bottom));padding:13px 16px;border-color:#b9d2f0;background:#fff;box-shadow:0 16px 55px #143c6530}
 .compare-tray-copy strong{color:#092650}
 .compare-tray-items>button{border-color:#cbdced;background:#f6faff}
 .compare-tray-items>button:hover{border-color:#8fbaf1;background:#edf5ff;color:#0866ff}

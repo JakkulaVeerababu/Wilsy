@@ -14,7 +14,6 @@ if([...filterKeys,'job','page','saved'].some(key=>query.has(key))) {
 function initHome() {
   const $ = s=>document.querySelector(s), initial=JSON.parse($('#home-initial-data').textContent);
   let rows=initial.jobs,companies=[],saved=[],lastUpdate=0;
-  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   try{saved=readSaved(localStorage);}catch{}
   function updateSaved() {
     document.querySelectorAll('[data-save]').forEach(button=>{
@@ -26,11 +25,7 @@ function initHome() {
   const render = ()=>{$('#home-job-results').innerHTML=rows.slice(0,6).map(job=>renderJobCard(job,{companies,fx:initial.fx,saved,interactive:true})).join('');updateSaved();};
   function setCount(selector,value) {
     const el=$(selector),end=Number(value);if(!Number.isSafeInteger(end)||end<0)return;
-    const start=Number(el.textContent.replace(/\D/g,''));
-    if(reduced.matches||start===end){el.textContent=end.toLocaleString('en-IN');return;}
-    const began=performance.now();
-    const tick=time=>{const p=Math.min(1,(time-began)/500);el.textContent=Math.round(start+(end-start)*p).toLocaleString('en-IN');if(p<1&&!reduced.matches)requestAnimationFrame(tick);else el.textContent=end.toLocaleString('en-IN');};
-    requestAnimationFrame(tick);
+    el.textContent=end.toLocaleString('en-IN');
   }
   async function refresh() {
     if(document.hidden||isEditing(document.activeElement)||$('#home-job-results').contains(document.activeElement))return;
@@ -50,7 +45,7 @@ function initHome() {
       $('#home-snapshot-status').textContent='Live totals refreshed · Feed previews are a dated snapshot.';
     }
   }
-  mountPathTabs();mountManifesto();mountReveal();mountHeroSpotlight();mountRailNav();
+  mountPathTabs();mountRailNav();
   updateSaved();
   $('#home-job-results').addEventListener('click',event=>{
     const button=event.target.closest('[data-save]');if(!button)return;
@@ -81,38 +76,6 @@ function mountPathTabs() {
     const next={ArrowRight:current+1,ArrowLeft:current-1,Home:0,End:tabs.length-1}[event.key];
     if(next===undefined)return;event.preventDefault();select((next+tabs.length)%tabs.length,true);
   });
-}
-
-// Manifesto segments light up as they cross the middle of the viewport.
-function mountManifesto() {
-  const segments=[...document.querySelectorAll('.m-seg')];
-  if(!segments.length||!document.documentElement.classList.contains('js-motion'))return;
-  // The dimmed state exists only once this code is running, so a failed script never leaves faint text.
-  document.querySelector('.home-manifesto')?.classList.add('is-scrub');
-  const update=()=>{const line=innerHeight*.85;segments.forEach(seg=>seg.classList.toggle('is-lit',seg.getBoundingClientRect().top<line));};
-  addEventListener('scroll',update,{passive:true});addEventListener('resize',update);update();
-}
-
-function mountReveal() {
-  if(!document.documentElement.classList.contains('js-motion'))return;
-  const targets=document.querySelectorAll('.home-section-heading,.home-studio-copy,.home-giant,.home-why-grid article,.home-guide-card,.home-dsa-banner,.home-featured-rail');
-  const observer=new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting){entry.target.classList.add('is-in');observer.unobserve(entry.target);}},{rootMargin:'0px 0px -3% 0px',threshold:0});
-  targets.forEach((el,i)=>{
-    // Content already on screen is never hidden after it has painted.
-    if(el.getBoundingClientRect().top<innerHeight)return;
-    el.classList.add('reveal');el.style.transitionDelay=el.matches('.home-why-grid article,.home-guide-card')?`${(i%3)*80}ms`:'';observer.observe(el);
-  });
-}
-
-// A soft light follows the pointer across the hero. Pointer devices only; one style write per frame.
-function mountHeroSpotlight() {
-  const hero=document.querySelector('.home-hero'),grid=hero?.querySelector('.home-hero-grid');
-  if(!grid||!matchMedia('(hover:hover) and (pointer:fine)').matches||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
-  let x=50,y=30,queued=false;
-  hero.addEventListener('pointermove',event=>{
-    const box=hero.getBoundingClientRect();x=(event.clientX-box.left)/box.width*100;y=(event.clientY-box.top)/box.height*100;
-    if(!queued){queued=true;requestAnimationFrame(()=>{queued=false;grid.style.setProperty('--mx',x.toFixed(1)+'%');grid.style.setProperty('--my',y.toFixed(1)+'%');});}
-  },{passive:true});
 }
 
 // Arrow buttons for the featured-company rail; they appear only when the rail actually scrolls.

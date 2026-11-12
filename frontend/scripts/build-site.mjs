@@ -48,7 +48,7 @@ export function footer() {
     <nav aria-label="Explore Wilsy"><h2>EXPLORE</h2><a href="/">Home</a><a href="/jobs">Find jobs</a><a href="/government-jobs">Government jobs</a><a href="/hackathons">Hackathons</a><a href="/companies#companies">Company directory</a><a href="/companies/all">All companies A–Z</a></nav>
     <nav aria-label="About Wilsy"><h2>LEARN &amp; CONNECT</h2><a href="/dsa">DSA roadmap</a><a href="/guides">Career guides</a><a href="/about">About WILSY</a><a href="/methodology">Sources &amp; methodology</a><a href="/contact">Contact &amp; corrections</a><a href="mailto:${site.email}">${site.email}</a></nav>
     <nav aria-label="Policies"><h2>THE DETAILS</h2><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/disclosure">Ads &amp; affiliate disclosure</a><a href="/privacy#choices" data-privacy-choices>Privacy &amp; cookie choices</a></nav>
-  </div><div class="footer-bottom"><span>© 2026 WILSY</span><p>Published salary examples, not guaranteed offers. Company logos belong to their respective owners.</p><span>Made for your next move</span></div><div class="footer-giant" aria-hidden="true">wilsy<span>.in</span></div></footer>`;
+  </div><div class="footer-bottom"><span>© 2026 WILSY</span><p>Published salary examples, not guaranteed offers. Company logos belong to their respective owners.</p><span>Made for your next move</span></div></footer>`;
 }
 const adTag = `<meta name="google-adsense-account" content="${site.publisher}"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${site.publisher}" crossorigin="anonymous"></script>`;
 function documentPage({title,description,route,body,active='',type='website',noindex=false,ads=true,structured,canonicalRoute=route}) {

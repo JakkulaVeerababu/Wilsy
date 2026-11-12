@@ -36,8 +36,8 @@ function marquee(featured,companies) {
     if(!c || seen.has(c.id)) continue;
     seen.add(c.id); items.push(c);
   }
-  const row = hidden => `<div class="home-marquee-row"${hidden?' aria-hidden="true"':''}>${items.slice(0,14).map(c=>`<a href="/companies/${encodeURIComponent(c.id)}"${hidden?' tabindex="-1"':''}><img src="/${e(c.logo)}" alt="" width="30" height="30" loading="lazy"><span>${e(c.name)}</span></a>`).join('')}</div>`;
-  return `<div class="home-trust-logos home-marquee">${row(false)}${row(true)}</div>`;
+  const row = `<div class="home-marquee-row">${items.slice(0,12).map(c=>`<a href="/companies/${encodeURIComponent(c.id)}"><img src="/${e(c.logo)}" alt="" width="30" height="30" loading="lazy"><span>${e(c.name)}</span></a>`).join('')}</div>`;
+  return `<div class="home-trust-logos home-marquee">${row}</div>`;
 }
 
 
@@ -54,25 +54,19 @@ export function homePage({snapshot, companies, guides, fx, dsaStats}) {
       <h1 id="home-title">Find the work<br><em>that moves you forward.</em></h1>
       <p class="home-hero-lede">Real opportunities, researched for you. Every role links to its source, with INR salary context.</p>
       <form class="home-search" id="job-search-form" action="/jobs" method="get" role="search">
-        <div class="home-search-query"><span class="home-search-plus">${icon('plus')}</span><label class="sr-only" for="job-search">Role, company or skill</label><input id="job-search" name="q" maxlength="200" autocomplete="off" placeholder="Ask for a role, company or skill"><kbd aria-hidden="true">/</kbd></div>
+        <div class="home-search-query"><span class="home-search-plus">${icon('search')}</span><label class="sr-only" for="job-search">Role, company or skill</label><input id="job-search" name="q" maxlength="200" autocomplete="off" placeholder="Job title, company or skill"><kbd aria-hidden="true">/</kbd></div>
         <label class="home-search-location"><span class="sr-only">Country</span>${icon('pin')}<select id="job-location" name="country"><option value="">Anywhere</option><option value="India">India</option><option value="United States">United States</option><option value="United Kingdom">United Kingdom</option></select></label>
         <button class="home-search-submit" type="submit">Search ${icon('arrow')}</button>
       </form>
       <nav class="home-quick-links" aria-label="Quick job searches"><span>Try</span><a href="/jobs?stage=internship">Internships</a><a href="/jobs?stage=fresher">Freshers</a><a href="/jobs?mode=remote">Remote</a><a href="/government-jobs">Government</a><a href="/jobs?time=today">Today</a></nav>
       <ul class="home-hero-proof"><li>${icon('check')} Refreshed every hour</li><li>${icon('check')} Direct employer links</li><li>${icon('check')} Free to use</li></ul>
     </div>
-    <div class="home-hero-grid" aria-hidden="true"></div>
-    <div class="home-hero-chips" aria-hidden="true">
-      <span class="hero-chip hero-chip-1">${icon('check')} Source verified</span>
-      <span class="hero-chip hero-chip-4">${icon('rupee')} INR salary context</span>
-    </div>
   </section>
   <section class="home-console" aria-label="A preview of the live job index">
     <div class="home-live-panel">
-      <div class="home-console-bar"><span class="home-console-brand">${brandMark(26)}wilsy</span><nav class="home-console-tabs" aria-label="Sections of the index"><a class="is-active" href="/jobs">${icon('sparkle')} Live index</a><a href="/government-jobs">${icon('government')} Government</a><a href="/hackathons">${icon('bolt')} Hackathons</a><a href="/companies#companies">${icon('building')} Companies</a></nav><a class="home-console-search" href="#job-search-form">${icon('search')} Search the index</a></div>
+      <div class="home-console-bar"><span class="home-console-brand">${brandMark(26)}wilsy</span><nav class="home-console-tabs" aria-label="Sections of the index"><a class="is-active" href="/jobs">${icon('search')} Jobs</a><a href="/government-jobs">${icon('government')} Government</a><a href="/hackathons">${icon('bolt')} Hackathons</a><a href="/companies#companies">${icon('building')} Companies</a></nav><a class="home-console-search" href="#job-search-form">${icon('search')} Search the index</a></div>
       <div class="home-console-body">
         <div class="home-console-main">
-          <p class="home-console-prompt">Show me today’s opportunity summary</p>
           <h2>Daily opportunity summary — <time data-snapshot-date datetime="${e(snapshot.updatedAt)}">${e(date)}</time></h2>
           <p class="home-console-lede">Here’s what the index holds right now. Every role below opens its source; availability can change.</p>
           <dl class="home-stat-grid">

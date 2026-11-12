@@ -1,7 +1,7 @@
 /* Shared chrome. Loaded after the legacy page styles and semantic tokens. */
 body{background:var(--paper);color:var(--ink);font-family:var(--font);line-height:1.65}
 [hidden]{display:none!important}
-.site-header{background:color-mix(in srgb,var(--paper) 86%,transparent);border-bottom:1px solid var(--line);box-shadow:none;backdrop-filter:blur(18px);position:sticky;top:0;z-index:40}
+.site-header{background:var(--paper);border-bottom:1px solid var(--line);box-shadow:none;position:sticky;top:0;z-index:40}
 .site-header .header-inner{display:flex;align-items:center;max-width:calc(var(--container) + 2 * var(--gutter));height:80px;min-height:80px;margin:auto;padding:12px var(--gutter);gap:24px;position:relative}
 .site-header .brand,.premium-footer .brand{display:flex;width:142px;flex:0 0 142px;min-height:44px;align-items:center;background:transparent;border-radius:0;padding:0;overflow:visible}
 .site-header .brand>img,.premium-footer .brand>img{display:block;width:142px!important;height:44px!important;max-height:44px;filter:none;object-fit:contain;object-position:left center}

@@ -4,7 +4,7 @@
 .site-header .account-toggle:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 @media(max-width:900px){.site-header .account-toggle{height:44px;margin:8px 0 0}}
 .account-dialog{width:calc(100% - 32px);max-width:460px;max-height:90dvh;padding:0;border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--surface);color:var(--ink);box-shadow:var(--shadow-lg)}
-.account-dialog::backdrop{background:rgba(7,30,75,.44);backdrop-filter:blur(2px)}
+.account-dialog::backdrop{background:rgba(7,30,75,.5)}
 body:has(.account-dialog[open]){overflow:hidden}
 .account-panel{padding:28px}
 .account-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}

@@ -158,6 +158,7 @@ On 2 November 2026 the database was at 399 MB. `jobs` was 367 MB: 296 MB of TOAS
 - `collect-jobs.yml`: 10 agents (matrix shards 0–9) every hour at :07.
 - `collect-hackathons.yml`: every hour at :23.
 - `discover-boards.yml`: weekly discovery, kept as an artifact.
+- `daily-snapshot.yml`: once a day at 01:41 UTC (07:11 IST). Refreshes the homepage job snapshot and the government notices, then commits both.
 
 GitHub's own cron started the hourly collectors up to 14 hours late, so they are started from the database instead. pg_cron jobs `wilsy-dispatch-collect-jobs` (:07), `wilsy-dispatch-collect-hackathons` (:23), `wilsy-dispatch-live-checks` (:50) and `wilsy-dispatch-daily-snapshot` (01:41 UTC) call `wilsy_private.dispatch_workflow(...)` (`20261112020000`), which sends a `workflow_dispatch` request to GitHub using a fine-grained token stored in Vault as `github_dispatch_token` (Wilsy only, Actions: read and write). A 204 in `net._http_response` means GitHub accepted it; a 403 means the token lost that permission or expired. To replace the token:
 
@@ -179,6 +180,16 @@ The original hackathon worker ("Daily Deep Job + Hackathon Research") last ran o
 - **Closing.** Events past their registration deadline or end date are closed, whatever their source. Events no longer listed are closed only when their source was read successfully and returned events; a failed or empty read closes nothing.
 - **Monitoring.** Each run writes a `hackathon_ingestion_runs` row (`Wilsy hackathon collector`) and a run summary. Live checks fail when the newest verified event is older than eight hours (`MAX_HACKATHON_AGE_HOURS`).
 - New events show without artwork until `scripts/cache-hackathon-branding.mjs` is run for them.
+
+## Government notices
+
+`frontend/data/government-jobs.json` is refreshed every morning by `collectors/government.mjs`, a step of the daily snapshot workflow.
+
+- **Sources.** ISRO's current opportunities page, which covers ISRO centres and the Department of Space, and BARC's new vacancies page. Both are static official pages. ISRO publishes no robots.txt, and BARC's disallows only `/cgi-bin/`. Portals that need a login, show a bot check or have no static listing (UPSC ORA, RBI, India Post, SSC, NCS) are not read; they stay as hub links.
+- **Adding.** A notice is added when its official page says it is open and prints a last date that has not passed. Its pay, eligibility and grade fields point readers to the official notice instead of guessing.
+- **Curated rows.** Rows written by hand keep their wording. Use this for notices whose last date appears only in the PDF, such as Department of Space deputation calls. The run log lists any open notice it could not date, so it can be added by hand.
+- **Removing.** A row leaves the snapshot when its deadline passes, when its ISRO page no longer says Open, or when the official list it came from drops it. A source that fails to load changes none of its rows. If neither source loads, the file is left untouched and the run shows a warning, without holding back the job snapshot.
+- Run it by hand with `node collectors/government.mjs`.
 
 ## Accounts and sync
 

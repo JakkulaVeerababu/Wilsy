@@ -7,14 +7,18 @@ import examCatalog from '../data/government-exams.json' with {type: 'json'};
 import {governmentJobsPage} from '../scripts/government-jobs-page.mjs';
 import {filterGovernmentJobs, sortGovernmentJobs, deadlineState} from '../js/government-jobs.js';
 import {filterGovernmentExams, matchesEligibility} from '../js/government-exam-core.js';
+import {escapeHtml} from '../js/directory-core.js';
 
 const checkedAt = Date.parse(`${snapshot.checkedAt}T00:00:00Z`);
 
+// The notice rows are refreshed every day by collectors/government.mjs, so these tests check rules
+// that hold for any day's snapshot rather than particular notices.
 test('Government jobs snapshot has official, current notice rows and source hubs', () => {
-  assert.equal(snapshot.checkedAt, '2026-11-12');
+  assert.match(snapshot.checkedAt, /^\d{4}-\d{2}-\d{2}$/);
   assert.match(snapshot.description, /curated snapshot/i);
   assert.match(snapshot.description, /not an exhaustive guarantee/i);
-  assert.equal(snapshot.sourceHubs.length, 8);
+  const hubIds = snapshot.sourceHubs.map(hub => hub.id);
+  for (const id of ['isro-current-opportunities', 'barc-recruitment', 'upsc-recruitment', 'ncs-government-jobs']) assert.ok(hubIds.includes(id), `${id} hub is listed`);
   for (const hub of snapshot.sourceHubs) {
     assert.equal(hub.official, true);
     assert.match(hub.url, /^https:\/\//);
@@ -22,32 +26,38 @@ test('Government jobs snapshot has official, current notice rows and source hubs
     assert.ok(hub.note);
     assert.equal(new URL(hub.url).hostname.replace(/^www\./, ''), hub.domain.replace(/^www\./, ''));
   }
-  assert.equal(snapshot.jobs.length, 5);
   assert.equal(new Set(snapshot.jobs.map(job => job.id)).size, snapshot.jobs.length);
+  assert.deepEqual(snapshot.jobs.map(job => job.rank), snapshot.jobs.map((_, i) => i + 1), 'ranks run 1..n');
+  assert.match(snapshot.coverageNote, new RegExp(`checked on`));
   for (const job of snapshot.jobs) {
-    for (const field of ['id', 'title', 'organization', 'ministryDepartment', 'level', 'gradeLevel', 'salaryPayBand', 'experienceEligibility', 'location', 'openingDate', 'deadline', 'status', 'officialNoticeUrl', 'sourceUrl', 'sourceDomain', 'verificationNote']) {
+    for (const field of ['id', 'title', 'organization', 'ministryDepartment', 'category', 'level', 'gradeLevel', 'salaryPayBand', 'experienceEligibility', 'location', 'openingDate', 'deadline', 'status', 'noticeNumber', 'officialNoticeUrl', 'sourceUrl', 'sourceDomain', 'verificationNote']) {
       assert.ok(job[field], `${job.id}: ${field} is present`);
     }
     assert.equal(job.status, 'Open', `${job.id}: current status`);
     assert.match(job.officialNoticeUrl, /^https:\/\//, `${job.id}: official notice is HTTPS`);
     assert.match(job.sourceUrl, /^https:\/\//, `${job.id}: source is HTTPS`);
     assert.equal(new URL(job.sourceUrl).hostname.replace(/^www\./, ''), job.sourceDomain.replace(/^www\./, ''), `${job.id}: source domain matches URL`);
+    assert.ok(job.sourceDomain.endsWith('.gov.in'), `${job.id}: official government domain`);
     assert.ok(Date.parse(`${job.openingDate}T00:00:00Z`) <= checkedAt, `${job.id}: opening date is checked`);
-    assert.ok(Date.parse(`${job.deadline}T00:00:00Z`) > checkedAt, `${job.id}: deadline is current at checkedAt`);
+    assert.ok(Date.parse(`${job.deadline}T00:00:00Z`) >= checkedAt, `${job.id}: deadline is current at checkedAt`);
   }
-  assert.equal(snapshot.jobs.find(job => job.id === 'isro-ursc-technician-driver-2026').deadline, '2026-11-13');
-  // The Department of Space extended this deputation call from its original 30-day window to 30 Nov 2026.
-  assert.equal(snapshot.jobs.find(job => job.id === 'dos-group-a-b-deputation-2026').deadline, '2026-11-30');
 });
 
 test('Government jobs filtering, sorting and deadline labels remain deterministic offline', () => {
-  assert.equal(filterGovernmentJobs(snapshot.jobs, {query: 'Mumbai'}).length, 2);
-  assert.equal(filterGovernmentJobs(snapshot.jobs, {category: 'Medical'})[0].title, 'Medical Officer (Pathology), walk-in interview');
-  assert.deepEqual(sortGovernmentJobs(snapshot.jobs, 'seniority').map(job => job.rank), [1, 2, 3, 4, 5]);
-  assert.deepEqual(sortGovernmentJobs(snapshot.jobs, 'newest').slice(0, 2).map(job => job.id), ['barc-medical-officer-pathology-2026', 'barc-radiographer-locum-2026']);
-  assert.equal(deadlineState('2026-11-12', checkedAt).label, 'Due today');
-  assert.equal(deadlineState('2026-11-30', checkedAt).label, '18 days left');
-  assert.equal(deadlineState('2026-11-11', checkedAt).label, 'Deadline passed');
+  const row = (id, rank, title, category, location, openingDate) => ({id, rank, title, category, location, openingDate, organization: 'Org', ministryDepartment: 'Dept', level: 'L', deadline: '2026-11-30'});
+  const jobs = [
+    row('deputation', 1, 'Group-A and Group-B posts (deputation)', 'Administration', 'Bengaluru', '2026-10-15'),
+    row('pathology', 2, 'Medical Officer (Pathology), walk-in interview', 'Medical', 'Mumbai', '2026-11-06'),
+    row('radiographer', 3, 'Scientific Assistant (Radiographer), walk-in interview', 'Medical', 'Mumbai', '2026-11-05')
+  ];
+  const at = Date.parse('2026-11-12T00:00:00Z');
+  assert.equal(filterGovernmentJobs(jobs, {query: 'Mumbai'}).length, 2);
+  assert.equal(filterGovernmentJobs(jobs, {category: 'Medical'})[0].title, 'Medical Officer (Pathology), walk-in interview');
+  assert.deepEqual(sortGovernmentJobs(jobs, 'seniority').map(job => job.rank), [1, 2, 3]);
+  assert.deepEqual(sortGovernmentJobs(jobs, 'newest').map(job => job.id), ['pathology', 'radiographer', 'deputation']);
+  assert.equal(deadlineState('2026-11-12', at).label, 'Due today');
+  assert.equal(deadlineState('2026-11-30', at).label, '18 days left');
+  assert.equal(deadlineState('2026-11-11', at).label, 'Deadline passed');
 });
 
 test('Government exam catalog has a useful shape and covers the requested browse categories', () => {
@@ -200,9 +210,10 @@ test('Government jobs page is generated at its route with safe source-first mark
    assert.ok((await fs.stat(path.resolve('dist/js/government-exam-core.js'))).isFile());
    assert.match(distPage, /PRIMARY PORTALS/);
   assert.match(distPage, /not an exhaustive guarantee/i);
-  assert.match(distPage, /Technician-B \/ Heavy, Light and Staff Car Driver-A/);
-  assert.match(distPage, /Medical Officer \(Pathology\), walk-in interview/);
-  assert.match(distPage, /href="https:\/\/www\.barc\.gov\.in\/careers\/vacancy28\.pdf"/);
+  for (const job of snapshot.jobs) {
+    assert.ok(distPage.includes(escapeHtml(job.title)), `${job.id}: title is in the built page`);
+    assert.ok(distPage.includes(`href="${escapeHtml(job.officialNoticeUrl)}"`), `${job.id}: official notice is linked`);
+  }
   assert.doesNotMatch(distPage, /javascript:/i);
   assert.match(governmentJobsPage, /type="application\/json" id="gov-jobs-data"/);
 });

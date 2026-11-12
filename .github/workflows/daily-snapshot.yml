@@ -1,6 +1,7 @@
-# Keeps the homepage's built-in job snapshot current. Once a day it reads the public job search
-# API (read-only, public key), rebuilds, runs the tests and commits the refreshed snapshot.
-# The commit redeploys the site, so first paint, crawlers and no-JavaScript visitors see today's roles.
+# Keeps the site's built-in snapshots current. Once a day it reads the public job search API
+# (read-only, public key) and the official ISRO and BARC recruitment pages, rebuilds, runs the
+# tests and commits whatever changed. The commit redeploys the site, so first paint, crawlers and
+# no-JavaScript visitors see today's roles and only government notices that are still open.
 # Started daily at 01:41 UTC (07:11 IST) by Supabase pg_cron (wilsy-dispatch-daily-snapshot).
 name: Daily job snapshot
 on:
@@ -21,14 +22,25 @@ jobs:
       - run: npm ci
       - name: Refresh the public snapshot
         run: npm run snapshot:jobs
+      # An outage on a government site must not hold back the job snapshot; the collector leaves
+      # the file untouched when it cannot read either source.
+      - name: Refresh government notices
+        id: government
+        continue-on-error: true
+        shell: bash # with pipefail, so a collector failure is not hidden by tee
+        run: node collectors/government.mjs | tee -a "$GITHUB_STEP_SUMMARY"
       - run: npm run build
       - run: npm test
-      - name: Commit when the snapshot changed
+      - name: Commit when a snapshot changed
         run: |
-          if git diff --quiet -- frontend/data/jobs-home.json; then echo "Snapshot unchanged."; exit 0; fi
+          files="frontend/data/jobs-home.json frontend/data/government-jobs.json"
+          if git diff --quiet -- $files; then echo "Snapshots unchanged."; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add frontend/data/jobs-home.json
+          git add $files
           git commit -m "chore: daily public job snapshot"
           git push
           echo "### Snapshot refreshed" >> "$GITHUB_STEP_SUMMARY"
+      - name: Flag a government notices failure
+        if: steps.government.outcome == 'failure'
+        run: echo "::warning::Government notices were not refreshed today; see the step log."
