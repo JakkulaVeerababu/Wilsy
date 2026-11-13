@@ -1,8 +1,8 @@
 {
   "dataset": "India government jobs — official portal snapshot",
-  "checkedAt": "2026-11-12",
+  "checkedAt": "2026-11-13",
   "description": "A dated, curated snapshot of active India government-job notices found on primary official portals. It is not an exhaustive guarantee of every vacancy on the internet; applicants should confirm the complete advertisement, eligibility, dates and application process at the official source before applying.",
-  "coverageNote": "Official-source coverage only. This snapshot includes five open notices from ISRO / the Department of Space and the Bhabha Atomic Research Centre (BARC), checked on 12 Nov 2026, plus selected official discovery hubs; it does not claim complete coverage of all central, state or public-sector vacancies.",
+  "coverageNote": "Official-source coverage only. This snapshot includes five open notices from ISRO / the Department of Space and the Bhabha Atomic Research Centre (BARC), checked on 13 Nov 2026, plus selected official discovery hubs; it does not claim complete coverage of all central, state or public-sector vacancies.",
   "sourceHubNote": "Some official portals require JavaScript or do not expose a structured feed in this static snapshot. The hub links are provided for direct checking and broader discovery.",
   "classificationNote": "Rank and category are WILSY display and browsing fields, not official merit lists, appointment grades or vacancy counts.",
   "sourceHubs": [
