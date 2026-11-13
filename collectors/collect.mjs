@@ -68,6 +68,12 @@ export function summaryMarkdown({shard,shards,boards,status,totals,errors}) {
     ...errors.slice(0,20).map(e=>`- ${String(e).replace(/[|<>]/g,' ')}`),''].join('\n');
 }
 
+// Gateway errors and Postgres statement timeouts (57014) are worth another try. Each ingest call is
+// one transaction and an idempotent upsert, so a cancelled call leaves nothing half-written.
+export function retryableDbError(status,text='') {
+  return [502,503,504].includes(status)||(status===500&&/"code"\s*:\s*"57014"/.test(text));
+}
+
 async function main() {
   const {values:args}=parseArgs({options:{shard:{type:'string'},shards:{type:'string'},concurrency:{type:'string'}}});
   const shard=Number(args.shard),shards=Number(args.shards||10),concurrency=Number(args.concurrency||4);
@@ -79,8 +85,11 @@ async function main() {
       try{
         const response=await fetch(`${url}/rest/v1/${path}`,{method,headers:{apikey:key,Authorization:`Bearer ${key}`,'Content-Type':'application/json',...(prefer?{Prefer:prefer}:{})},
           body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(30000)});
-        if([502,503,504].includes(response.status)&&attempt<2)throw new Error(`Database ${response.status}`);
-        if(!response.ok){const error=new Error(`Database ${response.status}: ${(await response.text()).slice(0,200)}`);error.final=true;throw error;}
+        if(!response.ok){
+          const text=await response.text();
+          const error=new Error(`Database ${response.status}: ${text.slice(0,200)}`);
+          error.final=!retryableDbError(response.status,text);throw error;
+        }
         const text=await response.text();return text?JSON.parse(text):null;
       }catch(error){
         if(error.final||attempt>=2)throw error;

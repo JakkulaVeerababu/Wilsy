@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {shardOf,collectBoard,loadBoards,runStatus} from '../collect.mjs';
+import {shardOf,collectBoard,loadBoards,runStatus,retryableDbError} from '../collect.mjs';
 import {HttpError} from '../ats.mjs';
 import {createClient} from '../http.mjs';
 import {READERS} from '../boards.mjs';
@@ -114,4 +114,13 @@ test('The HTTP client retries rate limits, server errors and network failures, b
   await assert.rejects(createClient({fetcher:async()=>{calls++;return reply(404);},sleep}).json('https://api.example/x'),e=>e.status===404);
   assert.equal(calls,1);
   await assert.rejects(createClient({fetcher,sleep}).json('http://api.example/x'),e=>e.status===0);
+});
+
+test('Statement timeouts and gateway errors are retried, other database errors are not',()=>{
+  const timeout='{"code":"57014","details":null,"hint":null,"message":"canceling statement due to statement timeout"}';
+  assert.equal(retryableDbError(500,timeout),true);
+  for(const status of [502,503,504])assert.equal(retryableDbError(status,''),true);
+  assert.equal(retryableDbError(500,'{"code":"23505","message":"duplicate key value"}'),false);
+  assert.equal(retryableDbError(400,timeout),false);
+  assert.equal(retryableDbError(404,''),false);
 });
