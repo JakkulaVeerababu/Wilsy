@@ -5,7 +5,7 @@ import path from 'node:path';
 import {inr,usd,salaryRange} from '../js/pay-format.js';
 const root=path.resolve('dist');
 const files=new Set(await fs.readdir(root,{recursive:true}));
-const htmlFiles=[...files].filter(f=>f.endsWith('.html')&&f!=='research.html'); // research.html is a temporary standalone page outside the WILSY shell
+const htmlFiles=[...files].filter(f=>f.endsWith('.html')&&!f.startsWith('mathematical-sciences')); // pi-profile.html is a temporary standalone page outside the WILSY shell
 const pages=new Map(await Promise.all(htmlFiles.map(async f=>[f,await fs.readFile(path.join(root,f),'utf8')])));
 const companyFiles=htmlFiles.filter(f=>f.startsWith('companies'+path.sep)&&f!=='companies'+path.sep+'all.html');
 

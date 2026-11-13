@@ -4,6 +4,13 @@
   "installCommand": "",
   "outputDirectory": "frontend/dist",
   "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/research",
+      "destination": "/mathematical-sciences/pi-profile",
+      "permanent": false
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
