@@ -152,6 +152,7 @@ await fs.mkdir(path.join(out,'css'),{recursive:true});
 for(const file of ['app.js','directory-core.js','pay-format.js','site.js','data-client.js','supabase-config.js','jobs-core.js','jobs.js','job-workspace-core.js','site-config.js','hackathons.js','hackathon-core.js','government-exam-core.js','government-jobs.js','ui-helpers.js','brand-assets.js','icons.js','job-card.js','job-text.js','home.js','dsa-cloud.js','dsa-enhancements.js','auth-client.js','account-sync.js','account.js']) await fs.copyFile('js/'+file,path.join(out,'js',file));
 for(const file of ['styles.css','editorial.css','jobs.css','polish.css','electric.css','hackathons.css','government-jobs.css','refined.css','job-workspace.css','tokens.css','shell.css','homepage.css','jobs-premium.css','dsa.css','premium.css','account.css']) await fs.copyFile('css/'+file,path.join(out,'css',file));
 await fs.cp('assets',path.join(out,'assets'),{recursive:true});
+await fs.copyFile('research.html',path.join(out,'research.html')); // temporary standalone page, not in sitemap
 await fs.mkdir(path.join(out,'data'),{recursive:true});
 for(const file of ['companies.json','exchange-rate.json','hackathon-branding.json','government-jobs.json'])await fs.copyFile('data/'+file,path.join(out,'data',file));
 await fs.writeFile(path.join(out,'data/company-index.json'),JSON.stringify(companies.map(({id,name,logo})=>({id,name,logo}))));

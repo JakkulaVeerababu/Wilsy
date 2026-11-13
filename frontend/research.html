@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>WILSY Mathematical Research</title>
+<meta name="description" content="WILSY Foundation for Mathematical Research — Hyderabad, India. Advancing mathematical frontiers through research.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=STIX+Two+Text:ital@1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f5ef; --surface:#ffffff; --ink:#1b2333; --muted:#5b6476; --line:#e3ded2;
+  --navy:#16233f; --navy-2:#22345c; --gold:#b8892b; --gold-soft:#f3e7cc;
+  --ok:#2f7a4f; --ok-soft:#e1f1e7; --warn:#9a6a12; --warn-soft:#f8ecd2;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1420; --surface:#161d2c; --ink:#e7e9ef; --muted:#9aa3b5; --line:#263049;
+    --navy:#0b1120; --navy-2:#1a2640; --gold:#d9ab4f; --gold-soft:#3a2f17;
+    --ok:#6fcf97; --ok-soft:#173326; --warn:#e7b65a; --warn-soft:#3a2c12;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1420; --surface:#161d2c; --ink:#e7e9ef; --muted:#9aa3b5; --line:#263049;
+  --navy:#0b1120; --navy-2:#1a2640; --gold:#d9ab4f; --gold-soft:#3a2f17;
+  --ok:#6fcf97; --ok-soft:#173326; --warn:#e7b65a; --warn-soft:#3a2c12;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 Inter,system-ui,sans-serif}
+a{color:inherit}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;line-height:1.2;margin:0}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+
+/* notice */
+.notice{background:var(--warn-soft);color:var(--warn);font-size:13.5px;text-align:center;padding:8px 16px}
+.notice b{font-weight:600}
+
+/* nav */
+nav{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--navy) 94%,transparent);backdrop-filter:blur(8px);color:#fff}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:Fraunces,serif;font-weight:700;letter-spacing:.08em}
+.brand .mark{width:32px;height:32px;border-radius:8px;background:var(--gold);color:var(--navy);display:grid;place-items:center;font-family:"STIX Two Text",serif;font-style:italic;font-size:20px}
+.links{display:flex;gap:22px;font-size:14px}
+.links a{text-decoration:none;opacity:.8}
+.links a:hover{opacity:1;color:var(--gold)}
+@media (max-width:760px){.links{display:none}}
+
+/* hero */
+.hero{background:linear-gradient(160deg,var(--navy) 0%,var(--navy-2) 100%);color:#fff;position:relative;overflow:hidden}
+.hero .wrap{padding-top:88px;padding-bottom:96px;position:relative}
+.hero .eyebrow{color:var(--gold);font-size:13px;letter-spacing:.18em;text-transform:uppercase;font-weight:600}
+.hero h1{font-size:clamp(40px,7vw,72px);margin:14px 0 10px;letter-spacing:.02em}
+.hero .sub{font-size:clamp(17px,2.2vw,21px);opacity:.85;max-width:620px}
+.hero .tag{margin-top:26px;font-family:"STIX Two Text",serif;font-style:italic;font-size:20px;color:var(--gold)}
+.hero .cta{margin-top:34px;display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-block;padding:12px 20px;border-radius:10px;font-weight:600;font-size:15px;text-decoration:none}
+.btn.primary{background:var(--gold);color:#16233f}
+.btn.ghost{border:1px solid rgba(255,255,255,.35);color:#fff}
+.hero svg.bg{position:absolute;right:-60px;top:20px;width:520px;max-width:70%;opacity:.13;pointer-events:none}
+
+/* sections */
+section{padding:76px 0;border-bottom:1px solid var(--line)}
+.kicker{color:var(--gold);font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;margin-bottom:8px}
+section h2{font-size:clamp(28px,4vw,38px);margin-bottom:14px}
+.lead{color:var(--muted);max-width:680px;font-size:17px}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:860px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px}
+.card h3{font-size:19px;margin-bottom:6px}
+.card p{margin:0;color:var(--muted);font-size:15px}
+.icon{width:40px;height:40px;border-radius:10px;background:var(--gold-soft);color:var(--gold);display:grid;place-items:center;margin-bottom:14px;font-family:"STIX Two Text",serif;font-style:italic;font-size:20px}
+
+.sample{display:inline-block;font:600 10.5px/1 Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--warn);background:var(--warn-soft);border-radius:999px;padding:4px 8px;vertical-align:middle;margin-left:6px}
+.note{font-size:13px;color:var(--muted);margin-top:14px;font-style:italic}
+
+/* facts */
+.facts{margin-top:34px}
+.fact{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.fact .k{font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.fact .v{font-weight:600;margin-top:4px}
+
+/* stats */
+.stats{margin-top:34px}
+.stat{text-align:center;padding:26px 14px}
+.stat .n{font-family:Fraunces,serif;font-size:42px;font-weight:700;color:var(--gold);line-height:1}
+.stat .l{color:var(--muted);font-size:14px;margin-top:8px}
+
+/* PI */
+.pi{display:grid;grid-template-columns:300px 1fr;gap:34px;align-items:start;margin-top:30px}
+@media (max-width:760px){.pi{grid-template-columns:1fr}}
+.pi-card{background:var(--navy);color:#fff;border-radius:16px;padding:30px;text-align:center}
+.avatar{width:120px;height:120px;border-radius:50%;margin:0 auto 16px;background:linear-gradient(135deg,var(--gold),#e8c77a);color:#16233f;display:grid;place-items:center;font-family:Fraunces,serif;font-size:48px;font-weight:700}
+.pi-card h3{font-size:24px}
+.pi-card .role{color:var(--gold);font-size:14px;margin-top:6px}
+.pi-card .role2{opacity:.75;font-size:14px}
+table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:15px}
+th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{background:color-mix(in srgb,var(--gold-soft) 60%,var(--surface));font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+td.k{color:var(--muted);width:42%}
+.tbl{overflow-x:auto;border-radius:14px}
+
+/* projects */
+.proj .id{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;color:var(--muted)}
+.status{display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;margin-top:12px}
+.status.active{background:var(--ok-soft);color:var(--ok)}
+.status.dev{background:var(--warn-soft);color:var(--warn)}
+.eq{margin-top:28px;background:var(--navy);color:#fff;border-radius:16px;padding:30px;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center}
+@media (max-width:760px){.eq{grid-template-columns:1fr}}
+.formula{font-family:"STIX Two Text",Georgia,serif;font-style:italic;font-size:clamp(24px,4vw,34px);text-align:center;color:var(--gold)}
+.formula sup,.formula sub{font-size:.55em}
+.eq p{margin:0;opacity:.85}
+
+/* team */
+.member{display:flex;gap:14px;align-items:center}
+.member .ini{flex:none;width:46px;height:46px;border-radius:50%;background:var(--gold-soft);color:var(--gold);display:grid;place-items:center;font-weight:700;font-family:Fraunces,serif}
+.member .nm{font-weight:600}
+.member .ds{color:var(--muted);font-size:14px}
+
+/* pubs */
+.pill{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.pub{background:var(--ok-soft);color:var(--ok)}
+.pill.pre{background:var(--gold-soft);color:var(--gold)}
+.pill.rev{background:var(--warn-soft);color:var(--warn)}
+
+/* contact */
+.contact{background:linear-gradient(160deg,var(--navy) 0%,var(--navy-2) 100%);color:#fff;border-bottom:0}
+.contact .lead{color:rgba(255,255,255,.75)}
+.contact .card{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)}
+.contact .card .k{font-size:12.5px;opacity:.65;text-transform:uppercase;letter-spacing:.08em}
+.contact .card .v{font-weight:600;margin-top:4px;word-break:break-word}
+.contact .card a{color:var(--gold)}
+footer{background:var(--navy);color:rgba(255,255,255,.6);font-size:13px;padding:22px 0;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="notice"><b>Draft profile.</b> Items tagged <span class="sample" style="margin:0">Sample</span> are placeholder figures and must be replaced with verified details before this page goes public.</div>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="mark">∑</span>WILSY</a>
+    <div class="links">
+      <a href="#about">About</a><a href="#pi">Leadership</a><a href="#research">Research</a><a href="#team">Team</a><a href="#publications">Publications</a><a href="#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <svg class="bg" viewBox="0 0 400 400" fill="none" stroke="#fff" stroke-width="1.2" aria-hidden="true">
+    <circle cx="200" cy="200" r="180"/><circle cx="200" cy="200" r="120"/><circle cx="200" cy="200" r="60"/>
+    <path d="M20 200h360M200 20v360M73 73l254 254M327 73L73 327"/>
+    <path d="M20 300 Q110 60 200 200 T380 100"/>
+  </svg>
+  <div class="wrap">
+    <div class="eyebrow">Institute for Advanced Mathematical Sciences</div>
+    <h1>WILSY</h1>
+    <p class="sub">Mathematics. Discovery. Innovation. A research foundation in Hyderabad advancing pure, applied and computational mathematics.</p>
+    <div class="tag">Advancing Mathematical Frontiers Through Research.</div>
+    <div class="cta"><a class="btn primary" href="#research">Explore our research</a><a class="btn ghost" href="#contact">Get in touch</a></div>
+  </div>
+</header>
+
+<section id="about">
+  <div class="wrap">
+    <div class="kicker">About the foundation</div>
+    <h2>Mission</h2>
+    <p class="lead">WILSY aims to advance mathematical sciences through original theoretical research, computational experimentation, and interdisciplinary scientific collaboration.</p>
+
+    <div class="grid g3" style="margin-top:34px">
+      <div class="card"><div class="icon">π</div><h3>Pure &amp; applied mathematics</h3><p>Advanced research across theory and its applications.</p></div>
+      <div class="card"><div class="icon">ℙ</div><h3>Computational number theory</h3><p>Prime distribution, prime gaps and algorithmic methods.</p></div>
+      <div class="card"><div class="icon">∂</div><h3>Nonlinear differential equations</h3><p>Stability, existence and uniqueness of nonlinear systems.</p></div>
+      <div class="card"><div class="icon">f</div><h3>Modeling &amp; optimization</h3><p>Mathematical models for complex real-world problems.</p></div>
+      <div class="card"><div class="icon">∇</div><h3>AI-assisted computation</h3><p>Machine learning as a tool for mathematical discovery.</p></div>
+      <div class="card"><div class="icon">∞</div><h3>Global collaboration</h3><p>International partnerships and scholarly publication.</p></div>
+    </div>
+
+    <div class="grid g3 facts">
+      <div class="fact"><div class="k">Legal name</div><div class="v">WILSY Foundation for Mathematical Research</div></div>
+      <div class="fact"><div class="k">Legal structure</div><div class="v">Section 8 Company (not-for-profit)</div></div>
+      <div class="fact"><div class="k">Registration (CIN)</div><div class="v">To be added</div></div>
+      <div class="fact"><div class="k">Headquarters</div><div class="v">Hyderabad, Telangana, India</div></div>
+      <div class="fact"><div class="k">Established</div><div class="v">2022</div></div>
+      <div class="fact"><div class="k">Research focus</div><div class="v">Mathematical &amp; Computational Sciences</div></div>
+    </div>
+
+    <div class="grid g3 stats">
+      <div class="card stat"><div class="n">18</div><div class="l">Research staff <span class="sample">Sample</span></div></div>
+      <div class="card stat"><div class="n">5</div><div class="l">Research divisions <span class="sample">Sample</span></div></div>
+      <div class="card stat"><div class="n">7</div><div class="l">International collaborators <span class="sample">Sample</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="pi">
+  <div class="wrap">
+    <div class="kicker">Leadership</div>
+    <h2>Principal Investigator</h2>
+    <div class="pi">
+      <div class="pi-card">
+        <div class="avatar">V</div>
+        <h3>Veerababu</h3>
+        <div class="role">Founder &amp; Principal Investigator</div>
+        <div class="role2">Director, Mathematical Sciences</div>
+      </div>
+      <div>
+        <div class="tbl"><table>
+          <tr><th colspan="2">Qualifications &amp; experience <span class="sample">Sample</span></th></tr>
+          <tr><td class="k">Highest qualification</td><td>Ph.D. in Applied Mathematics</td></tr>
+          <tr><td class="k">Master's</td><td>M.Sc. Mathematics</td></tr>
+          <tr><td class="k">Bachelor's</td><td>B.Sc. Mathematics</td></tr>
+          <tr><td class="k">Research experience</td><td>12 years</td></tr>
+          <tr><td class="k">Research leadership</td><td>7 years</td></tr>
+          <tr><td class="k">Specialization</td><td>Number Theory and Applied Mathematics</td></tr>
+          <tr><td class="k">Research supervision</td><td>8 researchers</td></tr>
+        </table></div>
+        <p class="note">Credentials and experience figures are illustrative and not yet verified.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="research">
+  <div class="wrap">
+    <div class="kicker">Current work</div>
+    <h2>Research projects</h2>
+    <p class="lead">Five programmes spanning analysis, number theory, graph theory and computation.</p>
+    <div class="grid g3" style="margin-top:30px">
+      <div class="card proj"><div class="id">WIL-MATH-001</div><h3>Nonlinear Differential Equations and Stability Theory</h3><span class="status active">Active</span></div>
+      <div class="card proj"><div class="id">WIL-MATH-002</div><h3>Computational Prime Distribution and Gap Analysis</h3><span class="status active">Active</span></div>
+      <div class="card proj"><div class="id">WIL-MATH-003</div><h3>Advanced Graph Theory and Network Optimization</h3><span class="status active">Active</span></div>
+      <div class="card proj"><div class="id">WIL-MATH-004</div><h3>Fractional Calculus and Mathematical Modeling</h3><span class="status dev">Under development</span></div>
+      <div class="card proj"><div class="id">WIL-MATH-005</div><h3>AI-Based Mathematical Optimization</h3><span class="status dev">Under development</span></div>
+    </div>
+    <p class="note">Project statuses are sample data.</p>
+
+    <div class="eq">
+      <div class="formula">D<sub>t</sub><sup>α</sup> y(t) = A y(t) + F(y, t)</div>
+      <div>
+        <div class="kicker" style="margin-bottom:6px">Example research problem</div>
+        <p>Stability, existence, uniqueness and computational solutions of fractional nonlinear systems.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="team">
+  <div class="wrap">
+    <div class="kicker">People</div>
+    <h2>Research team <span class="sample">Sample</span></h2>
+    <div class="grid g4" style="margin-top:30px">
+      <div class="card member"><div class="ini">V</div><div><div class="nm">Dr. Veerababu</div><div class="ds">Founder &amp; Principal Investigator</div></div></div>
+      <div class="card member"><div class="ini">AR</div><div><div class="nm">Dr. Ananya Rao</div><div class="ds">Research Director</div></div></div>
+      <div class="card member"><div class="ini">KS</div><div><div class="nm">Dr. K. Srinivas</div><div class="ds">Senior Research Scientist</div></div></div>
+      <div class="card member"><div class="ini">MS</div><div><div class="nm">Dr. Meera Sharma</div><div class="ds">Principal Research Associate</div></div></div>
+      <div class="card member"><div class="ini">RV</div><div><div class="nm">Rahul Varma</div><div class="ds">Computational Mathematics Lead</div></div></div>
+      <div class="card member"><div class="ini">PR</div><div><div class="nm">Priya Reddy</div><div class="ds">Research Fellow</div></div></div>
+      <div class="card member"><div class="ini">AK</div><div><div class="nm">Arjun Kumar</div><div class="ds">Research Associate</div></div></div>
+      <div class="card member"><div class="ini">NI</div><div><div class="nm">Neha Iyer</div><div class="ds">Research Analyst</div></div></div>
+    </div>
+    <p class="note">Illustrative roster — replace with the actual team.</p>
+  </div>
+</section>
+
+<section id="publications">
+  <div class="wrap">
+    <div class="kicker">Scholarship</div>
+    <h2>Publications &amp; research record <span class="sample">Sample</span></h2>
+
+    <div class="grid g4 stats">
+      <div class="card stat"><div class="n">24</div><div class="l">Research publications</div></div>
+      <div class="card stat"><div class="n">9</div><div class="l">International conference talks</div></div>
+      <div class="card stat"><div class="n">6</div><div class="l">Research preprints</div></div>
+      <div class="card stat"><div class="n">3</div><div class="l">Research grants</div></div>
+    </div>
+
+    <div class="tbl" style="margin-top:22px"><table>
+      <tr><th>Publication</th><th>Area</th><th>Status</th></tr>
+      <tr><td>Computational Analysis of Prime Gap Distributions</td><td>Number Theory</td><td><span class="pill pub">Published</span></td></tr>
+      <tr><td>Stability of Nonlinear Dynamical Systems</td><td>Differential Equations</td><td><span class="pill pub">Published</span></td></tr>
+      <tr><td>Optimization Algorithms for Complex Networks</td><td>Applied Mathematics</td><td><span class="pill pub">Published</span></td></tr>
+      <tr><td>Fractional Differential Equations in Mathematical Modeling</td><td>Fractional Calculus</td><td><span class="pill pre">Preprint</span></td></tr>
+      <tr><td>Computational Methods in Advanced Number Theory</td><td>Computational Mathematics</td><td><span class="pill rev">Under review</span></td></tr>
+    </table></div>
+    <p class="note">Placeholder portfolio — not actual indexed publications, talks or awards. Replace with real citations (journal, year, DOI) once available.</p>
+  </div>
+</section>
+
+<section id="contact" class="contact">
+  <div class="wrap">
+    <div class="kicker">Contact</div>
+    <h2>Work with us</h2>
+    <p class="lead">For collaborations, research enquiries and visiting positions, reach the Principal Investigator directly.</p>
+    <div class="grid g4" style="margin-top:30px">
+      <div class="card"><div class="k">Principal Investigator</div><div class="v">Veerababu</div></div>
+      <div class="card"><div class="k">Email</div><div class="v"><a href="mailto:veerababu@wilsy.in">veerababu@wilsy.in</a></div></div>
+      <div class="card"><div class="k">Website</div><div class="v"><a href="https://wilsy.in">wilsy.in</a></div></div>
+      <div class="card"><div class="k">Location</div><div class="v">Hyderabad, Telangana, India</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>© 2026 WILSY Foundation for Mathematical Research · Division of Mathematical Sciences</footer>
+
+</body>
+</html>
