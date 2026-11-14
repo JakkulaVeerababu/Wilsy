@@ -37,6 +37,35 @@ export const guides = [
   }
 ];
 
+// Employer and campus programme pages. Requests go by email: nothing on these pages is stored by WILSY.
+const mailto = (email,subject,body='') => `mailto:${email}?subject=${encodeURIComponent(subject)}${body?'&amp;body='+encodeURIComponent(body):''}`;
+export function programPages(email, stats={}) {
+  const count = n => Number.isFinite(n) ? Math.floor(n).toLocaleString('en-IN') : null;
+  const total = count(stats.total), companies = count(stats.companies);
+  const reach = total && companies ? `${total} live jobs from ${companies} hiring companies` : 'thousands of live jobs';
+  const contact = `<a href="mailto:${email}">${email}</a>`;
+  return [
+    {slug:'employers',seoTitle:'For employers',eyebrow:'FOR EMPLOYERS',title:'Reach India’s early-career engineers.',subtitle:'Free listings today. Hiring tools in early access.',updatedAt:'14 Nov 2026',
+      description:'How WILSY lists your jobs for free, how to correct or remove them, and early access to company pages, job posting and campus hiring.',
+      body:`<p class="article-lead">WILSY lists ${reach} for students, freshers and early-career engineers in India. Listing your jobs is free.</p>
+<h2>Your jobs may already be here</h2><p>WILSY reads public job boards on Greenhouse, Lever, Ashby, Workable, SmartRecruiters and Recruitee every hour. If your company’s board is in our collection, your open roles appear automatically, each linked to your own application page. When a role closes on your board, it leaves WILSY at the next refresh.</p>
+<h2>What you can do today, free</h2><ul><li><strong>Get listed.</strong> Send us the link to your public job board. If its terms allow it, we add it to the hourly collection.</li><li><strong>Correct your company page.</strong> Logo, description, locations or salary source.</li><li><strong>Pause or remove listings.</strong> Ask and we stop showing them. We aim to act within two working days.</li><li><strong>Report a problem.</strong> Anything that looks wrong, misleading or fake.</li></ul>
+<div class="contact-box"><span class="eyebrow">EMPLOYER REQUESTS</span><a class="contact-address" href="mailto:${email}">${email}</a><div class="contact-actions"><a class="primary-button" href="${mailto(email,'Employer request: [company name]','Company:\nCareers or job board link:\nWhat you need (add, correct, pause or remove):\n')}">Email an employer request</a><button class="secondary-button" type="button" data-copy-email="${email}">Copy address</button></div><p id="contact-status" role="status"></p></div>
+<h2>In early access</h2><p>We are building these with a small group of employers. Tell us which ones you need.</p><ul><li><strong>Verified company page:</strong> a verified-employer badge, your teams and your hiring locations.</li><li><strong>Direct job posting:</strong> for roles that aren’t on a public job board.</li><li><strong>Featured jobs:</strong> more visibility for urgent roles, always labelled “Featured”.</li><li><strong>Campus hiring and challenges:</strong> hiring drives and coding challenges for students and freshers.</li></ul><p><a class="secondary-button" href="${mailto(email,'Employer early access: [company name]','Company:\nRoles you hire for:\nWhich early-access tools interest you:\n')}">Join early access</a></p>
+<h2>Our rules</h2><ul><li>Searching and applying are always free for job seekers.</li><li>Every listing links to the employer’s own application page.</li><li>Paid placements are always labelled.</li><li>We remove listings that ask candidates for money or misrepresent the role.</li></ul>
+<p class="quiet-callout">The email buttons open your own email app. This page does not upload or store anything you type. Questions go to ${contact}.</p>`},
+    {slug:'campus',seoTitle:'Campus ambassadors',eyebrow:'CAMPUS PROGRAMME',title:'Bring WILSY to your campus.',subtitle:'For students in India, in any branch and any year.',updatedAt:'14 Nov 2026',
+      description:'Become a WILSY campus ambassador: share real jobs, internships and hackathons with your batch, run practice sessions, and work with the founding team.',
+      body:`<p class="article-lead">WILSY campus ambassadors help their batch find real jobs, internships and hackathons straight from employers, and tell us what students actually need.</p>
+<h2>What ambassadors do</h2><ul><li>Share fresh jobs, internships and hackathons from WILSY with classmates, in the groups you already use.</li><li>Run one practice session a term, such as a DSA pattern night with the free <a href="/dsa">DSA roadmap</a> or a hackathon team meetup.</li><li>Collect feedback: which companies, roles and cities your batch wants to see.</li><li>Introduce WILSY to your placement cell, if they are interested.</li></ul>
+<h2>What you get</h2><ul><li>Direct contact with WILSY’s founding team, and a say in what we build next.</li><li>Early access to new features before they launch.</li><li>A certificate for every term you complete.</li></ul><p>There are no sales targets and no fees, ever.</p>
+<h2>Who can apply</h2><p>Students at any college or university in India, in any branch and any year. We are starting with one or two ambassadors per campus.</p>
+<div class="contact-box"><span class="eyebrow">APPLY BY EMAIL</span><p>Send your name, college, branch, year and a few lines on why you want to do this.</p><div class="contact-actions"><a class="primary-button" href="${mailto(email,'Campus ambassador: [college name]','Name:\nCollege:\nBranch:\nYear:\nWhy I want to be a WILSY ambassador:\n')}">Apply by email</a><button class="secondary-button" type="button" data-copy-email="${email}">Copy address</button></div><p id="contact-status" role="status"></p></div>
+<h2>Placement cells</h2><p>Training and placement officers can write to us about a regular list of fresh jobs and internships for their branches. It is free.</p>
+<p class="quiet-callout">The email button opens your own email app. We use applications only to run the programme, and delete them on request: write to ${contact}.</p>`},
+  ];
+}
+
 export function policyPages(email) {
   const contact = `<a href="mailto:${email}">${email}</a>`;
   return [

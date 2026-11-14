@@ -39,9 +39,11 @@ test('All generated internal links, local images, scripts, and styles resolve',(
 test('Sitemap covers exactly the public pages and excludes the error page',async()=>{
   const xml=await fs.readFile(path.join(root,'sitemap.xml'),'utf8');
   const urls=[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
-  // 1,017 core pages plus every indexable /jobs/<page> (job pages, and landing pages that have jobs).
+  // 1,019 core pages plus every indexable /jobs/<page> (job pages, and landing pages that have jobs).
   const jobPages=htmlFiles.filter(f=>f.startsWith('jobs'+path.sep)&&!/noindex/.test(pages.get(f)));
-  assert.equal(urls.length,1017+jobPages.length);assert.equal(new Set(urls).size,urls.length);
+  assert.equal(urls.length,1019+jobPages.length);
+  assert.ok(urls.includes('https://www.wilsy.in/employers'));
+  assert.ok(urls.includes('https://www.wilsy.in/campus'));assert.equal(new Set(urls).size,urls.length);
   for(const f of htmlFiles.filter(f=>f.startsWith('jobs'+path.sep)&&/noindex/.test(pages.get(f))))
     assert.ok(!urls.includes('https://www.wilsy.in/'+f.replaceAll(path.sep,'/').replace(/\.html$/,'')),`${f} is noindex but in the sitemap`);
   assert.ok(urls.every(url=>url.startsWith('https://www.wilsy.in/')));
@@ -121,6 +123,18 @@ test('WILSY routes share the premium shell and preserved feature entry points',(
   assert.match(pages.get('privacy.html'),/hackathon/);
   const dsa=pages.get('dsa.html');
   assert.match(dsa,/class="dsa-shell"/);assert.match(dsa,/src="\/dsa\/data\.js"/);assert.match(dsa,/src="\/dsa\/app\.js"/);assert.match(dsa,/src="\/js\/dsa-enhancements\.js"/);assert.match(dsa,/127/);
+});
+test('Employer and campus pages are honest, email-based and linked from every footer',()=>{
+  const employers=pages.get('employers.html'),campus=pages.get('campus.html');
+  assert.match(employers,/<h1[^>]*>[^<]*Reach India’s early-career engineers/);
+  assert.match(employers,/[0-9,]+ live jobs from [0-9,]+ hiring companies/);
+  assert.match(employers,/href="mailto:contact@wilsy\.in\?subject=Employer%20request/);
+  assert.match(employers,/always labelled/);
+  assert.match(campus,/href="mailto:contact@wilsy\.in\?subject=Campus%20ambassador/);
+  assert.match(campus,/no fees, ever/);
+  // No invented proof or prices on either page.
+  for(const html of [employers,campus])assert.doesNotMatch(html,/₹\s?\d|testimonial|trusted by/i);
+  for(const html of pages.values()){assert.match(html,/href="\/employers"/);assert.match(html,/href="\/campus"/);}
 });
 test('Homepage leads with the premium opportunity index and clear routes',()=>{
  const home=pages.get('index.html');
