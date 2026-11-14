@@ -197,7 +197,7 @@ test('Government jobs route includes the beginner explainer, browse controls, el
 test('Government jobs page is generated at its route with safe source-first markup', async () => {
   const distPage = await fs.readFile(path.resolve('dist/government-jobs.html'), 'utf8');
   assert.match(distPage, /<link rel="canonical" href="https:\/\/www\.wilsy\.in\/government-jobs">/);
-  assert.match(distPage, /href="\/government-jobs" class="active" aria-current="page">Gov jobs/);
+  assert.match(distPage, /href="\/government-jobs" class="active" aria-current="page">Government/);
   assert.match(distPage, /id="gov-jobs-search"/);
   assert.match(distPage, /id="gov-jobs-level"/);
   assert.match(distPage, /id="gov-jobs-category"/);

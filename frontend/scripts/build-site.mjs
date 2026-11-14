@@ -12,6 +12,7 @@ import {governmentJobsPage} from './government-jobs-page.mjs';
 import {fetchJobSnapshot} from './job-snapshot.mjs';
 import {loadDsaProject,dsaPage,writeDsaAssets} from './dsa-page.mjs';
 import {icon} from '../js/icons.js';
+import {browseRoles,browseStages} from './landing-pages.mjs';
 
 const data = JSON.parse(await fs.readFile('data/companies.json','utf8'));
 const fx = JSON.parse(await fs.readFile('data/exchange-rate.json','utf8'));
@@ -39,13 +40,14 @@ async function loadHomeSnapshot() {
   }
 }
 export function header(active='') {
-  const links=[['/jobs','Find jobs','jobs'],['/government-jobs','Gov jobs','government-jobs'],['/companies#companies','Companies','companies'],['/hackathons','Hackathons','hackathons'],['/dsa','DSA roadmap','dsa'],['/guides','Career guides','guides']];
-  return `<header class="site-header"><div class="header-inner">${brandLink()}<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-navigation"><span class="nav-toggle-lines" aria-hidden="true"></span><span>Menu</span></button><nav class="main-nav" id="main-navigation" aria-label="Main navigation">${links.map(([url,name,key])=>`<a href="${url}"${key===active?' class="active" aria-current="page"':''}>${name}</a>`).join('')}${themeToggle}<a class="nav-cta" href="/jobs">Start searching ${icon('arrow')}</a></nav></div></header>`;
+  const links=[['/jobs','Jobs','jobs'],['/government-jobs','Government','government-jobs'],['/companies#companies','Companies','companies'],['/hackathons','Hackathons','hackathons'],['/dsa','DSA','dsa'],['/guides','Guides','guides']];
+  return `<header class="site-header"><div class="header-inner">${brandLink()}<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-navigation"><span class="nav-toggle-lines" aria-hidden="true"></span><span>Menu</span></button><nav class="main-nav" id="main-navigation" aria-label="Main navigation">${links.map(([url,name,key])=>`<a href="${url}"${key===active?' class="active" aria-current="page"':''}>${name}</a>`).join('')}${themeToggle}<a class="nav-cta" href="/jobs">Search jobs ${icon('arrow')}</a></nav></div></header>`;
 }
 export function footer() {
   return `<footer class="site-footer premium-footer"><div class="footer-main">
-    <div class="footer-intro">${brandLink()}<p>A clearer view of your next move.</p><span>Real sources. More context.<br>Made for thoughtful decisions.</span><div class="footer-newsletter"><p class="footer-label">WILSY FIELD NOTES</p><a href="mailto:${site.email}?subject=WILSY%20newsletter%20interest">Request email updates ${icon('arrow')}</a><small>Opens your email app. Newsletter subscriptions are not yet automated.</small></div></div>
+    <div class="footer-intro">${brandLink()}<p>A clearer view of your next move.</p><span>Jobs, internships, government notices and hackathons for India. Every listing links to its source.</span><div class="footer-newsletter"><p class="footer-label">FREE ACCOUNT</p><a href="/jobs?saved=1" data-account-open>Create a free account ${icon('arrow')}</a><small>Save jobs, hackathons and searches on every device. No password needed.</small></div></div>
     <nav aria-label="Explore Wilsy"><h2>EXPLORE</h2><a href="/">Home</a><a href="/jobs">Find jobs</a><a href="/government-jobs">Government jobs</a><a href="/hackathons">Hackathons</a><a href="/companies#companies">Company directory</a><a href="/companies/all">All companies A–Z</a></nav>
+    <nav aria-label="Popular searches"><h2>POPULAR SEARCHES</h2>${[...browseRoles.slice(0,4),...browseStages.slice(0,3)].map(([url,name])=>`<a href="${url}">${e(name)}</a>`).join('')}</nav>
     <nav aria-label="About Wilsy"><h2>LEARN &amp; CONNECT</h2><a href="/dsa">DSA roadmap</a><a href="/guides">Career guides</a><a href="/about">About WILSY</a><a href="/methodology">Sources &amp; methodology</a><a href="/contact">Contact &amp; corrections</a><a href="mailto:${site.email}">${site.email}</a></nav>
     <nav aria-label="Policies"><h2>THE DETAILS</h2><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/disclosure">Ads &amp; affiliate disclosure</a><a href="/privacy#choices" data-privacy-choices>Privacy &amp; cookie choices</a></nav>
   </div><div class="footer-bottom"><span>© 2026 WILSY</span><p>Published salary examples, not guaranteed offers. Company logos belong to their respective owners.</p><span>Made for your next move</span></div></footer>`;
