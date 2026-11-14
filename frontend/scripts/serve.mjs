@@ -2,7 +2,7 @@ import http from 'node:http';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 const root=path.join(process.cwd(),'dist');
-const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.ico':'image/x-icon','.xml':'application/xml; charset=utf-8','.txt':'text/plain; charset=utf-8','.woff2':'font/woff2'};
+const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.ico':'image/x-icon','.xml':'application/xml; charset=utf-8','.txt':'text/plain; charset=utf-8','.woff2':'font/woff2','.webmanifest':'application/manifest+json'};
 http.createServer(async(req,res)=>{
   try{
     const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
@@ -18,4 +18,4 @@ http.createServer(async(req,res)=>{
     res.writeHead(404,{'Content-Type':'text/html; charset=utf-8'});
     res.end(await fs.readFile(path.join(root,'404.html')).catch(()=>'Page not found'));
   }
-}).listen(4173,'127.0.0.1',()=>console.log('Local: http://127.0.0.1:4173'));
+}).listen(Number(process.env.PORT)||4173,'127.0.0.1',function(){console.log('Local: http://127.0.0.1:'+this.address().port);});

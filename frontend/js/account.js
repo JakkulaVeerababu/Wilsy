@@ -2,11 +2,13 @@ import {createAuth,SESSION_KEY} from './auth-client.js';
 import {syncAccount,setAlert,forgetAccount} from './account-sync.js';
 import {searchName} from './job-workspace-core.js';
 import {escapeHtml as e} from './directory-core.js';
+import {track} from './analytics.js';
 
 // Optional accounts: the header button, sign-in dialog and background sync of saved lists.
 const auth=createAuth();
 const state={view:'email',email:'',message:'',busy:false,counts:null,alerts:{},syncError:'',google:null};
 let dialog,button,pending=null,again=false,debounce;
+const METHOD_KEY='wilsy-sign-in-method'; // remembers a Google sign-in across the redirect, for analytics
 
 function plural(n,word){return `${n} ${word}${n===1?'':'s'}`;}
 function label(){if(button)button.textContent=auth.session()?'Account':'Sign in';}
@@ -86,7 +88,7 @@ function bind() {
     if(t===dialog||t.closest('[data-close]'))return dialog.close();
     if(t.closest('[data-restart]')){state.view='email';state.message='';return render();}
     if(t.closest('[data-resend]'))return run(async()=>{await auth.sendEmail(state.email);state.message='A new code is on its way.';});
-    if(t.closest('[data-google]'))return run(async()=>{location.assign(await auth.googleUrl());});
+    if(t.closest('[data-google]'))return run(async()=>{try{sessionStorage.setItem(METHOD_KEY,'google');}catch{}location.assign(await auth.googleUrl());});
     if(t.closest('[data-signout]'))return run(async()=>{await auth.signOut();forgetAccount(localStorage);
       for(const key of ['wilsy-saved-jobs','wilsy-saved-hackathons','wilsy-saved-searches-v1'])window.dispatchEvent(new StorageEvent('storage',{key}));
       Object.assign(state,{view:'email',counts:null,alerts:{}});state.message='Signed out.';});
@@ -95,12 +97,12 @@ function bind() {
     event.preventDefault();
     const form=event.target;
     if(form.dataset.form==='email'){state.email=form.email.value;return run(async()=>{state.email=await auth.sendEmail(state.email);state.view='code';});}
-    if(form.dataset.form==='code')return run(async()=>{await auth.verifyCode(state.email,form.code.value);state.message='Signed in. Your saved items are syncing.';await sync();});
+    if(form.dataset.form==='code')return run(async()=>{await auth.verifyCode(state.email,form.code.value);track('sign_in',{method:'email_code'});state.message='Signed in. Your saved items are syncing.';await sync();});
   });
   dialog.addEventListener('change',event=>{
     const select=event.target.closest('[data-alert]');if(!select)return;
     const query=select.dataset.alert,previous=state.alerts[query];state.alerts[query]=select.value;
-    auth.accessToken().then(token=>setAlert(token,query,select.value)).then(()=>{state.message='Alert preference saved.';render();})
+    auth.accessToken().then(token=>setAlert(token,query,select.value)).then(()=>{if((previous||'off')==='off'&&select.value!=='off')track('alert_on',{frequency:select.value});state.message='Alert preference saved.';render();})
       .catch(()=>{state.alerts[query]=previous;state.message='That alert setting did not save. Try again.';render();});
   });
 }
@@ -122,7 +124,9 @@ function init() {
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')sync();});
   window.addEventListener('online',()=>sync());
   window.addEventListener('storage',event=>{if(event.key===SESSION_KEY){render();if(auth.session())sync();}});
-  auth.completeRedirect().then(session=>{if(session)open('Signed in. Your saved items are syncing.');return sync();})
+  auth.completeRedirect().then(session=>{
+    if(session){let method='email_link';try{method=sessionStorage.getItem(METHOD_KEY)||method;sessionStorage.removeItem(METHOD_KEY);}catch{}track('sign_in',{method});open('Signed in. Your saved items are syncing.');}
+    return sync();})
     .catch(error=>open(error.message));
 }
 init();
