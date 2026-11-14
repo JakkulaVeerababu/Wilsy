@@ -1,8 +1,8 @@
 {
   "dataset": "India government jobs — official portal snapshot",
-  "checkedAt": "2026-11-13",
+  "checkedAt": "2026-11-14",
   "description": "A dated, curated snapshot of active India government-job notices found on primary official portals. It is not an exhaustive guarantee of every vacancy on the internet; applicants should confirm the complete advertisement, eligibility, dates and application process at the official source before applying.",
-  "coverageNote": "Official-source coverage only. This snapshot includes five open notices from ISRO / the Department of Space and the Bhabha Atomic Research Centre (BARC), checked on 13 Nov 2026, plus selected official discovery hubs; it does not claim complete coverage of all central, state or public-sector vacancies.",
+  "coverageNote": "Official-source coverage only. This snapshot includes four open notices from ISRO / the Department of Space and the Bhabha Atomic Research Centre (BARC), checked on 14 Nov 2026, plus selected official discovery hubs; it does not claim complete coverage of all central, state or public-sector vacancies.",
   "sourceHubNote": "Some official portals require JavaScript or do not expose a structured feed in this static snapshot. The hub links are provided for direct checking and broader discovery.",
   "classificationNote": "Rank and category are WILSY display and browsing fields, not official merit lists, appointment grades or vacancy counts.",
   "sourceHubs": [
@@ -155,27 +155,6 @@
       "sourceUrl": "https://www.barc.gov.in/careers/recruitment.html",
       "sourceDomain": "barc.gov.in",
       "verificationNote": "BARC’s official new-vacancies page (last updated 6 Nov 2026) lists this walk-in interview for Monday 16 Nov 2026 from 10.30 am, with reporting at 8.30 am at BARC Hospital, Anushaktinagar, Mumbai. Checked 12 Nov 2026; bring the application format and certificates listed in the notice."
-    },
-    {
-      "id": "isro-ursc-technician-driver-2026",
-      "rank": 5,
-      "title": "Technician-B / Heavy, Light and Staff Car Driver-A",
-      "organization": "U R Rao Satellite Centre (URSC), ISRO",
-      "ministryDepartment": "Department of Space, Government of India",
-      "category": "Technical",
-      "level": "Pay Level 2–3",
-      "gradeLevel": "Pay Level 3 · Technician-B; Pay Level 2 · Driver-A posts",
-      "salaryPayBand": "Level 3 / ₹21,700 (Technician-B); Level 2 / ₹19,900 (Drivers); plus allowances.",
-      "experienceEligibility": "Technician-B: SSLC / SSC pass plus ITI / NTC / NAC in the listed trade. Drivers: SSLC / SSC pass with the licence and experience in the notice. Age 18–35 as on 13 Nov 2026, with category relaxations.",
-      "location": "Bengaluru (some posts at Hassan)",
-      "openingDate": "2026-10-24",
-      "deadline": "2026-11-13",
-      "status": "Open",
-      "noticeNumber": "URSC:04:2026",
-      "officialNoticeUrl": "https://www.isro.gov.in/URSCRecruitment13.html",
-      "sourceUrl": "https://www.isro.gov.in/URSCRecruitment13.html",
-      "sourceDomain": "isro.gov.in",
-      "verificationNote": "Official ISRO URSC recruitment page lists this notice as Open, dated 24 Oct 2026, with online applications closing 13 Nov 2026. Checked 12 Nov 2026; verify the trade, licence and experience terms in the bilingual advertisement."
     }
   ]
 }
