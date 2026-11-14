@@ -19,7 +19,7 @@
   ],
   "functions": {
     "api/job-page.mjs": {
-      "includeFiles": "frontend/{css/*.css,data/companies.json,data/exchange-rate.json}",
+      "includeFiles": "{package.json,frontend/css/*.css,frontend/data/companies.json,frontend/data/exchange-rate.json}",
       "maxDuration": 10
     }
   },
