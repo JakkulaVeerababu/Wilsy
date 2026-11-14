@@ -93,6 +93,8 @@ Still in progress: database proposals (collector timeout root cause, city filter
 
 ## Scaling features: proposal (14 Nov 2026)
 
+Parked as backlog. The founders asked for new opportunity sections first (next section).
+
 Facts behind this list:
 
 - Every `/jobs` search and facet load goes from the visitor's browser straight to Supabase (`wilsy_search_jobs`, `wilsy_job_facets`). Nothing is cached in between.
@@ -140,3 +142,48 @@ Effort: S = under a day, M = 1–3 days, L = a week or more, or outside help.
 - **Vercel:** the Hobby plan is for non-commercial projects, and WILSY shows ads. If the project is on Hobby, move it to Pro before traffic grows. Functions (job pages, cached search) also count against plan limits.
 - **Supabase:** the compute size affects the collector timeouts and search speed. The free plan has no daily backups. Check the plan, and the current prices, before item 2 and items 7–8.
 - **Resend:** the free plan sends 100 emails a day. The alert sender's default cap matches it; raise both together.
+
+## New opportunity sections: proposal (14 Nov 2026)
+
+The founders asked for more sections like Jobs and Hackathons. Each new section would get the same parts Hackathons has:
+
+- a listing page with filters (`/competitions`, `/contests` and so on), backed by a search function and a facets function in Supabase;
+- a page for every listing, built like the job pages (pre-built when the build runs, on demand otherwise);
+- an automated collector on GitHub Actions, started by Supabase pg_cron;
+- sitemap entries, and later saved items and alerts.
+
+Sources were checked on 14 Nov 2026. A source is used only if its terms and robots.txt allow automated reading and reuse. Sources we will not read:
+
+- **Internshala:** its terms forbid automated access and data extraction.
+- **CodeChef and Hasgeek:** their terms forbid crawling and scraping.
+- **LeetCode:** its robots.txt blocks its API.
+- **Buddy4Study:** a competing aggregator; its compiled lists are its own work.
+- **Devpost and MLH:** as before.
+
+Effort: S = under a day, M = 1–3 days, L = a week or more.
+
+### Ranked
+
+| # | Section | Sources | Value for Indian students and job seekers | Effort | Freshness |
+|---|---|---|---|---|---|
+| 1 | **Competitions**: case competitions, innovation challenges, quizzes, online coding challenges | Unstop public API, the one the hackathon collector already uses (`opportunity=competitions`, 708 open; `quizzes`, 72). Unstop's robots.txt allows `/api/public/*`, and its terms of use have no clause against automated reading. | High. Case competitions and challenges are how students build a CV, and many offer pre-placement interviews. | M: copy the hackathon collector and pages. Needs one reviewed database change (below). | Hourly |
+| 2 | **Coding contests calendar** | Codeforces official API (`contest.list`, at most 1 call per 2 seconds); AtCoder's contests page (static; its terms have no clause against automated reading); Unstop online coding challenges. CodeChef and LeetCode appear only as links to their own contest pages, with no data read. | High. Placement preparation; fits the DSA roadmap. | S–M | Hourly |
+| 3 | **Open-source programs**: GSoC, LFX Mentorship, Outreachy, Hacktoberfest, GirlScript Summer of Code, Season of KDE, Google Season of Docs, Code for GovTech | A curated list (like the hand-kept government notices) of about 20 programs, with dates and links taken from each program's official page. A daily job re-reads those pages and flags changes. Outreachy's status page is static and readable. GSoC has no documented public API. LFX's site was down for an upgrade during the test. | Very high. For years India has had more GSoC contributors than any other country, and these programs lead to jobs. | S–M | Daily check; dates updated each round |
+| 4 | **Research internships**: IAS-INSA-NASI Summer Research Fellowship, IISc, IIT summer programs (such as SURGE at IIT Kanpur and SRIP at IIT Gandhinagar), TIFR VSRP, JNCASR SRFP, IISER summer programs | The same curated-list approach. The pages are static official ones; the IAS robots.txt allows them. | High for science and engineering undergraduates. Applications open November–March, so building it now catches this season. | M | Daily check; seasonal |
+| 5 | **Scholarships**: National Scholarship Portal central schemes, AICTE (Pragati, Saksham), DST INSPIRE-SHE, state portals, company scholarships | Curated rows linking only to official pages. The National Scholarship Portal did not answer automated requests in the test. Unstop lists just 3 scholarships. | Very high. A huge search demand, especially from first-generation college students. | M, plus ongoing curation | Weekly review; most windows run June–December |
+| 6 | **More internships**, inside Jobs, which already has `/jobs/internships` from employers' own career pages | Unstop internships (557 open). In a sample of 100, 65 were paid and most came from small companies WILSY cannot verify. | Medium–high: more volume, but the quality varies. | M | Hourly |
+| 7 | **Apprenticeships**: NAPS (apprenticeshipindia.gov.in), NATS for graduate apprentices, PSU apprentice notices (such as BHEL, IOCL and NTPC) | Official portals, through the government-notices collector pattern. The NAPS portal is a JavaScript app and PSU notices are often PDFs. Check each portal's copyright policy first: Indian government sites usually allow reuse with credit, and some ask for an email first. | High for diploma, ITI and new-graduate job seekers, an audience WILSY doesn't reach today. | M–L | Daily |
+| 8 | **Workshops, conferences and tech events** | Unstop (`workshops`, 102 open; `conferences`, 14). Hasgeek's terms forbid crawling and Meetup's API is paid, so neither is used. | Medium–low | S once Competitions exists | Hourly |
+| 9 | **Startup grants, incubators and accelerators**: Startup India Seed Fund incubators, BIRAC BIG calls, MeitY Startup Hub, Atal Innovation Mission challenges | Curated rows from official pages; the Seed Fund site's robots.txt allows everything. | Medium: a small audience, but a valuable one, and it helps the employer side later. | M | Weekly |
+| 10 | **Free courses and certifications** | Microsoft Learn's official Catalog API (public and documented); the NPTEL course list (its content is CC BY-NC-SA, so only course facts and links, no copied descriptions, because WILSY shows ads); SWAYAM. | Medium. Overlaps Guides and DSA; not time-sensitive. | S–M | Weekly |
+
+### Recommended first build
+
+Build sections 1, 2 and 3: Competitions, Coding contests and Open-source programs. Two of them come from sources WILSY already reads or that are official APIs. The third is a short curated list. Together they cover the three things students ask for most after jobs: CV-building challenges, placement practice and the routes into open source. Research internships (4) come next, while this season's applications are open.
+
+### Decisions for the founders
+
+1. **Database shape.** Recommended: one new table `opportunities` with a `kind` column (competition, contest, program, research, scholarship, event, grant, course), plus search and facets functions modelled on `wilsy_search_hackathons` and `wilsy_hackathon_facets`. The alternative is a separate table per section. Either way, it is a reviewed SQL file that the founders apply. It only adds new objects and changes no existing grants.
+2. **Codeforces.** Its terms forbid "commercializing any Website material", and WILSY shows ads. Recommended: show only facts (contest name, start time, length, link) and no ads on contest pages. The alternative is to email Codeforces for permission first.
+3. **Who keeps the curated lists current** (sections 3, 4 and 5): about an hour a week, helped by the daily change check.
+4. **Quality rules for Unstop internships** (section 6): for example, paid only, the stipend shown, and never a fee to apply.
