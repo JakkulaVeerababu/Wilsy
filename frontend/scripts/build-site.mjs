@@ -1,20 +1,18 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import crypto from 'node:crypto';
 import {site} from '../js/site-config.js';
 import {inr,salaryRange,usdTextToInr} from '../js/pay-format.js';
 import {escapeHtml as e, safeHref} from '../js/directory-core.js';
 import {guides,policyPages} from './site-content.mjs';
+import {header,footer,documentPage,jsonld,bundleCss,analyticsTag} from './page-shell.mjs';
 import {jobsPage} from './jobs-page.mjs';
 import {homePage} from './home-page.mjs';
-import {brandLink, themeToggle} from './brand.mjs';
 import {hackathonsPage} from './hackathons-page.mjs';
 import {governmentJobsPage} from './government-jobs-page.mjs';
 import {fetchJobSnapshot} from './job-snapshot.mjs';
 import {loadDsaProject,dsaPage,writeDsaAssets} from './dsa-page.mjs';
-import {icon} from '../js/icons.js';
-import {browseRoles,browseStages,landingPages,landingUrl} from './landing-pages.mjs';
-import {fetchLandingJobs,publishable,pageWorthy,jobPath,jobPosting,landingBody,jobBody} from './job-pages.mjs';
+import {landingPages,landingUrl} from './landing-pages.mjs';
+import {fetchLandingJobs,publishable,pageWorthy,jobPath,landingBody,jobPageOptions} from './job-pages.mjs';
 
 const data = JSON.parse(await fs.readFile('data/companies.json','utf8'));
 const fx = JSON.parse(await fs.readFile('data/exchange-rate.json','utf8'));
@@ -27,7 +25,6 @@ const money = s => salaryRange(s,n=>inr(n,fx.rate));
 const href = url => e(safeHref(url));
 const external = (url,label,cls='') => `<a class="${cls}" href="${href(url)}" target="_blank" rel="noopener noreferrer">${label}</a>`;
 const pageUrl = c => '/companies/'+encodeURIComponent(c.id);
-const jsonld = value => `<script type="application/ld+json">${JSON.stringify(value).replace(/</g,'\\u003c')}</script>`;
 const dsaProject = await loadDsaProject();
 
 const fallbackHomeSnapshot = JSON.parse(await fs.readFile('data/jobs-home.json','utf8'));
@@ -41,58 +38,16 @@ async function loadHomeSnapshot() {
     return fallbackHomeSnapshot;
   }
 }
-export function header(active='') {
-  const links=[['/jobs','Jobs','jobs'],['/government-jobs','Government','government-jobs'],['/companies#companies','Companies','companies'],['/hackathons','Hackathons','hackathons'],['/dsa','DSA','dsa'],['/guides','Guides','guides']];
-  return `<header class="site-header"><div class="header-inner">${brandLink()}<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-navigation"><span class="nav-toggle-lines" aria-hidden="true"></span><span>Menu</span></button><nav class="main-nav" id="main-navigation" aria-label="Main navigation">${links.map(([url,name,key])=>`<a href="${url}"${key===active?' class="active" aria-current="page"':''}>${name}</a>`).join('')}${themeToggle}<a class="nav-cta" href="/jobs">Search jobs ${icon('arrow')}</a></nav></div></header>`;
-}
-export function footer() {
-  return `<footer class="site-footer premium-footer"><div class="footer-main">
-    <div class="footer-intro">${brandLink()}<p>A clearer view of your next move.</p><span>Jobs, internships, government notices and hackathons for India. Every listing links to its source.</span><div class="footer-newsletter"><p class="footer-label">FREE ACCOUNT</p><a href="/jobs?saved=1" data-account-open>Create a free account ${icon('arrow')}</a><small>Save jobs, hackathons and searches on every device. No password needed.</small></div></div>
-    <nav aria-label="Explore Wilsy"><h2>EXPLORE</h2><a href="/">Home</a><a href="/jobs">Find jobs</a><a href="/government-jobs">Government jobs</a><a href="/hackathons">Hackathons</a><a href="/companies#companies">Company directory</a><a href="/companies/all">All companies A–Z</a></nav>
-    <nav aria-label="Popular searches"><h2>POPULAR SEARCHES</h2>${[...browseRoles.slice(0,4),...browseStages.slice(0,3)].map(([url,name])=>`<a href="${url}">${e(name)}</a>`).join('')}</nav>
-    <nav aria-label="About Wilsy"><h2>LEARN &amp; CONNECT</h2><a href="/dsa">DSA roadmap</a><a href="/guides">Career guides</a><a href="/about">About WILSY</a><a href="/methodology">Sources &amp; methodology</a><a href="/contact">Contact &amp; corrections</a><a href="mailto:${site.email}">${site.email}</a></nav>
-    <nav aria-label="Policies"><h2>THE DETAILS</h2><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/disclosure">Ads &amp; affiliate disclosure</a><a href="/privacy#choices" data-privacy-choices>Privacy &amp; cookie choices</a></nav>
-  </div><div class="footer-bottom"><span>© 2026 WILSY</span><p>Published salary examples, not guaranteed offers. Company logos belong to their respective owners.</p><span>Made for your next move</span></div></footer>`;
-}
-// AdSense loads once the page is idle so it never competes with the content for bandwidth.
-const adTag = `<meta name="google-adsense-account" content="${site.publisher}"><script>addEventListener('load',()=>(window.requestIdleCallback||setTimeout)(()=>{const s=document.createElement('script');s.async=true;s.crossOrigin='anonymous';s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${site.publisher}';document.head.append(s)},{timeout:4000}))</script>`;
-function documentPage({hero=true,title,description,route,body,active='',type='website',noindex=false,ads=true,structured,canonicalRoute=route}) {
-  const url = site.origin+canonicalRoute;
-  const isHome = route === '/';
-  const legacy = isHome || active==='dsa' ? [] : ['editorial',...(active==='jobs'?['jobs']:active==='hackathons'?['hackathons']:active==='government-jobs'?['government-jobs']:[]),'polish', 'refined',...(active==='jobs'?['job-workspace']:[])];
-  const pageCss = [...legacy,'tokens','electric','shell',...(isHome||active==='jobs'?['jobs-premium']:[]),...(isHome?['homepage']:active==='dsa'?['dsa']:[]),'premium','account'].map(name=>`<link rel="stylesheet" href="/css/${name}.css">`).join('');
-  // Light mode by default; dark only when the visitor has chosen it with the toggle.
-  const themeInit = "try{if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-theme')}catch{}";
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><script>${themeInit}</script><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#0866ff"><title>${e(title)} — WILSY</title><meta name="description" content="${e(description)}"><link rel="canonical" href="${e(url)}"><meta property="og:type" content="${type}"><meta property="og:title" content="${e(title)} — WILSY"><meta property="og:description" content="${e(description)}"><meta property="og:url" content="${e(url)}"><meta property="og:site_name" content="WILSY"><meta property="og:locale" content="en_IN"><meta property="og:image" content="${site.origin}/assets/og-default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="WILSY: find the work that moves you forward."><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${site.origin}/assets/og-default.png">${noindex?'<meta name="robots" content="noindex,follow">':''}<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="preload" href="/assets/fonts/manrope.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/assets/fonts/dm-sans.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/assets/fonts/fonts.css"><link rel="stylesheet" href="/css/styles.css">${pageCss}<script src="/js/site.js" defer></script><script type="module" src="/js/account.js"></script>${ads?adTag:''}${structured?jsonld(structured):''}</head><body class="${hero?'has-hero ':''}${isHome?'home-page':active==='jobs'?'jobs-page':active==='dsa'?'dsa-page':active?active+'-page':'editorial-page'}"><a class="skip-link" href="#main-content">Skip to content</a>${header(active==='jobs-landing'?'jobs':active)}${body.replaceAll('href="/?company=','href="/jobs?company=')}${footer()}</body></html>`;
-}
 const sitemap = [];
-// Every page gets one minified, content-hashed stylesheet built from its /css/*.css links, in order.
-// data-sources lists the source files so tests and readers can see what a bundle contains.
 const bundles = new Map();
-async function bundleCss(html) {
-  const tag = /<link rel="stylesheet" href="\/css\/([a-z0-9-]+)\.css">/g;
-  const names = [...html.matchAll(tag)].map(m=>m[1]);
-  if(!names.length) return html;
-  const key = names.join(' ');
-  if(!bundles.has(key)) {
-    const source = (await Promise.all(names.map(n=>fs.readFile('css/'+n+'.css','utf8')))).join('\n');
-    const css = source.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\s+/g,' ').replace(/\s*([{};,])\s*/g,'$1').replace(/;}/g,'}').trim();
-    const file = 'b-'+crypto.createHash('sha256').update(css).digest('hex').slice(0,12)+'.css';
-    await fs.mkdir(path.join(out,'css'),{recursive:true});
-    await fs.writeFile(path.join(out,'css',file),css);
-    bundles.set(key,file);
-  }
-  let first = true;
-  return html.replace(tag,()=>first?(first=false,`<link rel="stylesheet" href="/css/${bundles.get(key)}" data-sources="${key}">`):'');
-}
-// Vercel Web Analytics is cookie-free and served only by Vercel deployments.
-const analyticsTag = process.env.VERCEL ? `<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)}</script><script defer src="/_vercel/insights/script.js"></script>` : '';
+const bundle = html => bundleCss(html,{cache:bundles,read:name=>fs.readFile('css/'+name+'.css','utf8'),
+  save:async(file,css)=>{await fs.mkdir(path.join(out,'css'),{recursive:true});await fs.writeFile(path.join(out,'css',file),css);}});
 async function write(route,html,include=true) {
   const file=route==='/'?'index.html':route.slice(1)+'.html';
   const target=path.join(out,file);
   if(!target.startsWith(out+path.sep))throw new Error('Unsafe output route');
   await fs.mkdir(path.dirname(target),{recursive:true});
-  await fs.writeFile(target,(await bundleCss(html)).replace('</head>',`${analyticsTag}</head>`));
+  await fs.writeFile(target,(await bundle(html)).replace('</head>',`${analyticsTag()}</head>`));
   if(include)sitemap.push(route);
 }
 const hero = (eyebrow,title,description) => `<div class="editorial-hero"><p class="eyebrow">${e(eyebrow)}</p><h1>${e(title)}</h1><p>${e(description)}</p></div>`;
@@ -158,9 +113,7 @@ await write('/jobs',documentPage({...jobsMeta,route:'/jobs',ads:false}));
     const page = landingOf.get(String(job.id));
     const pool = page ? landing.find(l=>l.page===page).jobs : all;
     const similar = pool.filter(j=>pages.has(String(j.id))).filter(j=>String(j.id)!==String(job.id)).slice(0,4);
-    const place = [job.location,job.city,job.country].find(v=>v&&!/^(n\/?a|unspecified)$/i.test(v));
-    await write(jobPath(job),documentPage({title:`${job.title} at ${job.company}`,description:`${job.company} is hiring: ${job.title}${place?' in '+place:''}. Pay, experience and a direct link to apply on the employer’s site.`,
-      route:jobPath(job),active:'jobs-landing',hero:false,type:'article',ads:false,structured:jobPosting(job,companies)||undefined,body:jobBody(job,{...context,similar,landing:page})}));
+    await write(jobPath(job),documentPage(jobPageOptions(job,{...context,similar,landing:page})));
   }
   console.log(`Built ${landing.filter(l=>l.jobs.length).length}/${landing.length} landing pages with live jobs and ${all.length} job pages.`);
 }
