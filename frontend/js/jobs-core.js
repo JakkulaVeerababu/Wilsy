@@ -33,6 +33,9 @@ export function apiFilters(state,savedIds=[],fx) {
   return f;
 }
 export const applyUrl=value=>{try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password?u.href:'';}catch{return '';}};
+// A job's own page: /jobs/<id>-<title and company slug>. Shared by the build, the job-page function and the /jobs dialog.
+const slugify=value=>String(value||'').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,70).replace(/-+$/,'');
+export const jobPath=job=>`/jobs/${job.id}-${slugify(`${job.title} ${job.company}`)||'role'}`;
 export const label=value=>String(value||'Not specified').replaceAll('_',' ').replaceAll('-',' ').replace(/^\w/,c=>c.toUpperCase());
 export function dateLabel(value,{time=true}={}) {
   if(!value||!Number.isFinite(Date.parse(value)))return 'Not provided';

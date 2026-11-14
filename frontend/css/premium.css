@@ -626,8 +626,8 @@ html body .hack-card-top :is(.hack-phase,.hack-closing){white-space:nowrap}
 html body .premium-footer .footer-main{grid-template-columns:minmax(240px,1.4fr) repeat(4,minmax(120px,1fr))!important}
 @media(max-width:1100px){html body .premium-footer .footer-main{grid-template-columns:repeat(3,minmax(0,1fr))!important}html body .premium-footer .footer-intro{grid-column:1/-1}}
 @media(max-width:640px){html body .premium-footer .footer-main{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
-html body .job-detail-actions>a.job-report-link{background:none!important;border-color:transparent!important;box-shadow:none!important;color:var(--muted)!important;font-weight:500;text-decoration:underline;text-underline-offset:3px}
-html body .job-detail-actions>a.job-report-link:hover{background:none!important;color:var(--ink)!important}
+html body .job-detail-actions>a.job-report-link,html body .job-detail-actions>a.job-page-link{background:none!important;border-color:transparent!important;box-shadow:none!important;color:var(--muted)!important;font-weight:500;text-decoration:underline;text-underline-offset:3px}
+html body .job-detail-actions>a.job-report-link:hover,html body .job-detail-actions>a.job-page-link:hover{background:none!important;color:var(--ink)!important}
 
 /* Company profiles: current openings from the live job search. */
 .company-open-roles{margin:0 0 24px;padding:28px;border:1px solid var(--line);border-radius:24px;background:var(--surface)}
@@ -667,6 +667,10 @@ html body .job-detail-actions>a.job-report-link:hover{background:none!important;
 .job-list-empty{padding:32px;border:1px dashed var(--line);border-radius:20px;color:var(--muted);text-align:center}
 .job-landing-more{display:inline-flex;align-items:center;min-height:44px;margin-top:16px;font-weight:600;color:var(--blue)}
 .job-landing-related{margin:48px 0 24px}
+/* The search chips are styled in homepage.css, which only the home page loads. */
+.job-landing-related .home-chip-list{display:flex;flex-wrap:wrap;gap:10px}
+.job-landing-related .home-chip-list a{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font-size:14px;font-weight:600;text-decoration:none;transition:border-color .2s,color .2s}
+.job-landing-related .home-chip-list a:hover{border-color:var(--blue);color:var(--blue)}
 .job-landing-related h2,.job-page-similar h2{margin:0 0 16px;font-size:20px;letter-spacing:-.02em;color:var(--ink)}
 .job-page-head{display:flex;gap:20px;align-items:flex-start;margin:32px 0 20px}
 .job-page-head .job-logo{flex-basis:64px;width:64px;height:64px;border-radius:16px}

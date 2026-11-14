@@ -1,16 +1,16 @@
 import {searchJobs} from '../js/data-client.js';
 import {decodeEntities} from '../js/job-text.js';
-import {applyUrl, jobSalary, label, relativePostingLabel, postingLabel, dateLabel} from '../js/jobs-core.js';
+import {applyUrl, jobPath, jobSalary, label, relativePostingLabel, postingLabel, dateLabel} from '../js/jobs-core.js';
 import {jobLogo, jobTags, profileFor} from '../js/job-card.js';
 import {escapeHtml as e} from '../js/directory-core.js';
 import {site} from '../js/site-config.js';
 import {landingPages, landingUrl, workspaceUrl} from './landing-pages.mjs';
 
-// Static job pages (/jobs/<id>-<slug>) with JobPosting data, and the landing pages that list them.
-// Live builds read the public search API; offline builds only use the committed snapshot.
+// Job pages (/jobs/<id>-<slug>) with JobPosting data, and the landing pages that list them.
+// The build pre-renders pages for jobs it sees; api/job-page.mjs renders every other live job on request
+// with the same template. Live builds read the public search API; offline builds only use the committed snapshot.
 
-const slugify = value => String(value||'').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,70).replace(/-+$/,'');
-export const jobPath = job => `/jobs/${job.id}-${slugify(`${job.title} ${job.company}`) || 'role'}`;
+export {jobPath};
 const known = value => value && !/^(n\/?a|none|null|unknown|unspecified|tbd|-)$/i.test(String(value).trim()) ? String(value).trim() : '';
 const time = value => { const t = Date.parse(value||''); return Number.isFinite(t) ? t : NaN; };
 
@@ -98,7 +98,7 @@ export function landingBody(page, {jobs, total, companies, fx, now, pages, updat
 </main>`;
 }
 
-export function jobBody(job, {companies, fx, now, pages, similar, landing}) {
+export function jobBody(job, {companies, fx, now, pages, similar=[], similarTitle='Similar jobs', landing}) {
   const pay = jobSalary(job, fx), url = applyUrl(job.apply_url), profile = profileFor(job, companies);
   const fact = (term, value) => value ? `<div><dt>${term}</dt><dd>${e(value)}</dd></div>` : '';
   const exp = job.experience_text || (job.experience_min!=null ? `${job.experience_min}${job.experience_max!=null?'–'+job.experience_max:'+'} years` : '');
@@ -109,11 +109,34 @@ export function jobBody(job, {companies, fx, now, pages, similar, landing}) {
   <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><a href="/jobs">Jobs</a><span>/</span>${crumb}<span aria-current="page">${e(job.title)}</span></nav>
   <header class="job-page-head">${jobLogo(job,companies)}<div><p class="job-page-company">${profile?`<a href="/companies/${encodeURIComponent(profile.id)}">${e(job.company)}</a>`:e(job.company)}</p><h1>${e(job.title)}</h1><div class="job-card-tags">${jobTags(job)}</div></div></header>
   <div class="job-page-actions"><a class="primary-button" href="${e(url)}" target="_blank" rel="noopener noreferrer">Apply on employer site</a><a class="secondary-button" href="/jobs?job=${encodeURIComponent(job.id)}">Save or compare</a></div>
-  <div class="job-page-layout"><article class="prose job-page-description"><h2>About the role</h2>${descriptionParagraphs(job.description)}<p class="jobs-date-note">This is the description captured from the source. The employer’s listing is the final word on requirements.</p></article>
+  <div class="job-page-layout"><article class="prose job-page-description"><h2>About the role</h2>${descriptionParagraphs(job.description)||`<p>The full description is on the <a href="${e(url)}" target="_blank" rel="noopener noreferrer">employer’s listing</a>.</p>`}<p class="jobs-date-note">This is the description captured from the source. The employer’s listing is the final word on requirements.</p></article>
   <aside class="job-page-facts"><dl>${fact('Pay',pay.primary+(pay.secondary?` (${pay.secondary})`:''))}${fact('Location',place)}${fact('Workplace',mode)}${fact('Experience',exp)}${fact('Job type',employment[job.job_type]?label(job.job_type):'')}${fact('Seniority',job.seniority_level?label(job.seniority_level):'')}${fact('Posted',postingLabel(job))}${fact('Source',job.source_name||(job.ats_platform?label(job.ats_platform):''))}</dl>
   <a href="mailto:${site.email}?subject=${encodeURIComponent('Report listing: '+job.id+' '+job.title)}">Report this listing</a></aside></div>
-  ${similar.length?`<section class="job-page-similar" aria-labelledby="similar-title"><h2 id="similar-title">Similar jobs</h2><ol class="job-list">${similar.map(j=>jobRow(j,{companies,fx,now,pages})).join('')}</ol></section>`:''}
+  ${similar.length?`<section class="job-page-similar" aria-labelledby="similar-title"><h2 id="similar-title">${e(similarTitle)}</h2><ol class="job-list">${similar.map(j=>jobRow(j,{companies,fx,now,pages})).join('')}</ol></section>`:''}
 </main>`;
+}
+
+// documentPage options for one job page, shared by the static build and api/job-page.mjs.
+// Roles with a thin description (under MIN_PAGE_DESCRIPTION) still get a page with the apply link,
+// but it is noindex and carries no JobPosting data.
+export function jobPageOptions(job, context) {
+  const indexable = pageWorthy(job, context.now);
+  const place = [job.location,job.city,job.country].find(v=>v&&!/^(n\/?a|unspecified)$/i.test(v));
+  return {title:`${job.title} at ${job.company}`,description:`${job.company} is hiring: ${job.title}${place?' in '+place:''}. Pay, experience and a direct link to apply on the employer’s site.`,
+    route:jobPath(job),active:'jobs-landing',hero:false,type:'article',ads:false,noindex:!indexable,
+    structured:indexable?jobPosting(job,context.companies)||undefined:undefined,body:jobBody(job,context)};
+}
+
+// The page for a job id that is not (or no longer) live. Served with a 404 status and noindex.
+export function missingJobOptions(route, {unavailable=false, id}={}) {
+  const [eyebrow,title,text] = unavailable
+    ? ['JOBS / TRY AGAIN','We couldn’t load this role right now.','The listing service didn’t answer in time. Try again in a minute, or open the role in the jobs search.']
+    : ['JOBS / NO LONGER LISTED','This role is no longer open.','It may have closed, expired or moved on the employer’s site. There are plenty of current roles to explore.'];
+  const retry = unavailable && id ? `<a class="secondary-button" href="/jobs?job=${encodeURIComponent(id)}">Open in jobs search</a>` : '';
+  return {title:unavailable?'Job temporarily unavailable':'Job no longer listed',description:'This job is not available on WILSY right now. Search current jobs with direct links to apply.',
+    route,active:'jobs-landing',noindex:true,ads:false,
+    body:`<main id="main-content" class="editorial-shell not-found"><div class="editorial-hero"><p class="eyebrow">${eyebrow}</p><h1>${title}</h1><p>${text}</p></div><div class="job-page-actions"><a class="primary-button" href="/jobs">Search current jobs</a>${retry}</div>
+  <section class="job-landing-related" aria-labelledby="related-searches"><h2 id="related-searches">Popular searches</h2><nav class="home-chip-list" aria-label="Popular job searches">${landingPages.slice(0,12).map(p=>`<a href="${landingUrl(p)}">${e(p.short)}</a>`).join('')}</nav></section></main>`};
 }
 
 // Live data for landing pages; null for a page whose search failed.
