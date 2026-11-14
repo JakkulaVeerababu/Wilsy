@@ -65,7 +65,7 @@ Items 1–4 and 8, plus 5 if you agree to drop ads on home and jobs. Each goes i
 
 ## Status (14 Nov 2026)
 
-Approved scope: items 1–9. Built locally in separate commits; not deployed yet.
+Approved scope: items 1–9. Built in separate commits and deployed on 14 Nov 2026 (99079cb).
 
 | Item | Status |
 |---|---|
@@ -80,3 +80,63 @@ Approved scope: items 1–9. Built locally in separate commits; not deployed yet
 | 9. Trust details | Done. "Report listing" in the job dialog and on job pages, "updated N min ago" on /jobs, and an About section on how listings are collected. |
 
 Still open: 10 (alert emails; needs an email provider account and DNS), 11 (server-rendered pages for every job), 12 (accessibility pass) and city landing pages (needs a Supabase change).
+
+## Phase 0 progress (14 Nov 2026)
+
+From the growth plan (`WILSY-Growth-Plan-2026-2030.pdf`), built and live:
+
+- **Job alert emails** (ceaaf67): `collectors/alerts.mjs` and the manual "Send job alerts" workflow, dry run by default. Sending starts once the founders add a Resend account, its DNS records and the `RESEND_API_KEY` secret (`docs/alerts-setup.md`). The daily schedule is a reviewed SQL proposal, not applied (`docs/proposals/alerts.sql`).
+- **For employers and Campus ambassadors pages** (`/employers`, `/campus`), linked from every footer.
+- **A page for every live job** (cf5d5d8, a66c711): `api/job-page.mjs` renders `/jobs/<id>-<slug>` on request when no page was pre-built. It is cached for an hour at Vercel's edge.
+
+Still in progress: database proposals (collector timeout root cause, city filter) and the installable app, funnel events and accessibility checks.
+
+## Scaling features: proposal (14 Nov 2026)
+
+Facts behind this list:
+
+- Every `/jobs` search and facet load goes from the visitor's browser straight to Supabase (`wilsy_search_jobs`, `wilsy_job_facets`). Nothing is cached in between.
+- New jobs carry full descriptions: a sample of the 300 newest had 600+ characters each. So most on-demand job pages can be indexed, but Google can only find them through links. The sitemap lists just the ~240 pre-built ones.
+- Company pages load their open roles in the browser, so search engines don't see them.
+- `live-checks.yml` checks freshness and API contracts hourly. A failure only emails the repository owner.
+- Collector runs on big boards still hit the database's 8-second statement timeout (root cause pending in the database session).
+
+Effort: S = under a day, M = 1–3 days, L = a week or more, or outside help.
+
+### Next batch (recommended): high impact, no new accounts
+
+| # | Feature | Area | Impact | Effort | Founder decision |
+|---|---|---|---|---|---|
+| 1 | **Sitemap of every live job.** Sitemap files list all indexable job pages (not only the ~240 pre-built), refreshed every deploy. | Growth: search traffic | High. About 9,000 pages become discoverable by Google and Google for Jobs, instead of ~240. | S–M | How to list jobs. Recommended: one small read-only Supabase function returning id, title, company and last-seen date (one cheap query; reviewed SQL file, applied by you). Alternative without a database change: page through the public search during the build (about 185 extra queries per deploy). |
+| 2 | **Edge-cached search.** `/jobs` searches and facets go through a Vercel function cached 1–5 minutes per filter combination. | Tech: Supabase load | High. Popular searches (home chips, landing pages, the empty /jobs view) hit Supabase once a minute instead of once per visitor. Also gives one place to rate-limit scrapers. | M | None if the Vercel plan allows the function usage (see cost checks). |
+| 3 | **Monitoring that the whole team sees.** Failed live checks, collector runs and deploys open (and later close) a GitHub issue. Add page checks for home, /jobs, a job page and the job-page function, plus a daily freshness line: share of jobs seen in the last 24 hours. | Tech: reliability | Medium–high. Outages are noticed in minutes by everyone, not just one inbox. | S | Who gets notified (GitHub watchers, or email once Resend exists). |
+| 4 | **Share and referral loops.** "Share on WhatsApp" and copy-link on job pages, with clean job-page URLs. Campus ambassador referral links (`?ref=<code>`) recorded with the funnel events. | Growth: acquisition | Medium. India shares jobs on WhatsApp; ambassadors get measurable results. | S | Ambassador code format (for example, college short name + number). |
+| 5 | **Company pages show open roles to search engines.** The count and top roles are rendered into the page (on-demand, cached), not only fetched in the browser. | Growth: search traffic | Medium. 1,000 company pages gain fresh, indexable content ("<Company> jobs in India: N open roles"). | M | None. |
+
+### Then: needs a reviewed database change or a founder account
+
+| # | Feature | Area | Impact | Effort | Founder decision |
+|---|---|---|---|---|---|
+| 6 | **Turn on alert emails and schedule them** (code is live). | Growth: retention | High. Alerts are the main reason people return. | S | Create the Resend account and DNS records; approve `docs/proposals/alerts.sql`. |
+| 7 | **City filter, city facets and city × role pages** ("Backend jobs in Bengaluru"). | Growth: search traffic | High | M | Approve the database session's city-filter SQL. |
+| 8 | **Collector timeout fix, then grow from 541 to 1,000+ hiring companies**, with a per-source health page. | Tech: collector throughput | High. More jobs, no failed runs. | M | Approve the database session's timeout fix. |
+| 9 | **Application tracker** (saved → applied → interviewing → offer) synced to the account. | Growth: retention | Medium–high | M | Approve a small schema change (a status on saved jobs). |
+| 10 | **Error tracking** for pages and the job-page function. | Tech: reliability | Medium | S | Add a third-party error tracker (for example, Sentry's free tier) and name it in the privacy policy. |
+| 11 | **Staging for database changes**: Vercel preview deploys for branches, and Supabase branches to test SQL before production. | Tech: safety | Medium. Prevents outages like the one the earlier permission revoke caused. | S–M | Supabase branching is a paid feature; check the cost. |
+| 12 | **Weekly "fresh jobs" newsletter** for people without an account (double opt-in). | Growth: retention | Medium | M | Same Resend account; privacy policy update. |
+
+### Later: bigger product decisions
+
+| # | Feature | Impact | Effort | Founder decision |
+|---|---|---|---|---|
+| 13 | WhatsApp alerts through an approved WhatsApp Business provider | High in India | M | Provider choice and a per-message budget. |
+| 14 | Verified employer accounts: claim a company page, post jobs, moderation queue | Opens employer revenue | L | Verification rules, pricing, employer terms. |
+| 15 | Profiles, résumé upload and match scores | High retention | L | WILSY currently promises it never collects résumés. Changing that needs a new privacy policy and DPDP Act consent flows. |
+| 16 | Dedicated search engine (Typesense, Meilisearch or OpenSearch) | Faster search at 100k+ jobs | L | Hosting cost. Trigger: search slower than 300 ms for 5% of queries, or high database load. |
+| 17 | Backups and recovery: confirm daily backups or point-in-time recovery; a nightly export of core tables | Protects the business | S–M | Depends on the Supabase plan. |
+
+### Cost and plan checks for the founders
+
+- **Vercel:** the Hobby plan is for non-commercial projects, and WILSY shows ads. If the project is on Hobby, move it to Pro before traffic grows. Functions (job pages, cached search) also count against plan limits.
+- **Supabase:** the compute size affects the collector timeouts and search speed. The free plan has no daily backups. Check the plan, and the current prices, before item 2 and items 7–8.
+- **Resend:** the free plan sends 100 emails a day. The alert sender's default cap matches it; raise both together.
