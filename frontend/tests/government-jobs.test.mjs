@@ -205,7 +205,7 @@ test('Government jobs page is generated at its route with safe source-first mark
   assert.match(distPage, /id="gov-jobs-status"/);
   assert.match(distPage, /id="gov-jobs-sort"/);
    assert.match(distPage, /src="\/js\/government-jobs\.js"/);
-   assert.match(distPage, /href="\/css\/government-jobs\.css"/);
+   assert.match(distPage, /data-sources="[^"]*\bgovernment-jobs\b/);
    assert.ok((await fs.stat(path.resolve('dist/data/government-jobs.json'))).isFile());
    assert.ok((await fs.stat(path.resolve('dist/js/government-exam-core.js'))).isFile());
    assert.match(distPage, /PRIMARY PORTALS/);

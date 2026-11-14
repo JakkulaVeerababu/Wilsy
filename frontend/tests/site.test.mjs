@@ -79,12 +79,19 @@ test('INR is a dated estimate and original source data stays intact',async()=>{
 test('WILSY routes share the premium shell and preserved feature entry points',()=>{
   for(const html of pages.values()){
     assert.match(html,/href="\/hackathons"/);
-    assert.match(html,/href="\/css\/electric.css"/);
+    assert.match(html,/data-sources="[^"]*\belectric\b/);
     assert.match(html,/name="theme-color" content="#0866ff"/);
+    // One minified, hashed bundle per page instead of a stylesheet per source file.
+    assert.equal((html.match(/<link rel="stylesheet" href="\/css\//g)||[]).length,1);
+    assert.match(html,/<link rel="stylesheet" href="\/css\/b-[0-9a-f]{12}\.css"/);
   }
+  // The core product pages carry no ads; elsewhere AdSense loads only after the page is idle.
+  for(const file of ['index.html','jobs.html'])assert.doesNotMatch(pages.get(file),/pagead2|google-adsense-account/);
+  assert.match(pages.get('guides.html'),/requestIdleCallback[^<]*pagead2\.googlesyndication\.com/);
+  assert.doesNotMatch(pages.get('guides.html'),/<script async src="https:\/\/pagead2/);
   const home=pages.get('index.html'),jobs=pages.get('jobs.html');
   assert.match(home,/class="home-shell"/);
-  assert.match(home,/href="\/css\/homepage.css"/);
+  assert.match(home,/data-sources="[^"]*\bhomepage\b/);
   assert.match(home,/src="\/js\/home.js"/);
   assert.match(home,/id="home-job-results"/);
   assert.match(home,/href="\/dsa"/);
@@ -96,7 +103,7 @@ test('WILSY routes share the premium shell and preserved feature entry points',(
     assert.match(html,/id="job-search-form"/);
     assert.match(html,/id="job-results"/);
     assert.match(html,/src="\/js\/jobs.js"/);
-    assert.match(html,/href="\/css\/jobs.css"/);
+    assert.match(html,/data-sources="[^"]*\bjobs\b/);
     assert.match(html,/<link rel="canonical" href="https:\/\/www.wilsy.in\/jobs"/);
     assert.doesNotMatch(html,/class="platform-paths"|id="company-grid"|src="\/js\/app.js"/);
     assert.match(html,/href="\/companies#companies"/);
@@ -105,7 +112,7 @@ test('WILSY routes share the premium shell and preserved feature entry points',(
   assert.match(pages.get('companies.html'),/src="\/js\/app.js"/);
   assert.match(pages.get('companies.html'),/<link rel="canonical" href="https:\/\/www.wilsy.in\/companies"/);
   const hacks=pages.get('hackathons.html');
-  assert.match(hacks,/Build something/);assert.match(hacks,/href="\/css\/hackathons.css"/);
+  assert.match(hacks,/Build something/);assert.match(hacks,/data-sources="[^"]*\bhackathons\b/);
   assert.match(hacks,/src="\/js\/hackathons.js"/);assert.match(hacks,/Deadlines · next 30 days/);
   assert.match(pages.get('privacy.html'),/hackathon/);
   const dsa=pages.get('dsa.html');

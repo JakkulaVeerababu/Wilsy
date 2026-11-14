@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import {site} from '../js/site-config.js';
 import {inr,salaryRange,usdTextToInr} from '../js/pay-format.js';
 import {escapeHtml as e, safeHref} from '../js/directory-core.js';
@@ -52,7 +53,8 @@ export function footer() {
     <nav aria-label="Policies"><h2>THE DETAILS</h2><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/disclosure">Ads &amp; affiliate disclosure</a><a href="/privacy#choices" data-privacy-choices>Privacy &amp; cookie choices</a></nav>
   </div><div class="footer-bottom"><span>© 2026 WILSY</span><p>Published salary examples, not guaranteed offers. Company logos belong to their respective owners.</p><span>Made for your next move</span></div></footer>`;
 }
-const adTag = `<meta name="google-adsense-account" content="${site.publisher}"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${site.publisher}" crossorigin="anonymous"></script>`;
+// AdSense loads once the page is idle so it never competes with the content for bandwidth.
+const adTag = `<meta name="google-adsense-account" content="${site.publisher}"><script>addEventListener('load',()=>(window.requestIdleCallback||setTimeout)(()=>{const s=document.createElement('script');s.async=true;s.crossOrigin='anonymous';s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${site.publisher}';document.head.append(s)},{timeout:4000}))</script>`;
 function documentPage({title,description,route,body,active='',type='website',noindex=false,ads=true,structured,canonicalRoute=route}) {
   const url = site.origin+canonicalRoute;
   const isHome = route === '/';
@@ -63,6 +65,25 @@ function documentPage({title,description,route,body,active='',type='website',noi
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><script>${themeInit}</script><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#0866ff"><title>${e(title)} — WILSY</title><meta name="description" content="${e(description)}"><link rel="canonical" href="${e(url)}"><meta property="og:type" content="${type}"><meta property="og:title" content="${e(title)} — WILSY"><meta property="og:description" content="${e(description)}"><meta property="og:url" content="${e(url)}"><meta property="og:site_name" content="WILSY"><meta property="og:locale" content="en_IN"><meta property="og:image" content="${site.origin}/assets/og-default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="WILSY: find the work that moves you forward."><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${site.origin}/assets/og-default.png">${noindex?'<meta name="robots" content="noindex,follow">':''}<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="preload" href="/assets/fonts/manrope.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/assets/fonts/dm-sans.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/assets/fonts/fonts.css"><link rel="stylesheet" href="/css/styles.css">${pageCss}<script src="/js/site.js" defer></script><script type="module" src="/js/account.js"></script>${ads?adTag:''}${structured?jsonld(structured):''}</head><body class="has-hero ${isHome?'home-page':active==='jobs'?'jobs-page':active==='dsa'?'dsa-page':active?active+'-page':'editorial-page'}"><a class="skip-link" href="#main-content">Skip to content</a>${header(active)}${body.replaceAll('href="/?company=','href="/jobs?company=')}${footer()}</body></html>`;
 }
 const sitemap = [];
+// Every page gets one minified, content-hashed stylesheet built from its /css/*.css links, in order.
+// data-sources lists the source files so tests and readers can see what a bundle contains.
+const bundles = new Map();
+async function bundleCss(html) {
+  const tag = /<link rel="stylesheet" href="\/css\/([a-z0-9-]+)\.css">/g;
+  const names = [...html.matchAll(tag)].map(m=>m[1]);
+  if(!names.length) return html;
+  const key = names.join(' ');
+  if(!bundles.has(key)) {
+    const source = (await Promise.all(names.map(n=>fs.readFile('css/'+n+'.css','utf8')))).join('\n');
+    const css = source.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\s+/g,' ').replace(/\s*([{};,])\s*/g,'$1').replace(/;}/g,'}').trim();
+    const file = 'b-'+crypto.createHash('sha256').update(css).digest('hex').slice(0,12)+'.css';
+    await fs.mkdir(path.join(out,'css'),{recursive:true});
+    await fs.writeFile(path.join(out,'css',file),css);
+    bundles.set(key,file);
+  }
+  let first = true;
+  return html.replace(tag,()=>first?(first=false,`<link rel="stylesheet" href="/css/${bundles.get(key)}" data-sources="${key}">`):'');
+}
 // Vercel Web Analytics is cookie-free and served only by Vercel deployments.
 const analyticsTag = process.env.VERCEL ? `<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)}</script><script defer src="/_vercel/insights/script.js"></script>` : '';
 async function write(route,html,include=true) {
@@ -70,7 +91,7 @@ async function write(route,html,include=true) {
   const target=path.join(out,file);
   if(!target.startsWith(out+path.sep))throw new Error('Unsafe output route');
   await fs.mkdir(path.dirname(target),{recursive:true});
-  await fs.writeFile(target,html.replace('</head>',`${analyticsTag}</head>`));
+  await fs.writeFile(target,(await bundleCss(html)).replace('</head>',`${analyticsTag}</head>`));
   if(include)sitemap.push(route);
 }
 const hero = (eyebrow,title,description) => `<div class="editorial-hero"><p class="eyebrow">${e(eyebrow)}</p><h1>${e(title)}</h1><p>${e(description)}</p></div>`;
@@ -112,9 +133,9 @@ home=home.replace(/(<link rel="canonical" href=")[^"]+/, '$1'+site.origin+'/comp
 await write('/companies',home);
 const snapshot = await loadHomeSnapshot();
 const jobsMeta={title:'Find your next opportunity',description:'Discover current jobs with direct application links. Filter roles, internships, work arrangements, experience, skills and disclosed salaries on Wilsy Jobs.',active:'jobs',body:jobsPage({snapshot,companies,fx})};
-await write('/',documentPage({title:'Find the work that moves you forward',description:'Source-linked jobs, 1,000 company profiles, government exams, hackathons, DSA preparation and INR salary context. Discover your next move with WILSY.',active:'home',route:'/',body:homePage({snapshot,companies,fx,guides,dsaStats:dsaProject.stats}),structured:{'@context':'https://schema.org','@type':'WebSite',name:'WILSY',url:site.origin+'/'}}));
+await write('/',documentPage({ads:false,title:'Find the work that moves you forward',description:'Source-linked jobs, 1,000 company profiles, government exams, hackathons, DSA preparation and INR salary context. Discover your next move with WILSY.',active:'home',route:'/',body:homePage({snapshot,companies,fx,guides,dsaStats:dsaProject.stats}),structured:{'@context':'https://schema.org','@type':'WebSite',name:'WILSY',url:site.origin+'/'}}));
 // /jobs is now the canonical full workspace; old root queries are forwarded client-side.
-await write('/jobs',documentPage({...jobsMeta,route:'/jobs'}));
+await write('/jobs',documentPage({...jobsMeta,route:'/jobs',ads:false}));
 await write('/dsa',documentPage({title:'DSA roadmap — patterns, practice & progress',description:`Explore ${dsaProject.stats.patterns} DSA patterns across ${dsaProject.stats.categories} topics with an interactive mind-map, Python templates and browser-saved progress.`,route:'/dsa',active:'dsa',ads:false,body:dsaPage(dsaProject)}));
 await writeDsaAssets(out,dsaProject);
 await write('/hackathons',documentPage({title:'Hackathons & challenges',description:'Explore verified hackathons with eligibility, dates, prize breakdowns and official registration links. Save your next challenge on WILSY.',route:'/hackathons',active:'hackathons',body:hackathonsPage}));
