@@ -13,7 +13,8 @@ import {governmentJobsPage} from './government-jobs-page.mjs';
 import {fetchJobSnapshot} from './job-snapshot.mjs';
 import {loadDsaProject,dsaPage,writeDsaAssets} from './dsa-page.mjs';
 import {icon} from '../js/icons.js';
-import {browseRoles,browseStages} from './landing-pages.mjs';
+import {browseRoles,browseStages,landingPages,landingUrl} from './landing-pages.mjs';
+import {fetchLandingJobs,publishable,pageWorthy,jobPath,jobPosting,landingBody,jobBody} from './job-pages.mjs';
 
 const data = JSON.parse(await fs.readFile('data/companies.json','utf8'));
 const fx = JSON.parse(await fs.readFile('data/exchange-rate.json','utf8'));
@@ -55,14 +56,14 @@ export function footer() {
 }
 // AdSense loads once the page is idle so it never competes with the content for bandwidth.
 const adTag = `<meta name="google-adsense-account" content="${site.publisher}"><script>addEventListener('load',()=>(window.requestIdleCallback||setTimeout)(()=>{const s=document.createElement('script');s.async=true;s.crossOrigin='anonymous';s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${site.publisher}';document.head.append(s)},{timeout:4000}))</script>`;
-function documentPage({title,description,route,body,active='',type='website',noindex=false,ads=true,structured,canonicalRoute=route}) {
+function documentPage({hero=true,title,description,route,body,active='',type='website',noindex=false,ads=true,structured,canonicalRoute=route}) {
   const url = site.origin+canonicalRoute;
   const isHome = route === '/';
   const legacy = isHome || active==='dsa' ? [] : ['editorial',...(active==='jobs'?['jobs']:active==='hackathons'?['hackathons']:active==='government-jobs'?['government-jobs']:[]),'polish', 'refined',...(active==='jobs'?['job-workspace']:[])];
   const pageCss = [...legacy,'tokens','electric','shell',...(isHome||active==='jobs'?['jobs-premium']:[]),...(isHome?['homepage']:active==='dsa'?['dsa']:[]),'premium','account'].map(name=>`<link rel="stylesheet" href="/css/${name}.css">`).join('');
   // Light mode by default; dark only when the visitor has chosen it with the toggle.
   const themeInit = "try{if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-theme')}catch{}";
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><script>${themeInit}</script><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#0866ff"><title>${e(title)} — WILSY</title><meta name="description" content="${e(description)}"><link rel="canonical" href="${e(url)}"><meta property="og:type" content="${type}"><meta property="og:title" content="${e(title)} — WILSY"><meta property="og:description" content="${e(description)}"><meta property="og:url" content="${e(url)}"><meta property="og:site_name" content="WILSY"><meta property="og:locale" content="en_IN"><meta property="og:image" content="${site.origin}/assets/og-default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="WILSY: find the work that moves you forward."><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${site.origin}/assets/og-default.png">${noindex?'<meta name="robots" content="noindex,follow">':''}<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="preload" href="/assets/fonts/manrope.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/assets/fonts/dm-sans.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/assets/fonts/fonts.css"><link rel="stylesheet" href="/css/styles.css">${pageCss}<script src="/js/site.js" defer></script><script type="module" src="/js/account.js"></script>${ads?adTag:''}${structured?jsonld(structured):''}</head><body class="has-hero ${isHome?'home-page':active==='jobs'?'jobs-page':active==='dsa'?'dsa-page':active?active+'-page':'editorial-page'}"><a class="skip-link" href="#main-content">Skip to content</a>${header(active)}${body.replaceAll('href="/?company=','href="/jobs?company=')}${footer()}</body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><script>${themeInit}</script><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#0866ff"><title>${e(title)} — WILSY</title><meta name="description" content="${e(description)}"><link rel="canonical" href="${e(url)}"><meta property="og:type" content="${type}"><meta property="og:title" content="${e(title)} — WILSY"><meta property="og:description" content="${e(description)}"><meta property="og:url" content="${e(url)}"><meta property="og:site_name" content="WILSY"><meta property="og:locale" content="en_IN"><meta property="og:image" content="${site.origin}/assets/og-default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="WILSY: find the work that moves you forward."><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${site.origin}/assets/og-default.png">${noindex?'<meta name="robots" content="noindex,follow">':''}<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="preload" href="/assets/fonts/manrope.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/assets/fonts/dm-sans.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/assets/fonts/fonts.css"><link rel="stylesheet" href="/css/styles.css">${pageCss}<script src="/js/site.js" defer></script><script type="module" src="/js/account.js"></script>${ads?adTag:''}${structured?jsonld(structured):''}</head><body class="${hero?'has-hero ':''}${isHome?'home-page':active==='jobs'?'jobs-page':active==='dsa'?'dsa-page':active?active+'-page':'editorial-page'}"><a class="skip-link" href="#main-content">Skip to content</a>${header(active==='jobs-landing'?'jobs':active)}${body.replaceAll('href="/?company=','href="/jobs?company=')}${footer()}</body></html>`;
 }
 const sitemap = [];
 // Every page gets one minified, content-hashed stylesheet built from its /css/*.css links, in order.
@@ -136,6 +137,33 @@ const jobsMeta={title:'Find your next opportunity',description:'Discover current
 await write('/',documentPage({ads:false,title:'Find the work that moves you forward',description:'Source-linked jobs, 1,000 company profiles, government exams, hackathons, DSA preparation and INR salary context. Discover your next move with WILSY.',active:'home',route:'/',body:homePage({snapshot,companies,fx,guides,dsaStats:dsaProject.stats}),structured:{'@context':'https://schema.org','@type':'WebSite',name:'WILSY',url:site.origin+'/'}}));
 // /jobs is now the canonical full workspace; old root queries are forwarded client-side.
 await write('/jobs',documentPage({...jobsMeta,route:'/jobs',ads:false}));
+
+// Landing pages (/jobs/<slug>) and static job pages (/jobs/<id>-<slug>). Live deploys read the public
+// search; offline builds have no landing data, so those pages are noindex and stay out of the sitemap.
+{
+  const now = Date.now();
+  const live = process.env.WILSY_REFRESH_JOBS === '1' ? await fetchLandingJobs().catch(()=>new Map()) : new Map();
+  const landing = landingPages.map(page=>{const data=live.get(page.slug);return {page,total:data?data.total:null,jobs:(data?.jobs||[]).filter(job=>publishable(job,now))};});
+  const jobs = new Map(), landingOf = new Map();
+  for(const {page,jobs:list} of landing) for(const job of list) if(pageWorthy(job,now)&&!jobs.has(String(job.id))){jobs.set(String(job.id),job);landingOf.set(String(job.id),page);}
+  for(const job of [...snapshot.jobs,...(snapshot.feed||[])]) if(pageWorthy(job,now)&&!jobs.has(String(job.id)))jobs.set(String(job.id),job);
+  const pages = new Set(jobs.keys()), context = {companies,fx,now,pages,updatedAt:snapshot.updatedAt};
+  for(const {page,total,jobs:list} of landing){
+    const route = landingUrl(page), indexable = list.length > 0;
+    await write(route,documentPage({title:page.title,description:page.description,route,active:'jobs-landing',noindex:!indexable,ads:false,body:landingBody(page,{...context,jobs:list,total}),
+      structured:indexable?{'@context':'https://schema.org','@type':'ItemList',name:page.title,itemListElement:list.map((job,i)=>({'@type':'ListItem',position:i+1,url:site.origin+jobPath(job)}))}:undefined}),indexable);
+  }
+  const all = [...jobs.values()];
+  for(const job of all){
+    const page = landingOf.get(String(job.id));
+    const pool = page ? landing.find(l=>l.page===page).jobs : all;
+    const similar = pool.filter(j=>pages.has(String(j.id))).filter(j=>String(j.id)!==String(job.id)).slice(0,4);
+    const place = [job.location,job.city,job.country].find(v=>v&&!/^(n\/?a|unspecified)$/i.test(v));
+    await write(jobPath(job),documentPage({title:`${job.title} at ${job.company}`,description:`${job.company} is hiring: ${job.title}${place?' in '+place:''}. Pay, experience and a direct link to apply on the employer’s site.`,
+      route:jobPath(job),active:'jobs-landing',hero:false,type:'article',ads:false,structured:jobPosting(job,companies)||undefined,body:jobBody(job,{...context,similar,landing:page})}));
+  }
+  console.log(`Built ${landing.filter(l=>l.jobs.length).length}/${landing.length} landing pages with live jobs and ${all.length} job pages.`);
+}
 await write('/dsa',documentPage({title:'DSA roadmap — patterns, practice & progress',description:`Explore ${dsaProject.stats.patterns} DSA patterns across ${dsaProject.stats.categories} topics with an interactive mind-map, Python templates and browser-saved progress.`,route:'/dsa',active:'dsa',ads:false,body:dsaPage(dsaProject)}));
 await writeDsaAssets(out,dsaProject);
 await write('/hackathons',documentPage({title:'Hackathons & challenges',description:'Explore verified hackathons with eligibility, dates, prize breakdowns and official registration links. Save your next challenge on WILSY.',route:'/hackathons',active:'hackathons',body:hackathonsPage}));

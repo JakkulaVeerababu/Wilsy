@@ -39,7 +39,11 @@ test('All generated internal links, local images, scripts, and styles resolve',(
 test('Sitemap covers exactly the public pages and excludes the error page',async()=>{
   const xml=await fs.readFile(path.join(root,'sitemap.xml'),'utf8');
   const urls=[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
-  assert.equal(urls.length,1017);assert.equal(new Set(urls).size,1017);
+  // 1,017 core pages plus every indexable /jobs/<page> (job pages, and landing pages that have jobs).
+  const jobPages=htmlFiles.filter(f=>f.startsWith('jobs'+path.sep)&&!/noindex/.test(pages.get(f)));
+  assert.equal(urls.length,1017+jobPages.length);assert.equal(new Set(urls).size,urls.length);
+  for(const f of htmlFiles.filter(f=>f.startsWith('jobs'+path.sep)&&/noindex/.test(pages.get(f))))
+    assert.ok(!urls.includes('https://www.wilsy.in/'+f.replaceAll(path.sep,'/').replace(/\.html$/,'')),`${f} is noindex but in the sitemap`);
   assert.ok(urls.every(url=>url.startsWith('https://www.wilsy.in/')));
   assert.ok(!urls.some(url=>url.endsWith('/404')));
   assert.ok(urls.includes('https://www.wilsy.in/jobs'));
