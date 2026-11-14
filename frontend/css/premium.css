@@ -164,7 +164,7 @@ html{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--ink) 22%,trans
 .brand .brand-wordmark>span{color:var(--blue);font-weight:700;margin-left:1px}
 .premium-footer .brand .brand-wordmark>span{color:#8fa8ff}
 .has-hero .site-header:not(.is-scrolled) .brand .brand-wordmark>span{color:#fff}
-.home-console-brand .brand-logo{border-radius:8px}
+
 @media(max-width:540px){.brand .brand-logo{width:32px;height:32px}.brand .brand-wordmark{font-size:21px!important}}
 
 /* ===== Theme toggle: a quiet icon button ===== */
@@ -297,9 +297,9 @@ html body main h1{letter-spacing:-.042em!important}
 html body main h2{letter-spacing:-.034em!important}
 html body main h3{font-weight:500!important;letter-spacing:-.022em!important}
 html body .home-hero h1{font-weight:400!important;letter-spacing:-.048em!important;line-height:1!important}
-html body .home-giant{font-weight:400!important;letter-spacing:-.06em!important}
-html body .home-manifesto-text{font-weight:400!important;letter-spacing:-.035em!important}
-html body .home-stat-card dd{font-weight:500!important}
+
+
+
 html body :is(.home-section-heading>p,.home-studio-copy>p,.home-why-grid p,.home-guide-card p,.home-featured-company p,.job-card-description,.company-card .company-description,.gov-jobs-card-department,.dsa-page .pattern-desc,.prose p,.prose li){color:var(--muted)!important}
 html body .prose .article-lead{color:var(--ink)!important}
 
@@ -320,8 +320,8 @@ html body .company-card .card-footer{background:transparent!important;border-top
 html body .gov-jobs-facts{background:color-mix(in srgb,var(--ink) 7%,transparent)!important;border-color:transparent!important}
 html body :is(.job-card-tags span,.gov-jobs-tags span,.company-card .card-tags span){background:var(--surface)!important;border-color:transparent!important}
 /* The homepage preview reads as one quiet product surface. */
-html body .home-console-body{background:var(--surface)!important}
-html body .home-live-panel{box-shadow:0 40px 100px rgba(10,20,60,.18)!important}
+
+
 
 /* Inputs: soft tinted fields that sharpen on focus. */
 html body :is(.jobs-search,.hack-search,.search-toolbar .search-box,.dsa-search){background:var(--tint)!important;border-color:transparent!important;box-shadow:none!important;border-radius:999px!important}
@@ -344,8 +344,8 @@ html body .jobs-search{box-shadow:0 0 0 8px var(--paper)!important}
 html body .jobs-search:focus-within{box-shadow:0 0 0 4px color-mix(in srgb,var(--blue) 12%,transparent),0 0 0 8px var(--paper)!important}
 
 /* Homepage studio preview: keep its top bar inside the window on phones. */
-.home-studio-bar{min-width:0}
-@media(max-width:520px){.home-studio-crumbs span{display:none}.home-studio-bar{gap:12px}}
+
+
 
 /* Mobile menu: the theme button reads clearly against the open panel. */
 @media(max-width:900px){.site-header .main-nav .theme-toggle{align-self:center;background:var(--tint)!important;border-color:var(--line)!important;color:var(--ink)!important}}
@@ -359,7 +359,7 @@ html body :is(.guide-card:nth-child(3),.mini-guide) *{color:#fff!important}
 html:not(.dark-theme) :is(.gov-jobs-status,.home-verified-label){color:#047857!important}
 html:not(.dark-theme) .gov-jobs-status{background:#e7f8f0!important}
 html body.dsa-page .control-btn{color:var(--ink)!important}
-html body .home-stat-note{color:#5d6b82}
+
 
 /* Dark mode: older pages hard-code navy text; give it light equivalents. */
 html.dark-theme :is(.gov-jobs-section-heading,.gov-jobs-notice,.gov-jobs-metrics,.gov-exam-browse-grid,.gov-study-grid,.gov-jobs-sources,.gov-jobs-methodology,.gov-jobs-exam-portals,.gov-jobs-toolbar,.gov-exam-card,.gov-eligibility-result) :is(h2,h3,h4,strong,b){color:var(--ink)!important}
@@ -406,13 +406,12 @@ html body main h1{letter-spacing:-.038em!important}
 html body main h2{letter-spacing:-.03em!important}
 html body main h3{font-weight:600!important;letter-spacing:-.018em!important;text-wrap:balance}
 html body .home-hero h1{font-weight:600!important;letter-spacing:-.045em!important;line-height:1.02!important}
-html body .home-giant{font-weight:600!important}
-html body .home-manifesto-text{font-weight:450!important}
+
+
 html body main :is(p,li){text-wrap:pretty}
 
 /* The accent phrase keeps its emphasis through colour, not a fallback italic. */
-html body :is(.home-shell em,.home-final-cta h2,.premium-footer .footer-intro>p),
-html body :is(.jobs-page-heading,.gov-jobs-hero,.hack-hero,.dsa-intro,.page-shell>.intro,.editorial-hero) h1>span{font-family:var(--font)!important;font-style:normal!important;font-weight:600!important;letter-spacing:-.04em!important}
+html body :is(.home-shell em,.home-final-cta h2,.premium-footer .footer-intro>p),html body :is(.jobs-page-heading,.gov-jobs-hero,.hack-hero,.dsa-intro,.page-shell>.intro,.editorial-hero) h1>span{font-family:var(--font)!important;font-style:normal!important;font-weight:600!important;letter-spacing:-.04em!important}
 html body .home-hero h1 em,html body :is(.jobs-page-heading,.gov-jobs-hero,.hack-hero,.dsa-intro,.page-shell>.intro,.editorial-hero) h1>span{color:rgba(255,255,255,.74)!important}
 html body .home-shell section:not(.home-hero):not(.home-final-cta) h2 em{color:var(--blue)!important}
 html body .home-final-cta h2 em{color:rgba(255,255,255,.7)!important}
@@ -540,13 +539,13 @@ html body .home-hero-copy{min-width:0;max-width:100%}
 @media(max-width:760px){html body .home-quick-links{flex-wrap:wrap;justify-content:center;overflow:visible}}
 
 /* ── Device fixes: phone and tablet layout, comfortable tap targets ───────────── */
-html body .home-stat-note{display:block}
+
 @media (max-width:760px){
   /* Live-index rows stack on phones so a long salary never squeezes the job title. */
-  html body .home-index-row[class]{grid-template-columns:minmax(0,1fr);gap:8px;padding:16px}
-  html body .home-index-role strong{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.35}
-  html body .home-index-pay{text-align:left;flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
-  html body .home-index-pay strong{white-space:normal}
+  
+  
+  
+  
   html body .home-trust-line{display:block;text-align:center;padding:0 18px;line-height:1.6}
   html body .home-trust-line .icon{display:inline-block;vertical-align:-3px;margin-right:6px}
 }
@@ -563,7 +562,7 @@ html body .home-stat-note{display:block}
 }
 @media (max-width:767px){
   html body .results-summary .text-button{min-height:44px;display:inline-flex;align-items:center}
-  html body .home-studio-promo a{min-height:44px;display:inline-flex;align-items:center}
+  
   html body [data-hack-reset]{min-height:44px;padding-inline:14px}
   html body :is(.profile-source a,.correction-card a){min-height:44px;display:flex;align-items:center}
   html body.jobs-page .jobs-search-input,html body .jobs-search-input{padding-block:2px}
@@ -586,8 +585,8 @@ html body .jobs-search-submit .btn-label-short{display:none}
 html body .gov-jobs-notice h2{font-size:17px;letter-spacing:-.01em;line-height:1.4}
 html body .gov-jobs-notice p:not(.gov-jobs-eyebrow){font-size:14px;line-height:1.7;color:var(--muted);margin-top:6px}
 /* Dark console rows keep a visible card edge. */
-html.dark-theme body .home-index-row[class]{background-color:rgba(255,255,255,.035)!important;border:1px solid rgba(255,255,255,.07)!important}
-html.dark-theme body .home-index-row[class]:hover{background-color:rgba(255,255,255,.06)!important;border-color:rgba(122,150,255,.35)!important}
+
+
 /* Hackathon card headers stay on one line so every title starts at the same height. */
 html body .hack-card-top{padding-right:70px}
 html body .hack-card-top :is(.hack-phase,.hack-closing){white-space:nowrap}

@@ -116,7 +116,12 @@ test('Homepage leads with the premium opportunity index and clear routes',()=>{
  assert.match(home,/Find the work<br><em>that moves you forward\.<\/em>/);
  assert.match(home,/class="home-search"/);
  assert.match(home,/Search <svg/);
- assert.match(home,/class="home-path-grid"/);
+ assert.match(home,/class="home-route-grid"/);
+ assert.match(home,/class="home-chip-list"/);
+ assert.match(home,/data-account-open/);
+ // The homepage stays short: no mock product windows or repeated "how it works" blocks.
+ assert.doesNotMatch(home,/home-studio|home-manifesto|home-console|home-paths|home-marquee/);
+ assert.ok((home.match(/<section /g)||[]).length<=8,'homepage has at most 8 sections');
  assert.match(home,/href="\/government-jobs"/);
  assert.match(home,/href="\/hackathons"/);
  assert.match(home,/class="home-dsa-banner"/);

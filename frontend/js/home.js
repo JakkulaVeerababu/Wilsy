@@ -37,15 +37,12 @@ function initHome() {
     } else $('#home-jobs-status').textContent='Live refresh unavailable. Showing the dated snapshot; check availability on the employer’s site.';
     if(stats.status==='fulfilled'){
       setCount('#stat-total',stats.value.total);setCount('#stat-companies',stats.value.companies_count);setCount('#stat-remote',stats.value.remote_count);
-      const total=Number(stats.value.total),remote=Number(stats.value.remote_count);
-      if(total>0&&remote>=0){const share=Math.min(100,Math.round(remote/total*100));$('#stat-remote-share').textContent=share;$('#stat-remote-bar').style.width=share+'%';}
       // The totals are live now, so the summary carries today's date (India time).
       const now=new Date(),today=new Intl.DateTimeFormat('en-IN',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Kolkata'}).format(now);
       document.querySelectorAll('[data-snapshot-date]').forEach(el=>{el.textContent=today;el.dateTime=now.toISOString();});
-      $('#home-snapshot-status').textContent='Live totals refreshed · Feed previews are a dated snapshot.';
     }
   }
-  mountPathTabs();mountRailNav();
+  mountRailNav();
   updateSaved();
   $('#home-job-results').addEventListener('click',event=>{
     const button=event.target.closest('[data-save]');if(!button)return;
@@ -59,23 +56,6 @@ function initHome() {
   fetch('/data/company-index.json').then(r=>r.ok?r.json():[]).then(index=>{companies=index;return refresh();}).catch(()=>{});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-lastUpdate>300000)refresh();});
   setInterval(refresh,300000);
-}
-
-function mountPathTabs() {
-  const section=document.querySelector('.home-paths'),list=section?.querySelector('[role=tablist]');
-  if(!list)return;
-  const tabs=[...list.querySelectorAll('[role=tab]')],panels=tabs.map(tab=>document.getElementById(tab.getAttribute('aria-controls')));
-  const select=(index,focus)=>{
-    tabs.forEach((tab,i)=>{const on=i===index;tab.setAttribute('aria-selected',String(on));tab.tabIndex=on?0:-1;panels[i].hidden=!on;});
-    if(focus)tabs[index].focus();
-  };
-  list.hidden=false;section.classList.add('has-tabs');select(0,false);
-  tabs.forEach((tab,i)=>tab.addEventListener('click',()=>select(i,false)));
-  list.addEventListener('keydown',event=>{
-    const current=tabs.indexOf(document.activeElement);if(current<0)return;
-    const next={ArrowRight:current+1,ArrowLeft:current-1,Home:0,End:tabs.length-1}[event.key];
-    if(next===undefined)return;event.preventDefault();select((next+tabs.length)%tabs.length,true);
-  });
 }
 
 // Arrow buttons for the featured-company rail; they appear only when the rail actually scrolls.

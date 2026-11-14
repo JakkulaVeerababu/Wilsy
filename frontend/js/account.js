@@ -116,6 +116,8 @@ function init() {
   document.body.append(dialog);
   bind();render();
   button.addEventListener('click',()=>{open();if(auth.session())sync();});
+  // Any link marked data-account-open (e.g. "Create a free account") opens the same dialog.
+  document.addEventListener('click',event=>{const link=event.target.closest('[data-account-open]');if(!link)return;event.preventDefault();open();if(auth.session())sync();});
   window.addEventListener('wilsy:saved',()=>{clearTimeout(debounce);debounce=setTimeout(sync,400);});
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')sync();});
   window.addEventListener('online',()=>sync());
