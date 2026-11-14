@@ -26,9 +26,9 @@ first one goes out. Nothing is sent until every step below is done and a live ru
 - **One email per person per run**, one section per search with new roles, up to 10 roles each,
   with a "View all matches" link. Each role shows title, company, place and pay when the employer
   published it (INR as published, USD as an INR estimate at the site's reference rate, other
-  currencies as published). Links go to `https://www.wilsy.in/jobs?job=<id>`, which works for every
-  role; static `/jobs/<id>-<slug>` pages exist only for roles that were in the last site build,
-  so new roles usually have none yet. Links carry `utm_source=wilsy_alerts` so visits can be measured.
+  currencies as published). Each role links to its own page, `https://www.wilsy.in/jobs/<id>-<slug>`:
+  every live job has one, pre-built or rendered on request by `api/job-page.mjs`, and a changed title
+  only redirects to the new slug. Links carry `utm_source=wilsy_alerts` so visits can be measured.
 - **Footer:** why the person is getting it, "Manage alerts" (`https://www.wilsy.in/jobs?saved=1`),
   and how to stop (sign in, open Account). Replies go to `contact@wilsy.in`.
 - **Who is skipped:** anyone without a confirmed email (`email_confirmed_at`), banned or anonymous

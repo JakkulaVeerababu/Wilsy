@@ -86,13 +86,14 @@ test('The email lists each role with company, place, INR pay and links, and esca
   assert.ok(html.includes('₹12 L – ₹18 L / year'));
   assert.ok(html.includes('₹95 L – ₹1.52 Cr / year (INR estimate)'));
   assert.ok(html.includes('Remote · United States'));
-  assert.ok(html.includes('href="https://www.wilsy.in/jobs?job=42&amp;utm_source=wilsy_alerts'));
+  assert.ok(html.includes('href="https://www.wilsy.in/jobs/42-script-alert-1-script-r-amp-d-lead-fish-chips-ltd?utm_source=wilsy_alerts&amp;utm_medium=email'));
+  assert.ok(html.includes('href="https://www.wilsy.in/jobs/43-remote-sre-acme?utm_source=wilsy_alerts'));
   assert.ok(html.includes(`href="${MANAGE_URL}"`));
   assert.ok(html.includes('WILSY'));
   assert.ok(!/Salary not disclosed/.test(html),'undisclosed pay is left out');
   assert.ok(text.includes('- <script>alert(1)</script> R&D Lead'));
   assert.ok(text.includes('  Fish & "Chips" <Ltd> · Pune India · ₹12 L – ₹18 L / year'));
-  assert.ok(text.includes('https://www.wilsy.in/jobs?job=42&utm_source=wilsy_alerts&utm_medium=email&utm_campaign=daily_alert'));
+  assert.ok(text.includes('  https://www.wilsy.in/jobs/42-script-alert-1-script-r-amp-d-lead-fish-chips-ltd?utm_source=wilsy_alerts&utm_medium=email&utm_campaign=daily_alert'));
   assert.ok(text.includes(`Manage alerts: ${MANAGE_URL}`));
   assert.ok(!/[\r\n]/.test(subject));
 });

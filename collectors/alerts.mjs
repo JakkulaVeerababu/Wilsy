@@ -11,7 +11,7 @@
 import fs from 'node:fs/promises';
 import crypto from 'node:crypto';
 import {parseArgs} from 'node:util';
-import {readState,stateQuery,apiFilters,jobSalary} from '../frontend/js/jobs-core.js';
+import {readState,stateQuery,apiFilters,jobSalary,jobPath} from '../frontend/js/jobs-core.js';
 import {searchName} from '../frontend/js/job-workspace-core.js';
 import {decodeEntities} from '../frontend/js/job-text.js';
 import {supabaseConfig} from '../frontend/js/supabase-config.js';
@@ -106,7 +106,9 @@ export function clean(value,max=160) {
   return text.length>max?text.slice(0,max-1).trimEnd()+'…':text;
 }
 const tracking=cadence=>`utm_source=wilsy_alerts&utm_medium=email&utm_campaign=${cadence==='weekly'?'weekly':'daily'}_alert`;
-export const jobUrl=(job,cadence)=>`${site.origin}/jobs?job=${encodeURIComponent(String(job.id))}&${tracking(cadence)}`;
+// The role's own page. Every live job has one (pre-built, or rendered on request by api/job-page.mjs),
+// and a changed title only redirects to the new slug, keeping these parameters.
+export const jobUrl=(job,cadence)=>`${site.origin}${jobPath({...job,id:encodeURIComponent(String(job.id))})}?${tracking(cadence)}`;
 // The saved search itself, normalised the way the site writes it.
 export function searchUrl(query,cadence) {
   const filters=stateQuery({...readState('?'+query),page:1,id:'',saved:false});
