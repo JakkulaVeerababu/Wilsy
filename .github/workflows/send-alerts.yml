@@ -1,0 +1,45 @@
+# Job alert emails (collectors/alerts.mjs). Manual only for now; see docs/alerts-setup.md.
+# Dry run by default: it reads due saved searches and reports what it would send, and sends and
+# writes nothing. Untick "dry_run" to send through Resend and record each search's last_alerted_at.
+# Needs the SUPABASE_SERVICE_ROLE_KEY secret; a live run also needs RESEND_API_KEY.
+# Logs name no address or search terms, because this repository's Actions logs are public.
+name: Send job alerts
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Dry run (report only, send nothing)
+        type: boolean
+        required: false
+        default: true
+      max_emails:
+        description: Most emails to send in this run
+        required: false
+        default: '100'
+permissions:
+  contents: read
+concurrency:
+  group: send-alerts
+  cancel-in-progress: false
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: ${{ (inputs.dry_run == false || inputs.dry_run == 'false') && 'Send job alerts' || 'Dry run job alerts' }}
+        env:
+          SUPABASE_URL: https://pnkthqatdlozrojwefnc.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          # Only an explicit "false" sends; a run started without inputs stays a dry run.
+          WILSY_ALERTS_SEND: ${{ (inputs.dry_run == false || inputs.dry_run == 'false') && '1' || '0' }}
+          WILSY_ALERTS_MAX_EMAILS: ${{ inputs.max_emails || '100' }}
+        run: |
+          if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then echo "::error::SUPABASE_SERVICE_ROLE_KEY is missing; no alerts were read."; exit 1; fi
+          if [ "$WILSY_ALERTS_SEND" = "1" ] && [ -z "$RESEND_API_KEY" ]; then echo "::error::RESEND_API_KEY is missing; add it before a live run."; exit 1; fi
+          case "$WILSY_ALERTS_MAX_EMAILS" in ''|*[!0-9]*) echo "::error::max_emails must be a whole number."; exit 1;; esac
+          node collectors/alerts.mjs
