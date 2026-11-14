@@ -62,3 +62,21 @@ Effort: S = under half a day, M = about a day, L = several days or outside help 
 ## Proposed first batch
 
 Items 1–4 and 8, plus 5 if you agree to drop ads on home and jobs. Each goes in its own commit, with `npm run build` and `npm test` passing and a local check at desktop and 375 px. Then push to `main` with your OK. Items 6, 7 and 9 come next as a second batch.
+
+## Status (14 Nov 2026)
+
+Approved scope: items 1–9. Built locally in separate commits; not deployed yet.
+
+| Item | Status |
+|---|---|
+| 1. Homepage story | Done. 11 sections → 8, about 8,100 px → 5,900 px on desktop. Mock studio window, console, manifesto and duplicate path cards removed. |
+| 2. Phone-first jobs page | Done. At 375 px the first job card moved from 986 px to 630 px. Filters, sort and refresh form the one sticky bar. |
+| 3. Nav and footer | Done. Short nav labels, Popular searches footer column, "Create a free account" in place of the newsletter note. |
+| 4. One CSS file per page | Done. Hashed bundles (`css/b-<hash>.css`) cached as immutable. The homepage loads 1 stylesheet instead of 9 (29 KB gzipped). |
+| 5. Ads | Done. No AdSense on `/`, `/jobs` or the new job pages. Elsewhere it loads after the page is idle. |
+| 6. Job pages | Done, with a change. Pages are built only for jobs with a full description (600+ characters): many public-search rows carry about 200-character previews, which would make thin pages. A live build makes about 240. |
+| 7. Landing pages | Done, with a change. City pages are not possible yet: the public search has no city filter, and location text is not in the search index. Built instead: 24 pages by role, role in India, career stage, remote and India. Adding city pages needs a reviewed Supabase change (a city filter in `wilsy_search_jobs`). |
+| 8. Live roles on company pages | Done. |
+| 9. Trust details | Done. "Report listing" in the job dialog and on job pages, "updated N min ago" on /jobs, and an About section on how listings are collected. |
+
+Still open: 10 (alert emails; needs an email provider account and DNS), 11 (server-rendered pages for every job), 12 (accessibility pass) and city landing pages (needs a Supabase change).
