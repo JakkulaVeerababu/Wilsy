@@ -150,14 +150,17 @@ test('jobTarget reads the id from the path or the rewrite query', () => {
 
 const vercel = JSON.parse(await fs.readFile(path.resolve('..', 'vercel.json'), 'utf8'));
 // path-to-regexp's ":name(pattern)" and ":name" segments, as Vercel matches rewrite sources.
-const sourceRegex = source => new RegExp('^'+source.replace(/:([a-z]+)(?:\(([^)]+)\))?/gi, (_, name, pattern) => `(${pattern || '[^/#?]+?'})`)+'$', 'i');
+const sourceRegex = source => new RegExp('^'+source.replace(/:([a-z_]+)(?:\(([^)]+)\))?/gi, (_, name, pattern) => `(${pattern || '[^/#?]+?'})`)+'$', 'i');
 
 test('vercel.json rewrites only /jobs/<digits>-… to the job-page function, never landing pages', async () => {
   const jobRewrites = (vercel.rewrites || []).filter(r => r.destination.startsWith('/api/job-page'));
   assert.equal(jobRewrites.length, 1);
   assert.equal(vercel.rewrites.length, 1, 'no other rewrites can shadow static files');
   const {source, destination} = jobRewrites[0];
-  assert.equal(destination, '/api/job-page?job_id=:id&job_slug=:slug');
+  // Vercel also appends the source's named parameters to the query, so they share the names
+  // the handler strips (job_id, job_slug); otherwise redirects would carry ?id=…&slug=….
+  assert.equal(destination, '/api/job-page?job_id=:job_id&job_slug=:job_slug');
+  assert.deepEqual([...source.matchAll(/:([a-z_]+)/gi)].map(m => m[1]), ['job_id', 'job_slug']);
   const pattern = sourceRegex(source);
   const yes = ['/jobs/123-backend-engineer-acme', '/jobs/6653924-product-engineer-new-products-nango', '/jobs/1-role'];
   const no = ['/jobs', '/jobs/123', '/jobs/123-', '/jobs/123-a/b', '/jobs/abc-123', '/jobs/x123-a', '/companies/123-a', '/jobs/', ...landingPages.map(p => '/jobs/'+p.slug)];

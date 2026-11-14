@@ -13,8 +13,8 @@
   ],
   "rewrites": [
     {
-      "source": "/jobs/:id(\\d+)-:slug",
-      "destination": "/api/job-page?job_id=:id&job_slug=:slug"
+      "source": "/jobs/:job_id(\\d+)-:job_slug",
+      "destination": "/api/job-page?job_id=:job_id&job_slug=:job_slug"
     }
   ],
   "functions": {
