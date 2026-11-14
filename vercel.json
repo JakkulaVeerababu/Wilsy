@@ -11,6 +11,18 @@
       "permanent": false
     }
   ],
+  "rewrites": [
+    {
+      "source": "/jobs/:id(\\d+)-:slug",
+      "destination": "/api/job-page?job_id=:id&job_slug=:slug"
+    }
+  ],
+  "functions": {
+    "api/job-page.mjs": {
+      "includeFiles": "frontend/{css/*.css,data/companies.json,data/exchange-rate.json}",
+      "maxDuration": 10
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",

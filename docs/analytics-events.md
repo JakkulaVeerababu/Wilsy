@@ -7,7 +7,7 @@ WILSY uses [Vercel Web Analytics](https://vercel.com/docs/analytics): cookie-fre
 - **Plan.** Vercel records custom events only on **Pro** and **Enterprise**. On Hobby, page views still work, and these calls cost nothing because Vercel ignores them. Check: Vercel dashboard → the project → Analytics → Events. If the tab is missing or says "upgrade", the plan does not record them.
 - **2 properties per event.** Pro records **2** properties per event; Web Analytics Plus and Enterprise record 8. So every event has at most 2, and the search filters are packed into one value (`filters`).
 - **Cost.** On Pro, events are billed per event collected (see Vercel's [pricing page](https://vercel.com/docs/analytics/limits-and-pricing)). These events fire on deliberate actions only, never on scroll or page view.
-- **Where they run.** `window.va` exists only on Vercel deployments (`analyticsTag` in `frontend/scripts/build-site.mjs`). Locally and in tests, `track()` does nothing.
+- **Where they run.** `window.va` exists only on Vercel deployments (`analyticsTag` in `frontend/scripts/page-shell.mjs`, added to static pages and to job-page function pages). Locally and in tests, `track()` does nothing.
 
 ## Privacy rules
 

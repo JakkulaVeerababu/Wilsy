@@ -4,19 +4,17 @@ import crypto from 'node:crypto';
 import {site} from '../js/site-config.js';
 import {inr,salaryRange,usdTextToInr} from '../js/pay-format.js';
 import {escapeHtml as e, safeHref} from '../js/directory-core.js';
-import {guides,policyPages} from './site-content.mjs';
+import {guides,policyPages,programPages} from './site-content.mjs';
+import {header,footer,documentPage,jsonld,bundleCss,finishHead,deploymentBuildId} from './page-shell.mjs';
 import {jobsPage} from './jobs-page.mjs';
 import {homePage} from './home-page.mjs';
-import {brandLink, themeToggle} from './brand.mjs';
 import {hackathonsPage} from './hackathons-page.mjs';
 import {governmentJobsPage} from './government-jobs-page.mjs';
 import {fetchJobSnapshot} from './job-snapshot.mjs';
 import {loadDsaProject,dsaPage,writeDsaAssets} from './dsa-page.mjs';
-import {icon} from '../js/icons.js';
-import {browseRoles,browseStages,landingPages,landingUrl} from './landing-pages.mjs';
-import {fetchLandingJobs,publishable,pageWorthy,jobPath,jobPosting,landingBody,jobBody} from './job-pages.mjs';
+import {landingPages,landingUrl} from './landing-pages.mjs';
+import {fetchLandingJobs,publishable,pageWorthy,jobPath,landingBody,jobPageOptions} from './job-pages.mjs';
 import {serviceWorker,shellAssets} from './service-worker.mjs';
-import {searchConsoleTag} from './search-console.mjs';
 
 const data = JSON.parse(await fs.readFile('data/companies.json','utf8'));
 const fx = JSON.parse(await fs.readFile('data/exchange-rate.json','utf8'));
@@ -29,7 +27,6 @@ const money = s => salaryRange(s,n=>inr(n,fx.rate));
 const href = url => e(safeHref(url));
 const external = (url,label,cls='') => `<a class="${cls}" href="${href(url)}" target="_blank" rel="noopener noreferrer">${label}</a>`;
 const pageUrl = c => '/companies/'+encodeURIComponent(c.id);
-const jsonld = value => `<script type="application/ld+json">${JSON.stringify(value).replace(/</g,'\\u003c')}</script>`;
 const dsaProject = await loadDsaProject();
 
 const fallbackHomeSnapshot = JSON.parse(await fs.readFile('data/jobs-home.json','utf8'));
@@ -43,57 +40,14 @@ async function loadHomeSnapshot() {
     return fallbackHomeSnapshot;
   }
 }
-export function header(active='') {
-  const links=[['/jobs','Jobs','jobs'],['/government-jobs','Government','government-jobs'],['/companies#companies','Companies','companies'],['/hackathons','Hackathons','hackathons'],['/dsa','DSA','dsa'],['/guides','Guides','guides']];
-  return `<header class="site-header"><div class="header-inner">${brandLink()}<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-navigation"><span class="nav-toggle-lines" aria-hidden="true"></span><span>Menu</span></button><nav class="main-nav" id="main-navigation" aria-label="Main navigation">${links.map(([url,name,key])=>`<a href="${url}"${key===active?' class="active" aria-current="page"':''}>${name}</a>`).join('')}${themeToggle}<a class="nav-cta" href="/jobs">Search jobs ${icon('arrow')}</a></nav></div></header>`;
-}
-export function footer() {
-  return `<footer class="site-footer premium-footer"><div class="footer-main">
-    <div class="footer-intro">${brandLink()}<p>A clearer view of your next move.</p><span>Jobs, internships, government notices and hackathons for India. Every listing links to its source.</span><div class="footer-newsletter"><p class="footer-label">FREE ACCOUNT</p><a href="/jobs?saved=1" data-account-open>Create a free account ${icon('arrow')}</a><small>Save jobs, hackathons and searches on every device. No password needed.</small></div></div>
-    <nav aria-label="Explore Wilsy"><h2>EXPLORE</h2><a href="/">Home</a><a href="/jobs">Find jobs</a><a href="/government-jobs">Government jobs</a><a href="/hackathons">Hackathons</a><a href="/companies#companies">Company directory</a><a href="/companies/all">All companies A–Z</a></nav>
-    <nav aria-label="Popular searches"><h2>POPULAR SEARCHES</h2>${[...browseRoles.slice(0,4),...browseStages.slice(0,3)].map(([url,name])=>`<a href="${url}">${e(name)}</a>`).join('')}</nav>
-    <nav aria-label="About Wilsy"><h2>LEARN &amp; CONNECT</h2><a href="/dsa">DSA roadmap</a><a href="/guides">Career guides</a><a href="/about">About WILSY</a><a href="/methodology">Sources &amp; methodology</a><a href="/contact">Contact &amp; corrections</a><a href="mailto:${site.email}">${site.email}</a></nav>
-    <nav aria-label="Policies"><h2>THE DETAILS</h2><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/disclosure">Ads &amp; affiliate disclosure</a><a href="/privacy#choices" data-privacy-choices>Privacy &amp; cookie choices</a></nav>
-  </div><div class="footer-bottom"><span>© 2026 WILSY</span><p>Published salary examples, not guaranteed offers. Company logos belong to their respective owners.</p><span>Made for your next move</span></div></footer>`;
-}
-// AdSense loads once the page is idle so it never competes with the content for bandwidth.
-const adTag = `<meta name="google-adsense-account" content="${site.publisher}"><script>addEventListener('load',()=>(window.requestIdleCallback||setTimeout)(()=>{const s=document.createElement('script');s.async=true;s.crossOrigin='anonymous';s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${site.publisher}';document.head.append(s)},{timeout:4000}))</script>`;
-function documentPage({hero=true,title,description,route,body,active='',type='website',noindex=false,ads=true,structured,canonicalRoute=route}) {
-  const url = site.origin+canonicalRoute;
-  const isHome = route === '/';
-  const legacy = isHome || active==='dsa' ? [] : ['editorial',...(active==='jobs'?['jobs']:active==='hackathons'?['hackathons']:active==='government-jobs'?['government-jobs']:[]),'polish', 'refined',...(active==='jobs'?['job-workspace']:[])];
-  const pageCss = [...legacy,'tokens','electric','shell',...(isHome||active==='jobs'?['jobs-premium']:[]),...(isHome?['homepage']:active==='dsa'?['dsa']:[]),'premium','account'].map(name=>`<link rel="stylesheet" href="/css/${name}.css">`).join('');
-  // Light mode by default; dark only when the visitor has chosen it with the toggle.
-  const themeInit = "try{if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-theme')}catch{}";
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><script>${themeInit}</script><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#0866ff"><title>${e(title)} — WILSY</title><meta name="description" content="${e(description)}"><link rel="canonical" href="${e(url)}"><meta property="og:type" content="${type}"><meta property="og:title" content="${e(title)} — WILSY"><meta property="og:description" content="${e(description)}"><meta property="og:url" content="${e(url)}"><meta property="og:site_name" content="WILSY"><meta property="og:locale" content="en_IN"><meta property="og:image" content="${site.origin}/assets/og-default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="WILSY: find the work that moves you forward."><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${site.origin}/assets/og-default.png">${noindex?'<meta name="robots" content="noindex,follow">':''}<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="preload" href="/assets/fonts/manrope.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/assets/fonts/dm-sans.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/assets/fonts/fonts.css"><link rel="stylesheet" href="/css/styles.css">${pageCss}<script src="/js/site.js" defer></script><script type="module" src="/js/account.js"></script>${ads?adTag:''}${structured?jsonld(structured):''}</head><body class="${hero?'has-hero ':''}${isHome?'home-page':active==='jobs'?'jobs-page':active==='dsa'?'dsa-page':active?active+'-page':'editorial-page'}"><a class="skip-link" href="#main-content">Skip to content</a>${header(active==='jobs-landing'?'jobs':active)}${body.replaceAll('href="/?company=','href="/jobs?company=')}${footer()}</body></html>`;
-}
 const sitemap = [];
-// Every page gets one minified, content-hashed stylesheet built from its /css/*.css links, in order.
-// data-sources lists the source files so tests and readers can see what a bundle contains.
 const bundles = new Map();
-async function bundleCss(html) {
-  const tag = /<link rel="stylesheet" href="\/css\/([a-z0-9-]+)\.css">/g;
-  const names = [...html.matchAll(tag)].map(m=>m[1]);
-  if(!names.length) return html;
-  const key = names.join(' ');
-  if(!bundles.has(key)) {
-    const source = (await Promise.all(names.map(n=>fs.readFile('css/'+n+'.css','utf8')))).join('\n');
-    const css = source.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\s+/g,' ').replace(/\s*([{};,])\s*/g,'$1').replace(/;}/g,'}').trim();
-    const file = 'b-'+crypto.createHash('sha256').update(css).digest('hex').slice(0,12)+'.css';
-    await fs.mkdir(path.join(out,'css'),{recursive:true});
-    await fs.writeFile(path.join(out,'css',file),css);
-    bundles.set(key,file);
-  }
-  let first = true;
-  return html.replace(tag,()=>first?(first=false,`<link rel="stylesheet" href="/css/${bundles.get(key)}" data-sources="${key}">`):'');
-}
-// Vercel Web Analytics is cookie-free and served only by Vercel deployments.
-const analyticsTag = process.env.VERCEL ? `<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)}</script><script defer src="/_vercel/insights/script.js"></script>` : '';
-// Google Search Console ownership: set WILSY_GSC_TOKEN (the meta tag's content value) in Vercel.
-const gscTag = searchConsoleTag(process.env.WILSY_GSC_TOKEN);
-// One id per build of the scripts, styles and fonts. The service worker names its caches with it
-// and compares it with each page's <meta name="wilsy-build">, so a deploy never mixes old and new files.
-const buildId = await (async()=>{
+const bundle = html => bundleCss(html,{cache:bundles,read:name=>fs.readFile('css/'+name+'.css','utf8'),
+  save:async(file,css)=>{await fs.mkdir(path.join(out,'css'),{recursive:true});await fs.writeFile(path.join(out,'css',file),css);}});
+// One id per build. The service worker names its caches with it and compares it with each page's
+// <meta name="wilsy-build">, so a deploy never mixes old and new files. On Vercel it comes from the deployment id,
+// which the job-page function also sees; elsewhere it is a hash of the scripts, styles and fonts.
+const buildId = deploymentBuildId() || await (async()=>{
   const hash = crypto.createHash('sha256').update(String(process.env.WILSY_DSA_SUPABASE_URL||'')+String(process.env.WILSY_DSA_SUPABASE_ANON_KEY||''));
   for(const dir of ['js','css','dsa-source','assets/fonts'])for(const name of (await fs.readdir(dir)).sort())hash.update(name).update(await fs.readFile(path.join(dir,name)));
   return hash.update(await fs.readFile('scripts/service-worker.mjs')).digest('hex').slice(0,12);
@@ -103,7 +57,7 @@ async function write(route,html,include=true) {
   const target=path.join(out,file);
   if(!target.startsWith(out+path.sep))throw new Error('Unsafe output route');
   await fs.mkdir(path.dirname(target),{recursive:true});
-  await fs.writeFile(target,(await bundleCss(html)).replace('<meta charset="utf-8">',`$&<meta name="wilsy-build" content="${buildId}">`).replace('</head>',`${gscTag}<script type="module" src="/js/pwa.js"></script>${analyticsTag}</head>`));
+  await fs.writeFile(target,finishHead(await bundle(html),{buildId}));
   if(include)sitemap.push(route);
 }
 const hero = (eyebrow,title,description) => `<div class="editorial-hero"><p class="eyebrow">${e(eyebrow)}</p><h1>${e(title)}</h1><p>${e(description)}</p></div>`;
@@ -169,9 +123,7 @@ await write('/jobs',documentPage({...jobsMeta,route:'/jobs',ads:false}));
     const page = landingOf.get(String(job.id));
     const pool = page ? landing.find(l=>l.page===page).jobs : all;
     const similar = pool.filter(j=>pages.has(String(j.id))).filter(j=>String(j.id)!==String(job.id)).slice(0,4);
-    const place = [job.location,job.city,job.country].find(v=>v&&!/^(n\/?a|unspecified)$/i.test(v));
-    await write(jobPath(job),documentPage({title:`${job.title} at ${job.company}`,description:`${job.company} is hiring: ${job.title}${place?' in '+place:''}. Pay, experience and a direct link to apply on the employer’s site.`,
-      route:jobPath(job),active:'jobs-landing',hero:false,type:'article',ads:false,structured:jobPosting(job,companies)||undefined,body:jobBody(job,{...context,similar,landing:page})}));
+    await write(jobPath(job),documentPage(jobPageOptions(job,{...context,similar,landing:page})));
   }
   console.log(`Built ${landing.filter(l=>l.jobs.length).length}/${landing.length} landing pages with live jobs and ${all.length} job pages.`);
 }
@@ -183,6 +135,10 @@ await write('/government-jobs',documentPage({title:'India government jobs',descr
 for(const p of policyPages(site.email)) {
   if(p.slug==='privacy')p.body+='<h2>DSA learning progress</h2><p>The DSA roadmap stores completed pattern IDs in this browser. Clearing site storage removes that device’s progress. Optional cloud sign-in, when configured, sends your email and authentication details directly to the separate DSA Supabase project and synchronises pattern IDs with your account. Guest progress is not automatically uploaded, and account caches are kept separate. The job search does not use DSA accounts. Practice links open external learning platforms, whose privacy policies apply.</p>';
   await write('/'+p.slug,documentPage({title:p.seoTitle||p.title,description:p.description,route:'/'+p.slug,active:p.slug==='about'?'about':'',body:`<main id="main-content" class="editorial-shell">${breadcrumb(p.slug==='about'?'About WILSY':p.title)}${hero(p.eyebrow,p.title,p.slug==='contact'?'Questions, corrections, and ideas are welcome.':'Independent information. Clear expectations.')}<div class="article-layout"><aside class="article-aside"><p class="eyebrow">WILSY / ${p.slug.toUpperCase()}</p><p>Updated ${p.updatedAt||'13 Sep 2026'}</p><a href="/contact">Questions? Get in touch</a></aside><article class="prose">${p.body}</article></div></main>`}));
+}
+// Employer and campus programme pages (requests by email; nothing is stored on the site).
+for(const p of programPages(site.email,snapshot?.stats)) {
+  await write('/'+p.slug,documentPage({title:p.seoTitle,description:p.description,route:'/'+p.slug,body:`<main id="main-content" class="editorial-shell">${breadcrumb(p.seoTitle)}${hero(p.eyebrow,p.title,p.subtitle)}<div class="article-layout"><aside class="article-aside"><p class="eyebrow">WILSY / ${p.slug.toUpperCase()}</p><p>Updated ${p.updatedAt}</p><a href="/about#how-listings-are-collected">How listings are collected</a><a href="/contact">Questions? Get in touch</a></aside><article class="prose">${p.body}</article></div></main>`}));
 }
 
 const methodology = `<p class="article-lead">A salary is most useful when you know its source, role, location, and limits. Here is exactly how WILSY organises its data.</p><h2 id="collection">The 1,000-company collection</h2><p>The directory combines 11 selected technology employers with 989 active or public companies from the YC ecosystem that have a full-time role with published annual USD pay. The YC selection prioritises its top-company designation and reported team size. Duplicate companies are removed.</p><p>This is a curated collection, not a ranking of the world’s 1,000 largest or best employers. Coverage is concentrated in the United States and YC startups; it is not a balanced sample of every country or job family.</p><h2 id="salary">One company, one example role</h2><p>Engineering roles are preferred. If several eligible engineering roles have salary ranges, we select the middle range after sorting their midpoints. Other role families are used when needed and are labelled. Internships, contract positions, and hourly or monthly pay are excluded. The salary data is a snapshot retrieved on ${data.updatedAt}; source publication and update dates vary.</p><p>Base salary is identified only when the employer describes it as base pay. Other ranges are labelled advertised salary or estimated base salary as appropriate. Bonus, commission, and stock are not assigned an invented value or added to the range. Employer-maintained sources are linked from each company profile.</p><h2 id="tiers">Pay tiers are browsing bands</h2><div class="table-scroll"><table><thead><tr><th>Band</th><th>Example INR salary midpoint (estimated)</th></tr></thead><tbody><tr><td>Tier 1</td><td>${inr(200000,fx.rate)} and above</td></tr><tr><td>Tier 2</td><td>${inr(150000,fx.rate)} to below ${inr(200000,fx.rate)}</td></tr><tr><td>Tier 3</td><td>${inr(100000,fx.rate)} to below ${inr(150000,fx.rate)}</td></tr><tr><td>Tier 4</td><td>Below ${inr(100000,fx.rate)}</td></tr></tbody></table></div><p>A tier does not measure company quality, interview difficulty, or suitability. It does not control for seniority or geography. Ad revenue and affiliate links do not affect tiers.</p><h2 id="conversion">How we show INR estimates</h2><p>Salary displays use Indian rupees. USD source amounts are converted using a dated reference rate: <strong>1 USD = ₹${fx.rate}</strong>, dated <strong>${fx.date}</strong>, supplied by the ${external(fx.source,'European Central Bank via Frankfurter')}.</p><p>The rate is stored with this snapshot; it does not update while you browse. INR amounts are rounded to lakhs (L) or crores (Cr). The estimate is not a salary offered in India, a tax calculation, a cost-of-living adjustment, or a bank quote. The original source values remain stored for accuracy. Tiers keep the same membership while their displayed boundaries use rounded INR equivalents.</p><h2 id="links">Careers and source links</h2><p>Where a careers destination was found on a company’s website, WILSY links to it. Otherwise, we link to the employer’s recruiting page on Y Combinator and label the destination “YC careers.” Company profiles and source listings can become outdated or unavailable; WILSY does not claim that every role remains open.</p><h2 id="sources">Sources and corrections</h2><p>Public employer career pages supply the featured salary examples. YC profiles and advertised role information were retrieved through the ${external('https://devasheeshg.github.io/yc-api/','YC directory data mirror')}. Company logos come from public employer assets, YC profiles, and brand icon collections. Original source URLs are retained in the ${external('/data/companies.json','data snapshot')}.</p><p>To report an error, email <a href="mailto:${site.email}">${site.email}</a> with the company name, affected URL, and replacement employer source. A directory page is not a job posting or an employment guarantee.</p>`;
