@@ -7,6 +7,8 @@ import {EVENTS,filterSummary,eventData,jobMode,pageKind,APPLY_LINKS,track} from 
 import {routeFor,pageBuild,shellAssets} from '../scripts/service-worker.mjs';
 import {searchConsoleTag} from '../scripts/search-console.mjs';
 import {renderJobCard} from '../js/job-card.js';
+import {finishHead, deploymentBuildId} from '../scripts/page-shell.mjs';
+import {createJobPageHandler} from '../scripts/job-page-handler.mjs';
 
 const root = path.resolve('dist');
 const read = file => fs.readFile(path.join(root, file), 'utf8');
@@ -108,6 +110,111 @@ test('The built service worker precaches this build\'s app shell and serves the 
   assert.equal(await response, 'offline-page');
   let intercepted = false; listeners.fetch({request: {url: 'https://abc.supabase.co/rest/v1/rpc/wilsy_search_jobs', method: 'POST', mode: 'cors'}, respondWith: () => { intercepted = true; }});
   assert.equal(intercepted, false);
+});
+
+test('Static pages and job-page function pages end their head the same way', async () => {
+  assert.equal(deploymentBuildId({}), '');
+  const id = deploymentBuildId({VERCEL_DEPLOYMENT_ID:'dpl_test123'});
+  assert.match(id, /^[0-9a-f]{12}$/);
+  assert.equal(deploymentBuildId({VERCEL_DEPLOYMENT_ID:'dpl_test123'}), id, 'the build and the function agree');
+  const head = '<html><head><meta charset="utf-8"><title>x</title></head><body></body></html>';
+  assert.equal(finishHead(head, {env:{}, buildId:''}), '<html><head><meta charset="utf-8"><title>x</title><script type="module" src="/js/pwa.js"></script></head><body></body></html>');
+  assert.doesNotMatch(finishHead(head, {env:{}, buildId:'"><script>'}), /wilsy-build/);
+  const env = {VERCEL:'1', VERCEL_DEPLOYMENT_ID:'dpl_test123', WILSY_GSC_TOKEN:'abcDEF123_-abcDEF123_-abc'};
+  const full = finishHead(head, {env});
+  assert.match(full, /<meta charset="utf-8"><meta name="wilsy-build" content="[0-9a-f]{12}"><title>/);
+  assert.equal(pageBuild(full), id);
+  assert.match(full, /<meta name="google-site-verification" content="abcDEF123_-abcDEF123_-abc"><script type="module" src="\/js\/pwa.js"><\/script><script>window.va=/);
+  // A job page rendered on demand gets the same tags, with this deployment's build id.
+  const job = {id:123, title:'Backend Engineer (Go)', company:'Acme', apply_url:'https://jobs.example.com/1', description:'Design and run the services behind our payments platform. '.repeat(12),
+    posted_at:'2026-11-10T10:00:00Z', work_mode:'hybrid', job_type:'full_time', location:'Bengaluru, India'};
+  const saved = Object.fromEntries(Object.keys(env).map(key => [key, process.env[key]]));
+  Object.assign(process.env, env);
+  try {
+    const handle = createJobPageHandler({search: async filters => ({jobs: filters.id ? [job] : [], total: 1}), now: () => Date.parse('2026-11-14T12:00:00Z')});
+    const response = await handle(new Request('https://www.wilsy.in/jobs/123-backend-engineer-go-acme'));
+    assert.equal(response.status, 200);
+    const html = await response.text();
+    assert.equal(pageBuild(html), id);
+    assert.match(html, /<meta name="google-site-verification" content="abcDEF123_-abcDEF123_-abc">/);
+    assert.match(html, /<script type="module" src="\/js\/pwa.js"><\/script><script>window.va=[^<]*<\/script><script defer src="\/_vercel\/insights\/script.js"><\/script><\/head>/);
+  } finally {
+    for(const [key, value] of Object.entries(saved)) if(value === undefined) delete process.env[key]; else process.env[key] = value;
+  }
+});
+
+test('The worker keeps job-page function responses network-first, and stores only what it may', async () => {
+  const code = await read('sw.js');
+  const version = /build ([0-9a-f]+)\./.exec(code)[1];
+  const origin = 'https://www.wilsy.in', listeners = {}, stores = new Map(), pending = [];
+  const keyOf = (request, ignoreSearch) => { const url = new URL(typeof request === 'string' ? request : request.url, origin); if(ignoreSearch) url.search = ''; return url.href; };
+  const store = name => stores.get(name) || stores.set(name, new Map()).get(name);
+  const page = (build, extra = '') => `<!doctype html><html><head><meta charset="utf-8">${build ? `<meta name="wilsy-build" content="${build}">` : ''}${extra}</head></html>`;
+  const reply = (body, {status = 200, headers = {}, mark = body} = {}) => {
+    const all = {'content-type':'text/html; charset=utf-8', ...headers};
+    const make = () => ({mark, ok: status >= 200 && status < 300, status, type:'basic', headers:{get: name => all[name.toLowerCase()] ?? null}, clone: make,
+      body:{getReader: () => { let sent = false; return {read: async () => sent ? {done:true} : (sent = true, {done:false, value:new TextEncoder().encode(body)}), cancel: async () => {}}; }}});
+    return make();
+  };
+  let network = () => Promise.reject(new Error('offline'));
+  const context = {URL, TextDecoder, Response:{error: () => ({mark:'error'})}, fetch: request => network(request),
+    caches:{open: async name => { const s = store(name); return {addAll: async list => list.forEach(url => s.set(keyOf(url), reply(page(version), {mark:url}))), put: async (key, value) => { s.set(keyOf(key), value); }, keys: async () => [...s.keys()], delete: async key => s.delete(keyOf(key))}; },
+      keys: async () => [...stores.keys()], delete: async name => stores.delete(name),
+      match: async (request, options = {}) => { for(const s of stores.values()) { for(const [key, value] of s) if(key === keyOf(request) || (options.ignoreSearch && keyOf(key, true) === keyOf(request, true))) return value; } }},
+    self:{addEventListener: (type, fn) => { listeners[type] = fn; }, location:{origin}, skipWaiting: async () => {}, registration:{}, clients:{claim: async () => {}}}};
+  vm.runInNewContext(code, context, {filename:'sw.js'});
+  let installing; listeners.install({waitUntil: p => { installing = p; }}); await installing;
+  const fetchEvent = async (url, {mode = 'navigate', method = 'GET', clientId = '', resultingClientId = ''} = {}) => {
+    let answer = null;
+    listeners.fetch({request:{url: origin + url, method, mode}, clientId, resultingClientId, preloadResponse: Promise.resolve(undefined), respondWith: p => { answer = p; }, waitUntil: p => pending.push(p)});
+    const response = answer && await answer;
+    await Promise.all(pending.splice(0));
+    return response;
+  };
+  const pages = () => [...store('wilsy-pages-' + version).keys()];
+  const job = '/jobs/123-backend-engineer-go-acme';
+
+  // Online, a job page always comes from the network, even when a copy is stored.
+  network = async () => reply(page(version), {mark:'first'});
+  assert.equal((await fetchEvent(job)).mark, 'first');
+  network = async () => reply(page(version), {mark:'second', headers:{'cache-control':'s-maxage=3600, stale-while-revalidate=86400'}});
+  assert.equal((await fetchEvent(job + '?ref=alert')).mark, 'second');
+  assert.deepEqual(pages(), [origin + job], 'one copy per path, replaced on each visit');
+  // Missing, failed and no-store answers are never stored.
+  network = async () => reply(page(version), {status:404, mark:'missing'});
+  assert.equal((await fetchEvent('/jobs/999-gone')).mark, 'missing');
+  network = async () => reply(page(version), {status:503, headers:{'cache-control':'no-store'}});
+  await fetchEvent('/jobs/998-busy');
+  network = async () => reply(page(version), {headers:{'cache-control':'no-store'}});
+  await fetchEvent('/jobs/997-private');
+  assert.deepEqual(pages(), [origin + job]);
+  // The function itself, and every other /api/ route, is left to the network.
+  for(const url of ['/api/job-page?job_id=123&job_slug=backend-engineer-go-acme', '/api/alerts'])
+    for(const mode of ['navigate', 'cors']) assert.equal(await fetchEvent(url, {mode}), null, `${url} ${mode}`);
+  // Offline: the last copy of a visited job page, otherwise the offline page.
+  network = () => Promise.reject(new Error('offline'));
+  assert.equal((await fetchEvent(job)).mark, 'second');
+  assert.equal((await fetchEvent('/jobs/124-frontend-engineer-acme')).mark, '/offline');
+
+  // Files: stale-while-revalidate for pages of this build; network-first for pages that name another build or none.
+  // (/js/jobs.js is in the precached app shell.)
+  network = async () => reply(page(version), {mark:'page'});
+  await fetchEvent('/jobs', {resultingClientId:'current'});
+  network = async () => reply(page(''), {mark:'page'});
+  await fetchEvent('/jobs/125-data-engineer-acme', {resultingClientId:'unnamed'});
+  network = async () => reply(page('fedcba987654'), {mark:'page'});
+  await fetchEvent('/jobs', {resultingClientId:'newer'});
+  network = async () => reply('', {mark:'fresh-js', headers:{'content-type':'text/javascript'}});
+  const file = clientId => fetchEvent('/js/jobs.js', {mode:'cors', clientId}).then(response => response.mark);
+  const assets = store('wilsy-assets-' + version);
+  assert.equal(await file('unnamed'), 'fresh-js');
+  assert.equal(await file('newer'), 'fresh-js');
+  await new Promise(resolve => setTimeout(resolve));
+  assert.equal(assets.size, 0, 'files fetched for another build are not stored');
+  assert.equal(await file('current'), '/js/jobs.js');
+  assert.equal(await file('before-the-worker'), '/js/jobs.js', 'a page this worker did not load counts as this build');
+  await new Promise(resolve => setTimeout(resolve));
+  assert.equal(assets.get(origin + '/js/jobs.js')?.mark, 'fresh-js', 'and refreshed in the background');
 });
 
 test('The manifest, icons and pages make WILSY installable', async () => {

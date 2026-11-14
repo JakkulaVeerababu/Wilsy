@@ -68,12 +68,15 @@ function worker(VERSION, PRECACHE, routeFor, pageBuild) {
     const keys = await cache.keys();
     for(const key of keys.slice(0, Math.max(0, keys.length - MAX_PAGES))) await cache.delete(key);
   }
-  // Network first; offline, the last copy of this page, then the offline page.
+  // Only complete same-origin answers the server allows to be stored are kept.
+  const storable = response => response.ok && response.type === 'basic' && !/no-store/i.test(response.headers.get('cache-control') || '');
+  // Network first, for static pages and job-page function pages (/jobs/<id>-<slug>) alike: a stored copy
+  // is used only when the network fails. Offline: the last copy of this page, then the offline page.
   async function page(event, url) {
     const key = url.origin + url.pathname;
     try {
       const response = (await event.preloadResponse) || await fetch(event.request);
-      if(response.ok && response.type === 'basic' && /text\/html/.test(response.headers.get('content-type') || '')) {
+      if(storable(response) && /text\/html/.test(response.headers.get('content-type') || '')) {
         if(event.resultingClientId) {
           builds.set(event.resultingClientId, readBuild(response.clone()).catch(() => ''));
           while(builds.size > 50) builds.delete(builds.keys().next().value);
@@ -86,14 +89,15 @@ function worker(VERSION, PRECACHE, routeFor, pageBuild) {
       return (await caches.match(key, {ignoreSearch: true})) || (await caches.match(OFFLINE)) || Response.error();
     }
   }
-  // Stale-while-revalidate. A page from a newer deploy than this worker gets fresh files
-  // from the network instead, so new HTML never runs with old scripts.
+  // Stale-while-revalidate for pages of this build. A page of another build, or one that names no build,
+  // gets its files from the network instead (the cache only when offline), so HTML never runs with other scripts.
+  // A page this worker did not load (it started before the worker, or the worker restarted) counts as this build.
   async function asset(event) {
-    const build = await (builds.get(event.clientId) || '');
-    const current = !build || build === VERSION;
+    const build = builds.has(event.clientId) ? await builds.get(event.clientId) : VERSION;
+    const current = build === VERSION;
     const cached = current ? await caches.match(event.request) : undefined;
     const network = fetch(event.request).then(response => {
-      if(current && response.ok && response.type === 'basic') { const copy = response.clone(); caches.open(ASSETS).then(cache => cache.put(event.request, copy)).catch(() => {}); }
+      if(current && storable(response)) { const copy = response.clone(); caches.open(ASSETS).then(cache => cache.put(event.request, copy)).catch(() => {}); }
       return response;
     });
     if(cached) { event.waitUntil(network.catch(() => {})); return cached; }
