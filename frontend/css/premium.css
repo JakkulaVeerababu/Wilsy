@@ -177,7 +177,7 @@ html.dark-theme .theme-toggle .theme-icon-sun{opacity:1;transform:none}
 @media(max-width:900px){.site-header .main-nav .theme-toggle{width:44px!important;margin:6px 0 0 8px}}
 
 /* ===== Footer, rebuilt ===== */
-.premium-footer{display:block!important;padding:96px var(--gutter) 0!important;border-top:0!important}
+.premium-footer{display:block!important;max-width:none;padding:96px var(--gutter) 0!important;border-top:0!important}
 .premium-footer::after{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(127,160,255,.45),transparent)}
 .premium-footer .footer-main{display:grid!important;grid-template-columns:minmax(260px,1.5fr) repeat(3,minmax(140px,1fr));gap:48px!important;max-width:var(--container);margin:0 auto!important;padding:0 0 64px!important}
 .premium-footer .footer-intro{max-width:360px}
