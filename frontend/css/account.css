@@ -54,3 +54,28 @@ html body .site-header .main-nav .nav-install{display:none}
 @media(max-width:900px){html body .site-header .main-nav .nav-install{display:flex;align-items:center;height:44px;margin:0;padding:0 12px;border:0;border-radius:10px;background:none;color:var(--ink);font:500 14px var(--font);text-align:left;cursor:pointer}}
 /* Offline page: both actions share one width on phones. */
 @media(max-width:560px){html body .not-found .hero-actions>*{width:100%;justify-content:center}}
+
+/* Text contrast (WCAG AA 4.5:1), checked on rendered pages in both themes. */
+:root{--blue-text:#1d45e6}
+html.dark-theme{--blue-text:#9bb4ff}
+/* Dark theme: --blue (#4c74ff) suits blue text on dark surfaces, but white text on it is only 4.0:1.
+   Filled blue controls set --blue on themselves to the light theme's blue (white text 5.3:1, hover 6.9:1),
+   so their fill, border and hover follow while blue text elsewhere keeps the lighter shade. */
+html.dark-theme :is(.skip-link,.site-header .main-nav a.nav-cta,.jobs-search button[type=submit],.hack-search button[type=submit],:is(.jobs-quick,.hack-quick,.dsa-topic-nav,.dsa-view-switch,.job-density) button:is([aria-pressed=true],.active,.is-active),.primary-button,.gov-jobs-card-actions a:first-child,.company-card .careers-link:hover,.guide-card:nth-child(3),.mini-guide,.tier-badge.tier-1,.job-result-card .job-apply-link,.hack-card-footer a,.team-grid .team-initials,.jobs-search-submit,.jobs-empty button,.job-detail-actions>a,#compare-open,#jobs-filter-dialog .filter-apply,#job-filter-toggle,.dsa-primary,#btnSubmitAuth,.home-featured-company:hover .home-featured-arrow,.account-primary){--blue:#2b59ff;--blue-hover:#1d45e6}
+html.dark-theme ::selection{background:#2b59ff;color:#fff}
+/* The third guide card is the blue one; the shared card rule had turned it white under its white text. */
+html body :is(.guide-card:nth-child(3),.mini-guide)[class]{background-color:var(--blue)!important;border-color:var(--blue)!important}
+html body :is(.guide-card:nth-child(3),.mini-guide)[class]:hover{background-color:var(--blue-hover)!important}
+html.dark-theme body .jobs-explainer-link{color:var(--blue-text)}
+html.dark-theme body .jobs-search-input kbd{color:var(--muted)}
+html body #hack-saved-count{background:var(--blue-soft);color:var(--blue-text)}
+html.dark-theme body .hack-phase[data-phase=upcoming]{color:var(--blue-text)!important}
+html:not(.dark-theme) body .hack-filters>button,html:not(.dark-theme) body .hack-principles article>span{color:var(--blue-text)}
+html:not(.dark-theme) body .hack-principles article>p{color:#466587}
+html:not(.dark-theme) body .mono.mono[class]{color:hsl(var(--mh) 62% 30%)!important}
+html:not(.dark-theme) .dsa-page .diff-badge.medium{color:#92400e!important}
+html.dark-theme .gov-jobs-shell .gov-study-disclaimer{color:var(--muted)}
+html body .gov-exam-card-actions a span,html.dark-theme body #main-content .gov-exam-card-actions a span{color:inherit!important}
+/* Job pages and the missing-job page: the secondary button was white with light text in the dark theme. */
+html.dark-theme body :is(.job-page,.not-found) .secondary-button{background:var(--surface-raised);border-color:var(--line-strong);color:var(--ink)}
+html.dark-theme body :is(.job-page,.not-found) .secondary-button:hover{background:var(--tint-hover);border-color:var(--blue)}
