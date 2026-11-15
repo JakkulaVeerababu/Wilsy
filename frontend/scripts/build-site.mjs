@@ -1,10 +1,11 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import {site} from '../js/site-config.js';
 import {inr,salaryRange,usdTextToInr} from '../js/pay-format.js';
 import {escapeHtml as e, safeHref} from '../js/directory-core.js';
 import {guides,policyPages,programPages} from './site-content.mjs';
-import {header,footer,documentPage,jsonld,bundleCss,analyticsTag} from './page-shell.mjs';
+import {header,footer,documentPage,jsonld,bundleCss,finishHead,deploymentBuildId} from './page-shell.mjs';
 import {jobsPage} from './jobs-page.mjs';
 import {homePage} from './home-page.mjs';
 import {hackathonsPage} from './hackathons-page.mjs';
@@ -15,6 +16,7 @@ import {fetchJobSnapshot} from './job-snapshot.mjs';
 import {loadDsaProject,dsaPage,writeDsaAssets} from './dsa-page.mjs';
 import {landingPages,landingUrl} from './landing-pages.mjs';
 import {fetchLandingJobs,publishable,pageWorthy,jobPath,landingBody,jobPageOptions} from './job-pages.mjs';
+import {serviceWorker,shellAssets} from './service-worker.mjs';
 
 const data = JSON.parse(await fs.readFile('data/companies.json','utf8'));
 const fx = JSON.parse(await fs.readFile('data/exchange-rate.json','utf8'));
@@ -44,12 +46,20 @@ const sitemap = [];
 const bundles = new Map();
 const bundle = html => bundleCss(html,{cache:bundles,read:name=>fs.readFile('css/'+name+'.css','utf8'),
   save:async(file,css)=>{await fs.mkdir(path.join(out,'css'),{recursive:true});await fs.writeFile(path.join(out,'css',file),css);}});
+// One id per build. The service worker names its caches with it and compares it with each page's
+// <meta name="wilsy-build">, so a deploy never mixes old and new files. On Vercel it comes from the deployment id,
+// which the job-page function also sees; elsewhere it is a hash of the scripts, styles and fonts.
+const buildId = deploymentBuildId() || await (async()=>{
+  const hash = crypto.createHash('sha256').update(String(process.env.WILSY_DSA_SUPABASE_URL||'')+String(process.env.WILSY_DSA_SUPABASE_ANON_KEY||''));
+  for(const dir of ['js','css','dsa-source','assets/fonts'])for(const name of (await fs.readdir(dir)).sort())hash.update(name).update(await fs.readFile(path.join(dir,name)));
+  return hash.update(await fs.readFile('scripts/service-worker.mjs')).digest('hex').slice(0,12);
+})();
 async function write(route,html,include=true) {
   const file=route==='/'?'index.html':route.slice(1)+'.html';
   const target=path.join(out,file);
   if(!target.startsWith(out+path.sep))throw new Error('Unsafe output route');
   await fs.mkdir(path.dirname(target),{recursive:true});
-  await fs.writeFile(target,(await bundle(html)).replace('</head>',`${analyticsTag()}</head>`));
+  await fs.writeFile(target,finishHead(await bundle(html),{buildId}));
   if(include)sitemap.push(route);
 }
 const hero = (eyebrow,title,description) => `<div class="editorial-hero"><p class="eyebrow">${e(eyebrow)}</p><h1>${e(title)}</h1><p>${e(description)}</p></div>`;
@@ -162,6 +172,8 @@ const groups=new Map();
 for(const c of [...companies].sort((a,b)=>a.name.localeCompare(b.name))){const first=c.name[0].toUpperCase();const letter=/^[A-Z]$/.test(first)?first:'#';if(!groups.has(letter))groups.set(letter,[]);groups.get(letter).push(c);}
 await write('/companies/all',documentPage({title:'All 1,000 companies A–Z',description:'Browse every employer in the WILSY directory with crawlable links to individual company profiles, salary examples, and career pages.',route:'/companies/all',active:'companies',body:`<main id="main-content" class="editorial-shell">${breadcrumb('All companies')}${hero('THE COMPLETE COLLECTION','Every company. A new possibility.','Browse all 1,000 employers by name, or use the directory filters to find your fit.')}<div class="alphabet-nav"><a class="primary-button" href="/companies#companies">Search & filter</a>${[...groups.keys()].map(k=>`<a href="#letter-${k==='#'?'numbers':k}">${k}</a>`).join('')}</div>${[...groups].map(([letter,items])=>`<section class="alphabet-section" id="letter-${letter==='#'?'numbers':letter}"><h2>${letter}</h2><div>${items.map(c=>`<a href="${pageUrl(c)}">${e(c.name)} <span></span></a>`).join('')}</div></section>`).join('')}</main>`}));
 await write('/404',documentPage({title:'Page not found',description:'This page is unavailable. Search live jobs or browse the company directory on WILSY.',route:'/404',noindex:true,ads:false,body:`<main id="main-content" class="editorial-shell not-found">${hero('404 / A DIFFERENT DIRECTION','This page isn’t on the map.','The link may have changed. There are still 1,000 companies to explore.')}<a class="primary-button" href="/">Back to WILSY</a></main>`}),false);
+// The installed app's offline page, served by the service worker for pages not visited before.
+await write('/offline',documentPage({title:'You’re offline',description:'WILSY needs a connection to load this page.',route:'/offline',noindex:true,ads:false,body:`<main id="main-content" class="editorial-shell not-found">${hero('OFFLINE','You’re offline.','This page needs a connection. Pages you opened recently, and the job list, still work offline. Saved jobs stay on this device.')}<div class="hero-actions"><button class="primary-button" type="button" data-retry-page>Try again</button><a href="/jobs">Open the job list</a></div></main>`}),false);
 await fs.writeFile(path.join(out,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemap.map(route=>`<url><loc>${e(site.origin+route)}</loc><lastmod>${site.updatedAt}</lastmod></url>`).join('\n')}</urlset>`);
 await fs.writeFile(path.join(out,'robots.txt'),`User-agent: *\nAllow: /\n\nSitemap: ${site.origin}/sitemap.xml\n`);
 await fs.writeFile(path.join(out,'ads.txt'),'google.com, pub-5489149193350421, DIRECT, f08c47fec0942fa0\n');
@@ -169,7 +181,14 @@ await fs.mkdir(path.join(out,'js'),{recursive:true});
 await fs.mkdir(path.join(out,'css'),{recursive:true});
 for(const file of ['app.js','directory-core.js','pay-format.js','site.js','data-client.js','supabase-config.js','jobs-core.js','jobs.js','job-workspace-core.js','site-config.js','hackathons.js','hackathon-core.js','opportunities.js','opportunity-core.js','government-exam-core.js','government-jobs.js','ui-helpers.js','brand-assets.js','icons.js','job-card.js','job-text.js','home.js','dsa-cloud.js','dsa-enhancements.js','auth-client.js','account-sync.js','account.js','company-jobs.js']) await fs.copyFile('js/'+file,path.join(out,'js',file));
 for(const file of ['styles.css','editorial.css','jobs.css','polish.css','electric.css','hackathons.css','government-jobs.css','refined.css','job-workspace.css','tokens.css','shell.css','homepage.css','jobs-premium.css','dsa.css','premium.css','account.css']) await fs.copyFile('css/'+file,path.join(out,'css',file));
+for(const file of ['analytics.js','pwa.js']) await fs.copyFile('js/'+file,path.join(out,'js',file));
 await fs.cp('assets',path.join(out,'assets'),{recursive:true});
+{
+  // The app shell: the offline page, the job list (the installed app's start page) and what they load.
+  const shell = await Promise.all(['offline.html','jobs.html'].map(f=>fs.readFile(path.join(out,f),'utf8')));
+  const assets = await shellAssets(shell,url=>fs.readFile(path.join(out,url.slice(1)),'utf8'));
+  await fs.writeFile(path.join(out,'sw.js'),serviceWorker({version:buildId,precache:['/offline','/jobs',...assets,'/assets/favicon.svg']}));
+}
 await fs.mkdir(path.join(out,'mathematical-sciences'),{recursive:true});
 await fs.copyFile('research.html',path.join(out,'mathematical-sciences','pi-profile.html')); // temporary standalone page, not in sitemap
 await fs.mkdir(path.join(out,'data'),{recursive:true});

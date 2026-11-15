@@ -4,6 +4,7 @@ import {escapeHtml as e} from '../js/directory-core.js';
 import {icon} from '../js/icons.js';
 import {brandLink, themeToggle} from './brand.mjs';
 import {browseRoles,browseStages} from './landing-pages.mjs';
+import {searchConsoleTag} from './search-console.mjs';
 
 // The page shell every WILSY page shares: head, header, footer and the CSS bundle.
 // Used by the static build (build-site.mjs) and by the on-demand job-page function (api/job-page.mjs),
@@ -61,3 +62,21 @@ export async function bundleCss(html, {read, save=async()=>{}, cache=new Map()})
 }
 // Vercel Web Analytics is cookie-free and served only by Vercel deployments (VERCEL is set at build and run time).
 export const analyticsTag = (env=process.env) => env.VERCEL ? `<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)}</script><script defer src="/_vercel/insights/script.js"></script>` : '';
+
+// A short id for this deployment. VERCEL_DEPLOYMENT_ID is set both while building and in functions,
+// so static pages and job-page function pages of one deploy name the same build. Empty elsewhere.
+export const deploymentBuildId = (env=process.env) => env.VERCEL_DEPLOYMENT_ID
+  ? crypto.createHash('sha256').update(String(env.VERCEL_DEPLOYMENT_ID)).digest('hex').slice(0,12) : '';
+// Worked out once per token, so a malformed one warns once rather than for every page.
+const gsc = new Map();
+const gscTag = token => { if(!gsc.has(token)) gsc.set(token, searchConsoleTag(token)); return gsc.get(token); };
+/**
+ * What every page's head ends with, in the static build and in the job-page function alike:
+ * the build id the service worker compares (when known), the Search Console tag, the worker registration
+ * (js/pwa.js) and analytics. A page without a build id still works; the worker fetches its files fresh.
+ */
+export function finishHead(html, {env=process.env, buildId=deploymentBuildId(env)}={}) {
+  const build = /^[0-9a-f]{6,64}$/.test(buildId) ? `<meta name="wilsy-build" content="${buildId}">` : '';
+  return html.replace('<meta charset="utf-8">', match => match + build)
+    .replace('</head>', () => `${gscTag(env.WILSY_GSC_TOKEN)}<script type="module" src="/js/pwa.js"></script>${analyticsTag(env)}</head>`);
+}

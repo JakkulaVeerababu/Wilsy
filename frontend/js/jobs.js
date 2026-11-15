@@ -6,6 +6,7 @@ import {site} from './site-config.js';
 import {sourceText,copyPageLink,isEditing,savedNotice,savedPlace,announceSaved} from './ui-helpers.js';
 import {SEARCH_KEY,readSearches,searchQuery,searchName,addSearch,toggleComparison} from './job-workspace-core.js';
 import {renderJobCard,jobTags} from './job-card.js';
+import {track,filterSummary,jobMode} from './analytics.js';
 
 const $=s=>document.querySelector(s), dialog=$('#job-detail');
 let state=readState(location.search),saved=[],companies=[],fx,rows=[],total=0,controller,requestId=0,lastFetch=0,detailRequest=0;
@@ -77,7 +78,7 @@ function openComparison(){
   $('#compare-table').innerHTML=`<caption class="sr-only">Compare ${comparison.length} selected job opportunities</caption><thead><tr><th scope="col">The details</th>${comparison.map(j=>`<th scope="col"><span>${e(j.company)}</span><strong>${e(j.title)}</strong>${applyUrl(j.apply_url)?`<a href="${e(applyUrl(j.apply_url))}" target="_blank" rel="noopener noreferrer" aria-label="Apply for ${e(j.title)} at ${e(j.company)}">Apply with employer</a>`:''}<button type="button" data-compare="${j.id}" aria-label="Remove ${e(j.title)} at ${e(j.company)} from comparison">Remove role</button></th>`).join('')}</tr></thead><tbody>${facts.map(([name,value])=>`<tr><th scope="row">${name}</th>${comparison.map(j=>`<td>${e(value(j))}</td>`).join('')}</tr>`).join('')}</tbody>`;
   if(!$('#compare-dialog').open)$('#compare-dialog').showModal();
 }
-$('#save-search').addEventListener('click',()=>{const result=addSearch(searches,state);if(result.error){workspaceMessage(result.error);return;}if(persistSearches(result.searches))workspaceMessage('Search saved on this browser. Reopen it from Saved searches.');});
+$('#save-search').addEventListener('click',()=>{const result=addSearch(searches,state);if(result.error){workspaceMessage(result.error);return;}if(persistSearches(result.searches)){workspaceMessage('Search saved on this browser. Reopen it from Saved searches.');track('search_save',{filters:filterSummary(state)});}});
 $('#share-search').addEventListener('click',async()=>{
   const query=stateQuery({...state,id:'',page:1,saved:false}),url=location.origin+location.pathname+(query?'?'+query:'');
   try{await navigator.clipboard.writeText(url);workspaceMessage('Search link copied. It opens these filters with current results.');}catch{workspaceMessage('Copy the page address from your browser to share this search.');}
@@ -126,6 +127,7 @@ function save(id){
   if(next.length>500){feedback('You can save up to 500 roles on this device. Remove a saved role to add another.');return;}
   try{localStorage.setItem('wilsy-saved-jobs',JSON.stringify(next));saved=next;announceSaved();}catch{feedback('This browser is blocking local storage. Enable site storage to save jobs on this device.');return;}
   savedNotice(saved.includes(id)?`Job saved ${savedPlace()}.`:'Job removed from saved.',location.pathname+'?saved=1');
+  if(saved.includes(id))track('job_save',{page:dialog.open?'dialog':'jobs'});
   controls({preserveDraft:true});document.querySelectorAll(`[data-save="${id}"]`).forEach(b=>{const active=saved.includes(id);b.setAttribute('aria-pressed',active);b.textContent=active?'Saved':'Save';});
   if(state.saved)load();
 }
@@ -142,6 +144,7 @@ function updatedAgo(value){const t=Date.parse(value),mins=Math.round((Date.now()
 async function openJob(id,{push=true}={}){
   const token=++detailRequest;state.id=String(id);address(push);
   const cached=rows.find(job=>String(job.id)===String(id));
+  if(!dialog.open)track('job_open',{via:push?'list':'link',mode:jobMode(cached)});
   $('#job-detail-body').innerHTML='<div class="job-detail-inner"><h2 id="job-detail-title">Loading job details…</h2><p>Checking the current listing.</p></div>';if(!dialog.open)dialog.showModal();
   try{const result=await searchJobs({id:String(id)},0);if(token!==detailRequest||!dialog.open)return;const job=result.jobs[0];
     if(!job){$('#job-detail-body').innerHTML='<div class="job-detail-inner"><h2 id="job-detail-title">This role is no longer available.</h2><p>It may have closed or expired. Explore the current listings for another opportunity.</p></div>';return;}
@@ -156,7 +159,7 @@ async function openJob(id,{push=true}={}){
     $('#job-detail-body').innerHTML=`<div class="job-detail-inner"><h2 id="job-detail-title">Couldn’t load this role.</h2><p>Please retry the current source connection.</p><button type="button" data-job="${e(id)}">Retry details</button></div>`;
   }
 }
-$('#job-search-form').addEventListener('submit',event=>{event.preventDefault();change({q:$('#job-search').value.trim()});});
+$('#job-search-form').addEventListener('submit',event=>{event.preventDefault();change({q:$('#job-search').value.trim()});track('search',{page:'jobs',filters:filterSummary(state)});});
 $('#job-filter-form').addEventListener('submit',e=>e.preventDefault());
 $('#job-filter-form').addEventListener('change',event=>{const el=event.target;if(!filterKeys.includes(el.name))return;const value=el.type==='checkbox'?(el.checked?'yes':''):el.value;change({[el.name]:value,...(el.name==='period'?{minimum:''}:{})});});
 $('#job-sort').addEventListener('change',event=>change({sort:event.target.value}));
@@ -168,10 +171,12 @@ $('#job-filter-toggle').addEventListener('click',()=>{
   filterDialog.append(filterPanel);filterPanel.classList.add('open');filterDialog.showModal();
   document.body.classList.add('filters-open');$('#job-filter-toggle').setAttribute('aria-expanded','true');$('#job-filter-close').focus();
 });
-filterDialog.addEventListener('close',()=>{filterHome.prepend(filterPanel);filterPanel.classList.remove('open');document.body.classList.remove('filters-open');$('#job-filter-toggle').setAttribute('aria-expanded','false');$('#job-filter-toggle').focus({preventScroll:true});});
+// "Show matching jobs" sends focus to the results; any other close returns it to the toggle.
+let filtersToResults=false;
+filterDialog.addEventListener('close',()=>{filterHome.prepend(filterPanel);filterPanel.classList.remove('open');document.body.classList.remove('filters-open');$('#job-filter-toggle').setAttribute('aria-expanded','false');$(filtersToResults?'#job-results-heading':'#job-filter-toggle').focus({preventScroll:true});filtersToResults=false;});
 filterDialog.addEventListener('click',event=>{if(event.target===filterDialog)closeFilters();});
 $('#job-filter-close').addEventListener('click',closeFilters);
-$('#job-filter-apply').addEventListener('click',()=>{closeFilters();$('#job-results-heading').focus();$('#job-results-heading').scrollIntoView({block:'start'});});
+$('#job-filter-apply').addEventListener('click',()=>{filtersToResults=filterDialog.open;closeFilters();$('#job-results-heading').focus();$('#job-results-heading').scrollIntoView({block:'start'});});
 matchMedia('(max-width:760px)').addEventListener('change',event=>{if(!event.matches)closeFilters();});
 $('#job-detail-close').addEventListener('click',()=>dialog.close());
 dialog.addEventListener('close',()=>{++detailRequest;const closedId=state.id;state.id='';address();(document.querySelector(`[data-job="${closedId}"]`)||$('#job-results-heading')).focus({preventScroll:true});});

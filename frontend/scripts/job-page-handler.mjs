@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import {databaseRequest} from '../js/data-client.js';
 import {jobPath, publishable, jobPageOptions, missingJobOptions} from './job-pages.mjs';
-import {documentPage, bundleCss, analyticsTag} from './page-shell.mjs';
+import {documentPage, bundleCss, finishHead} from './page-shell.mjs';
 
 // On-demand job pages. vercel.json rewrites /jobs/<digits>-<slug> to api/job-page.mjs only when no static
 // file matches (Vercel checks the filesystem before rewrites), so pre-built job pages and landing pages
@@ -77,7 +77,7 @@ export function createJobPageHandler({search=searchPublicJobs, now=()=>Date.now(
   const respond = (request, status, body, headers={}) => new Response(request.method === 'HEAD' ? null : body,
     {status, headers:{'Content-Type':'text/html; charset=utf-8', ...SECURITY_HEADERS, ...headers}});
   const render = async (options, {read, cache}) =>
-    (await bundleCss(documentPage(options), {read, cache})).replace('</head>', `${analyticsTag()}</head>`);
+    finishHead(await bundleCss(documentPage(options), {read, cache}));
 
   return async function handle(request) {
     if(request.method !== 'GET' && request.method !== 'HEAD')

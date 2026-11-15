@@ -1,22 +1,37 @@
 {
+  "id": "/",
   "name": "WILSY",
   "short_name": "WILSY",
   "description": "Source-linked jobs with INR salary context.",
-  "start_url": "/",
+  "lang": "en-IN",
+  "start_url": "/jobs?source=pwa",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0866ff",
+  "categories": ["business", "productivity"],
+  "shortcuts": [
+    {"name": "Saved jobs", "url": "/jobs?saved=1&source=pwa"},
+    {"name": "Internships", "url": "/jobs?stage=internship&source=pwa"}
+  ],
   "icons": [
     {
       "src": "/assets/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/assets/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
