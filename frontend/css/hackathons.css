@@ -25,3 +25,47 @@
 @keyframes hack-loading{to{background-position:-200% 0}}
 @media(max-width:400px){.hack-search>span{display:none}.hack-search button{gap:0;padding:12px}.hack-index{padding:20px;gap:0 14px}.hack-index-bottom{padding-left:14px;gap:10px}.hack-card-footer{flex-wrap:wrap}.hack-principles{grid-template-columns:1fr}.hack-principles article:last-child{grid-column:auto}}
 @media(prefers-reduced-motion:reduce){.hack-skeleton{animation:none}}
+
+/* Opportunity sections: tabs shared by Hackathons, Competitions, Coding contests and Open-source programs. */
+/* The tabs sit on the hero's blue band (.hack-hero::before), in light and dark themes alike. */
+.section-tabs{position:relative;z-index:1;display:flex;gap:8px;flex-wrap:wrap;padding:22px 0 0}
+.section-tabs a{min-height:40px;display:inline-flex;align-items:center;padding:8px 15px;border:1px solid rgba(255,255,255,.4);border-radius:999px;font-size:14px;font-weight:600;color:#fff;text-decoration:none;background:transparent}
+.section-tabs a:hover{border-color:#fff;background:rgba(255,255,255,.12)}
+.section-tabs a[aria-current="page"]{background:#fff;border-color:#fff;color:#1b3fe0}
+/* Coding contests: a day-by-day calendar instead of the card grid. */
+.hack-results.contest-calendar{display:block}
+.contest-day+.contest-day{margin-top:26px}
+.contest-day>h3{font-family:var(--heading);font-size:15px;font-weight:700;color:var(--ink);margin:0 0 10px}
+.contest-list{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--surface)}
+.contest-row{display:grid;grid-template-columns:120px 1fr auto;gap:18px;align-items:center;padding:16px 18px}
+.contest-row+.contest-row{border-top:1px solid var(--line)}
+.contest-row>time{font-weight:700;color:var(--ink);font-size:14px}
+.contest-row h3{font-size:16px;margin:4px 0;color:var(--ink)}
+.contest-row h3 a{color:inherit;text-decoration:none}
+.contest-row h3 a:hover{color:var(--blue);text-decoration:underline}
+.contest-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0;font-size:12px;color:var(--muted)}
+.contest-source{font-weight:700;color:var(--blue)}
+.contest-facts{margin:0;font-size:13px;color:var(--muted)}
+.contest-actions{display:flex;gap:8px;align-items:center}
+.contest-actions button,.contest-actions a{min-height:40px;padding:8px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--surface);color:var(--ink);font-size:14px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center}
+.contest-actions a{background:var(--blue);border-color:var(--blue);color:#fff}
+.contest-elsewhere{margin:34px 0 0;padding:22px;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--surface-subtle)}
+.contest-elsewhere h2{font-family:var(--heading);font-size:18px;margin:0 0 6px;color:var(--ink)}
+.contest-elsewhere p{margin:0 0 12px;color:var(--muted);font-size:14px}
+.contest-elsewhere div{display:flex;gap:18px;flex-wrap:wrap}
+.contest-elsewhere a{color:var(--blue);font-weight:600}
+@media (max-width:760px){
+  .section-tabs a{min-height:44px}
+  .contest-row{grid-template-columns:1fr;gap:8px}
+  .contest-actions{flex-wrap:wrap}
+  .contest-actions button,.contest-actions a{min-height:44px}
+}
+/* Open-source programs */
+.program-card .event-mono{font-size:12px;letter-spacing:0;width:auto;min-width:56px;padding:0 8px}
+.hack-phase[data-status="open"]{background:var(--blue);color:#fff}
+.program-facts{display:grid;gap:0;margin:0 0 28px;border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden}
+.program-facts>div{display:grid;grid-template-columns:180px 1fr;gap:16px;padding:12px 16px}
+.program-facts>div+div{border-top:1px solid var(--line)}
+.program-facts dt{font-weight:700;color:var(--ink)}
+.program-facts dd{margin:0;color:var(--ink-soft)}
+@media (max-width:760px){.program-facts>div{grid-template-columns:1fr;gap:4px}}

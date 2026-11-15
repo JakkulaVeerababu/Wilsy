@@ -8,6 +8,8 @@ import {header,footer,documentPage,jsonld,bundleCss,analyticsTag} from './page-s
 import {jobsPage} from './jobs-page.mjs';
 import {homePage} from './home-page.mjs';
 import {hackathonsPage} from './hackathons-page.mjs';
+import {competitionsPage,contestsPage} from './opportunity-pages.mjs';
+import {programsPage,programArticle} from './programs-pages.mjs';
 import {governmentJobsPage} from './government-jobs-page.mjs';
 import {fetchJobSnapshot} from './job-snapshot.mjs';
 import {loadDsaProject,dsaPage,writeDsaAssets} from './dsa-page.mjs';
@@ -120,6 +122,14 @@ await write('/jobs',documentPage({...jobsMeta,route:'/jobs',ads:false}));
 await write('/dsa',documentPage({title:'DSA roadmap — patterns, practice & progress',description:`Explore ${dsaProject.stats.patterns} DSA patterns across ${dsaProject.stats.categories} topics with an interactive mind-map, Python templates and browser-saved progress.`,route:'/dsa',active:'dsa',ads:false,body:dsaPage(dsaProject)}));
 await writeDsaAssets(out,dsaProject);
 await write('/hackathons',documentPage({title:'Hackathons & challenges',description:'Explore verified hackathons with eligibility, dates, prize breakdowns and official registration links. Save your next challenge on WILSY.',route:'/hackathons',active:'hackathons',body:hackathonsPage}));
+await write('/competitions',documentPage({title:'Competitions & case challenges',description:'Free-to-enter case competitions, innovation challenges and quizzes for Indian students, with prizes, eligibility and registration deadlines from each listing.',route:'/competitions',active:'competitions',body:competitionsPage}));
+// No ads here: Codeforces’ terms forbid commercialising its material, so the contest calendar stays ad-free.
+await write('/contests',documentPage({title:'Coding contests calendar',description:'Upcoming Codeforces and AtCoder contests in your time zone, with length, rated range and a calendar file for each round.',route:'/contests',active:'contests',ads:false,body:contestsPage}));
+const ossPrograms=JSON.parse(await fs.readFile('data/open-source-programs.json','utf8'));
+await write('/open-source-programs',documentPage({title:'Open-source programs: GSoC, Outreachy, LFX and more',description:'Google Summer of Code, Outreachy, LFX Mentorship, Hacktoberfest and more: who can apply, stipends and when applications usually open, from official pages.',route:'/open-source-programs',active:'open-source',body:programsPage(ossPrograms)}));
+for(const p of ossPrograms.programs) {
+  await write('/open-source-programs/'+p.slug,documentPage({title:`${p.name}: eligibility, stipend and dates`,description:`${p.summary} Who can apply, stipend and usual timing for ${p.name}, from the official site.`,route:'/open-source-programs/'+p.slug,active:'open-source',body:`<main id="main-content" class="editorial-shell">${breadcrumb(p.name,{url:'/open-source-programs',label:'Open-source programs'})}${hero('OPEN-SOURCE PROGRAM',p.name,p.summary)}<div class="article-layout"><aside class="article-aside"><p class="eyebrow">${e(p.organizer.toUpperCase())}</p><p>Reviewed ${e(ossPrograms.reviewed_at)}</p><a href="/open-source-programs">All open-source programs</a><a href="/hackathons">Hackathons</a><a href="/contests">Coding contests</a></aside><article class="prose">${programArticle(p)}</article></div></main>`}));
+}
 await write('/government-jobs',documentPage({title:'India government jobs',description:'Browse a dated, source-first snapshot of active India government-job notices with official links, dates, pay bands and eligibility guidance.',route:'/government-jobs',active:'government-jobs',body:governmentJobsPage}));
 
 for(const p of policyPages(site.email)) {
@@ -157,7 +167,7 @@ await fs.writeFile(path.join(out,'robots.txt'),`User-agent: *\nAllow: /\n\nSitem
 await fs.writeFile(path.join(out,'ads.txt'),'google.com, pub-5489149193350421, DIRECT, f08c47fec0942fa0\n');
 await fs.mkdir(path.join(out,'js'),{recursive:true});
 await fs.mkdir(path.join(out,'css'),{recursive:true});
-for(const file of ['app.js','directory-core.js','pay-format.js','site.js','data-client.js','supabase-config.js','jobs-core.js','jobs.js','job-workspace-core.js','site-config.js','hackathons.js','hackathon-core.js','government-exam-core.js','government-jobs.js','ui-helpers.js','brand-assets.js','icons.js','job-card.js','job-text.js','home.js','dsa-cloud.js','dsa-enhancements.js','auth-client.js','account-sync.js','account.js','company-jobs.js']) await fs.copyFile('js/'+file,path.join(out,'js',file));
+for(const file of ['app.js','directory-core.js','pay-format.js','site.js','data-client.js','supabase-config.js','jobs-core.js','jobs.js','job-workspace-core.js','site-config.js','hackathons.js','hackathon-core.js','opportunities.js','opportunity-core.js','government-exam-core.js','government-jobs.js','ui-helpers.js','brand-assets.js','icons.js','job-card.js','job-text.js','home.js','dsa-cloud.js','dsa-enhancements.js','auth-client.js','account-sync.js','account.js','company-jobs.js']) await fs.copyFile('js/'+file,path.join(out,'js',file));
 for(const file of ['styles.css','editorial.css','jobs.css','polish.css','electric.css','hackathons.css','government-jobs.css','refined.css','job-workspace.css','tokens.css','shell.css','homepage.css','jobs-premium.css','dsa.css','premium.css','account.css']) await fs.copyFile('css/'+file,path.join(out,'css',file));
 await fs.cp('assets',path.join(out,'assets'),{recursive:true});
 await fs.mkdir(path.join(out,'mathematical-sciences'),{recursive:true});

@@ -22,6 +22,11 @@ export const searchHackathons=(filters,offset=0,signal)=>databaseRequest('rpc/wi
   body:{filters,page_size:12,page_offset:offset},signal
 });
 export const hackathonFacets=()=>databaseRequest('rpc/wilsy_hackathon_facets',{body:{}});
+// Competitions and coding contests (public.opportunities; filters.kind picks the section).
+export const searchOpportunities=(filters,{pageSize=12,offset=0,signal}={})=>databaseRequest('rpc/wilsy_search_opportunities',{
+  body:{filters,page_size:pageSize,page_offset:offset},signal
+});
+export const opportunityFacets=kind=>databaseRequest('rpc/wilsy_opportunity_facets',{body:{opportunity_kind:kind}});
 
 export async function loadCompanies() {
   try {

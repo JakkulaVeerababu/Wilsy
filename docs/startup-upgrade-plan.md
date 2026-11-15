@@ -187,3 +187,19 @@ Build sections 1, 2 and 3: Competitions, Coding contests and Open-source program
 2. **Codeforces.** Its terms forbid "commercializing any Website material", and WILSY shows ads. Recommended: show only facts (contest name, start time, length, link) and no ads on contest pages. The alternative is to email Codeforces for permission first.
 3. **Who keeps the curated lists current** (sections 3, 4 and 5): about an hour a week, helped by the daily change check.
 4. **Quality rules for Unstop internships** (section 6): for example, paid only, the stipend shown, and never a fee to apply.
+
+### Status (15 Nov 2026): sections 1–3 built, not deployed
+
+Choices made, following the recommendations above:
+- one `opportunities` table;
+- facts only for contests;
+- no ads on `/contests`;
+- only free-to-enter competitions.
+
+What was built:
+
+- **Competitions** (`/competitions`) and **Coding contests** (`/contests`). The collector is `collectors/opportunities.mjs`. It runs after the hackathon collector in the same hourly workflow and cannot block it. A dry read found 382 open competitions and 15 upcoming contests. The contest calendar groups contests by day in the visitor's time zone and offers a calendar file for each one.
+- **Open-source programs** (`/open-source-programs`, plus one page per program). Eight programs are curated in `frontend/data/open-source-programs.json` from their official pages. `collectors/programs-check.mjs` runs in the daily snapshot and flags any program whose official dates change, for a person to review.
+- **Section tabs** link Hackathons, Competitions, Coding contests and Open-source programs, and the footer links all four.
+
+Before Competitions and Coding contests can show data, the founders apply `docs/proposals/opportunities.sql` (tested on a local Postgres 18). Until then, those two pages say the section is getting started.
