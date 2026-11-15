@@ -5,7 +5,7 @@ import {escapeHtml as e} from './directory-core.js';
 
 // Optional accounts: the header button, sign-in dialog and background sync of saved lists.
 const auth=createAuth();
-const state={view:'email',email:'',message:'',busy:false,counts:null,alerts:{},syncError:'',google:null};
+const state={view:'email',email:'',code:'',message:'',busy:false,counts:null,alerts:{},syncError:'',google:null};
 let dialog,button,pending=null,again=false,debounce;
 
 function plural(n,word){return `${n} ${word}${n===1?'':'s'}`;}
@@ -22,7 +22,7 @@ function emailView() {
 function codeView() {
   return `<p>We emailed a sign-in code to <strong>${e(state.email)}</strong>. Enter it below, or open the link in that email on this device.</p>
     <form class="account-form" data-form="code" novalidate><label for="account-code">Sign-in code</label>
-      <input id="account-code" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="10" required>
+      <input id="account-code" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="10" required value="${e(state.code)}">
       <button class="account-primary" type="submit"${state.busy?' disabled':''}>${state.busy?'Checking…':'Sign in'}</button></form>
     <div class="account-links"><button type="button" data-resend>Send a new code</button><button type="button" data-restart>Use a different email</button></div>`;
 }
@@ -44,10 +44,16 @@ function render() {
   const signedIn=!!auth.session();
   if(signedIn)state.view='account';else if(state.view==='account')state.view='email';
   const title=signedIn?'Your account':state.view==='code'?'Check your email':'Keep your shortlist everywhere';
+  // Re-rendering replaces the dialog's markup, so keep the focused field and caret across it:
+  // background updates (Google check, sync, tab switches) must not wipe what someone is typing.
+  const active=dialog.contains(document.activeElement)?document.activeElement:null;
+  const keep=active?.id?{id:active.id,start:active.selectionStart,end:active.selectionEnd}:null;
   dialog.innerHTML=`<div class="account-panel"><div class="account-head"><div><p class="eyebrow">WILSY ACCOUNT</p><h2 id="account-title">${title}</h2></div>
     <button class="account-close" type="button" data-close>Close</button></div>
     ${state.view==='account'?accountView():state.view==='code'?codeView():emailView()}
     <p class="account-message" role="status" aria-live="polite">${e(state.message)}</p></div>`;
+  const field=keep&&document.getElementById(keep.id);
+  if(field&&dialog.contains(field)){field.focus();try{if(keep.start!=null)field.setSelectionRange(keep.start,keep.end);}catch{}}
   label();
 }
 function focusFirst(){dialog?.querySelector('input, select, [data-signout]')?.focus();}
@@ -55,7 +61,7 @@ async function open(message='') {
   state.message=message;render();
   if(!dialog.open)dialog.showModal();
   focusFirst();
-  if(state.google===null&&!auth.session())auth.providers().then(p=>{state.google=p.google;if(dialog.open&&state.view==='email')render();}).catch(()=>{state.google=false;});
+  if(state.google===null&&!auth.session())auth.providers().then(p=>{state.google=p.google;if(p.google&&dialog.open&&state.view==='email')render();}).catch(()=>{state.google=false;});
 }
 
 async function run(task) {
@@ -84,8 +90,8 @@ function bind() {
   dialog.addEventListener('click',async event=>{
     const t=event.target;
     if(t===dialog||t.closest('[data-close]'))return dialog.close();
-    if(t.closest('[data-restart]')){state.view='email';state.message='';return render();}
-    if(t.closest('[data-resend]'))return run(async()=>{await auth.sendEmail(state.email);state.message='A new code is on its way.';});
+    if(t.closest('[data-restart]')){state.view='email';state.code='';state.message='';return render();}
+    if(t.closest('[data-resend]'))return run(async()=>{await auth.sendEmail(state.email);state.code='';state.message='A new code is on its way.';});
     if(t.closest('[data-google]'))return run(async()=>{location.assign(await auth.googleUrl());});
     if(t.closest('[data-signout]'))return run(async()=>{await auth.signOut();forgetAccount(localStorage);
       for(const key of ['wilsy-saved-jobs','wilsy-saved-hackathons','wilsy-saved-searches-v1'])window.dispatchEvent(new StorageEvent('storage',{key}));
@@ -95,7 +101,12 @@ function bind() {
     event.preventDefault();
     const form=event.target;
     if(form.dataset.form==='email'){state.email=form.email.value;return run(async()=>{state.email=await auth.sendEmail(state.email);state.view='code';});}
-    if(form.dataset.form==='code')return run(async()=>{await auth.verifyCode(state.email,form.code.value);state.message='Signed in. Your saved items are syncing.';await sync();});
+    if(form.dataset.form==='code')return run(async()=>{await auth.verifyCode(state.email,state.code=form.code.value);state.code='';state.message='Signed in. Your saved items are syncing.';await sync();});
+  });
+  // Keep typed values in state so any re-render shows them again.
+  dialog.addEventListener('input',event=>{
+    if(event.target.id==='account-email')state.email=event.target.value;
+    else if(event.target.id==='account-code')state.code=event.target.value;
   });
   dialog.addEventListener('change',event=>{
     const select=event.target.closest('[data-alert]');if(!select)return;
