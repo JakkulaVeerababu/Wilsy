@@ -55,26 +55,38 @@ the public key in `frontend/js/supabase-config.js`.
 
 ### 1. Create a Resend account
 
-Sign up at [resend.com](https://resend.com) with a founders' address. Check the current plan limits
-on [resend.com/pricing](https://resend.com/pricing). When this was written the free plan allowed
-3,000 emails a month and 100 a day. Keep the workflow's `max_emails` at or below the daily limit.
+Done on 15 Nov 2026 (free plan: 100 emails a day, 3,000 a month; check
+[resend.com/pricing](https://resend.com/pricing) before raising volume). Keep the workflow's
+`max_emails` at or below the daily limit.
 
 ### 2. Verify the wilsy.in domain
 
-1. Resend → **Domains** → **Add domain** → `wilsy.in`. Pick the region closest to most readers
-   (Tokyo, `ap-northeast-1`, is the nearest to India).
-2. Resend shows the DNS records to add. Add **exactly what it shows** at whoever hosts the wilsy.in DNS
-   (Vercel → Domains if wilsy.in uses Vercel's nameservers, otherwise the registrar). Typically:
-   - **DKIM**: a `TXT` record at `resend._domainkey` holding a public key. This signs mail as wilsy.in.
-   - **SPF**: a `TXT` record `v=spf1 include:amazonses.com ~all` and an `MX` record, both on the
-     `send` subdomain (Resend's bounce address). They sit on `send.wilsy.in`, so they do not touch
-     any SPF record wilsy.in already has for `contact@wilsy.in`. Never add a second SPF record on
-     the root domain; merge instead.
-3. Add **DMARC** yourself (Resend suggests it but does not require it): a `TXT` record at `_dmarc`
-   with `v=DMARC1; p=none; rua=mailto:contact@wilsy.in`. If `_dmarc.wilsy.in` already exists, keep the
-   existing one. After a few weeks of clean reports, move to `p=quarantine`.
-4. Press **Verify** in Resend and wait until the domain shows *Verified*. Until then Resend refuses
-   to send to anyone except the account owner, and the workflow stops at the first email.
+Done on 15 Nov 2026: **wilsy.in is verified in Resend** (region Tokyo, `ap-northeast-1`, which cannot be
+changed later; domain id `89ae1465-ee06-4364-8807-777811b8a930`). The four records below were added by hand
+in GoDaddy, checked at `ns59.domaincontrol.com`, and all four passed Resend's check at 05:01 UTC.
+
+What wilsy.in's DNS looks like (checked 15 Nov 2026):
+- **DNS is at GoDaddy** (`ns59/ns60.domaincontrol.com`), which supports Domain Connect, so Resend can add
+  every record in one click.
+- **Mail for wilsy.in runs on Zoho** (MX `mx.zoho.in`, and an SPF record on the root). Resend's records
+  use new names, so they do not touch Zoho. Never add a second SPF record on the root domain.
+- **DMARC already exists**: `v=DMARC1; p=quarantine; adkim=r; aspf=r; …`. **Do not add another one**:
+  two DMARC records make receivers ignore both. Resend's DKIM signs as wilsy.in, so alerts pass this
+  policy with relaxed alignment.
+
+The records Resend needs (in GoDaddy → **Domains → wilsy.in → DNS**; GoDaddy adds `.wilsy.in` to each name).
+Keep them: deleting any of them makes Resend stop sending.
+
+| Purpose | Type | Name | Value |
+|---|---|---|---|
+| DKIM | TXT | `resend._domainkey` | the public key shown on the domain in Resend |
+| Bounces (SPF) | MX | `send` | `feedback-smtp.ap-northeast-1.amazonses.com`, priority 10 |
+| Bounces (SPF) | TXT | `send` | `v=spf1 include:amazonses.com ~all` |
+| Return path | CNAME | `rsend` | `send.forge.rmta.net` |
+
+To check the status again, open `https://resend.com/domains/89ae1465-ee06-4364-8807-777811b8a930` or run
+`npx resend-cli@latest domains get 89ae1465-ee06-4364-8807-777811b8a930`. If it ever drops out of *Verified*,
+Resend refuses to send to anyone except the account owner, and the workflow stops at the first email.
 
 `alerts@wilsy.in` does not need a mailbox. Replies go to `contact@wilsy.in`.
 
