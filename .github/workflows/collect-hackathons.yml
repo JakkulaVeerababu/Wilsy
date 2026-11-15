@@ -1,5 +1,7 @@
 # Hourly hackathon collector: open registrations from Unstop's public API and Devfolio.
 # Adds new events, refreshes known ones and closes events whose registration has ended.
+# Then collects competitions (Unstop) and coding contests (Codeforces, AtCoder) into
+# public.opportunities (collectors/opportunities.mjs; table: docs/proposals/opportunities.sql).
 # Started at :23 every hour by Supabase pg_cron (supabase/migrations/20261112020000_wilsy_hourly_dispatch.sql).
 name: Collect hackathons
 on:
@@ -23,3 +25,12 @@ jobs:
         run: |
           if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then echo "::error::SUPABASE_SERVICE_ROLE_KEY is missing; nothing was collected."; exit 1; fi
           node collectors/hackathons.mjs
+      # A failure here (for example before the opportunities table exists) shows as a warning
+      # and never stops the hackathon collection above.
+      - name: Collect competitions and coding contests
+        if: always()
+        continue-on-error: true
+        env:
+          SUPABASE_URL: https://pnkthqatdlozrojwefnc.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node collectors/opportunities.mjs
