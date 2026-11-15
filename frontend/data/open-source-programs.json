@@ -1,0 +1,217 @@
+{
+  "note": "Hand-curated. Every fact comes from the program's official page. 'next' is filled in only once the official page announces the dates. collectors/programs-check.mjs re-reads each 'check_url' daily and sets 'check.seen' when the dates on that page change; a person then reviews the entry and copies 'check.seen' into 'check.reviewed'.",
+  "reviewed_at": "2026-11-15",
+  "programs": [
+    {
+      "slug": "google-summer-of-code",
+      "name": "Google Summer of Code",
+      "short": "GSoC",
+      "organizer": "Google",
+      "url": "https://summerofcode.withgoogle.com/",
+      "check_url": "https://developers.google.com/open-source/gsoc/timeline",
+      "summary": "Spend a summer writing code for an open-source organization, with mentors from that organization.",
+      "who": "Students and people new to open source, aged 18 or over.",
+      "stipend": "Paid by Google. The amount depends on the project's size and the contributor's country.",
+      "format": "Remote",
+      "usual": "Contributor applications usually open in March for about two weeks. Coding runs from about June.",
+      "last_edition": "2026: contributor applications ran from 16 to 31 March 2026.",
+      "next": null,
+      "tags": [
+        "Coding",
+        "Stipend",
+        "Global"
+      ],
+      "check": {
+        "reviewed": [
+          "580065d365048c61",
+          "6d96997c989c1a60",
+          "6f29f042268fd878"
+        ],
+        "seen": "580065d365048c61",
+        "checked_at": "2026-11-15T01:56:28.000Z",
+        "ok": true
+      }
+    },
+    {
+      "slug": "lfx-mentorship",
+      "name": "LFX Mentorship",
+      "short": "LFX",
+      "organizer": "The Linux Foundation",
+      "url": "https://mentorship.lfx.linuxfoundation.org/",
+      "check_url": "https://docs.linuxfoundation.org/lfx/mentorship",
+      "summary": "Paid mentorships on Linux Foundation projects such as the Linux kernel and CNCF projects.",
+      "who": "Anyone. Each project lists its own requirements.",
+      "stipend": "Paid. The amount depends on the mentee's country.",
+      "format": "Remote",
+      "usual": "Several terms each year. Each project opens its own applications before its term.",
+      "last_edition": null,
+      "next": null,
+      "tags": [
+        "Coding",
+        "Stipend",
+        "Global"
+      ],
+      "check": {
+        "reviewed": null,
+        "seen": null,
+        "checked_at": "2026-11-15T01:56:28.000Z",
+        "ok": true
+      }
+    },
+    {
+      "slug": "outreachy",
+      "name": "Outreachy",
+      "short": "Outreachy",
+      "organizer": "Software Freedom Conservancy",
+      "url": "https://www.outreachy.org/",
+      "check_url": "https://www.outreachy.org/apply/project-selection/",
+      "summary": "Paid, remote internships in open source and open science.",
+      "who": "People subject to systemic bias or under-represented in tech, who can work on the internship full time.",
+      "stipend": "Paid. See the official site for the current amount.",
+      "format": "Remote",
+      "usual": "Two cohorts a year, starting in May and December. Initial applications open a few months before each cohort.",
+      "last_edition": "December 2026 cohort: internships run from 7 December 2026 to 8 March 2027. Its applications have closed.",
+      "next": null,
+      "tags": [
+        "Coding",
+        "Docs and design",
+        "Stipend",
+        "Global"
+      ],
+      "check": {
+        "reviewed": "1a1dc606acd4ea0b",
+        "seen": "1a1dc606acd4ea0b",
+        "checked_at": "2026-11-15T01:56:28.000Z",
+        "ok": true
+      }
+    },
+    {
+      "slug": "hacktoberfest",
+      "name": "Hacktoberfest",
+      "short": "Hacktoberfest",
+      "organizer": "DigitalOcean",
+      "url": "https://hacktoberfest.com/",
+      "check_url": "https://hacktoberfest.com/",
+      "summary": "A month of contributing to open-source projects, with online and in-person events.",
+      "who": "Anyone, from first-time contributors to maintainers.",
+      "stipend": null,
+      "format": "Online and in person",
+      "usual": "Every October, from the 1st to the 31st.",
+      "last_edition": "2026: ran through October and ended on 31 October 2026.",
+      "next": null,
+      "tags": [
+        "Beginner friendly",
+        "Global"
+      ],
+      "check": {
+        "reviewed": "95934cc004fc1715",
+        "seen": "95934cc004fc1715",
+        "checked_at": "2026-11-15T01:56:28.000Z",
+        "ok": true
+      }
+    },
+    {
+      "slug": "girlscript-summer-of-code",
+      "name": "GirlScript Summer of Code",
+      "short": "GSSoC",
+      "organizer": "GirlScript Foundation",
+      "url": "https://gssoc.girlscript.tech/",
+      "check_url": "https://gssoc.girlscript.tech/",
+      "summary": "A large open-source program run from India, with mentors, project admins and a points leaderboard.",
+      "who": "Students and beginners. Open to everyone.",
+      "stipend": null,
+      "format": "Remote",
+      "usual": "Runs in the summer. Applications open a few weeks before the kick-off.",
+      "last_edition": "2026: kick-off on 3 April 2026; the program closed on 16 August 2026.",
+      "next": null,
+      "tags": [
+        "Beginner friendly",
+        "India"
+      ],
+      "check": {
+        "reviewed": "d42183244e01b797",
+        "seen": "d42183244e01b797",
+        "checked_at": "2026-11-15T01:56:28.000Z",
+        "ok": true
+      }
+    },
+    {
+      "slug": "season-of-kde",
+      "name": "Season of KDE",
+      "short": "SoK",
+      "organizer": "KDE",
+      "url": "https://season.kde.org/",
+      "check_url": "https://season.kde.org/",
+      "summary": "KDE's own mentorship program, held every year since 2013, for code and non-code projects.",
+      "who": "Anyone who wants to contribute to KDE.",
+      "stipend": null,
+      "format": "Remote",
+      "usual": "Applications open in mid-December and close in mid-January. Work runs from late January to late March. Certificates and swag are sent out after the program.",
+      "last_edition": "2026: contributor applications from 15 December 2025 to 14 January 2026; work from 23 January to 20 March 2026.",
+      "next": null,
+      "tags": [
+        "Coding",
+        "Docs and design",
+        "Global"
+      ],
+      "check": {
+        "reviewed": "ff42c81970e447e1",
+        "seen": "ff42c81970e447e1",
+        "checked_at": "2026-11-15T01:56:28.000Z",
+        "ok": true
+      }
+    },
+    {
+      "slug": "summer-of-bitcoin",
+      "name": "Summer of Bitcoin",
+      "short": "SoB",
+      "organizer": "Summer of Bitcoin",
+      "url": "https://www.summerofbitcoin.org/",
+      "check_url": "https://www.summerofbitcoin.org/",
+      "summary": "A summer internship on bitcoin and lightning open-source projects, with established developers as mentors.",
+      "who": "University students.",
+      "stipend": "Paid in bitcoin.",
+      "format": "Remote",
+      "usual": "Runs over the summer break.",
+      "last_edition": null,
+      "next": null,
+      "tags": [
+        "Coding",
+        "Stipend",
+        "Global"
+      ],
+      "check": {
+        "reviewed": null,
+        "seen": null,
+        "checked_at": "2026-11-15T01:56:28.000Z",
+        "ok": true
+      }
+    },
+    {
+      "slug": "fossee-summer-fellowship",
+      "name": "FOSSEE Summer Fellowship",
+      "short": "FOSSEE",
+      "organizer": "FOSSEE, IIT Bombay",
+      "url": "https://fossee.in/fellowship",
+      "check_url": "https://fossee.in/fellowship",
+      "summary": "A summer internship on free and open-source software for education and research, run by IIT Bombay.",
+      "who": "Students in India. Each project lists its own requirements.",
+      "stipend": null,
+      "format": "On campus or remote, full time or part time",
+      "usual": "Registration usually opens in March. The internship runs from about mid-May to mid-July.",
+      "last_edition": "The latest dates on the official page are for 2025: registration from 11 March to 9 April 2025.",
+      "next": null,
+      "tags": [
+        "Coding",
+        "Research",
+        "India"
+      ],
+      "check": {
+        "reviewed": "bad879735c2aa499",
+        "seen": "bad879735c2aa499",
+        "checked_at": "2026-11-15T01:56:28.000Z",
+        "ok": true
+      }
+    }
+  ]
+}
