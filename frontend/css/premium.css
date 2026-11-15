@@ -173,6 +173,8 @@ html{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--ink) 22%,trans
 .theme-toggle .theme-icon{grid-area:1/1;transition:opacity .35s,transform .5s var(--ease)}
 .theme-toggle .theme-icon-sun,html.dark-theme .theme-toggle .theme-icon-moon{opacity:0;transform:rotate(-90deg) scale(.6)}
 html.dark-theme .theme-toggle .theme-icon-sun{opacity:1;transform:none}
+/* styles.css still inverts every unmarked SVG in dark mode, which turned the light sun icon black. */
+html.dark-theme .theme-toggle .theme-icon{filter:none}
 @media(min-width:901px){.has-hero .site-header:not(.is-scrolled) .main-nav .theme-toggle{background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.4)!important;color:#fff!important}}
 @media(max-width:900px){.site-header .main-nav .theme-toggle{width:44px!important;margin:6px 0 0 8px}}
 
@@ -190,7 +192,9 @@ html.dark-theme .theme-toggle .theme-icon-sun{opacity:1;transform:none}
 .premium-footer .footer-newsletter a{display:inline-flex;white-space:nowrap;gap:10px;min-height:44px;padding:0 18px;border-radius:12px}
 .premium-footer .footer-newsletter a svg{width:16px;height:16px}
 .premium-footer .footer-bottom{display:flex!important;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 32px!important;max-width:var(--container);margin:0 auto!important;padding:24px 0!important;font:500 11.5px/1.6 var(--mono)!important;letter-spacing:.02em}
-.premium-footer .footer-bottom p{flex:1 1 360px;max-width:560px;margin:0;font:13px/1.6 var(--font)!important;text-align:center}
+/* A 360px flex-basis would become a 360px height wherever the footer bottom stacks into a column
+   (editorial.css at 820px, here at 540px), so the 360px is a minimum width instead. */
+.premium-footer .footer-bottom p{flex:1 1 0;min-width:min(360px,100%);max-width:560px;margin:0;font:13px/1.6 var(--font)!important;text-align:center}
 @media(max-width:900px){.premium-footer .footer-main{grid-template-columns:repeat(3,1fr);gap:36px!important}.premium-footer .footer-intro{grid-column:1/-1;max-width:none}}
 @media(max-width:540px){.premium-footer{padding-top:64px!important}.premium-footer .footer-main{grid-template-columns:1fr 1fr}.premium-footer .footer-bottom{flex-direction:column;align-items:flex-start}.premium-footer .footer-bottom p{text-align:left}}
 
@@ -351,6 +355,15 @@ html body .jobs-search:focus-within{box-shadow:0 0 0 4px color-mix(in srgb,var(-
 
 /* Mobile menu: the theme button reads clearly against the open panel. */
 @media(max-width:900px){.site-header .main-nav .theme-toggle{align-self:center;background:var(--tint)!important;border-color:var(--line)!important;color:var(--ink)!important}}
+/* Phone menu: every entry is a full-width row, except the theme switch and Search jobs, which share
+   the last row (order keeps them there even when pwa.js inserts "Install app" before Search jobs). */
+@media(max-width:900px){
+  .site-header .main-nav.is-open{flex-flow:row wrap;align-content:flex-start;column-gap:10px}
+  .site-header .main-nav>*{flex:0 0 100%}
+  .site-header .main-nav>:is(.theme-toggle,.nav-cta){order:1;margin:12px 0 0!important}
+  .site-header .main-nav .theme-toggle{flex:0 0 44px;height:44px!important}
+  .site-header .main-nav a.nav-cta{flex:1 1 0;min-width:0;box-shadow:none}
+}
 
 /* Feature cards keep their brand-blue fill. */
 html body :is(.guide-card:nth-child(3),.mini-guide){background-color:var(--blue)!important;background-image:none!important;color:#fff!important}
