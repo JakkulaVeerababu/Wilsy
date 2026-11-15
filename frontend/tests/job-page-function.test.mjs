@@ -174,7 +174,8 @@ test('The function keeps the site security headers and bundles the files it read
   assert.deepEqual(Object.fromEntries(all.map(h => [h.key, h.value])), SECURITY_HEADERS);
   const config = vercel.functions['api/job-page.mjs'];
   assert.ok(config.maxDuration <= 30);
-  for(const part of ['css/*.css', 'data/companies.json', 'data/exchange-rate.json']) assert.ok(config.includeFiles.includes(part), part);
+  // package.json ships too, so the shared frontend/js/*.js files load as ES modules ("type": "module").
+  for(const part of ['package.json', 'frontend/css/*.css', 'frontend/data/companies.json', 'frontend/data/exchange-rate.json']) assert.ok(config.includeFiles.includes(part), part);
   const assets = await loadAssets();
   assert.ok(assets.companies.length > 900 && assets.companies.every(c => c.id && c.name));
   assert.ok(assets.fx.rate > 0);
