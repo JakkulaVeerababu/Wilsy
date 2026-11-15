@@ -310,6 +310,8 @@ html body :is(.home-path-tabs button){border-radius:999px!important}
 
 /* Surfaces: tinted and borderless, separated by space instead of shadow. */
 html body :is(.job-result-card,.guide-card,.home-guide-card,.home-featured-company,.company-card,.gov-jobs-card,.hack-card,.tier-card,.related-grid>a,.home-stat-card,.home-studio-grid a,.gov-jobs-metrics>div,.research-card,.correction-card,.mini-guide,.profile-pay-panel,.contact-box,.gov-jobs-notice,.dsa-start article,.hack-principles article,.salary-example,.home-index-row){background-color:var(--tint)!important;border-color:transparent!important;box-shadow:none!important}
+/* These two are plain text blocks in their own stylesheets; as tinted cards they need room inside. */
+html body :is(.dsa-start article,.hack-principles article){padding:24px 24px 26px}
 html body.dsa-page .pattern-card{background-color:var(--tint)!important;border-color:transparent!important;box-shadow:none!important}
 html body :is(.job-result-card,.guide-card,.home-guide-card,.home-featured-company,.company-card,.gov-jobs-card,.hack-card,.tier-card,.related-grid>a,.home-studio-grid a,.gov-jobs-metrics>div,.mini-guide,.home-index-row):hover,html body.dsa-page .pattern-card:hover{background-color:var(--tint-hover)!important;box-shadow:none!important;border-color:transparent!important}
 html body :is(.job-result-card,.home-guide-card,.home-featured-company,.company-card,.gov-jobs-card,.hack-card,.guide-card,.research-card,.correction-card,.profile-pay-panel){border-radius:28px!important}
