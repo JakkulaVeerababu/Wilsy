@@ -3,13 +3,19 @@
 // Usage: SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… node collectors/collect.mjs --shard 0 --shards 10
 import fs from 'node:fs/promises';
 import {parseArgs} from 'node:util';
-import {READERS} from './boards.mjs';
+import {READERS,TECH_ROLE} from './boards.mjs';
 import {createClient,pool} from './http.mjs';
 
-const CHUNK=50; // keeps each database call well inside the API's 8-second statement limit
+// Every API call runs under an 8-second statement timeout, and rewriting one stored job costs far
+// more than reading it (two full-text indexes over its description), so calls are kept small by job
+// count and by size. 50-job calls over 250 KB timed out one time in five.
+export const CHUNK_JOBS=20;
+export const CHUNK_BYTES=40_000;
+const MAX_BOARD_TIMEOUTS=6; // a board stops splitting after this many timed-out calls
 const PAGE=1000; // the API returns at most this many rows per request
 const PLATFORMS=['greenhouse','ashby','lever','workable','smartrecruiters','recruitee'];
 export const MAX_FAILURE_RATE=0.3;
+const pause=ms=>new Promise(r=>setTimeout(r,ms));
 
 export function shardOf(boards,shard,shards) {
   return boards.filter(b=>b.master_rank%shards===shard);
@@ -30,7 +36,32 @@ export async function loadBoards(db) {
   return boards;
 }
 
-// Reads one board and ingests it in chunks; the final call carries the complete live URL list.
+// The checks wilsy_ingest_board makes before it stores a job, in the same order. The database stays
+// authoritative; this only avoids sending jobs it would skip. Postgres left(…,1200) counts characters,
+// not UTF-16 units; its lower() matches toLowerCase() (both turn İ into i plus a combining dot).
+export function jobKind(job) {
+  if(!String(job.title??'').trim()||!/^https:\/\//i.test(job.url||''))return 'invalid';
+  const head=Array.from(job.description||'').slice(0,1200).join('');
+  return TECH_ROLE.test(`${job.title} ${job.department||''} ${head}`.toLowerCase())?'tech':'other_roles';
+}
+
+// Groups jobs into calls of at most maxJobs jobs and about maxBytes of JSON. A job bigger than
+// maxBytes on its own still goes, alone.
+export function chunkJobs(jobs,{maxJobs=CHUNK_JOBS,maxBytes=CHUNK_BYTES}={}) {
+  const chunks=[];let current=[],bytes=0;
+  for(const job of jobs){
+    const size=Buffer.byteLength(JSON.stringify(job));
+    if(current.length&&(current.length>=maxJobs||bytes+size>maxBytes)){chunks.push(current);current=[];bytes=0;}
+    current.push(job);bytes+=size;
+  }
+  if(current.length)chunks.push(current);
+  return chunks;
+}
+
+// Reads one board and ingests it in small chunks; the final call carries the complete live URL list.
+// A chunk cancelled by the statement timeout is split in half and sent again, so one slow chunk no
+// longer loses the whole board. Each call is its own transaction, so totals from calls that succeeded
+// are kept even when another call fails.
 export async function collectBoard(board,{read,ingest}) {
   const target={master_rank:board.master_rank,ats:board.ats_platform.toLowerCase(),slug:board.ats_identifier};
   let jobs;
@@ -46,10 +77,30 @@ export async function collectBoard(board,{read,ingest}) {
   // list for a renamed board), so nothing is closed on an empty read.
   if(!jobs.length)return {boards:1,empty:1};
   const totals={boards:1};
-  const add=r=>{for(const [k,v] of Object.entries(r||{}))totals[k]=(totals[k]||0)+v;};
-  for(let i=0;i<jobs.length;i+=CHUNK)add(await ingest({...target,jobs:jobs.slice(i,i+CHUNK)}));
+  const add=r=>{for(const [k,v] of Object.entries(r||{}))if(typeof v==='number')totals[k]=(totals[k]||0)+v;};
+  const tech=[];
+  for(const job of jobs){const kind=jobKind(job);if(kind==='tech')tech.push(job);else add({[kind]:1});}
+  let firstError=null,timeouts=0;
+  const fail=(chunk,error)=>{add({failed_jobs:chunk.length});firstError??=error;};
+  async function send(chunk) {
+    if(timeouts>=MAX_BOARD_TIMEOUTS)return fail(chunk,firstError);
+    try{add(await ingest({...target,jobs:chunk}));}
+    catch(error){
+      if(error?.timeout)timeouts++;
+      if(!error?.timeout||chunk.length<2||timeouts>=MAX_BOARD_TIMEOUTS)return fail(chunk,error);
+      const half=Math.ceil(chunk.length/2);
+      await send(chunk.slice(0,half));await send(chunk.slice(half));
+    }
+  }
+  for(const chunk of chunkJobs(tech))await send(chunk);
+  // The live list holds every URL the board listed, including roles that were not sent or failed to
+  // save, so the final call only ever closes roles that are really gone.
   if(jobs.partial)totals.partial=1;
-  else add(await ingest({...target,jobs:[],live_urls:[...new Set(jobs.map(j=>j.url).filter(Boolean))]}));
+  else{
+    try{add(await ingest({...target,jobs:[],live_urls:[...new Set(jobs.map(j=>j.url).filter(Boolean))]}));}
+    catch(error){firstError??=error;}
+  }
+  if(firstError)return {...totals,failed:1,error:`${board.company}: ${firstError.message}`};
   return totals;
 }
 
@@ -68,10 +119,38 @@ export function summaryMarkdown({shard,shards,boards,status,totals,errors}) {
     ...errors.slice(0,20).map(e=>`- ${String(e).replace(/[|<>]/g,' ')}`),''].join('\n');
 }
 
-// Gateway errors and Postgres statement timeouts (57014) are worth another try. Each ingest call is
-// one transaction and an idempotent upsert, so a cancelled call leaves nothing half-written.
+// Postgres cancelled the call at the API's 8-second statement timeout (SQLSTATE 57014).
+export const statementTimeout=(status,text='')=>status===500&&/"code"\s*:\s*"57014"/.test(text);
+
+// Gateway errors and statement timeouts are worth another try. Each ingest call is one transaction
+// and an idempotent upsert, so a cancelled call leaves nothing half-written.
 export function retryableDbError(status,text='') {
-  return [502,503,504].includes(status)||(status===500&&/"code"\s*:\s*"57014"/.test(text));
+  return [502,503,504].includes(status)||statementTimeout(status,text);
+}
+
+// PostgREST calls as the service role, with up to three attempts. With retryTimeouts:false a statement
+// timeout is thrown at once (error.timeout), because the same payload would only time out again:
+// collectBoard splits it instead.
+export function createDb({url,key,fetcher=globalThis.fetch,sleep=pause}) {
+  return async(path,{body,method=body?'POST':'GET',prefer,retryTimeouts=true}={})=>{
+    for(let attempt=0;;attempt++){
+      try{
+        const response=await fetcher(`${url}/rest/v1/${path}`,{method,headers:{apikey:key,Authorization:`Bearer ${key}`,'Content-Type':'application/json',...(prefer?{Prefer:prefer}:{})},
+          body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(30000)});
+        if(!response.ok){
+          const text=await response.text();
+          const error=new Error(`Database ${response.status}: ${text.slice(0,200)}`);
+          error.timeout=statementTimeout(response.status,text);
+          error.final=!retryableDbError(response.status,text)||(error.timeout&&!retryTimeouts);
+          throw error;
+        }
+        const text=await response.text();return text?JSON.parse(text):null;
+      }catch(error){
+        if(error.final||attempt>=2)throw error;
+        await sleep(500*4**attempt);
+      }
+    }
+  };
 }
 
 async function main() {
@@ -80,29 +159,14 @@ async function main() {
   if(!Number.isInteger(shard)||shard<0||shard>=shards)throw new Error('Pass --shard between 0 and --shards minus 1.');
   const url=process.env.SUPABASE_URL,key=process.env.SUPABASE_SERVICE_ROLE_KEY;
   if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url||'')||!key)throw new Error('Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.');
-  const db=async(path,{body,method=body?'POST':'GET',prefer}={})=>{
-    for(let attempt=0;;attempt++){
-      try{
-        const response=await fetch(`${url}/rest/v1/${path}`,{method,headers:{apikey:key,Authorization:`Bearer ${key}`,'Content-Type':'application/json',...(prefer?{Prefer:prefer}:{})},
-          body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(30000)});
-        if(!response.ok){
-          const text=await response.text();
-          const error=new Error(`Database ${response.status}: ${text.slice(0,200)}`);
-          error.final=!retryableDbError(response.status,text);throw error;
-        }
-        const text=await response.text();return text?JSON.parse(text):null;
-      }catch(error){
-        if(error.final||attempt>=2)throw error;
-        await new Promise(r=>setTimeout(r,500*4**attempt));
-      }
-    }
-  };
+  const db=createDb({url,key});
   const started=new Date();
   const boards=shardOf(await loadBoards(db),shard,shards);
   const client=createClient();
   const results=await pool(boards,concurrency,board=>collectBoard(board,{
     read:(ats,slug)=>READERS[ats](slug,client.json),
-    ingest:payload=>db('rpc/wilsy_ingest_board',{body:{board:payload}})
+    // A timed-out call of several jobs is split by collectBoard; a single job is retried here.
+    ingest:payload=>db('rpc/wilsy_ingest_board',{body:{board:payload},retryTimeouts:!(payload.jobs?.length>1)})
   }).catch(error=>({failed:1,error:`${board.company}: ${error.message}`})));
   const totals={};for(const r of results)for(const [k,v] of Object.entries(r))if(typeof v==='number')totals[k]=(totals[k]||0)+v;
   const errors=results.map(r=>r.error).filter(Boolean);
@@ -113,7 +177,7 @@ async function main() {
     companies_checked:boards.length,jobs_found:totals.found||0,jobs_inserted:totals.inserted||0,jobs_updated:totals.updated||0,
     invalid_skipped:totals.invalid||0,sources_failed:errors.length,status,error_summary:errors.slice(0,20).join(' | ')||null,
     metadata:{worker:'fleet',shard,shards,unchanged:totals.unchanged||0,expired:totals.expired||0,other_roles:totals.other_roles||0,
-      empty:totals.empty||0,partial:totals.partial||0,gone:totals.gone||0,platforms:byPlatform}}});
+      empty:totals.empty||0,partial:totals.partial||0,gone:totals.gone||0,failed_jobs:totals.failed_jobs||0,platforms:byPlatform}}});
   console.log(JSON.stringify({shard,boards:boards.length,status,platforms:byPlatform,...totals,errors:errors.slice(0,5)}));
   if(process.env.GITHUB_STEP_SUMMARY)await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,summaryMarkdown({shard,shards,boards:boards.length,status,totals,errors})).catch(()=>{});
   if(failed)process.exitCode=1;
