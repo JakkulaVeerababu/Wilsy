@@ -61,8 +61,9 @@ Done on 15 Nov 2026 (free plan: 100 emails a day, 3,000 a month; check
 
 ### 2. Verify the wilsy.in domain
 
-Status on 15 Nov 2026: **wilsy.in was added to Resend** (region Tokyo, `ap-northeast-1`, which cannot be
-changed later; domain id `89ae1465-ee06-4364-8807-777811b8a930`). It waits for its DNS records.
+Done on 15 Nov 2026: **wilsy.in is verified in Resend** (region Tokyo, `ap-northeast-1`, which cannot be
+changed later; domain id `89ae1465-ee06-4364-8807-777811b8a930`). The four records below were added by hand
+in GoDaddy, checked at `ns59.domaincontrol.com`, and all four passed Resend's check at 05:01 UTC.
 
 What wilsy.in's DNS looks like (checked 15 Nov 2026):
 - **DNS is at GoDaddy** (`ns59/ns60.domaincontrol.com`), which supports Domain Connect, so Resend can add
@@ -73,22 +74,19 @@ What wilsy.in's DNS looks like (checked 15 Nov 2026):
   two DMARC records make receivers ignore both. Resend's DKIM signs as wilsy.in, so alerts pass this
   policy with relaxed alignment.
 
-To finish:
-1. Open the domain in Resend, `https://resend.com/domains/89ae1465-ee06-4364-8807-777811b8a930`, press
-   **Auto configure**, and sign in to GoDaddy when asked. It adds these four records:
+The records Resend needs (in GoDaddy → **Domains → wilsy.in → DNS**; GoDaddy adds `.wilsy.in` to each name).
+Keep them: deleting any of them makes Resend stop sending.
 
-   | Purpose | Type | Name | Value |
-   |---|---|---|---|
-   | DKIM | TXT | `resend._domainkey` | the public key Resend shows |
-   | Bounces (SPF) | MX | `send` | `feedback-smtp.ap-northeast-1.amazonses.com`, priority 10 |
-   | Bounces (SPF) | TXT | `send` | `v=spf1 include:amazonses.com ~all` |
-   | Return path | CNAME | `rsend` | `send.forge.rmta.net` |
+| Purpose | Type | Name | Value |
+|---|---|---|---|
+| DKIM | TXT | `resend._domainkey` | the public key shown on the domain in Resend |
+| Bounces (SPF) | MX | `send` | `feedback-smtp.ap-northeast-1.amazonses.com`, priority 10 |
+| Bounces (SPF) | TXT | `send` | `v=spf1 include:amazonses.com ~all` |
+| Return path | CNAME | `rsend` | `send.forge.rmta.net` |
 
-   Without Auto configure, add the same four in GoDaddy → **Domains → wilsy.in → DNS → Add new record**
-   (GoDaddy adds `.wilsy.in` to each name itself).
-2. Verify: press **Verify** in Resend, or run `npx resend-cli@latest domains verify 89ae1465-ee06-4364-8807-777811b8a930`,
-   then wait until the domain shows *Verified* (minutes to a few hours). Until then Resend refuses to send
-   to anyone except the account owner, and the workflow stops at the first email.
+To check the status again, open `https://resend.com/domains/89ae1465-ee06-4364-8807-777811b8a930` or run
+`npx resend-cli@latest domains get 89ae1465-ee06-4364-8807-777811b8a930`. If it ever drops out of *Verified*,
+Resend refuses to send to anyone except the account owner, and the workflow stops at the first email.
 
 `alerts@wilsy.in` does not need a mailbox. Replies go to `contact@wilsy.in`.
 
