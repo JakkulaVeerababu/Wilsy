@@ -188,7 +188,7 @@ Build sections 1, 2 and 3: Competitions, Coding contests and Open-source program
 3. **Who keeps the curated lists current** (sections 3, 4 and 5): about an hour a week, helped by the daily change check.
 4. **Quality rules for Unstop internships** (section 6): for example, paid only, the stipend shown, and never a fee to apply.
 
-### Status (15 Nov 2026): sections 1–3 built, not deployed
+### Status (15 Nov 2026): sections 1–3 live
 
 Choices made, following the recommendations above:
 - one `opportunities` table;
@@ -202,4 +202,4 @@ What was built:
 - **Open-source programs** (`/open-source-programs`, plus one page per program). Eight programs are curated in `frontend/data/open-source-programs.json` from their official pages. `collectors/programs-check.mjs` runs in the daily snapshot and flags any program whose official dates change, for a person to review.
 - **Section tabs** link Hackathons, Competitions, Coding contests and Open-source programs, and the footer links all four.
 
-Before Competitions and Coding contests can show data, the founders apply `docs/proposals/opportunities.sql` (tested on a local Postgres 18). Until then, those two pages say the section is getting started.
+The pages went live on 15 Nov 2026 (d3bff7a). The same day, the `opportunities` table and its two read functions were applied to Supabase as migration `supabase/migrations/20261115024903_wilsy_opportunities.sql`. The public key can read live rows and call the functions, but it cannot write.

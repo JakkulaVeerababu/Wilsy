@@ -1,5 +1,5 @@
 // Opportunities collector: competitions and coding contests for public.opportunities
-// (table and read functions: docs/proposals/opportunities.sql).
+// (table and read functions: supabase/migrations/20261115024903_wilsy_opportunities.sql).
 //
 // Sources and why they may be read:
 // - Unstop competitions and quizzes: the same public API the hackathon collector uses. Its robots.txt

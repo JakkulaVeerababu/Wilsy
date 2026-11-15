@@ -1,4 +1,5 @@
--- WILSY opportunities: competitions and coding contests (PROPOSAL, not applied).
+-- WILSY opportunities: competitions and coding contests.
+-- Applied to the wilsy-jobs project on 15 Nov 2026 as migration 20261115024903 (wilsy_opportunities).
 --
 -- What it does: adds one table, public.opportunities, and two read-only functions the site calls
 -- with the publishable key: wilsy_search_opportunities and wilsy_opportunity_facets.
@@ -7,10 +8,6 @@
 -- Who writes: collectors/opportunities.mjs, with the service-role key (bypasses RLS).
 -- Who reads: anyone, but only rows that are live (status = 'live', not closed), through RLS.
 -- Nothing in a row is private: every field is copied from a public listing.
---
--- To apply: review, run it once in the Supabase SQL editor, then move this file to
--- supabase/migrations/ with a timestamped name so the repository matches the database.
-begin;
 
 create table public.opportunities (
   id bigint generated always as identity primary key,
@@ -132,4 +129,3 @@ revoke all on function public.wilsy_opportunity_facets(text) from public;
 grant execute on function public.wilsy_opportunity_facets(text) to anon, authenticated;
 
 notify pgrst, 'reload schema';
-commit;
