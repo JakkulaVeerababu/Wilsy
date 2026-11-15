@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-import {datesOn,canonicalDate,fingerprint,checkProgram,pageText} from '../programs-check.mjs';
+import {datesOn,canonicalDate,fingerprint,checkProgram,pageText,CURATED_FILES} from '../programs-check.mjs';
 
 test('Dates are found in every common style and spelled one way',()=>{
   const html='<p>Applications open <b>March 16th</b>, close 31 March 2027.</p><script>var x="April 1"</script><li>Oct. 12, 2026</li><td>2026-01-14</td>';
@@ -28,9 +28,14 @@ test('A program is flagged only when its official dates change from every review
   assert.deepEqual([failed.review,failed.check.ok,failed.check.seen,failed.check.reviewed],[false,false,seen,seen],'a failed read changes nothing but ok');
 });
 
-test('The daily workflow runs the check without letting it block the snapshot, and commits the file',async()=>{
+test('The daily workflow runs the check without letting it block the snapshot, and commits every curated file',async()=>{
   const workflow=await fs.readFile(new URL('../../.github/workflows/daily-snapshot.yml',import.meta.url),'utf8');
-  const step=workflow.slice(workflow.indexOf('Check open-source programs'));
-  assert.match(step.slice(0,400),/continue-on-error: true/);
-  assert.match(workflow,/files="[^"]*frontend\/data\/open-source-programs\.json/);
+  const at=workflow.indexOf('Check curated programs');
+  assert.ok(at>0,'the check step exists');
+  assert.match(workflow.slice(at,at+400),/continue-on-error: true/);
+  const files=/files="([^"]*)"/.exec(workflow)[1].split(/\s+/);
+  for(const [,file] of CURATED_FILES){
+    assert.ok(files.includes(file),`${file} is committed when it changes`);
+    await fs.access(new URL('../../'+file,import.meta.url));
+  }
 });

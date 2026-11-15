@@ -65,10 +65,43 @@ test('Open-source program data cites official HTTPS pages and is complete',async
   }
 });
 
+test('Research internship and scholarship data cite official HTTPS pages and are complete',async()=>{
+  for(const [file,money] of [['data/research-internships.json','stipend'],['data/scholarships.json','amount']]){
+    const data=JSON.parse(await fs.readFile(file,'utf8'));
+    assert.ok(data.items.length>=6,file);assert.match(data.reviewed_at,/^\d{4}-\d{2}-\d{2}$/);
+    assert.equal(new Set(data.items.map(p=>p.slug)).size,data.items.length);
+    for(const p of data.items){
+      assert.match(p.slug,/^[a-z0-9-]+$/);
+      for(const url of [p.url,p.check_url])assert.match(url,/^https:\/\/[^/]+\//,`${p.slug} links an https page`);
+      for(const key of ['name','short','organizer','summary','who','usual','format',money])assert.ok(p[key],`${p.slug}.${key}`);
+      assert.ok(Array.isArray(p.tags)&&p.tags.length);
+      if(p.next)assert.ok(Number.isFinite(Date.parse(p.next.closes||p.next.opens)),`${p.slug}.next has a date`);
+      if(p.check?.auto===false)assert.ok(p.check.reason,`${p.slug} says why it is not checked daily`);
+      // Sources whose terms or robots rules forbid automated use, and aggregators, are never cited.
+      assert.ok(!/buddy4study\.com|internshala|devpost\.com|mlh\.io/i.test(p.url+p.check_url),`${p.slug} cites the official site`);
+    }
+    for(const s of data.state_portals||[])assert.match(s.url,/^https:\/\/[^/]+\.gov\.in\//,s.state);
+  }
+});
+
+test('Research internships and scholarships show announced dates only, and say when a page is not checked daily',async()=>{
+  const research=await page('research-internships'),scholarships=await page('scholarships');
+  assert.match(research,/Open until 30 November 2026/,'the academies’ fellowship shows its announced deadline');
+  assert.match(research,/WILSY checks 6 of those pages every day/);
+  assert.match(scholarships,/State scholarship portals/);assert.match(scholarships,/href="https:\/\/telanganaepass\.cgg\.gov\.in\/"/);
+  const srip=await page('research-internships/iit-gandhinagar-srip');
+  assert.match(srip,/WILSY updates this page when they are\./);assert.doesNotMatch(srip,/checks the official page every day/);
+  assert.match(srip,/₹175 a day/,'fees are shown as the official site states them');
+  const pragati=await page('scholarships/aicte-pragati');
+  assert.match(pragati,/Open until 30 November 2026/);assert.match(pragati,/<dt>Amount<\/dt>/);
+  assert.match(pragati,/subject=Scholarship%20correction%3A%20AICTE%20Pragati/);
+});
+
 test('The new sections are built, linked together, and the contest calendar carries no ads',async()=>{
   const competitions=await page('competitions'),contests=await page('contests'),programs=await page('open-source-programs'),hackathons=await page('hackathons');
-  for(const html of [competitions,contests,programs,hackathons]){
-    for(const href of ['/hackathons','/competitions','/contests','/open-source-programs'])assert.ok(html.includes(`href="${href}"`),href);
+  const research=await page('research-internships'),scholarships=await page('scholarships');
+  for(const html of [competitions,contests,programs,hackathons,research,scholarships]){
+    for(const href of ['/hackathons','/competitions','/contests','/open-source-programs','/research-internships','/scholarships'])assert.ok(html.includes(`href="${href}"`),href);
     assert.match(html,/class="section-tabs"/);
     assert.match(html,/data-sources="[^"]*\bhackathons\b/,'the shared hackathon styles are bundled');
   }

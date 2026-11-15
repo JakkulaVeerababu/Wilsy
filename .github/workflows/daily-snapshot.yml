@@ -1,6 +1,6 @@
 # Keeps the site's built-in snapshots current. Once a day it reads the public job search API
-# (read-only, public key), the official ISRO and BARC recruitment pages and the open-source
-# programs' official pages, rebuilds, runs the
+# (read-only, public key), the official ISRO and BARC recruitment pages and the official pages
+# of the hand-curated open-source programs, research internships and scholarships, rebuilds, runs the
 # tests and commits whatever changed. The commit redeploys the site, so first paint, crawlers and
 # no-JavaScript visitors see today's roles and only government notices that are still open.
 # Started daily at 01:41 UTC (07:11 IST) by Supabase pg_cron (wilsy-dispatch-daily-snapshot).
@@ -30,9 +30,10 @@ jobs:
         continue-on-error: true
         shell: bash # with pipefail, so a collector failure is not hidden by tee
         run: node collectors/government.mjs | tee -a "$GITHUB_STEP_SUMMARY"
-      # Re-reads each open-source program's official page and lists date changes to review.
-      # It never edits the program facts, so a failure here changes nothing on the site.
-      - name: Check open-source programs
+      # Re-reads the official pages of the curated open-source programs, research internships and
+      # scholarships, and lists date changes to review. It never edits the facts, so a failure here
+      # changes nothing on the site.
+      - name: Check curated programs
         id: programs
         continue-on-error: true
         shell: bash
@@ -41,7 +42,7 @@ jobs:
       - run: npm test
       - name: Commit when a snapshot changed
         run: |
-          files="frontend/data/jobs-home.json frontend/data/government-jobs.json frontend/data/open-source-programs.json"
+          files="frontend/data/jobs-home.json frontend/data/government-jobs.json frontend/data/open-source-programs.json frontend/data/research-internships.json frontend/data/scholarships.json"
           if git diff --quiet -- $files; then echo "Snapshots unchanged."; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

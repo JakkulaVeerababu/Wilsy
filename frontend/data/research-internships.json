@@ -1,0 +1,201 @@
+{
+  "note": "Hand-curated. Every fact comes from the program's official page. 'next' is filled in only once the official page announces the dates. collectors/programs-check.mjs re-reads each 'check_url' daily (except entries with check.auto false, whose sites refuse automated readers) and sets 'check.seen' when the dates on that page change; a person then reviews the entry and copies 'check.seen' into 'check.reviewed'.",
+  "reviewed_at": "2026-11-15",
+  "items": [
+    {
+      "slug": "science-academies-srfp",
+      "name": "Science Academies' Summer Research Fellowship",
+      "short": "SRFP",
+      "organizer": "Indian Academy of Sciences, INSA and NASI",
+      "url": "https://www.ias.ac.in/Science_Education/",
+      "check_url": "https://webjapps.ias.ac.in/fellowship2027/application_instructions.jsp",
+      "summary": "Two months of research with a scientist, for students and college teachers, run by India's three national science academies.",
+      "who": "Students in set years of BSc, BS, BE/BTech, BPharm, MSc, ME/MTech and integrated or dual-degree programmes, with an average of at least 65% in core subjects from Class X onwards; and college or university teachers. PhD students cannot apply.",
+      "stipend": "A monthly fellowship for living costs at the place of work, plus round-trip train fare.",
+      "fees": null,
+      "format": "In person, at the guide's institute in India",
+      "usual": "Two months with the assigned guide, at any time in the calendar year, preferably in summer. Selection letters go out around March or April.",
+      "last_edition": "SRFP 2026: applications closed on 31 January 2026. SRFP 2027 applications close on 30 November 2026.",
+      "next": {
+        "label": "SRFP 2027",
+        "closes": "2026-11-30T18:29:59Z"
+      },
+      "tags": [
+        "Science",
+        "Engineering",
+        "Stipend",
+        "India"
+      ],
+      "check": {
+        "reviewed": "07d63970dec3e999",
+        "seen": "07d63970dec3e999",
+        "checked_at": "2026-11-15T06:41:08.257Z",
+        "ok": true
+      }
+    },
+    {
+      "slug": "jncasr-srfp",
+      "name": "JNCASR Summer Research Fellowship Programme",
+      "short": "JNCASR",
+      "organizer": "Jawaharlal Nehru Centre for Advanced Scientific Research, Bengaluru",
+      "url": "https://www.jncasr.ac.in/node/1259",
+      "check_url": "https://www.jncasr.ac.in/fandeprogrammes",
+      "summary": "Two months of research training with scientists at JNCASR and other leading institutes, between April and July.",
+      "who": "Undergraduate and postgraduate students in science, engineering, pharmacy, technology, medicine, agriculture or veterinary sciences, in the years each discipline lists, with at least 60% in previous semesters. Some disciplines also require Mathematics in Class X and XII.",
+      "stipend": "₹12,500 a month.",
+      "fees": null,
+      "format": "In person, at JNCASR and partner institutes",
+      "usual": "One round a year. The official page says applications for SRFP 2027 will open soon.",
+      "last_edition": "SRFP 2026: applications closed on 31 January 2026, and the selected list is published.",
+      "next": null,
+      "tags": [
+        "Science",
+        "Engineering",
+        "Stipend",
+        "India"
+      ],
+      "check": {
+        "reviewed": "8b354125a23e453d",
+        "seen": "8b354125a23e453d",
+        "checked_at": "2026-11-15T06:41:08.257Z",
+        "ok": true
+      }
+    },
+    {
+      "slug": "ncra-tifr-vsrp",
+      "name": "NCRA-TIFR Visiting Students' Research Programme",
+      "short": "VSRP",
+      "organizer": "National Centre for Radio Astrophysics (TIFR), Pune",
+      "url": "https://www.ncra.tifr.res.in/students/external-students/vsrp",
+      "check_url": "https://www.ncra.tifr.res.in/students/external-students/vsrp",
+      "summary": "A summer research project in astronomy and astrophysics, from May to July. Strong students may be offered a PhD place at NCRA-TIFR.",
+      "who": "Students entering the final year of a BSc, MSc or BTech/BE (Physics, Astronomy, Applied Mathematics or Electronics), and students in the third or fourth year of an integrated MSc in Physics or Mathematics.",
+      "stipend": "A stipend is paid. The official page does not state the amount.",
+      "fees": null,
+      "format": "In person, Pune; hostel place subject to availability",
+      "usual": "Applications open in mid-January, with a deadline around mid-February. Offers are made by mid-March, and the programme runs from May to July.",
+      "last_edition": null,
+      "next": null,
+      "tags": [
+        "Astronomy",
+        "Physics",
+        "Stipend",
+        "India"
+      ],
+      "check": {
+        "seen": null,
+        "checked_at": "2026-11-15T06:41:08.257Z",
+        "ok": true
+      }
+    },
+    {
+      "slug": "iit-kanpur-surge",
+      "name": "SURGE at IIT Kanpur",
+      "short": "SURGE",
+      "organizer": "IIT Kanpur, Office of Outreach Activities",
+      "url": "https://surge.iitk.ac.in/",
+      "check_url": "https://surge.iitk.ac.in/important-dates",
+      "summary": "Summer research projects with IIT Kanpur faculty, ending with a project report and a poster presentation.",
+      "who": "Indian students from other institutions: BTech, BE, BArch or BS students in their third year (fifth or sixth semester), and BSc or BA students in their second year, with a CPI of at least 6.0 (60%). Separate categories cover IIT Kanpur students and students from Nepal and Bhutan.",
+      "stipend": "Up to 60 participants with a CPI of 8.5 or more get ₹16,000 for the programme, and up to 60 more get up to ₹8,000. Some are funded by their mentor's project.",
+      "fees": "₹750 to apply and ₹4,000 in administrative charges if selected (non-IIT Kanpur students). Hostel and mess are paid separately.",
+      "format": "In person, IIT Kanpur campus",
+      "usual": "Registration opens in early February and closes later that month. Results come in late March, and the programme runs from mid-May to mid-July.",
+      "last_edition": "SURGE 2026: registration ran from 2 to 22 February 2026, and the programme ran from 11 May to 11 July 2026.",
+      "next": null,
+      "tags": [
+        "Engineering",
+        "Science",
+        "Fees",
+        "India"
+      ],
+      "check": {
+        "reviewed": "70ec85833a24813e",
+        "seen": "70ec85833a24813e",
+        "checked_at": "2026-11-15T06:41:08.257Z",
+        "ok": true
+      }
+    },
+    {
+      "slug": "iit-gandhinagar-srip",
+      "name": "Summer Research Internship Programme, IIT Gandhinagar",
+      "short": "SRIP",
+      "organizer": "IIT Gandhinagar",
+      "url": "https://srip.iitgn.ac.in/info/",
+      "check_url": "https://srip.iitgn.ac.in/info/",
+      "summary": "At least eight weeks on an IIT Gandhinagar research project, with a faculty mentor.",
+      "who": "First-, second- and third-year undergraduates and first-year postgraduates. Indian students studying abroad can also apply.",
+      "stipend": "₹2,000 a week for most interns, for at least 8 weeks. It can differ for interns funded by a faculty project.",
+      "fees": "Hostel: ₹175 a day, paid by every summer intern.",
+      "format": "In person, IIT Gandhinagar campus",
+      "usual": "Results are announced by the end of March. Interns commit to at least 8 weeks in summer and submit a report at the end.",
+      "last_edition": "SRIP 2026: results are published on the official site.",
+      "next": null,
+      "tags": [
+        "Engineering",
+        "Science",
+        "Stipend",
+        "India"
+      ],
+      "check": {
+        "auto": false,
+        "reason": "The site refuses automated readers, so WILSY does not check it daily."
+      }
+    },
+    {
+      "slug": "mitacs-globalink",
+      "name": "Mitacs Globalink Research Internship",
+      "short": "Mitacs",
+      "organizer": "Mitacs, Canada",
+      "url": "https://www.mitacs.ca/our-programs/globalink-research-internship-students/",
+      "check_url": "https://www.mitacs.ca/our-programs/globalink-research-internship-students/",
+      "summary": "A 12-week research internship at a Canadian university, with travel and living costs covered.",
+      "who": "For the 2027 cohort: Indian nationals in a full-time BE or BTech programme at an institution on Mitacs' India list (through AICTE), with a cumulative average of at least 70%. IIT students are not eligible for 2027.",
+      "stipend": "Funding towards a round-trip flight to Canada, housing, food and incidentals, and enrolment fees, plus emergency health insurance.",
+      "fees": null,
+      "format": "In person, Canada",
+      "usual": "One cohort a year. Internships run for 12 weeks between May and October.",
+      "last_edition": "Summer 2027: the call for student applications has closed.",
+      "next": null,
+      "tags": [
+        "Engineering",
+        "Abroad",
+        "Stipend",
+        "Canada"
+      ],
+      "check": {
+        "reviewed": "285b739acb329465",
+        "seen": "285b739acb329465",
+        "checked_at": "2026-11-15T06:41:08.257Z",
+        "ok": true
+      }
+    },
+    {
+      "slug": "isro-internship",
+      "name": "ISRO internship and student project schemes",
+      "short": "ISRO",
+      "organizer": "Department of Space, Indian Space Research Organisation",
+      "url": "https://www.isro.gov.in/InternshipAndProjects.html",
+      "check_url": "https://www.isro.gov.in/InternshipAndProjects.html",
+      "summary": "Internships of up to 45 days, and longer academic projects, at ISRO centres. You apply to each centre separately.",
+      "who": "Indian citizens studying science or technology at UG, PG or PhD level, or who finished within the last six months, with at least 60% or a CGPA of 6.32.",
+      "stipend": "None. ISRO pays no stipend and does not provide accommodation, though a centre may offer guest-house or hostel space if available.",
+      "fees": null,
+      "format": "In person, at an ISRO centre",
+      "usual": "Each ISRO centre takes applications on its own page. The official page links to them.",
+      "last_edition": null,
+      "next": null,
+      "tags": [
+        "Space",
+        "Engineering",
+        "Unpaid",
+        "India"
+      ],
+      "check": {
+        "seen": null,
+        "checked_at": "2026-11-15T06:41:08.257Z",
+        "ok": true
+      }
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 // Markup for the Competitions and Coding contests pages, and the tabs that link the opportunity
 // sections. The layout and classes are the Hackathons page's, so the sections look like one family.
 // The live lists are filled in by js/opportunities.js.
-export const opportunitySections=[['/hackathons','Hackathons','hackathons'],['/competitions','Competitions','competitions'],['/contests','Coding contests','contests'],['/open-source-programs','Open-source programs','open-source']];
+export const opportunitySections=[['/hackathons','Hackathons','hackathons'],['/competitions','Competitions','competitions'],['/contests','Coding contests','contests'],['/open-source-programs','Open-source programs','open-source'],['/research-internships','Research internships','research'],['/scholarships','Scholarships','scholarships']];
 export const sectionTabs=active=>`<nav class="section-tabs" aria-label="Opportunity sections">${opportunitySections.map(([url,name,key])=>`<a href="${url}"${key===active?' aria-current="page"':''}>${name}</a>`).join('')}</nav>`;
 
 const select=(key,title,all,options)=>`<label class="hack-field"><span>${title}</span><select id="opp-${key}" name="${key}"><option value="">${all}</option>${options.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></label>`;

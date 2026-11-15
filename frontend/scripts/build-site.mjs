@@ -10,7 +10,7 @@ import {jobsPage} from './jobs-page.mjs';
 import {homePage} from './home-page.mjs';
 import {hackathonsPage} from './hackathons-page.mjs';
 import {competitionsPage,contestsPage} from './opportunity-pages.mjs';
-import {programsPage,programArticle} from './programs-pages.mjs';
+import {curatedSections,curatedListing,curatedArticle,entries as curatedEntries} from './curated-pages.mjs';
 import {governmentJobsPage} from './government-jobs-page.mjs';
 import {fetchJobSnapshot} from './job-snapshot.mjs';
 import {loadDsaProject,dsaPage,writeDsaAssets} from './dsa-page.mjs';
@@ -135,10 +135,14 @@ await write('/hackathons',documentPage({title:'Hackathons & challenges',descript
 await write('/competitions',documentPage({title:'Competitions & case challenges',description:'Free-to-enter case competitions, innovation challenges and quizzes for Indian students, with prizes, eligibility and registration deadlines from each listing.',route:'/competitions',active:'competitions',body:competitionsPage}));
 // No ads here: Codeforces’ terms forbid commercialising its material, so the contest calendar stays ad-free.
 await write('/contests',documentPage({title:'Coding contests calendar',description:'Upcoming Codeforces and AtCoder contests in your time zone, with length, rated range and a calendar file for each round.',route:'/contests',active:'contests',ads:false,body:contestsPage}));
-const ossPrograms=JSON.parse(await fs.readFile('data/open-source-programs.json','utf8'));
-await write('/open-source-programs',documentPage({title:'Open-source programs: GSoC, Outreachy, LFX and more',description:'Google Summer of Code, Outreachy, LFX Mentorship, Hacktoberfest and more: who can apply, stipends and when applications usually open, from official pages.',route:'/open-source-programs',active:'open-source',body:programsPage(ossPrograms)}));
-for(const p of ossPrograms.programs) {
-  await write('/open-source-programs/'+p.slug,documentPage({title:`${p.name}: eligibility, stipend and dates`,description:`${p.summary} Who can apply, stipend and usual timing for ${p.name}, from the official site.`,route:'/open-source-programs/'+p.slug,active:'open-source',body:`<main id="main-content" class="editorial-shell">${breadcrumb(p.name,{url:'/open-source-programs',label:'Open-source programs'})}${hero('OPEN-SOURCE PROGRAM',p.name,p.summary)}<div class="article-layout"><aside class="article-aside"><p class="eyebrow">${e(p.organizer.toUpperCase())}</p><p>Reviewed ${e(ossPrograms.reviewed_at)}</p><a href="/open-source-programs">All open-source programs</a><a href="/hackathons">Hackathons</a><a href="/contests">Coding contests</a></aside><article class="prose">${programArticle(p)}</article></div></main>`}));
+// Hand-curated sections (Open-source programs, Research internships, Scholarships): a listing page and
+// one page per entry, from data/*.json files kept up to date from official pages.
+for(const cfg of Object.values(curatedSections)) {
+  const data=JSON.parse(await fs.readFile(cfg.file,'utf8'));
+  await write(cfg.path,documentPage({title:cfg.title,description:cfg.description,route:cfg.path,active:cfg.key,body:curatedListing(cfg,data)}));
+  for(const p of curatedEntries(data)) {
+    await write(`${cfg.path}/${p.slug}`,documentPage({title:cfg.pageTitle(p),description:cfg.pageDescription(p),route:`${cfg.path}/${p.slug}`,active:cfg.key,body:`<main id="main-content" class="editorial-shell">${breadcrumb(p.name,{url:cfg.path,label:cfg.label})}${hero(cfg.articleEyebrow,p.name,p.summary)}<div class="article-layout"><aside class="article-aside"><p class="eyebrow">${e(p.organizer.toUpperCase())}</p><p>Reviewed ${e(data.reviewed_at)}</p><a href="${cfg.path}">All ${e(cfg.label.toLowerCase())}</a>${cfg.asideLinks.map(([url,text])=>`<a href="${url}">${e(text)}</a>`).join('')}</aside><article class="prose">${curatedArticle(cfg,p)}</article></div></main>`}));
+  }
 }
 await write('/government-jobs',documentPage({title:'India government jobs',description:'Browse a dated, source-first snapshot of active India government-job notices with official links, dates, pay bands and eligibility guidance.',route:'/government-jobs',active:'government-jobs',body:governmentJobsPage}));
 

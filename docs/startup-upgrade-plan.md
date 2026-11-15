@@ -203,3 +203,21 @@ What was built:
 - **Section tabs** link Hackathons, Competitions, Coding contests and Open-source programs, and the footer links all four.
 
 The pages went live on 15 Nov 2026 (d3bff7a). The same day, the `opportunities` table and its two read functions were applied to Supabase as migration `supabase/migrations/20261115024903_wilsy_opportunities.sql`. The public key can read live rows and call the functions, but it cannot write.
+
+### Status (15 Nov 2026): sections 4–5 built, not deployed
+
+The user chose to build **Research internships** (section 4) and **Scholarships** (section 5) next. Both are hand-curated, like Open-source programs, with no database change:
+
+- **Research internships** (`/research-internships`, plus one page per program): 7 programs in `frontend/data/research-internships.json`. They are the Science Academies' Summer Research Fellowship (IAS, INSA and NASI), JNCASR SRFP, NCRA-TIFR VSRP, SURGE at IIT Kanpur, SRIP at IIT Gandhinagar, Mitacs Globalink and ISRO's internship schemes. Fees are shown where the official site states them (SURGE's application and administrative charges, IIT Gandhinagar's hostel charge), and ISRO is marked unpaid.
+- **Scholarships** (`/scholarships`, plus one page per scholarship): 8 scholarships in `frontend/data/scholarships.json`. They are AICTE Pragati and Saksham, INSPIRE-SHE, the Prime Minister's Scholarship Scheme for wards of ex-servicemen, Reliance Foundation's undergraduate and postgraduate scholarships, the Santoor Women's Scholarship and the Aditya Birla Scholarships. The page also links seven state scholarship portals by name.
+- `collectors/programs-check.mjs` now checks all three curated files every day. Entries whose sites refuse automated readers have `check.auto: false` and a reason, and their pages don't claim a daily check: IIT Gandhinagar, the INSPIRE portal, the Kendriya Sainik Board and Reliance Foundation's script-drawn pages.
+
+Left out, and why:
+
+- **DAAD WISE:** DAAD India lists it as part of A New Passage to India (2009–2024), and there is no current call.
+- **Khorana Program for Scholars:** the official page still shows the summer 2025 call, with a deadline of 7 October 2024.
+- **IIT Madras Summer Fellowship Programme:** its site (sfp.iitm.ac.in) did not resolve during the check.
+- **TIFR's own VSRP pages:** www.tifr.res.in's robots.txt disallows every path. NCRA-TIFR's page is used instead.
+- **Central Sector Scheme of Scholarships (PM-USP):** its guidelines on the National Scholarship Portal did not load, and other sites disagree on its income limit. Add it once the official guidelines can be read.
+- **LIC Golden Jubilee Scholarship:** the official page did not show the scheme's details.
+- **Aggregators such as Buddy4Study:** never cited. Every entry links to the official site or notice.

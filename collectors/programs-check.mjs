@@ -1,12 +1,11 @@
-// Open-source programs check: once a day (a step of the daily snapshot workflow) re-reads each
-// program's official page in frontend/data/open-source-programs.json and notices when the dates
+// Curated programs check: once a day (a step of the daily snapshot workflow) re-reads each
+// entry's official page in the hand-curated files (CURATED_FILES below) and notices when the dates
 // printed there change, so a person can update the entry.
 //
 // It never edits the facts. It records, per program, whether the page loaded (check.ok), when it
 // was checked, and a fingerprint of the dates on the page (check.seen). When check.seen differs from
 // check.reviewed (one fingerprint, or a list of them), the run summary asks for a review; whoever
 // updates the entry adds seen to reviewed. The pages read are the programs' own official pages, once a day.
-// Usage: node collectors/programs-check.mjs [path/to/open-source-programs.json]
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -42,29 +41,41 @@ export function checkProgram(program,result,now=new Date()) {
   return {check:{...previous,seen,checked_at:now.toISOString(),ok:true},review:!!seen&&!accepted.includes(seen),dates:result.dates};
 }
 
-async function main() {
-  const file=path.resolve(process.argv[2]||'frontend/data/open-source-programs.json');
+// The hand-curated files this check covers (the open-source file keeps its entries under "programs").
+export const CURATED_FILES=[['Open-source programs','frontend/data/open-source-programs.json'],['Research internships','frontend/data/research-internships.json'],['Scholarships','frontend/data/scholarships.json']];
+const entries=data=>data.items||data.programs||[];
+
+// Checks one file. Entries with check.auto false are skipped: their sites refuse automated readers.
+async function checkFile(label,file,client,now) {
   const data=JSON.parse(await fs.readFile(file,'utf8'));
-  const client=createClient({perHost:1});
-  const now=new Date(),lines=[];
-  const results=await pool(data.programs,3,async program=>{
+  const checked=entries(data).filter(p=>p.check?.auto!==false),lines=[];
+  const results=await pool(checked,3,async program=>{
     try{const {text}=await client.page(program.check_url);return {ok:true,dates:datesOn(text)};}
     catch(error){return {ok:false,error:error.message};}
   });
   // The file is rewritten only when a page's result changed, so a quiet day makes no commit.
   // check.checked_at is therefore when the result last changed.
-  const result=programs=>JSON.stringify(programs.map(p=>[p.check?.seen??null,p.check?.ok??null]));
-  const before=result(data.programs);
+  const result=list=>JSON.stringify(list.map(p=>[p.check?.seen??null,p.check?.ok??null]));
+  const before=result(checked);
   let failed=0,toReview=0;
-  data.programs.forEach((program,i)=>{
+  checked.forEach((program,i)=>{
     const {check,review,dates}=checkProgram(program,results[i],now);
     program.check=check;
     if(!results[i].ok){failed++;lines.push(`| ${program.name} | could not load (${String(results[i].error).replace(/[|<>]/g,' ').slice(0,80)}) |`);}
     else if(review){toReview++;lines.push(`| ${program.name} | dates on the official page changed since the last review: ${dates.slice(0,6).join(', ').replace(/[|<>]/g,' ')} |`);}
   });
-  if(result(data.programs)!==before)await fs.writeFile(file,JSON.stringify(data,null,2)+'\n');
-  const summary=`### Open-source programs: ${data.programs.length} checked, ${toReview} to review, ${failed} unreachable\n\n${lines.length?`| Program | Note |\n|---|---|\n${lines.join('\n')}\n`:'No changes.\n'}`;
-  console.log(summary);
-  if(failed===data.programs.length)process.exitCode=1;
+  if(result(checked)!==before)await fs.writeFile(file,JSON.stringify(data,null,2)+'\n');
+  const skipped=entries(data).length-checked.length;
+  console.log(`### ${label}: ${checked.length} checked, ${toReview} to review, ${failed} unreachable${skipped?`, ${skipped} not checked automatically`:''}\n\n${lines.length?`| Entry | Note |\n|---|---|\n${lines.join('\n')}\n`:'No changes.\n'}`);
+  return {checked:checked.length,failed};
+}
+
+// Usage: node collectors/programs-check.mjs [file.json ...]   (default: every file in CURATED_FILES)
+async function main() {
+  const files=process.argv.length>2?process.argv.slice(2).map(f=>[path.basename(f,'.json'),f]):CURATED_FILES;
+  const client=createClient({perHost:1}),now=new Date();
+  let checked=0,failed=0;
+  for(const [label,file] of files){const r=await checkFile(label,path.resolve(file),client,now);checked+=r.checked;failed+=r.failed;}
+  if(checked&&failed===checked)process.exitCode=1;
 }
 if(process.argv[1]&&import.meta.filename===path.resolve(process.argv[1]))await main();

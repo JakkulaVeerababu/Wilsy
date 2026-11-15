@@ -1,0 +1,253 @@
+{
+  "note": "Hand-curated. Every fact comes from the scholarship's official page or notice. 'next' is filled in only once the official page announces the dates. collectors/programs-check.mjs re-reads each 'check_url' daily (except entries with check.auto false, whose sites refuse automated readers) and sets 'check.seen' when the dates on that page change; a person then reviews the entry and copies 'check.seen' into 'check.reviewed'.",
+  "reviewed_at": "2026-11-15",
+  "items": [
+    {
+      "slug": "aicte-pragati",
+      "name": "AICTE Pragati Scholarship for Girls",
+      "short": "Pragati",
+      "organizer": "AICTE, Ministry of Education",
+      "url": "https://aicte.gov.in/schemes/students-development-schemes/Pragati/General-Instructions",
+      "check_url": "https://aicte.gov.in/schemes/students-development-schemes/Pragati/General-Instructions",
+      "summary": "₹50,000 a year for girls admitted to an AICTE-approved technical degree or diploma course.",
+      "who": "Meritorious girl students admitted to an AICTE-approved technical institution, at degree or diploma level. The income limit and other rules are in the scheme's guidelines on the National Scholarship Portal.",
+      "amount": "₹50,000 a year. 10,000 scholarships are given each year.",
+      "format": "Apply on the National Scholarship Portal (scholarships.gov.in)",
+      "usual": "Applications for each academic year open on the National Scholarship Portal around the middle of the year.",
+      "last_edition": "2026-27: applications opened in June 2026, and AICTE extended the last date to 30 November 2026.",
+      "next": {
+        "label": "2026-27",
+        "opens": "2026-06-18T18:30:00Z",
+        "closes": "2026-11-30T18:29:59Z"
+      },
+      "tags": [
+        "Girls",
+        "Engineering",
+        "Diploma",
+        "Government"
+      ],
+      "check": {
+        "reviewed": "51f4cfdcabdd1149",
+        "seen": "51f4cfdcabdd1149",
+        "checked_at": "2026-11-15T06:41:08.257Z",
+        "ok": true
+      }
+    },
+    {
+      "slug": "aicte-saksham",
+      "name": "AICTE Saksham Scholarship for Specially-Abled Students",
+      "short": "Saksham",
+      "organizer": "AICTE, Ministry of Education",
+      "url": "https://aicte.gov.in/schemes/students-development-schemes/Saksham/General-Instructions",
+      "check_url": "https://aicte.gov.in/schemes/students-development-schemes/Saksham/General-Instructions",
+      "summary": "₹50,000 a year for specially-abled students admitted to an AICTE-approved technical degree or diploma course.",
+      "who": "Differently-abled students admitted to an AICTE-approved technical institution, at degree or diploma level. The disability, income and other rules are in the scheme's guidelines on the National Scholarship Portal.",
+      "amount": "₹50,000 a year.",
+      "format": "Apply on the National Scholarship Portal (scholarships.gov.in)",
+      "usual": "Applications for each academic year open on the National Scholarship Portal around the middle of the year.",
+      "last_edition": "2026-27: applications opened in June 2026, and AICTE extended the last date to 30 November 2026.",
+      "next": {
+        "label": "2026-27",
+        "opens": "2026-06-18T18:30:00Z",
+        "closes": "2026-11-30T18:29:59Z"
+      },
+      "tags": [
+        "Disability",
+        "Engineering",
+        "Diploma",
+        "Government"
+      ],
+      "check": {
+        "reviewed": "51f4cfdcabdd1149",
+        "seen": "51f4cfdcabdd1149",
+        "checked_at": "2026-11-15T06:41:08.257Z",
+        "ok": true
+      }
+    },
+    {
+      "slug": "inspire-she",
+      "name": "INSPIRE Scholarship for Higher Education (SHE)",
+      "short": "INSPIRE",
+      "organizer": "Department of Science and Technology",
+      "url": "https://www.online-inspire.gov.in/",
+      "check_url": "https://www.online-inspire.gov.in/",
+      "summary": "₹80,000 a year for top students in basic and natural sciences, at bachelor's and master's level.",
+      "who": "Students in the top 1% of their Class XII board, or with JEE or NEET ranks within the stated cut-offs, who study basic or natural sciences (BSc, BS or integrated MSc/MS). Subjects such as computer science, IT and biotechnology are not covered.",
+      "amount": "₹80,000 a year, including a ₹20,000 grant for a summer research project with a mentor. 12,000 scholarships a year.",
+      "format": "Apply on the INSPIRE portal when the call is announced",
+      "usual": "DST announces each call on the INSPIRE portal. Selection takes at least four months after the last date.",
+      "last_edition": null,
+      "next": null,
+      "tags": [
+        "Science",
+        "Merit",
+        "Government"
+      ],
+      "check": {
+        "auto": false,
+        "reason": "The INSPIRE portal does not answer automated readers, so WILSY does not check it daily."
+      }
+    },
+    {
+      "slug": "pm-scholarship-ex-servicemen",
+      "name": "Prime Minister's Scholarship Scheme for wards of ex-servicemen",
+      "short": "PMSS",
+      "organizer": "Kendriya Sainik Board, Department of Ex-Servicemen Welfare",
+      "url": "https://ksb.gov.in/scholarships-available.htm",
+      "check_url": "https://ksb.gov.in/students-eligible-scholarship.htm",
+      "summary": "A monthly scholarship for children and widows of ex-servicemen and ex-Coast Guard personnel, from the first year of their course.",
+      "who": "Dependent wards and widows of ex-servicemen and ex-Coast Guard personnel, admitted to the first year of an approved course in the current year (not lateral entry), with at least 60% in the qualifying exam (Class 12, diploma or graduation). Wards of civilians, including paramilitary personnel, are not eligible.",
+      "amount": "₹2,500 a month for boys and ₹3,000 a month for girls, paid once a year. 5,500 scholarships a year, split equally between boys and girls.",
+      "format": "Apply online at online.ksb.gov.in",
+      "usual": "One intake each academic year, for students in their first year only.",
+      "last_edition": null,
+      "next": null,
+      "tags": [
+        "Defence families",
+        "Government"
+      ],
+      "check": {
+        "auto": false,
+        "reason": "The Kendriya Sainik Board site does not answer automated readers, so WILSY does not check it daily."
+      }
+    },
+    {
+      "slug": "reliance-foundation-undergraduate",
+      "name": "Reliance Foundation Undergraduate Scholarships",
+      "short": "RF UG",
+      "organizer": "Reliance Foundation",
+      "url": "https://www.scholarships.reliancefoundation.org/UG_Scholarship",
+      "check_url": "https://www.scholarships.reliancefoundation.org/UG_Scholarship",
+      "summary": "Up to ₹2 lakh over the degree for first-year undergraduates in any stream, on merit and means.",
+      "who": "First-year undergraduates in any stream with a household income under ₹15 lakh. Selection uses the application and a 60-minute online aptitude test.",
+      "amount": "Up to ₹2 lakh over the degree. Up to 5,000 scholars a year.",
+      "format": "Apply online, then take the aptitude test",
+      "usual": "One round a year, for students in their first year of college.",
+      "last_edition": "2026-27: applications have closed.",
+      "next": null,
+      "tags": [
+        "Any stream",
+        "Merit-cum-means",
+        "Company"
+      ],
+      "check": {
+        "auto": false,
+        "reason": "The page is drawn by a script and shows no dates to a simple reader, so WILSY does not check it daily."
+      }
+    },
+    {
+      "slug": "reliance-foundation-postgraduate",
+      "name": "Reliance Foundation Postgraduate Scholarships",
+      "short": "RF PG",
+      "organizer": "Reliance Foundation",
+      "url": "https://www.scholarships.reliancefoundation.org/PG_Scholarship",
+      "check_url": "https://www.scholarships.reliancefoundation.org/PG_Scholarship",
+      "summary": "Up to ₹6 lakh over the degree for 100 first-year postgraduates in engineering and life sciences.",
+      "who": "First-year postgraduate students in Artificial Intelligence, Computer Science, Mathematics and Computing, Electrical or Electronics, Mechanical, Chemical, Renewable and New Energy, Materials Science and Engineering, or Life Sciences. Selection is on merit.",
+      "amount": "Up to ₹6 lakh over the degree. Up to 100 scholars a year.",
+      "format": "Apply online",
+      "usual": "One round a year, for students in their first year of a postgraduate degree.",
+      "last_edition": null,
+      "next": null,
+      "tags": [
+        "Engineering",
+        "Postgraduate",
+        "Company"
+      ],
+      "check": {
+        "auto": false,
+        "reason": "The page is drawn by a script and shows no dates to a simple reader, so WILSY does not check it daily."
+      }
+    },
+    {
+      "slug": "santoor-womens-scholarship",
+      "name": "Santoor Women's Scholarship",
+      "short": "Santoor",
+      "organizer": "Wipro Consumer Care and Wipro Cares",
+      "url": "https://www.santoorscholarships.com/",
+      "check_url": "https://www.santoorscholarships.com/",
+      "summary": "Support for girls from disadvantaged backgrounds who go on to higher education after Class 12.",
+      "who": "Girls from disadvantaged backgrounds starting higher education after Class 12, in the states named each year (Andhra Pradesh and Maharashtra in 2026). Students from backward districts get preference.",
+      "amount": "Covers tuition fees and incidental expenses for the length of the course. 1,000 girls were supported in 2026.",
+      "format": "Apply online",
+      "usual": "One intake a year.",
+      "last_edition": "2026: the last date to apply was 15 October 2026.",
+      "next": null,
+      "tags": [
+        "Girls",
+        "Any stream",
+        "Company"
+      ],
+      "check": {
+        "reviewed": "d49210f748538eca",
+        "seen": "d49210f748538eca",
+        "checked_at": "2026-11-15T06:41:08.257Z",
+        "ok": true
+      }
+    },
+    {
+      "slug": "aditya-birla-scholarships",
+      "name": "Aditya Birla Scholarships",
+      "short": "ABS",
+      "organizer": "Aditya Birla Group",
+      "url": "https://www.adityabirlascholars.net/the-scholarship/eligibility-application-process/",
+      "check_url": "https://www.adityabirlascholars.net/the-scholarship/eligibility-application-process/",
+      "summary": "Up to ₹3 lakh a year for top-ranked students at selected IIMs, IITs, BITS Pilani and national law universities.",
+      "who": "The top 20 students by entrance rank at the listed IITs (BTech), IIMs, XLRI, BITS Pilani campuses and national law universities, who are invited to apply through their dean.",
+      "amount": "₹3,00,000 a year at IIMs and XLRI, ₹1,50,000 a year at IITs and BITS Pilani, and ₹1,80,000 a year or the actual fees, whichever is lower, in law.",
+      "format": "By invitation, through your institute's dean",
+      "usual": "Each year the dean of a listed institute invites its eligible students to apply.",
+      "last_edition": null,
+      "next": null,
+      "tags": [
+        "Engineering",
+        "Management",
+        "Law",
+        "Company"
+      ],
+      "check": {
+        "reviewed": "b692db32cd12ee07",
+        "seen": "b692db32cd12ee07",
+        "checked_at": "2026-11-15T06:41:08.257Z",
+        "ok": true
+      }
+    }
+  ],
+  "state_portals": [
+    {
+      "state": "Andhra Pradesh",
+      "name": "Jnanabhumi",
+      "url": "https://jnanabhumi.ap.gov.in/"
+    },
+    {
+      "state": "Bihar",
+      "name": "Post-Matric Scholarship",
+      "url": "https://pmsonline.bihar.gov.in/"
+    },
+    {
+      "state": "Karnataka",
+      "name": "State Scholarship Portal",
+      "url": "https://ssp.postmatric.karnataka.gov.in/"
+    },
+    {
+      "state": "Kerala",
+      "name": "DCE Scholarships",
+      "url": "https://dcescholarship.kerala.gov.in/"
+    },
+    {
+      "state": "Maharashtra",
+      "name": "MahaDBT",
+      "url": "https://mahadbt.maharashtra.gov.in/"
+    },
+    {
+      "state": "Telangana",
+      "name": "ePASS",
+      "url": "https://telanganaepass.cgg.gov.in/"
+    },
+    {
+      "state": "Uttar Pradesh",
+      "name": "Scholarship and Fee Reimbursement",
+      "url": "https://scholarship.up.gov.in/"
+    }
+  ]
+}
