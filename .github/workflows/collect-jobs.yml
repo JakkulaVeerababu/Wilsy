@@ -12,6 +12,10 @@ on:
         description: Run only this shard (0-9); leave empty to run all ten
         required: false
         default: ''
+      partner_pages:
+        description: Listing pages to read from partner feeds (default 3; 15 at 01:00 UTC covers about six weeks)
+        required: false
+        default: ''
 permissions:
   contents: read
 jobs:
@@ -40,3 +44,26 @@ jobs:
           if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then echo "::error::SUPABASE_SERVICE_ROLE_KEY is missing; nothing was collected."; exit 1; fi
           if [ -n "$ONLY_SHARD" ] && [ "$ONLY_SHARD" != "$SHARD" ]; then echo "Only shard $ONLY_SHARD requested; skipping shard $SHARD."; exit 0; fi
           node collectors/collect.mjs --shard "$SHARD" --shards 10
+  # Partner feeds: job sites that gave WILSY permission to collect their listings
+  # (collectors/thejobcompany.mjs). One request at a time, about one a second.
+  partners:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency: collect-partner-thejobcompany
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Collect The Job Company
+        env:
+          SUPABASE_URL: https://pnkthqatdlozrojwefnc.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          PAGES: ${{ inputs.partner_pages }}
+          ONLY_SHARD: ${{ inputs.shard }}
+        run: |
+          if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then echo "::error::SUPABASE_SERVICE_ROLE_KEY is missing; nothing was collected."; exit 1; fi
+          if [ -n "$ONLY_SHARD" ] && [ -z "$PAGES" ]; then echo "Only shard $ONLY_SHARD requested; skipping partner feeds."; exit 0; fi
+          # The newest three pages every hour; once a day, about six weeks back so older listings stay marked as open.
+          if [ -z "$PAGES" ]; then if [ "$(date -u +%H)" = "01" ]; then PAGES=15; else PAGES=3; fi; fi
+          node collectors/thejobcompany.mjs --pages "$PAGES"
