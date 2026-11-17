@@ -1,8 +1,8 @@
 {
   "dataset": "India government jobs — official portal snapshot",
-  "checkedAt": "2026-11-16",
+  "checkedAt": "2026-11-17",
   "description": "A dated, curated snapshot of active India government-job notices found on primary official portals. It is not an exhaustive guarantee of every vacancy on the internet; applicants should confirm the complete advertisement, eligibility, dates and application process at the official source before applying.",
-  "coverageNote": "Official-source coverage only. This snapshot includes four open notices from ISRO / the Department of Space and the Bhabha Atomic Research Centre (BARC), checked on 16 Nov 2026, plus selected official discovery hubs; it does not claim complete coverage of all central, state or public-sector vacancies.",
+  "coverageNote": "Official-source coverage only. This snapshot includes three open notices from ISRO / the Department of Space and the Bhabha Atomic Research Centre (BARC), checked on 17 Nov 2026, plus selected official discovery hubs; it does not claim complete coverage of all central, state or public-sector vacancies.",
   "sourceHubNote": "Some official portals require JavaScript or do not expose a structured feed in this static snapshot. The hub links are provided for direct checking and broader discovery.",
   "classificationNote": "Rank and category are WILSY display and browsing fields, not official merit lists, appointment grades or vacancy counts.",
   "sourceHubs": [
@@ -134,27 +134,6 @@
       "sourceUrl": "https://www.barc.gov.in/careers/recruitment.html",
       "sourceDomain": "barc.gov.in",
       "verificationNote": "BARC’s official new-vacancies page (last updated 6 Nov 2026) lists this walk-in interview for Monday 23 Nov 2026 at 10.30 am, with reporting at 8.30 am at BARC Hospital, Anushaktinagar, Mumbai. Checked 12 Nov 2026; bring the application format and certificates listed in the notice."
-    },
-    {
-      "id": "barc-radiographer-locum-2026",
-      "rank": 4,
-      "title": "Scientific Assistant (Radiographer), walk-in interview",
-      "organization": "Bhabha Atomic Research Centre (BARC) Hospital",
-      "ministryDepartment": "Department of Atomic Energy, Government of India",
-      "category": "Medical",
-      "level": "SA/B (locum)",
-      "gradeLevel": "Scientific Assistant (Radiographer) at SA/B emoluments · locum",
-      "salaryPayBand": "Consolidated ₹19,502 per month plus DA, about ₹45,000 in hand per month (approx., per the notice).",
-      "experienceEligibility": "B.Sc. with at least 50% plus a one-year Diploma in Radiography, or B.Sc. (Radiography) with 60%; age not more than 50 on the interview date. Two posts, 178 days and not more than 89 days at a time.",
-      "location": "Mumbai",
-      "openingDate": "2026-11-06",
-      "deadline": "2026-11-16",
-      "status": "Open",
-      "noticeNumber": "BARC Medical Division walk-in (MD)",
-      "officialNoticeUrl": "https://www.barc.gov.in/careers/vacancy27.pdf",
-      "sourceUrl": "https://www.barc.gov.in/careers/recruitment.html",
-      "sourceDomain": "barc.gov.in",
-      "verificationNote": "BARC’s official new-vacancies page (last updated 6 Nov 2026) lists this walk-in interview for Monday 16 Nov 2026 from 10.30 am, with reporting at 8.30 am at BARC Hospital, Anushaktinagar, Mumbai. Checked 12 Nov 2026; bring the application format and certificates listed in the notice."
     }
   ]
 }
