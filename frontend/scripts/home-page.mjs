@@ -2,6 +2,7 @@ import {escapeHtml as e} from '../js/directory-core.js';
 import {renderJobCard, jobLogo, profileFor} from '../js/job-card.js';
 import {icon} from '../js/icons.js';
 import {browseRoles, browseStages} from './landing-pages.mjs';
+import {logoSize, logoOpaque} from './logo-size.mjs';
 
 const json = value => JSON.stringify(value).replace(/</g,'\\u003c');
 const count = value => Number(value || 0).toLocaleString('en-IN');
@@ -19,14 +20,35 @@ function featuredCard(item,companies) {
   </a>`;
 }
 
-// A static row of employer logos (no motion). Featured hiring companies come first.
-function logoRow(featured,companies) {
+// Wide wordmarks (Stripe, NVIDIA, Amazon) keep their real proportions and stand in for the name;
+// square marks sit beside the company name.
+function logoImage(logo) {
+  const size = logoSize(logo), ratio = size ? size.width / size.height : 1;
+  if(ratio < 1.8) return {wordmark:false, width:28, height:28};
+  const width = Math.min(132, Math.round(24 * ratio));
+  return {wordmark:true, width, height:Math.round(width / ratio)};
+}
+const pauseIcon = '<svg class="home-logo-pause" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="3.5" y="2.5" width="3" height="11" rx="1"/><rect x="9.5" y="2.5" width="3" height="11" rx="1"/></svg>';
+const playIcon = '<svg class="home-logo-play" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 3.1v9.8a.9.9 0 0 0 1.37.77l7.6-4.9a.9.9 0 0 0 0-1.54l-7.6-4.9A.9.9 0 0 0 5 3.1Z"/></svg>';
+// Employer logos; featured hiring companies come first. With 8 or more, the row drifts in a slow loop.
+// The track is copy, real row, copy: the copies are aria-hidden and unfocusable, the loop moves by one
+// row so it has no seam, and every real logo has logos on both sides, so the viewport can centre any of
+// them for keyboard focus. home.js reveals the pause button, stops the loop offscreen and handles focus.
+// Reduced motion shows the real row, still and wrapped.
+export const MARQUEE_MIN = 8;
+export function logoStrip(featured,companies) {
   const seen = new Set(), items = [];
   for(const c of [...featured.map(item=>profileFor({company:item.name,company_slug:item.slug},companies)),...logoIds.map(id=>companies.find(c=>c.id===id))]) {
     if(!c || seen.has(c.id)) continue;
     seen.add(c.id); items.push(c);
   }
-  return `<div class="home-logo-row">${items.slice(0,12).map(c=>`<a href="/companies/${encodeURIComponent(c.id)}"><img src="/${e(c.logo)}" alt="" width="30" height="30" loading="lazy"><span>${e(c.name)}</span></a>`).join('')}</div>`;
+  const list = items.slice(0,12);
+  const row = copy => `<ul class="home-logo-row" role="list"${copy?' aria-hidden="true"':''}>${list.map(c=>{
+    const img = logoImage(c.logo);
+    return `<li><a class="home-logo${img.wordmark?' home-logo-wordmark':''}${logoOpaque(c.logo)?' home-logo-tile':''}" href="/companies/${encodeURIComponent(c.id)}"${copy?' tabindex="-1"':''}><img src="/${e(c.logo)}" alt="" width="${img.width}" height="${img.height}" loading="lazy" decoding="async"><span${img.wordmark?' class="sr-only"':''}>${e(c.name)}</span></a></li>`;
+  }).join('')}</ul>`;
+  if(list.length < MARQUEE_MIN) return `<div class="home-logo-marquee is-static">${row(false)}</div>`;
+  return `<div class="home-logo-marquee" data-logo-marquee style="--logo-count:${list.length}"><button class="home-logo-toggle" type="button" aria-label="Pause the logo animation" title="Pause the logo animation" hidden>${pauseIcon}${playIcon}</button><div class="home-logo-viewport"><div class="home-logo-track">${row(true)}${row(false)}${row(true)}</div></div></div>`;
 }
 
 function browse(dsaStats) {
@@ -71,7 +93,7 @@ export function homePage({snapshot, companies, guides, fx, dsaStats}) {
       </dl>
     </div>
   </section>
-  <section class="home-trust-strip" aria-label="Companies represented in the collection"><p>Roles and research from teams including</p>${logoRow(featured,companies)}<p class="home-trust-line">${icon('check')} Every listing links to its source. No affiliation or endorsement implied.</p></section>
+  <section class="home-trust-strip" aria-label="Companies represented in the collection"><p>Roles and research from teams including</p>${logoStrip(featured,companies)}<p class="home-trust-line">${icon('check')} Every listing links to its source. No affiliation or endorsement implied.</p></section>
   ${browse(dsaStats)}
   <section class="home-opportunities home-section" id="fresh-opportunities" aria-labelledby="fresh-title">
     <div class="home-section-heading"><div><p class="home-kicker">FRESH OPPORTUNITIES</p><h2 id="fresh-title">Hiring <em>right now.</em></h2></div><a class="home-section-link" href="/jobs">View all jobs ${icon('arrow')}</a></div>

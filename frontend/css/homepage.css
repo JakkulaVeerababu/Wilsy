@@ -87,13 +87,59 @@
 
 
 /* ---------- Logo marquee ---------- */
+/* Employer logos drift in a slow loop: three identical rows (copy, real, copy), and the track moves by
+   exactly one row (a third of its width), so there is no seam. The copies are aria-hidden and unfocusable.
+   The loop stops on hover, keyboard focus (home.js), the pause button and offscreen, and never runs for
+   reduced motion. */
 .home-trust-strip{padding:96px 0 0;text-align:center}
-.home-trust-strip>p:first-child{margin:0 0 32px;font:600 11px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.home-trust-strip>p:first-child{display:flex;align-items:center;justify-content:center;gap:20px;width:min(760px,100% - 2 * var(--gutter));margin:0 auto 22px;font:600 11px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.home-trust-strip>p:first-child::before,.home-trust-strip>p:first-child::after{content:"";flex:1 1 0;height:1px;background:linear-gradient(90deg,transparent,var(--line-strong))}
+.home-trust-strip>p:first-child::after{background:linear-gradient(270deg,transparent,var(--line-strong))}
+@media(max-width:520px){.home-trust-strip>p:first-child::before,.home-trust-strip>p:first-child::after{display:none}}
 
-.home-logo-row{display:flex;flex-wrap:wrap;justify-content:center;gap:18px 44px;width:100%}
-.home-logo-row a{display:inline-flex;align-items:center;gap:10px;font-size:18px;font-weight:700;letter-spacing:-.04em;color:var(--ink);text-decoration:none;opacity:.55;filter:grayscale(1);transition:opacity .25s,filter .25s;white-space:nowrap}
-.home-logo-row a:hover{opacity:1;filter:none}
-.home-logo-row img{width:30px;height:30px;object-fit:contain;border-radius:7px}
+.home-logo-marquee{--logo-gap:clamp(40px,4.4vw,68px);--logo-fade:clamp(44px,11vw,168px);--logo-toggle-right:max(var(--gutter),(100% - var(--container)) / 2);--logo-edge:0px;position:relative;width:min(1320px,100%);margin-inline:auto}
+/* While the pause button shows, logos fade out completely before they reach it. */
+.home-logo-marquee:has(>.home-logo-toggle:not([hidden])){--logo-edge:calc(var(--logo-toggle-right) + 48px)}
+.home-logo-viewport{--logo-mask:linear-gradient(90deg,transparent,#000 var(--logo-fade),#000 calc(100% - var(--logo-edge) - var(--logo-fade)),transparent calc(100% - var(--logo-edge)));overflow:hidden;padding-block:12px;-webkit-mask-image:var(--logo-mask);mask-image:var(--logo-mask)}
+.home-logo-track{display:flex;width:max-content;animation:wilsy-logo-drift calc(var(--logo-count,12) * 5s) linear infinite;will-change:transform}
+.home-logo-row{display:flex;flex:none;align-items:center;gap:var(--logo-gap);margin:0;padding:0 var(--logo-gap) 0 0;list-style:none}
+.home-logo-row>li{display:flex;flex:none}
+.home-logo{display:inline-flex;align-items:center;gap:11px;min-height:44px;color:var(--ink);font-size:18px;font-weight:700;letter-spacing:-.04em;line-height:1;white-space:nowrap;text-decoration:none;opacity:.6;scroll-margin-left:var(--logo-fade);scroll-margin-right:calc(var(--logo-fade) + var(--gutter) + 48px);transition:opacity .35s var(--ease-out,ease),transform .35s var(--ease-out,ease)}
+.home-logo img{flex:none;width:28px;height:28px;object-fit:contain;filter:grayscale(1);transition:filter .35s var(--ease-out,ease)}
+.home-logo-wordmark img{width:auto;height:24px;max-width:132px}
+/* Logos with a solid background keep it, on a rounded tile. */
+.home-logo-tile img{border-radius:6px}
+.home-logo:focus-visible{outline:2px solid var(--focus);outline-offset:6px;border-radius:8px}
+.home-logo:is(:hover,:focus-visible){opacity:1}
+.home-logo:is(:hover,:focus-visible) img{filter:none}
+@media(hover:hover){
+  .home-logo-marquee:hover .home-logo-track{animation-play-state:paused}
+  .home-logo-track:has(.home-logo:hover) .home-logo:not(:hover){opacity:.28}
+}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){.home-logo:hover{transform:translateY(-2px)}}
+/* The loop moves only once home.js has shown the pause button (is-live), so without the script it stays still. */
+.home-logo-marquee:is(.is-paused,.is-offscreen) .home-logo-track,.home-logo-marquee:not(.is-live) .home-logo-track{animation-play-state:paused}
+.home-logo-track:has(:focus-visible){animation-play-state:paused}
+.home-logo-marquee.is-manual .home-logo-track{animation-name:none}
+@keyframes wilsy-logo-drift{to{transform:translate3d(calc(-100% / 3),0,0)}}
+/* Pause/play: first in focus order, drawn over the faded right edge in line with the page container. */
+.home-logo-toggle{position:absolute;top:50%;right:var(--logo-toggle-right);z-index:1;display:grid;place-items:center;width:36px;height:36px;padding:0;border:1px solid var(--line);border-radius:50%;background:var(--surface);color:var(--muted-strong);box-shadow:var(--shadow-sm);cursor:pointer;transform:translateY(-50%);transition:color .2s,border-color .2s,box-shadow .2s}
+.home-logo-toggle[hidden]{display:none}
+.home-logo-toggle::after{content:"";position:absolute;inset:-5px;border-radius:50%}
+.home-logo-toggle:hover{color:var(--ink);border-color:var(--line-strong);box-shadow:var(--shadow-md)}
+.home-logo-toggle:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.home-logo-toggle svg{width:14px;height:14px;fill:currentColor}
+.home-logo-play,.home-logo-marquee.is-paused .home-logo-pause{display:none}
+.home-logo-marquee.is-paused .home-logo-play{display:block}
+/* Still rows: fewer than 8 logos, or reduced motion (the copies and the button go away). */
+.home-logo-marquee.is-static .home-logo-row{flex-wrap:wrap;justify-content:center;gap:14px 44px;padding:0 var(--gutter)}
+@media(prefers-reduced-motion:reduce){
+  .home-logo-viewport{-webkit-mask-image:none;mask-image:none}
+  .home-logo-track{width:auto;animation:none}
+  .home-logo-row{flex:1 1 auto;flex-wrap:wrap;justify-content:center;gap:14px 44px;padding:0 var(--gutter)}
+  .home-logo-row[aria-hidden]{display:none}
+  .home-logo-toggle{display:none}
+}
 .home-trust-line{display:inline-flex;align-items:center;gap:8px;margin:32px 0 0;font-size:13px;color:var(--muted)}
 .home-trust-line .icon{width:16px;height:16px;color:var(--success)}
 
@@ -228,7 +274,12 @@ html.dark-theme :is(.home-console-main h2,.home-stat-card dd,.home-stat-card dt)
 html.dark-theme :is(.home-console-lede,.home-stat-note,.home-index-role span,.home-index-pay span,.home-feed-note){color:var(--muted)}
 
 
-html.dark-theme .home-logo-row img,html.dark-theme .home-featured-company .job-logo{background:#fff}
+html.dark-theme .home-featured-company .job-logo{background:#fff}
+/* Logos turn light on the dark page and stay monochrome on hover: dark marks would vanish in colour. */
+html.dark-theme .home-logo:not(.home-logo-tile) img{filter:grayscale(1) invert(1)}
+/* Logos with a solid background sit on a white tile instead, so they never become black or white squares. */
+html.dark-theme .home-logo-tile img{background:#fff;filter:grayscale(1)}
+html.dark-theme .home-logo-tile:is(:hover,:focus-visible) img{filter:none}
 
 
 
@@ -269,7 +320,11 @@ html.dark-theme .home-final-cta{background:#000;box-shadow:0 0 0 1px #1d2738}
   
   .home-job-grid,.home-guide-grid{grid-template-columns:1fr}
   .home-featured-rail{grid-auto-columns:78%}
-  .home-logo-row a{font-size:18px}.home-logo-row{gap:14px 28px}
+  .home-logo-marquee{--logo-gap:36px}
+  .home-logo{gap:9px;font-size:16px}
+  .home-logo img{width:24px;height:24px}
+  .home-logo-wordmark img{width:auto;height:20px;max-width:112px}
+  .home-logo-toggle{width:32px;height:32px}
   .home-dsa-banner{padding:24px;gap:16px;align-items:flex-start}  .home-final-cta{width:calc(100% - 2 * var(--gutter));border-radius:24px;margin-bottom:40px}
 }
 
@@ -296,7 +351,7 @@ html.dark-theme .home-final-cta{background:#000;box-shadow:0 0 0 1px #1d2738}
 .home-cta-primary .icon,.home-cta-secondary .icon{width:18px;height:18px;transform:none}
 .home-cta-primary:hover .icon,.home-cta-secondary:hover .icon{transform:translateX(3px)}
 .home-cta-primary:focus-visible,.home-cta-secondary:focus-visible{outline:2px solid #8fb0ff;outline-offset:3px}
-.home-quick-links a,.home-logo-row a,.home-section-link,.home-text-link{min-height:44px;display:inline-flex;align-items:center}
+.home-quick-links a,.home-section-link,.home-text-link{min-height:44px;display:inline-flex;align-items:center}
 @media(max-width:760px){.home-final-actions{width:100%}.home-cta-primary,.home-cta-secondary{width:100%;justify-content:center}}
 
 /* Nov 2026 homepage: hero stats, browse chips and route cards. Flat surfaces, no motion. */

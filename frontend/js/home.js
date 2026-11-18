@@ -43,6 +43,7 @@ function initHome() {
       document.querySelectorAll('[data-snapshot-date]').forEach(el=>{el.textContent=today;el.dateTime=now.toISOString();});
     }
   }
+  mountLogoMarquee();
   mountRailNav();
   updateSaved();
   // The form loads /jobs, so the event is queued and sent from there.
@@ -69,4 +70,51 @@ function mountRailNav() {
   const sync=()=>{const max=rail.scrollWidth-rail.clientWidth;nav.hidden=max<8;prev.disabled=rail.scrollLeft<8;next.disabled=rail.scrollLeft>max-8;};
   nav.addEventListener('click',event=>{const button=event.target.closest('[data-rail]');if(button)rail.scrollBy({left:Number(button.dataset.rail)*rail.clientWidth*.8,behavior:'smooth'});});
   rail.addEventListener('scroll',sync,{passive:true});addEventListener('resize',sync);sync();
+}
+
+// The employer logo loop: a pause button (remembered on this device), no motion while offscreen,
+// and keyboard focus that never lands on a logo the loop has carried out of view.
+function mountLogoMarquee() {
+  const root=document.querySelector('[data-logo-marquee]');
+  if(!root)return;
+  const viewport=root.querySelector('.home-logo-viewport'),track=root.querySelector('.home-logo-track'),toggle=root.querySelector('.home-logo-toggle');
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+  const setPaused=paused=>{
+    root.classList.toggle('is-paused',paused);
+    const label=paused?'Play the logo animation':'Pause the logo animation';
+    toggle.setAttribute('aria-label',label);toggle.title=label;
+  };
+  try{setPaused(localStorage.getItem('wilsy-logo-motion')==='paused');}catch{}
+  const syncMotion=()=>{toggle.hidden=reduce.matches;};
+  syncMotion();reduce.addEventListener?.('change',syncMotion);
+  root.classList.add('is-live');
+  toggle.addEventListener('click',()=>{
+    const paused=!root.classList.contains('is-paused');
+    setPaused(paused);
+    try{if(paused)localStorage.setItem('wilsy-logo-motion','paused');else localStorage.removeItem('wilsy-logo-motion');}catch{}
+  });
+  if('IntersectionObserver' in window)new IntersectionObserver(entries=>{for(const entry of entries)root.classList.toggle('is-offscreen',!entry.isIntersecting);}).observe(root);
+  // Keyboard focus turns the loop's position into a scroll offset (nothing moves on screen), then centres each
+  // focused logo, clear of the faded edges; when focus leaves, the loop resumes from the same spot.
+  // Mouse clicks leave the loop alone.
+  const keyboard=el=>{try{return el.matches(':focus-visible');}catch{return true;}};
+  track.addEventListener('focusin',event=>{
+    if(reduce.matches||!keyboard(event.target))return;
+    if(!root.classList.contains('is-manual')){
+      const x=new DOMMatrixReadOnly(getComputedStyle(track).transform).m41;
+      root.classList.add('is-manual');
+      viewport.scrollLeft=-x;
+    }
+    event.target.scrollIntoView({block:'nearest',inline:'center'});
+  });
+  // Leaving the logos (to the pause button too) hands the position back to the loop, so Play works at once.
+  track.addEventListener('focusout',event=>{
+    if(!root.classList.contains('is-manual')||track.contains(event.relatedTarget))return;
+    // One row is a third of the track (layout width, so page zoom or transforms do not skew it).
+    const width=parseFloat(getComputedStyle(track).width)/3,duration=parseFloat(getComputedStyle(track).animationDuration)||0;
+    const offset=width?viewport.scrollLeft%width:0;
+    track.style.animationDelay=width&&duration?`${-(offset/width)*duration}s`:'';
+    viewport.scrollLeft=0;
+    root.classList.remove('is-manual');
+  });
 }

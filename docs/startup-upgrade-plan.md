@@ -6,6 +6,7 @@ Benchmarks: the patterns that LinkedIn Jobs, Indeed, Naukri, Wellfound, Instahyr
 Ground rules for every item below:
 
 - Keep the UI calm and flat. No backdrop blur, animated glows, marquees, scroll reveals, count-ups, gradient text, or grid/dot backgrounds.
+  One exception, added at the owner's request on 18 Nov 2026: the homepage employer-logo strip drifts in a slow loop. It stops on hover, keyboard focus, its pause button and offscreen, and stays still for reduced motion.
 - No invented proof: no fake testimonials, press logos, user counts or ratings. Every number on the site comes from the data.
 - No Supabase grant or schema changes in this plan. New data reads use the existing public search RPCs.
 - Devpost and MLH are never scraped.
