@@ -6,7 +6,7 @@ import {logoSize, logoOpaque} from './logo-size.mjs';
 import {TOOLS, toolCard} from './feature-pages.mjs';
 
 // The homepage's six tool cards; /tools lists them all.
-const HOME_TOOLS = ['/tracker', '/scam-check', '/salary-calculator', '/offer-compare', '/resume-match', '/salary-hike-calculator'];
+const HOME_TOOLS = ['/resume-builder', '/tracker', '/deadlines', '/scam-check', '/salary-calculator', '/offer-compare'];
 
 const json = value => JSON.stringify(value).replace(/</g,'\\u003c');
 const count = value => Number(value || 0).toLocaleString('en-IN');

@@ -5,6 +5,8 @@ import {findSkills} from './skills-core.js';
 
 export const RESUME_KEY = 'wilsy-resume-text';
 export const RESUME_MAX = 30000;
+/** The resume builder hands its text to resume match here, for one page load in this tab. */
+export const RESUME_HANDOFF = 'wilsy-resume-handoff';
 
 // Skills close enough that showing one is half-credit for another ("LLMs" for "Generative AI").
 export const RELATED = [

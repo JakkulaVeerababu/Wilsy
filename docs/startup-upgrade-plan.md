@@ -280,3 +280,19 @@ After deploying, check:
 - **`/api/search` now answers other sites** (`Access-Control-Allow-Origin: *`) so the widget works. It returns only public job data and uses no cookies. Watch function usage once sites embed it.
 - **Skill pages need the live job pass** (`WILSY_REFRESH_JOBS=1`, as on Vercel).
 - **The share target** shows up only after the site is installed as an app on Android.
+
+## Status (20 Nov 2026, later): switching-jobs batch built, not deployed
+
+| Feature | Where | Notes |
+|---|---|---|
+| Resume builder | /resume-builder | A form for a one-page resume with a live A4 preview that counts pages, "Download PDF" (the browser's print dialog, on A4 with 14 mm margins), copy as plain text, and "Check against a job", which hands the text to resume match for one page load. Checks for missing contact details, skills and education, weak openings ("Responsible for"), points without numbers and long points. The draft stays in localStorage while "Save on this device" is ticked; nothing is uploaded. |
+| Deadlines calendar | /deadlines | Every open last date in one list, grouped into today, the next 7 days, the next 30 days and later, with a filter per kind and a calendar reminder on each. Government notices, scholarships and research internships come with the page from the reviewed data files; the 48 soonest hackathons and competitions (about a week) load live, and long groups fold after 8 rows. |
+| Notice period calculator | /notice-period-calculator | Last working day for a notice in days or months (counting the day you resign, and the next-day rule too), waived days, the early release needed for a joining date and a buyout at monthly pay ÷ 30. Notes the Code on Wages two-working-day rule for final wages. |
+| Resignation and offer letters | /career-letters | 11 letters: resignation, early release, turning down a counter-offer, relieving letters, accepting, negotiating, moving the joining date, declining, following up, thank-you and a cold email. Blank details stay as [placeholders]; copy, open in the email app or print. The notice calculator links here with the dates filled in. |
+| Tools hub | /tools | 17 tools; a new "Switch jobs" group (notice period, letters, gratuity). The homepage tool cards now lead with the resume builder, tracker and deadlines. |
+
+Analytics: `tool_use` gains `notice_period`, `letters` (via `copy`, `email`, `print`), `resume_builder` (via `pdf`, `text`, `match`) and `deadlines`. No personal data, and nothing typed into the tools is sent.
+
+After deploying, check:
+- **Save as PDF** from /resume-builder in Chrome on Android and desktop: one A4 page for the example, with the links clickable.
+- **/deadlines live rows**: hackathons and competitions appear with the reviewed deadlines, and the "Showing the 48 soonest" note links to the full lists.

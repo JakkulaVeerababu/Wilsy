@@ -11,6 +11,10 @@ import {SKILLS} from '../js/skills-core.js';
 import {SIGNS} from '../js/scam-core.js';
 import {hikeResult, hikeTable, inWords, HIKE_STEPS} from '../js/hike-core.js';
 import {gratuity, gratuityResult} from '../js/gratuity-core.js';
+import {noticePlan, noticeResult, NOTICE_PRESETS} from '../js/notice-core.js';
+import {LETTERS, LETTER_FIELDS, LETTER_GROUPS, letterText, fieldLabel, mailtoLink} from '../js/letters-core.js';
+import {emptyDraft, resumeHtml, checksHtml, mainFieldHtml, entryForm} from '../js/resume-builder-core.js';
+import {DEADLINE_KINDS, upcoming, deadlineList, kindCounts} from '../js/deadlines-core.js';
 import {site} from '../js/site-config.js';
 
 // Page bodies for the career tools (tracker, salary explorer, calculators, offer comparison, resume match,
@@ -23,12 +27,16 @@ const toolCrumbs = label => crumbs(label, ['/tools', 'Tools']);
 /** Every career tool: [url, icon, name, what it does, group]. The tools hub and the homepage list them. */
 export const TOOLS = [
   ['/tracker', 'kanban', 'Application tracker', 'Saved → Applied → Interviewing → Offer, with interview reminders. Add jobs from any site.', 'Apply'],
+  ['/resume-builder', 'pen', 'Resume builder', 'Write a clean one-page resume and save it as a PDF. Nothing is uploaded.', 'Apply'],
   ['/resume-match', 'file', 'Resume match', 'See which of a job’s skills your resume shows, and which are missing.', 'Apply'],
+  ['/deadlines', 'calendar', 'Deadlines calendar', 'Last dates for hackathons, competitions, scholarships and exams, soonest first.', 'Apply'],
   ['/scam-check', 'shield', 'Job scam check', 'Paste an offer or a WhatsApp message to check it for the signs of a job scam.', 'Apply'],
   ['/salary-calculator', 'calculator', 'In-hand salary calculator', 'From CTC to monthly take-home under the new tax regime.', 'Pay'],
   ['/offer-compare', 'scale', 'Compare job offers', 'Two or three offers side by side: in hand, first-year cash and equity.', 'Pay'],
   ['/salary-hike-calculator', 'trending', 'Salary hike calculator', 'What a raise really adds to your monthly pay, and the hike you need.', 'Pay'],
-  ['/gratuity-calculator', 'wallet', 'Gratuity calculator', 'What you get when you leave, under the labour codes.', 'Pay'],
+  ['/notice-period-calculator', 'logout', 'Notice period calculator', 'Your last working day, an early release and what a buyout costs.', 'Switch'],
+  ['/career-letters', 'mail', 'Resignation and offer letters', 'Resignation, offer acceptance, negotiation and follow-up emails, ready to copy.', 'Switch'],
+  ['/gratuity-calculator', 'wallet', 'Gratuity calculator', 'What you get when you leave, under the labour codes.', 'Switch'],
   ['/salaries', 'rupee', 'Salary explorer', 'Published pay at 1,000 companies, as INR estimates.', 'Research'],
   ['/hiring-trends', 'chart', 'Hiring trends', 'What is hiring right now, counted from live jobs.', 'Research'],
   ['/skills', 'sparkle', 'Skills in demand', 'Live jobs and the employers hiring for each skill.', 'Research'],
@@ -224,8 +232,128 @@ export function gratuityBody({today}) {
   <script type="module" src="/js/gratuity.js"></script></main>`;
 }
 
+export function noticeBody({today}) {
+  const start = noticePlan({resigned: today, amount: 60, unit: 'days'});
+  const unitName = (n, unit) => unit === 'days' ? `${n} days` : `${n} month${n === 1 ? '' : 's'}`;
+  const presets = NOTICE_PRESETS.map(([n, unit]) => `<button type="button" data-notice-preset data-amount="${n}" data-unit="${unit}" aria-pressed="${n === 60 && unit === 'days'}">${unitName(n, unit)}</button>`).join('');
+  return `<main id="main-content" class="editorial-shell calc-shell notice-shell">${toolCrumbs('Notice period calculator')}
+  ${hero('NOTICE PERIOD CALCULATOR', 'When is your last working day?', 'Enter the day you resign and your notice period to see your last working day, how early you need to be released to join your new job on time, and what buying out the rest costs.')}
+  <section class="calc" data-notice aria-label="Notice period calculator">
+    <form class="calc-form" data-notice-form novalidate>
+      <div class="calc-field calc-field-main"><label for="np-resigned">Date you resign</label><input id="np-resigned" name="resigned" type="date" value="${today}" required></div>
+      <div class="calc-field"><label for="np-amount">Notice period</label><div class="notice-amount"><input id="np-amount" name="amount" type="number" inputmode="numeric" min="1" max="365" step="1" value="60" required><select name="unit" aria-label="Days or months"><option value="days" selected>days</option><option value="months">months</option></select></div>
+        <div class="hike-steps notice-steps" role="group" aria-label="Common notice periods">${presets}</div></div>
+      <div class="calc-field"><label for="np-waived">Days waived or set off (optional)</label><input id="np-waived" name="waived" type="number" inputmode="numeric" min="0" max="365" step="1" placeholder="0" aria-describedby="np-waived-help"><span id="np-waived-help" class="calc-words">Days your manager agrees to waive, or saved leave set off against the notice.</span></div>
+      <div class="calc-field"><label for="np-joining">New job’s joining date (optional)</label><input id="np-joining" name="joining" type="date" aria-describedby="np-joining-help"><span id="np-joining-help" class="calc-words">To see how early you need to be released.</span></div>
+      <div class="calc-field"><label for="np-monthly">Monthly pay for a buyout (₹, optional)</label><input id="np-monthly" name="monthly" type="number" inputmode="numeric" min="0" max="10000000" step="1000" placeholder="e.g. 50000" aria-describedby="np-monthly-help"><span id="np-monthly-help" class="calc-words">Usually basic or gross monthly pay; your contract says which.</span></div>
+    </form>
+    <div class="calc-result" data-notice-result aria-live="polite">${noticeResult(start, {today})}</div>
+    <section class="prose notice-notes" aria-labelledby="np-how"><h2 id="np-how">How the dates are counted</h2>
+      <p><strong>The notice period.</strong> Most employers count the notice from the day you resign, so a 60-day notice given on 1 March ends on 29 April. A notice in months ends the day before the same date: one month from 15 January ends on 14 February, and one month from 31 January ends on the last day of February. Some employers start counting the next day, so the calculator shows that date too. Your appointment letter or HR policy decides which applies.</p>
+      <p><strong>Early release and buyout.</strong> If your new job starts before your notice ends, ask your manager to release you early. Many employers agree once your work is handed over, or let you pay for the days you don’t serve, usually your monthly pay ÷ 30 for each day. Some new employers pay the buyout for you, so ask them. Saved leave can sometimes be set off against the notice, if your policy allows it.</p>
+      <p><strong>Your final pay.</strong> Under section 17(2) of the Code on Wages, 2019, in force since 21 November 2025, wages due must be paid within two working days of leaving, whether you resign or are removed, dismissed or retrenched. Other parts of a full and final settlement, such as gratuity, have their own timelines, and employers read the rule in different ways, so ask HR for the settlement date in writing.</p>
+      <p><strong>Get it in writing.</strong> Resign by email so the date is on record, keep the reply that accepts it, and ask for your relieving and experience letters on your last day.</p>
+    </section>
+    <p class="quiet-callout">Your contract and your employer’s policy decide the notice period and how it is counted; this calculator follows the most common practice. Everything is worked out in your browser. <a href="/gratuity-calculator">Work out your gratuity</a> or <a href="/salary-hike-calculator">what the new job adds in hand</a>.</p>
+  </section>
+  <script type="module" src="/js/notice-period.js"></script></main>`;
+}
+
+export function lettersBody() {
+  const first = LETTERS[0], start = letterText(first.id);
+  const field = key => {
+    const f = LETTER_FIELDS[key], id = 'lt-' + key;
+    const input = f.type === 'date' ? `<input id="${id}" name="${key}" type="date">`
+      : `<input id="${id}" name="${key}" maxlength="${f.max}" autocomplete="${f.autocomplete || 'off'}"${f.placeholder ? ` placeholder="${e(f.placeholder)}"` : ''}>`;
+    return `<div class="calc-field" data-letter-field="${key}"${first.fields.includes(key) ? '' : ' hidden'}><label for="${id}">${e(fieldLabel(first, key))}</label>${input}</div>`;
+  };
+  const picker = LETTER_GROUPS.map(group => `<fieldset class="letter-group"><legend>${e(group)}</legend><div class="letter-chips">${LETTERS.filter(l => l.group === group).map(l => `<label class="letter-chip"><input type="radio" name="letter" value="${l.id}"${l === first ? ' checked' : ''}><span>${e(l.name)}</span></label>`).join('')}</div></fieldset>`).join('');
+  return `<main id="main-content" class="editorial-shell letters-shell">${toolCrumbs('Resignation and offer letters')}
+  ${hero('LETTERS AND EMAILS', 'Resignation and offer letters, ready to send.', `Pick one of ${LETTERS.length} letters, add a few details, then copy it, open it in your email app or save it as a PDF. Resigning, asking for an early release, answering an offer and following up.`)}
+  <section class="letters" data-letters aria-label="Letter writer">
+    <form class="letters-form" data-letters-form novalidate>
+      <div class="letter-pick">${picker}</div>
+      <div class="letter-grid">
+        <div class="letter-fields"><h2 class="letter-step">Your details</h2>${Object.keys(LETTER_FIELDS).map(field).join('')}<p class="calc-words">Leave anything blank to keep a [placeholder] you can fill in later.</p></div>
+        <div class="letter-preview"><h2 class="letter-step" data-letter-name>${e(first.name)}</h2>
+          <div class="calc-field"><label for="lt-subject">Subject</label><input id="lt-subject" name="subject" value="${e(start.subject)}" autocomplete="off" data-letter-subject></div>
+          <div class="calc-field"><label for="lt-body">Letter</label><textarea id="lt-body" name="body" rows="18" data-letter-body>${e(start.body)}</textarea></div>
+          <p class="letter-edited" data-letter-edited hidden>You edited the letter, so changing your details no longer updates it. <button class="text-button" type="button" data-letter-reset>Start again from the template</button></p>
+          <div class="letter-actions"><button class="primary-button" type="button" data-letter-copy="body">Copy letter</button><button class="secondary-button" type="button" data-letter-copy="subject">Copy subject</button><a class="secondary-button" data-letter-mail href="${e(mailtoLink(start))}">Open in email</a><button class="secondary-button" type="button" data-letter-print>Print or PDF</button></div>
+          <p class="offer-status" data-letter-status role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </form>
+    <noscript><p class="tracker-status">Without JavaScript the letter can’t fill itself in, but you can copy it above and fill in the [placeholders] by hand.</p></noscript>
+  </section>
+  <section class="prose letters-notes" aria-labelledby="lt-tips"><h2 id="lt-tips">Before you send it</h2>
+    <p><strong>Resigning.</strong> Tell your manager on a call or in person first, then send the letter by email so the date is on record. Keep it short and polite: you will need their help with your relieving letter and references. <a href="/notice-period-calculator">Work out your last working day</a>.</p>
+    <p><strong>Answering an offer.</strong> Accept in writing once you have the offer letter, after reading the notice period, probation and any joining-bonus clawback. To negotiate, ask once, give one clear figure with a reason, and stay friendly. <a href="/offer-compare">Compare your offers</a>.</p>
+    <p><strong>Following up.</strong> Wait about a week after applying before you follow up, and follow up once or twice at most. Send a thank-you note on the day of the interview.</p>
+  </section>
+  <p class="quiet-callout">Letters are written in your browser and nothing you type is sent to WILSY. Your details stay in this tab until you close it. Read the letter before you send it, and change anything that doesn’t sound like you.</p>
+  <div class="letter-print" data-letter-print-copy></div>
+  <script type="module" src="/js/career-letters.js"></script></main>`;
+}
+
+export function resumeBuilderBody() {
+  const draft = emptyDraft(), main = key => mainFieldHtml(key, draft[key]);
+  const list = (name, legend, add) => `<fieldset class="rb-part"><legend>${e(legend)}</legend><div class="rb-entries" data-rb-entries="${name}">${draft[name].map((entry, i) => entryForm(name, entry, i)).join('')}</div><button type="button" class="secondary-button rb-add" data-rb-add="${name}">${icon('plus')} ${e(add)}</button></fieldset>`;
+  return `<main id="main-content" class="editorial-shell rb-shell">${toolCrumbs('Resume builder')}
+  ${hero('RESUME BUILDER', 'Build a clean, one-page resume.', 'Fill in your details and watch your resume take shape, then save it as a PDF, copy it as text or check it against a job. Free, with no sign-up, and nothing is uploaded.')}
+  <section class="rb" data-rb aria-label="Resume builder">
+    <form class="rb-form" data-rb-form novalidate>
+      <div class="rb-bar"><a class="text-button rb-jump" href="#rb-preview">See the preview</a><button type="button" class="text-button" data-rb-example>Fill in an example</button><button type="button" class="text-button" data-rb-clear>Clear everything</button><label class="rb-keep"><input type="checkbox" data-rb-keep checked> Save on this device</label></div>
+      <fieldset class="rb-part"><legend>About you</legend><div class="rb-pair">${main('name')}${main('headline')}</div><div class="rb-pair">${main('email')}${main('phone')}</div><div class="rb-pair">${main('location')}${main('links')}</div>${main('summary')}</fieldset>
+      <fieldset class="rb-part"><legend>Skills</legend>${main('skills')}</fieldset>
+      ${list('experience', 'Experience and internships', 'Add a job or internship')}
+      ${list('projects', 'Projects', 'Add a project')}
+      ${list('education', 'Education', 'Add education')}
+      <fieldset class="rb-part"><legend>Achievements</legend>${main('achievements')}<label class="rb-option"><input type="checkbox" data-rb-key="educationFirst"> Put education before experience (best for students and freshers)</label></fieldset>
+    </form>
+    <div class="rb-side">
+      <div class="rb-side-head"><h2 id="rb-preview">Preview <span class="rb-pages" data-rb-pages aria-live="polite"></span></h2>
+        <div class="rb-actions"><button class="primary-button" type="button" data-rb-pdf>Download PDF</button><button class="secondary-button" type="button" data-rb-copy>Copy as text</button><button class="secondary-button" type="button" data-rb-match>Check against a job</button></div>
+        <p class="calc-words">For a PDF, choose “Save as PDF” as the printer.</p><p class="offer-status" data-rb-status role="status" aria-live="polite"></p></div>
+      <div class="rb-paper" data-rb-preview>${resumeHtml(draft)}</div>
+      <div class="rb-checks"><h3>Checks</h3><div data-rb-checks aria-live="polite">${checksHtml([])}</div></div>
+    </div>
+    <noscript><p class="tracker-status">The resume builder needs JavaScript.</p></noscript>
+  </section>
+  <section class="prose rb-notes" aria-labelledby="rb-tips"><h2 id="rb-tips">What recruiters look for</h2>
+    <p><strong>One page that is easy to scan.</strong> A first read takes seconds, so put what matters most at the top: your experience if you have some, or your education and projects if you are a student.</p>
+    <p><strong>Results, not duties.</strong> “Cut page load time from 4 s to 1.5 s” says more than “Responsible for performance”. Start each point with what you did, and add a number where you can.</p>
+    <p><strong>The job’s own words.</strong> Many employers screen resumes with software that searches for skills, so name the tools from the job description that you really know. <a href="/resume-match">Check your resume against a job</a>.</p>
+    <p><strong>What to leave out.</strong> A photo, date of birth, marital status and a declaration take space from your work, and most private employers don’t ask for them. Follow the instructions when an application, such as a government one, does ask.</p>
+  </section>
+  <p class="quiet-callout">Your resume is built in your browser and never uploaded. With “Save on this device” ticked, the draft stays in this browser so you can come back to it; untick it on a shared computer. <a href="/career-letters">Write a cover email or a follow-up</a></p>
+  <div class="resume-print" data-rb-print></div>
+  <script type="module" src="/js/resume-builder.js"></script></main>`;
+}
+
+/** items: the reviewed deadlines (government notices, scholarships, research internships); the rest load live. */
+export function deadlinesBody({items, now = Date.now()}) {
+  const open = upcoming(items, now), counts = kindCounts(open);
+  const chip = (kind, label, n) => `<button type="button" data-dl-type="${kind}" aria-pressed="${kind === ''}">${e(label)} <span>${n}</span></button>`;
+  const json = JSON.stringify(open).replace(/</g, '\\u003c');
+  return `<main id="main-content" class="editorial-shell dl-shell">${toolCrumbs('Deadlines calendar')}
+  ${hero('DEADLINES CALENDAR', 'Every last date, in one place.', 'Hackathons, competitions, government jobs, scholarships and research internships, soonest first. Add a deadline to your calendar so you don’t miss it.')}
+  <section class="dl" data-deadlines aria-label="Upcoming deadlines">
+    <div class="dl-filters" role="group" aria-label="Show deadlines for">${chip('', 'All', open.length)}${DEADLINE_KINDS.map(([kind, label]) => chip(kind, label, counts[kind])).join('')}</div>
+    <p class="dl-status" data-dl-status role="status" aria-live="polite"></p>
+    <div class="dl-results" data-dl-list>${deadlineList(open, {now})}</div>
+    <script type="application/json" id="deadline-data">${json}</script>
+  </section>
+  <section class="prose dl-notes" aria-labelledby="dl-how"><h2 id="dl-how">How the dates work</h2>
+    <p>Each date is the last day to register or apply, from the listing or its official page. A date without a time closes at the end of that day, India time. Hackathons and competitions load live from WILSY’s verified collection, soonest first; government notices, scholarships and research internships come from WILSY’s reviewed lists, which link to each official page.</p>
+    <p>Organisers sometimes extend or move a deadline, so confirm it on the official page before you apply, and apply a few days early: sites slow down on the last day.</p>
+  </section>
+  <p class="quiet-callout">Looking for something with no fixed date? See <a href="/open-source-programs">open-source programs</a>, <a href="/contests">coding contests</a> and <a href="/jobs">jobs</a>, or keep your applications in the <a href="/tracker">tracker</a>.</p>
+  <script type="module" src="/js/deadlines.js"></script></main>`;
+}
+
 export function toolsBody() {
-  const groups = [['Apply', 'Apply and keep track'], ['Pay', 'Pay and offers'], ['Research', 'Research the market'], ['Prepare', 'Prepare for interviews'], ['Share', 'Share and follow']];
+  const groups = [['Apply', 'Apply and keep track'], ['Pay', 'Pay and offers'], ['Switch', 'Switch jobs'], ['Research', 'Research the market'], ['Prepare', 'Prepare for interviews'], ['Share', 'Share and follow']];
   return `<main id="main-content" class="editorial-shell tools-shell">${crumbs('Tools')}
   ${hero('FREE CAREER TOOLS', 'Every tool for your job search.', 'Track applications, check an offer for scams, work out your in-hand pay and see what is hiring. All free, and everything you type stays in your browser.')}
   ${groups.map(([key, title]) => `<section class="tools-group" aria-labelledby="tools-${key.toLowerCase()}"><h2 id="tools-${key.toLowerCase()}">${e(title)}</h2><div class="tool-grid">${TOOLS.filter(t => t[4] === key).map(t => toolCard(t)).join('')}</div></section>`).join('')}
@@ -308,6 +436,10 @@ export function searchIndex({companies, guides = [], landing = [], curated = [],
     ['Job scam check', '/scam-check', 'Is this job offer real?', 'scam fraud fake job offer whatsapp telegram task registration fee check'],
     ['Salary hike calculator', '/salary-hike-calculator', 'What a raise adds in hand', 'hike raise increment appraisal percentage ctc'],
     ['Gratuity calculator', '/gratuity-calculator', 'Gratuity under the labour codes', 'gratuity labour code resign leaving final settlement'],
+    ['Resume builder', '/resume-builder', 'One-page resume to PDF', 'resume cv builder maker template pdf format fresher create'],
+    ['Deadlines calendar', '/deadlines', 'Every last date, soonest first', 'deadline last date closing soon calendar reminder hackathon scholarship exam'],
+    ['Notice period calculator', '/notice-period-calculator', 'Your last working day and buyout', 'notice period last working day resign resignation buyout early release relieving'],
+    ['Resignation and offer letters', '/career-letters', 'Resignation, offer and follow-up emails', 'resignation letter email template offer acceptance decline negotiate salary follow up thank you joining date relieving experience letter'],
     ['Skills in demand', '/skills', 'Live jobs for each skill', 'skills technologies demand python java sql'],
     ['Jobs widget for your website', '/embed', 'Live jobs on a college or club site', 'embed widget college website placement cell'],
     ['Add an application', '/tracker?add=1', 'Track a job from any other site', 'add application linkedin naukri track'],

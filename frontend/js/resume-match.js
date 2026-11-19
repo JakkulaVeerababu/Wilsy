@@ -1,4 +1,4 @@
-import {matchResume, verdict, RESUME_KEY, RESUME_MAX} from './resume-core.js';
+import {matchResume, verdict, RESUME_KEY, RESUME_MAX, RESUME_HANDOFF} from './resume-core.js';
 import {searchJobs} from './data-client.js';
 import {jobPath} from './jobs-core.js';
 import {escapeHtml as e} from './directory-core.js';
@@ -13,6 +13,8 @@ if(root) {
   const result = root.querySelector('[data-resume-result]'), jobInfo = root.querySelector('[data-resume-job]');
   let timer, counted = false;
   try { const kept = localStorage.getItem(RESUME_KEY); if(kept) { resume.value = kept.slice(0, RESUME_MAX); remember.checked = true; } } catch {}
+  // Sent over by the resume builder's "Check against a job": used once, and not remembered unless ticked.
+  try { const handed = sessionStorage.getItem(RESUME_HANDOFF); if(handed) { sessionStorage.removeItem(RESUME_HANDOFF); resume.value = handed.slice(0, RESUME_MAX); } } catch {}
 
   const chips = (list, kind) => list.length ? `<ul class="match-chips is-${kind}">${list.map(s => `<li>${e(s)}</li>`).join('')}</ul>` : `<p class="salary-note">${kind === 'have' ? 'None yet.' : 'Nothing missing.'}</p>`;
   function render() {

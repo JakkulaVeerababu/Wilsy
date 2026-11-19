@@ -441,3 +441,180 @@ html.dark-theme body .secondary-button:hover{background:var(--tint-hover);border
 html.dark-theme .salary-table,html.dark-theme .salary-table :is(th,td){background:transparent}
 /* Dark theme: links in running text use the light accent blue; the brand blue is too dark on near-black. */
 html.dark-theme .prose a:not(.primary-button):not(.secondary-button){color:#9bc2ff}
+
+/* Notice period calculator */
+.notice-amount{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:8px}
+.notice-headline>div:first-child strong{font-size:clamp(26px,4.4vw,48px);white-space:normal}
+.notice-release{margin:12px 0 0;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.6);font-size:14px;line-height:1.5;color:#0a0a0a}
+.notice-release.is-ok{background:rgba(255,255,255,.85)}
+.notice-release.is-warn{background:#0a0a0a;color:#fff}
+.notice-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.calc>.notice-notes{grid-column:1/-1;max-width:none;margin:0}
+.notice-notes h2{margin-top:0}
+html.dark-theme .notice-release.is-warn{--ink:#fff;--ink-soft:#fff;--muted:rgba(255,255,255,.78)}
+
+/* Shared by the letters and the resume builder */
+:is(.letters,.rb) .calc-field textarea{display:block;width:100%;box-sizing:border-box;padding:10px 13px;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-size:15px;line-height:1.5;resize:vertical}
+:is(.letter-edited,.rb-bar,.rb-entry,.dl-status) .text-button{padding:4px 2px;border:0;background:none;color:var(--blue);font:inherit;font-size:14px;font-weight:650;text-decoration:underline;cursor:pointer}
+.letter-print,.resume-print{display:none}
+
+/* Resignation and offer letters */
+.letters{display:flex;flex-direction:column;gap:18px;margin-top:28px}
+.letters-form{display:flex;flex-direction:column;gap:18px}
+.letter-pick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.letter-group{min-width:0;margin:0;padding:14px 16px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}
+.letter-group>legend{float:left;width:100%;margin:0 0 10px;padding:0;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.letter-chips{display:flex;flex-wrap:wrap;gap:6px;clear:both}
+.letter-chip{position:relative;display:inline-flex}
+.letter-chip input{position:absolute;width:1px;height:1px;margin:0;opacity:0}
+.letter-chip span{display:inline-flex;align-items:center;min-height:34px;padding:0 12px;border:1px solid var(--line-strong);border-radius:999px;background:var(--surface);color:var(--ink-soft);font-size:13px;font-weight:650;cursor:pointer}
+.letter-chip span:hover{border-color:var(--blue)}
+.letter-chip input:checked+span{border-color:var(--blue);background:var(--blue);color:#fff}
+.letter-chip input:focus-visible+span{outline:2px solid var(--blue);outline-offset:2px}
+/* Dark theme: selected chips use the deeper brand blue, so white text keeps 4.5:1 (the dark theme's lighter blue gives 4:1). */
+html.dark-theme .letter-chip input:checked+span,html.dark-theme .dl-filters button[aria-pressed="true"],html.dark-theme .hike-steps button[aria-pressed="true"]{border-color:#0866ff;background:#0866ff;color:#fff}
+.letter-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:18px;align-items:start}
+.letter-fields,.letter-preview{display:flex;flex-direction:column;gap:14px;min-width:0;padding:22px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.letter-preview{background:var(--surface-subtle)}
+.letter-step{margin:0;font-size:18px;color:var(--ink)}
+.letter-fields>.calc-words{margin:0}
+.letter-preview textarea{min-height:380px;font-size:15px;line-height:1.6}
+.letter-edited{margin:0;padding:10px 12px;border-radius:12px;background:var(--blue-soft,rgba(8,102,255,.08));font-size:14px;line-height:1.5;color:var(--ink-soft)}
+.letter-actions{display:flex;flex-wrap:wrap;gap:8px}
+.letters-notes{max-width:760px;margin-top:28px}
+@media(max-width:900px){.letter-pick,.letter-grid{grid-template-columns:1fr}}
+/* Phones: each group's letters scroll sideways in one row, and the four actions sit in a 2 × 2 grid. */
+@media(max-width:640px){.letter-pick{gap:8px}.letter-group{padding:12px 14px}.letter-chips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}.letter-chip{flex:none}
+  .letter-fields,.letter-preview{padding:16px}.letter-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.letter-actions>*{justify-content:center;text-align:center}}
+
+/* Resume builder */
+.rb{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;margin-top:28px;align-items:start}
+.rb-form{display:flex;flex-direction:column;gap:16px;min-width:0}
+.rb-bar{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px}
+.rb-keep{display:inline-flex;align-items:center;gap:6px;margin-left:auto;font-size:14px;font-weight:650;color:var(--ink-soft)}
+.rb-part,.rb-entry{display:grid;gap:12px;min-width:0;margin:0;padding:18px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.rb-part>legend{float:left;width:100%;margin:0;padding:0;font-size:16px;font-weight:800;color:var(--ink)}
+.rb-entries{display:grid;gap:12px}
+.rb-entry{padding:14px;border-style:dashed;border-color:var(--line-strong);border-radius:16px}
+.rb-entry>legend{float:left;width:100%;margin:0;padding:0;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.rb-entries:empty{display:none}
+.rb-remove{justify-self:start}
+.rb-add{justify-self:start;display:inline-flex;align-items:center;gap:6px}
+.rb-add .icon{width:16px;height:16px}
+.rb-add[hidden]{display:none}
+.rb-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.rb-option{display:flex;align-items:flex-start;gap:8px;font-size:14px;font-weight:600;line-height:1.45;color:var(--ink-soft)}
+.rb-option input{margin-top:3px}
+.rb-side{position:sticky;top:88px;display:flex;flex-direction:column;gap:14px;min-width:0;max-height:calc(100vh - 104px);overflow:auto;padding:2px 2px 8px}
+.rb-side-head h2{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin:0;font-size:20px;color:var(--ink)}
+.rb-pages{font-size:13px;font-weight:750;color:#0b6b3a}
+.rb-pages.is-over{color:#a84d00}
+html.dark-theme .rb-side .rb-pages{color:#7ee2a8}
+html.dark-theme .rb-side .rb-pages.is-over{color:#ffc56b}
+.rb-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.rb-side-head .calc-words{margin-top:8px}
+.rb-side-head .offer-status:empty{display:none}
+.rb-paper{position:relative;flex:none;overflow:hidden;border-radius:6px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12),0 12px 32px rgba(0,0,0,.08)}
+.rb-paper .resume-sheet{width:794px;min-height:1123px;box-sizing:border-box;padding:53px;transform:scale(var(--rb-scale,1));transform-origin:0 0}
+.rb-checks{padding:16px 18px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}
+.rb-checks h3{margin:0 0 10px;font-size:16px;color:var(--ink)}
+.rb-check-list{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.rb-check-list li{display:flex;align-items:baseline;gap:10px;font-size:14px;line-height:1.5;color:var(--ink-soft)}
+.rb-check-list li>span{flex:none;min-width:46px;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.03em;text-align:center;text-transform:uppercase}
+.rb-check-list .is-fix>span{background:#fde2dd;color:#8a1c0c}
+.rb-check-list .is-tip>span{background:#fff1cc;color:#6b4200}
+.rb-check-list .is-ok>span{background:#d9f5e3;color:#0b5d32}
+html.dark-theme .rb-check-list li.is-fix>span{color:#8a1c0c}
+html.dark-theme .rb-check-list li.is-tip>span{color:#6b4200}
+html.dark-theme .rb-check-list li.is-ok>span{color:#0b5d32}
+.rb-notes{max-width:760px;margin-top:32px}
+@media(max-width:980px){.rb{grid-template-columns:1fr}.rb-side{position:static;max-height:none;overflow:visible}}
+@media(max-width:560px){.rb-pair{grid-template-columns:1fr}.rb-keep{margin-left:0}}
+
+/* The resume itself: the same sheet in the preview and the PDF (A4, 14 mm margins). */
+.resume-sheet{--ink:#111827;--ink-soft:#1f2937;--muted:#4b5563;background:#fff;color:var(--ink-soft);font-family:'DM Sans',Arial,sans-serif;font-size:10pt;line-height:1.42;text-align:left;overflow-wrap:anywhere}
+.resume-sheet a{color:inherit;text-decoration:none}
+.rs-head{margin-bottom:12pt}
+.rs-name{margin:0;font-family:Manrope,'DM Sans',Arial,sans-serif;font-size:21pt;font-weight:800;line-height:1.15;letter-spacing:-.01em;color:var(--ink)}
+.rs-headline{margin:3pt 0 0;font-size:11pt;font-weight:600;color:var(--ink)}
+.rs-contact{margin:5pt 0 0;font-size:9pt;color:var(--muted)}
+.resume-sheet section{margin-top:11pt}
+.resume-sheet h3{margin:0 0 5pt;padding-bottom:2pt;border-bottom:1px solid #111827;font-size:9.5pt;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.resume-sheet p{margin:0}
+.resume-sheet ul{margin:3pt 0 0;padding-left:13pt}
+.resume-sheet li{margin:1.5pt 0}
+.resume-sheet .rs-skills{padding-left:0;list-style:none}
+.rs-entry+.rs-entry{margin-top:7pt}
+.rs-entry-head{display:flex;align-items:baseline;justify-content:space-between;gap:10pt}
+.rs-entry h4{margin:0;font-size:10.5pt;font-weight:700;color:var(--ink)}
+.rs-entry h4 span{font-weight:600}
+.rs-entry h4 a{margin-left:4pt;font-size:9pt;font-weight:500;color:var(--muted)}
+.rs-dates{flex:none;font-size:9pt;color:var(--muted);font-variant-numeric:tabular-nums}
+.rs-meta{font-size:9.5pt;color:var(--muted)}
+.rs-name.is-empty,.rs-empty{color:#9ca3af}
+.rs-empty{margin-top:20pt!important}
+html.dark-theme .resume-sheet :is(.rs-contact,.rs-meta,.rs-dates,.rs-entry h4 a){color:var(--muted)}
+html.dark-theme .resume-sheet :is(.rs-name.is-empty,.rs-empty){color:#9ca3af}
+
+/* Deadlines calendar */
+.dl{margin-top:28px}
+.dl-filters{display:flex;flex-wrap:wrap;gap:8px}
+.dl-filters button{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border:1px solid var(--line-strong);border-radius:999px;background:var(--surface);color:var(--ink-soft);font:inherit;font-size:14px;font-weight:650;cursor:pointer}
+.dl-filters button:hover{border-color:var(--blue)}
+.dl-filters button span{min-width:24px;padding:1px 7px;box-sizing:border-box;border-radius:999px;background:var(--surface-subtle);color:var(--ink-soft);font-size:12px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums}
+.dl-filters button[aria-pressed="true"]{border-color:var(--blue);background:var(--blue);color:#fff}
+.dl-filters button[aria-pressed="true"] span{background:rgba(0,0,0,.28);color:#fff}
+html.dark-theme .dl-filters button[aria-pressed="true"] :is(span){color:#fff}
+.dl-status{min-height:20px;margin:12px 0 0;font-size:14px;color:var(--muted)}
+.dl-bucket{margin-top:22px}
+.dl-bucket h2{display:flex;align-items:center;gap:10px;margin:0 0 10px;font-size:18px;color:var(--ink)}
+.dl-bucket h2 span{padding:2px 9px;border-radius:999px;background:var(--surface-subtle);color:var(--ink-soft);font-size:13px}
+.dl-list{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.dl-item{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:16px;align-items:start;padding:16px 18px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}
+.dl-item.is-urgent{border-color:#f0b4a4}
+.dl-date{display:flex;flex-direction:column;align-items:center;margin:0;padding:8px 0;border-radius:14px;background:var(--surface-subtle);line-height:1.15;text-align:center}
+.dl-date span{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.dl-date strong{font-size:24px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+.dl-kind{display:flex;align-items:center;gap:6px;margin:0;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.dl-kind::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--blue)}
+.is-hackathon .dl-kind::before{background:#7c3aed}
+.is-competition .dl-kind::before{background:#ea580c}
+.is-government .dl-kind::before{background:#15803d}
+.is-scholarship .dl-kind::before{background:#0891b2}
+.is-research .dl-kind::before{background:#db2777}
+.dl-main{min-width:0}
+.dl-main h3{margin:3px 0 0;font-size:16px;line-height:1.35}
+.dl-main h3 a{color:var(--ink);text-decoration:none}
+.dl-main h3 a:hover{color:var(--blue);text-decoration:underline}
+.dl-org{margin:2px 0 0;font-size:14px;color:var(--muted)}
+.dl-main .cal-actions{margin-top:10px;gap:6px}
+.dl-main .cal-actions a,.dl-main .cal-actions button{min-height:32px;padding:0 11px;font-size:12px}
+.dl-left{margin:0;font-size:14px;font-weight:750;color:var(--ink);text-align:right;white-space:nowrap}
+.dl-left span{display:block;margin-top:2px;font-size:12px;font-weight:600;color:var(--muted)}
+.dl-item.is-urgent .dl-left{color:#b42318}
+html.dark-theme .dl-item.is-urgent .dl-left{color:#ff9d8c}
+html.dark-theme .dl-item.is-urgent{border-color:#7a3426}
+.dl-more{margin:16px 0 0;font-size:14px;color:var(--muted)}
+.dl-show-all{margin-top:10px}
+.dl-notes{max-width:760px;margin-top:32px}
+/* Phones: the date moves into a top row with the days left, so the title and reminders get the full width. */
+@media(max-width:640px){.dl-item{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"date left" "main main";gap:6px 10px;padding:14px}
+  .dl-date{grid-area:date;flex-direction:row;align-items:baseline;gap:5px;padding:0;background:none}.dl-date strong{font-size:15px}
+  .dl-main{grid-area:main}.dl-left{grid-area:left}
+  .dl-filters{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}.dl-filters button{flex:none}.dl-main .cal-actions .cal-label{display:none}}
+.rb-jump{display:none}
+@media(max-width:980px){.rb-jump{display:inline}}
+
+/* Printing a letter or saving the resume as a PDF: only the document, on white paper. */
+@page letter{size:A4;margin:22mm 20mm}
+@page resume{size:A4;margin:14mm}
+@media print{
+  html:has(>body:is(.career-letters-page,.resume-builder-page)),body:is(.career-letters-page,.resume-builder-page){background:#fff!important}
+  body:is(.career-letters-page,.resume-builder-page)>:not(main),body:is(.career-letters-page,.resume-builder-page) main>:not(.letter-print):not(.resume-print){display:none!important}
+  body:is(.career-letters-page,.resume-builder-page) main{width:auto!important;max-width:none!important;margin:0!important;padding:0!important;background:none!important}
+  .letter-print{display:block!important;page:letter;color:#111!important;font:11.5pt/1.6 Georgia,'Times New Roman',serif;white-space:pre-wrap}
+  .resume-print{display:block!important;page:resume}
+  .resume-print .resume-sheet{width:auto;min-height:0;padding:0;transform:none}
+  .resume-print .rs-entry{break-inside:avoid}
+  .resume-print .resume-sheet h3{break-after:avoid}
+}
