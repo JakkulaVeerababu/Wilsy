@@ -1,14 +1,35 @@
 import {track, pageKind} from './analytics.js';
 import {rememberJob} from './palette-core.js';
+import {deadlineIcs} from './calendar-core.js';
 
-// Site-wide extras on every page: quick search (Ctrl/⌘ K), share buttons, campus referral links and the
-// recently viewed jobs list. The quick-search dialog itself loads on first use.
+// Site-wide extras on every page: quick search (Ctrl/⌘ K), share buttons, campus referral links, the
+// recently viewed jobs list, deadline reminders and the referral-request writer on job pages. The
+// quick-search dialog itself loads on first use.
 
 export const REF_KEY = 'wilsy-ref';
 /** Campus ambassador codes: lowercase letters, digits and hyphens, 2–24 characters (for example "iitb-07"). */
 export const refCode = value => { const v = String(value ?? '').trim().toLowerCase(); return /^[a-z0-9][a-z0-9-]{1,23}$/.test(v) ? v : ''; };
 export const referralUrl = (code, origin = 'https://www.wilsy.in') => refCode(code) ? `${origin}/?ref=${refCode(code)}` : '';
 export const whatsappUrl = (text, url) => 'https://wa.me/?text=' + encodeURIComponent(`${text} ${url}`.trim());
+
+// A polite referral request for someone who works at the company. "note" fits LinkedIn's 300-character
+// connection note; "message" is the longer version with the job link. Nothing typed is sent anywhere.
+export const NOTE_LIMIT = 300;
+export function referralMessage({me = '', about = '', title = '', company = '', url = '', kind = 'note'} = {}) {
+  const name = String(me).trim().slice(0, 60) || '[your name]', who = String(about).trim().slice(0, 120);
+  const role = String(title).trim() || 'this', at = String(company).trim() || 'your company';
+  if(kind === 'message') return [
+    'Hi [Name],', '',
+    `I hope you're doing well. I'm ${name}${who ? ', ' + who : ''}, and I'm applying for the ${role} role at ${at}${url ? ': ' + url : '.'}`, '',
+    'Would you consider referring me, or pointing me to the right person? I\'m happy to share my resume and answer any questions.', '',
+    'Thank you for your time,', name,
+  ].join('\n');
+  const notes = [
+    `Hi [Name], I'm ${name}${who ? ', ' + who : ''}. I'm applying for the ${role} role at ${at} and would be grateful for a referral if you think I'd be a good fit. Happy to share my resume. Thank you!`,
+    `Hi [Name], I'm ${name}. I'm applying for the ${role} role at ${at}. Would you be open to referring me? Happy to share my resume. Thanks!`,
+  ];
+  return notes.find(note => note.length <= NOTE_LIMIT) || notes[1].slice(0, NOTE_LIMIT - 1) + '…';
+}
 
 if(globalThis.document) {
   // Referral visits: remember the code for this visit, count it once, and drop it from the address bar.
@@ -40,6 +61,18 @@ if(globalThis.document) {
     const native = event.target.closest('[data-share-native]');
     if(native) { try { await navigator.share({title: native.dataset.shareTitle || document.title, url: native.dataset.shareNative || location.href}); track('share', {via: 'native', page: pageKind(location.pathname)}); } catch {} return; }
     if(event.target.closest('a[data-share-whatsapp]')) track('share', {via: 'whatsapp', page: pageKind(location.pathname)});
+    // Deadline reminders: an .ics file for Apple Calendar and Outlook (the Google link is a plain link).
+    const ics = event.target.closest('[data-ics]');
+    if(ics) {
+      let item; try { item = JSON.parse(ics.dataset.ics); } catch { return; }
+      const text = deadlineIcs(item);
+      if(!text) return;
+      const url = URL.createObjectURL(new Blob([text], {type: 'text/calendar'})), link = document.createElement('a');
+      link.href = url; link.download = `${String(item.title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50) || 'deadline'}-deadline.ics`;
+      document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+      track('tool_use', {tool: 'calendar'});
+    }
+    if(event.target.closest('.cal-actions a')) track('tool_use', {tool: 'calendar'});
   });
   // The phone share sheet only where the browser has one.
   if(typeof navigator.share === 'function') document.querySelectorAll('[data-share-native]').forEach(button => { button.hidden = false; });
@@ -47,6 +80,28 @@ if(globalThis.document) {
   // Recently viewed jobs, for quick search: job pages carry their own details.
   const job = document.querySelector('[data-recent-job]');
   if(job) { try { rememberJob(localStorage, JSON.parse(job.dataset.recentJob)); } catch {} }
+
+  // Ask for a referral (job pages): rebuild the message as the visitor types; copy it to the clipboard.
+  const asker = document.querySelector('[data-referral]');
+  if(asker) {
+    let job = {}; try { job = JSON.parse(asker.dataset.referral); } catch {}
+    const text = asker.querySelector('[data-referral-text]'), count = asker.querySelector('[data-referral-count]');
+    const value = name => asker.querySelector(`[name="${name}"]`);
+    const kind = () => asker.querySelector('[name="referral-kind"]:checked')?.value || 'note';
+    const update = () => {
+      text.value = referralMessage({...job, me: value('me').value, about: value('about').value, kind: kind()});
+      count.textContent = kind() === 'note' ? `${text.value.length} / ${NOTE_LIMIT} characters` : `${text.value.length} characters`;
+    };
+    asker.addEventListener('input', event => { if(event.target !== text) update(); else count.textContent = `${text.value.length}${kind() === 'note' ? ' / ' + NOTE_LIMIT : ''} characters`; });
+    asker.addEventListener('change', event => { if(event.target.name === 'referral-kind') update(); });
+    if(location.hash === '#ask-referral') { asker.open = true; asker.scrollIntoView({block: 'start'}); }
+    asker.querySelector('[data-referral-copy]').addEventListener('click', async event => {
+      const label = event.currentTarget;
+      try { await navigator.clipboard.writeText(text.value); label.textContent = 'Message copied'; } catch { text.select(); label.textContent = 'Press Ctrl+C to copy'; }
+      track('tool_use', {tool: 'referral'});
+    });
+    update();
+  }
 
   // Campus referral link builder.
   const builder = document.querySelector('[data-ref-builder]');

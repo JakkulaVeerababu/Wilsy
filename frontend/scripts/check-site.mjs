@@ -3,7 +3,7 @@
 import {site} from '../js/site-config.js';
 
 const origin = process.env.WILSY_ORIGIN || site.origin;
-const pages = ['/', '/jobs', '/companies', '/tracker', '/salaries', '/salary-calculator', '/guides', '/government-jobs', '/hackathons'];
+const pages = ['/', '/jobs', '/companies', '/tracker', '/salaries', '/salary-calculator', '/offer-compare', '/resume-match', '/hiring-trends', '/guides', '/government-jobs', '/hackathons'];
 
 async function get(route, attempt = 1) {
   try {

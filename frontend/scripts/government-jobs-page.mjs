@@ -1,6 +1,7 @@
 import snapshot from '../data/government-jobs.json' with {type: 'json'};
 import examCatalog from '../data/government-exams.json' with {type: 'json'};
 import {escapeHtml as e, safeHref} from '../js/directory-core.js';
+import {calendarActions} from '../js/calendar-core.js';
 
 const jobs = Array.isArray(snapshot.jobs) ? snapshot.jobs : [];
 const exams = Array.isArray(examCatalog.exams) ? examCatalog.exams : [];
@@ -139,6 +140,7 @@ function jobCard(job) {
      <details class="gov-jobs-card-details"><summary>More notice context</summary><p><strong>Posting time:</strong> Not published by the source portal.</p><p><strong>Snapshot checked:</strong> ${e(dateText(snapshot.checkedAt))}</p><p><strong>Verification:</strong> ${e(job.verificationNote)}</p></details>
      <p class="gov-jobs-verification">${e(job.verificationNote)}</p>
      <div class="gov-jobs-card-actions"><a href="${officialUrl}" target="_blank" rel="noopener noreferrer">Open official notice</a><a href="${sourceUrl}" target="_blank" rel="noopener noreferrer">Source: ${e(job.sourceDomain)}</a></div>
+     ${calendarActions({id: 'gov-' + job.id, title: `${job.title}, ${job.organization}`, deadline: job.deadline, url: job.officialNoticeUrl, note: 'Application deadline from the official notice. Confirm the date on the notice.'}, {label: `Add the ${job.title} deadline to your calendar`})}
    </article>`;
 }
 

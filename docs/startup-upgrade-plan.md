@@ -244,3 +244,17 @@ Before or right after deploying:
 
 - **Vercel plan:** `/api/search` is a second function. Most calls should be served from the edge cache, but check function usage after a day.
 - **Issue notifications:** GitHub notifies people who watch the repository. Ask everyone on call to watch it, or at least to subscribe to issues.
+
+## Status (19 Nov 2026, evening): career tools batch built, not deployed
+
+| Feature | Where | Notes |
+|---|---|---|
+| New jobs on saved searches | /jobs, Saved searches | Each saved search shows how many jobs WILSY found since it was last opened (up to "20+ new"). Stored on the device. |
+| Hiring trends | /hiring-trends | Counted at deploy time from the live job pass: new roles by day, job families, most-requested skills, top hiring companies, Indian cities, remote share. Noindex and out of the sitemap when a build has no live data. |
+| Offer comparison | /offer-compare | Two or three offers: monthly in-hand, first-year cash with the joining bonus taxed, income tax, equity shown but not added. Shareable link. |
+| Resume match | /resume-match, "Check your resume" on job pages and the job popup | Runs in the browser; the resume is never uploaded and is kept on the device only when ticked. Related skills count as half. |
+| Ask for a referral | Job pages, "Ask for a referral" in the job popup | Writes a LinkedIn note (under 300 characters) or a full message, with a LinkedIn people search for the company. |
+| Deadline reminders | Government job cards, hackathon details | Google Calendar link and an .ics file with reminders two days before and on the day. |
+| RSS feed of new jobs | /feed.xml, linked from every page head and the footer | The newest 60 jobs on each deploy, for feed readers and Telegram or Slack bots. |
+
+Analytics: one new event, `tool_use`, with the tool's name only (see docs/analytics-events.md).

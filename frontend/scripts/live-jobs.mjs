@@ -2,14 +2,20 @@ import {databaseRequest} from '../js/data-client.js';
 import {jobPath} from '../js/jobs-core.js';
 import {escapeHtml as e} from '../js/directory-core.js';
 import {pageWorthy} from './job-pages.mjs';
+import {findSkills, roleFamily} from '../js/skills-core.js';
 
 // One pass over every live job at deploy time, through the public search (50 rows per call, the most it
 // returns). It feeds the job sitemap (every indexable job page, not only the pre-built ones) and the
 // open roles that company pages show to search engines. Rows are trimmed as they arrive.
 
+// Besides the fields pages need, each row keeps what the hiring-trends page counts: the job family, the
+// skills it mentions (read from the description before it is dropped), entry-level and published pay.
 const keep = (job, now) => ({id: String(job.id), title: job.title, company: job.company, company_slug: job.company_slug,
-  location: job.location, city: job.city, country: job.country, work_mode: job.work_mode,
+  location: job.location, city: job.city, country: job.country, country_code: job.country_code, work_mode: job.work_mode, job_type: job.job_type,
   posted_at: job.posted_at, posted_at_precision: job.posted_at_precision, first_seen_at: job.first_seen_at, discovered_at: job.discovered_at,
+  family: roleFamily(job.title), skills: findSkills([job.title, ...(job.skills || []), ...(job.tech_stack || []), job.description].join('\n')),
+  entry: !!(job.is_internship || job.is_fresher || job.is_new_grad), internship: !!job.is_internship,
+  pay: job.salary_min != null || job.salary_max != null || !!job.salary_text,
   indexable: pageWorthy(job, now)});
 
 export async function fetchAllLiveJobs({request = databaseRequest, pageSize = 50, max = 30000, concurrency = 4, now = Date.now()} = {}) {

@@ -156,3 +156,107 @@ html.dark-theme .palette-option[aria-selected="true"] strong{color:#9bc2ff}
 .palette-hint span{display:inline-flex;align-items:center;gap:4px}
 @media(max-width:560px){.palette{margin-top:12px}.palette-hint{display:none}}
 @media(prefers-reduced-motion:reduce){.salary-bar,.tracker-col,.nav-search{transition:none}}
+
+/* Saved searches: jobs that arrived since the search was last opened */
+.searches-new{padding:1px 6px;border-radius:4px;background:#dff76a;color:#0a0a0a;font-size:10px;font-weight:800;font-variant-numeric:tabular-nums}
+.search-new-count{color:#0b5d32;font-weight:800}
+
+/* Hiring trends */
+.trend-stats{grid-template-columns:repeat(6,1fr)}
+.trend-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.trend-wide{grid-column:1/-1}
+.trend-bars{display:flex;flex-direction:column;gap:4px;margin:12px 0 0;padding:0;list-style:none}
+.trend-bars li{display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr) 84px;align-items:center;gap:10px;padding:4px 0;font-size:13px}
+.trend-bars li:hover .salary-bar{background:var(--blue-hover)}
+.trend-label{overflow:hidden;color:var(--ink-soft);text-overflow:ellipsis;white-space:nowrap}
+.trend-label a{color:inherit;text-decoration:none}
+.trend-label a:hover,.trend-label a:focus-visible{color:var(--blue);text-decoration:underline}
+.trend-count{text-align:right;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.trend-count small{margin-left:6px;font-size:11px;font-weight:600;color:var(--muted)}
+.trend-days{display:grid;grid-template-columns:repeat(14,1fr);align-items:end;gap:6px;height:190px;margin:16px 0 0;padding:0 0 26px;list-style:none;border-bottom:1px solid var(--line)}
+.trend-days li{position:relative;display:flex;align-items:flex-end;height:100%}
+.trend-day-bar{display:block;width:100%;max-width:30px;margin:0 auto;border-radius:4px 4px 0 0;background:var(--blue)}
+.trend-days li:hover .trend-day-bar{background:var(--blue-hover)}
+.trend-day-label{position:absolute;bottom:-23px;left:50%;font-size:11px;color:var(--muted);white-space:nowrap;transform:translateX(-50%)}
+.trend-foot{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px}
+.trend-foot .share-bar{margin:0}
+@media(max-width:980px){.trend-stats{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.trend-grid{grid-template-columns:1fr}.trend-stats{grid-template-columns:1fr 1fr}.trend-bars li{grid-template-columns:minmax(0,1fr) 76px;row-gap:3px}.trend-label{grid-column:1/-1;white-space:normal}.trend-days{gap:3px}}
+
+/* Offer comparison */
+.offers{display:flex;flex-direction:column;gap:16px;margin-top:28px}
+.offer-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;align-items:start}
+.offer-card{display:flex;flex-direction:column;gap:12px;min-width:0;margin:0;padding:18px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.offer-name input{font-weight:750}
+.offer-remove{align-self:flex-start;padding:4px 0;border:0;background:none;color:var(--muted-strong);font:inherit;font-size:13px;text-decoration:underline;cursor:pointer}
+.offer-add{align-self:center;min-height:46px}
+.offer-result{padding:22px;border-radius:24px;background:#dff76a;color:#0a0a0a}
+.offer-summary{margin:0 0 14px;font-size:clamp(17px,1.8vw,21px);font-weight:750;letter-spacing:-.01em}
+.offer-result .salary-table-wrap{overflow-x:auto}
+.offer-table{width:100%;min-width:520px;border-collapse:collapse;font-size:14px}
+.offer-table th,.offer-table td{padding:11px 10px;border-bottom:1px solid rgba(10,10,10,.12);color:#0a0a0a;text-align:left;vertical-align:top}
+.offer-table thead th{font-size:15px;font-weight:800}
+.offer-table thead th span,.offer-table tbody th span{display:block;margin-top:2px;font-size:12px;font-weight:500;color:rgba(10,10,10,.62)}
+.offer-table tbody th{font-weight:650}
+.offer-table td{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.offer-table td.is-best{background:rgba(255,255,255,.62)}
+.offer-table td small{display:inline-block;margin-left:8px;padding:2px 7px;border-radius:999px;background:#0a0a0a;color:#fff;font-size:11px;font-weight:700;vertical-align:1px}
+.offer-table tr:last-child>*{border-bottom:0}
+.offer-tools{display:flex;flex-wrap:wrap;gap:10px}
+.offer-status{min-height:1em;margin:0;font-size:14px;color:var(--muted-strong)}
+
+/* Resume match */
+.resume-match{display:flex;flex-direction:column;gap:16px;margin-top:28px}
+.resume-job{margin:0;padding:12px 16px;border:1px solid var(--line);border-radius:14px;background:var(--surface);font-size:14px;color:var(--ink-soft)}
+.resume-inputs{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.resume-inputs>.calc-field{padding:18px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.resume-inputs textarea,.ask-referral textarea{display:block;width:100%;box-sizing:border-box;padding:12px 13px;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-size:14px;line-height:1.55;resize:vertical}
+.resume-keep{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
+.resume-keep .text-button{padding:6px 2px;border:0;background:none;color:var(--muted-strong);font:inherit;font-size:13px;text-decoration:underline;cursor:pointer}
+.resume-result{padding:22px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.match-empty{margin:0;font-size:15px;color:var(--muted)}
+.match-score>div{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px}
+.match-score strong{font-size:clamp(40px,5vw,56px);font-weight:800;letter-spacing:-.04em;color:var(--ink);font-variant-numeric:tabular-nums}
+.match-score span{font-size:18px;font-weight:700;color:var(--ink-soft)}
+.match-score p{margin:8px 0 0;font-size:14px;color:var(--muted-strong)}
+.match-meter{height:10px;margin-top:10px;overflow:hidden;border-radius:999px;background:var(--line)}
+.match-meter span{display:block;height:100%;border-radius:999px;background:var(--blue)}
+.match-lists{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.match-lists h3{margin:0 0 10px;font-size:15px;color:var(--ink)}
+.match-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.match-chips li{padding:5px 11px;border-radius:999px;font-size:13px;font-weight:650}
+.match-chips.is-have li{background:#e7f8ee;color:#0b5d32}
+.match-chips.is-have li::before{content:"✓ "}
+.match-chips.is-missing li{border:1px dashed #e3a548;background:#fff6e8;color:#7a4100}
+.match-note{margin:16px 0 0;font-size:14px;color:var(--ink-soft)}
+.match-tips{margin:14px 0 0;padding-left:18px;font-size:14px;line-height:1.6;color:var(--muted-strong)}
+html.dark-theme .match-chips.is-have li{background:#123d27;color:#bff0d3}
+html.dark-theme .match-chips.is-missing li{border-color:#8a6420;background:#3a2a10;color:#ffd79a}
+html.dark-theme .search-new-count{color:#7ee2a8}
+@media(max-width:760px){.resume-inputs,.match-lists{grid-template-columns:1fr}}
+
+/* Ask for a referral (job pages) */
+.ask-referral{margin:16px 0 0;border:1px solid var(--line);border-radius:18px;background:var(--surface)}
+.ask-referral>summary{display:flex;align-items:center;gap:10px;min-height:52px;padding:0 18px;color:var(--ink);font-weight:700;list-style:none;cursor:pointer}
+.ask-referral>summary::-webkit-details-marker{display:none}
+.ask-referral>summary::after{content:"+";margin-left:auto;font-size:20px;font-weight:500;color:var(--muted)}
+.ask-referral[open]>summary::after{content:"–"}
+.ask-referral>summary .icon{flex:none;width:18px;height:18px}
+.referral-body{display:flex;flex-direction:column;gap:12px;padding:0 18px 18px}
+.referral-body>p{margin:0;font-size:14px;color:var(--ink-soft)}
+.referral-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.referral-kind{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0;padding:0;border:0;font-size:14px;color:var(--ink-soft)}
+.referral-kind legend{width:100%;margin-bottom:6px;padding:0;font-weight:650}
+.referral-kind label{display:inline-flex;align-items:center;gap:6px}
+.referral-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+@media(max-width:600px){.referral-fields{grid-template-columns:1fr}}
+
+/* Deadline reminders */
+.cal-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+.cal-label{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.cal-actions a,.cal-actions button{display:inline-flex;align-items:center;min-height:36px;padding:0 13px;border:1px solid var(--line-strong);border-radius:999px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer}
+.cal-actions a:hover,.cal-actions button:hover{border-color:var(--blue);color:var(--blue)}
+.match-chips.is-close{margin-bottom:6px}
+.match-chips.is-close li{border:1px dashed #9bb8ef;background:#eef4ff;color:#1d3f7a}
+.match-chips.is-close li span{font-weight:500;opacity:.75}
+html.dark-theme .match-chips.is-close li{border-color:#3d5c99;background:#15233f;color:#c5d8ff}

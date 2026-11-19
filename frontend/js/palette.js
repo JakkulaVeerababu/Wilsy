@@ -11,6 +11,9 @@ const QUICK = [
   ['Saved jobs', '/jobs?saved=1', 'Roles you saved'],
   ['Salary explorer', '/salaries', 'Pay at 1,000 companies, in INR'],
   ['In-hand salary calculator', '/salary-calculator', 'CTC to monthly take-home'],
+  ['Compare job offers', '/offer-compare', 'Which offer pays more in hand'],
+  ['Resume match', '/resume-match', 'Check your resume against a job'],
+  ['Hiring trends', '/hiring-trends', 'What is hiring right now'],
   ['Hackathons', '/hackathons', 'Open challenges and prizes'],
   ['DSA roadmap', '/dsa', 'Interview patterns and practice'],
 ];

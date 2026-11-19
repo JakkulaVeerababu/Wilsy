@@ -17,7 +17,9 @@ import {loadDsaProject,dsaPage,writeDsaAssets} from './dsa-page.mjs';
 import {landingPages,landingUrl} from './landing-pages.mjs';
 import {fetchLandingJobs,publishable,pageWorthy,jobPath,landingBody,jobPageOptions} from './job-pages.mjs';
 import {serviceWorker,shellAssets} from './service-worker.mjs';
-import {trackerBody,salariesBody,calculatorBody,searchIndex} from './feature-pages.mjs';
+import {trackerBody,salariesBody,calculatorBody,offerBody,resumeBody,searchIndex} from './feature-pages.mjs';
+import {hiringTrends,trendsBody} from './trends.mjs';
+import {jobFeed} from './feeds.mjs';
 import {salaryRows} from '../js/salary-core.js';
 import {fetchAllLiveJobs,jobSitemap,rolesByCompany} from './live-jobs.mjs';
 import {roleRow} from '../js/company-jobs.js';
@@ -112,6 +114,8 @@ await write('/jobs',documentPage({...jobsMeta,route:'/jobs',ads:false}));
 await write('/tracker',documentPage({title:'Application tracker',description:'Track your job applications from saved to offer: move roles between stages, keep notes and download a spreadsheet. Free, and it stays on your device.',route:'/tracker',active:'tracker',ads:false,body:trackerBody({fx})}));
 await write('/salaries',documentPage({title:'Salary explorer: what 1,000 tech companies pay',description:'Compare published pay at 1,000 technology companies as INR estimates. Filter by role, sector, stage and remote, and see how pay is spread.',route:'/salaries',active:'salaries',body:salariesBody({companies,fx})}));
 await write('/salary-calculator',documentPage({title:'In-hand salary calculator (FY 2026-27, new regime)',description:'Work out your monthly in-hand salary from CTC under the new tax regime: PF, professional tax, income tax, rebate up to ₹12 lakh and cess.',route:'/salary-calculator',active:'salary-calculator',body:calculatorBody()}));
+await write('/offer-compare',documentPage({title:'Compare job offers: which pays more in hand?',description:'Compare two or three job offers side by side: monthly in-hand pay, first-year cash with the joining bonus, income tax and equity, under the FY 2026-27 new regime.',route:'/offer-compare',active:'offer-compare',ads:false,body:offerBody()}));
+await write('/resume-match',documentPage({title:'Resume match: check your resume against a job',description:'Paste your resume and a job description to see which skills you show and which are missing. Runs in your browser; your resume is never uploaded.',route:'/resume-match',active:'resume-match',ads:false,body:resumeBody()}));
 
 // Landing pages (/jobs/<slug>) and static job pages (/jobs/<id>-<slug>). Live deploys read the public
 // search; offline builds have no landing data, so those pages are noindex and stay out of the sitemap.
@@ -174,6 +178,10 @@ for(const g of guides){
 // Every live job, read once at deploy time (live builds only): the job sitemap and company open roles.
 const liveJobs = process.env.WILSY_REFRESH_JOBS === '1' ? await fetchAllLiveJobs().catch(error=>{console.warn('Live job pass unavailable: '+error.message);return null;}) : null;
 const companyRoles = liveJobs ? rolesByCompany(liveJobs.jobs,companies) : new Map();
+// Hiring trends and the RSS feed come from the same live pass; without it the feed uses the dated snapshot.
+const trends = liveJobs ? hiringTrends(liveJobs.jobs,{companies,asOf:liveJobs.asOf}) : null;
+await write('/hiring-trends',documentPage({title:'Hiring trends: what’s hiring right now',description:trends?`${trends.total.toLocaleString('en-IN')} live jobs at ${trends.companies.toLocaleString('en-IN')} employers: the most-requested skills, the companies hiring most, remote share and where in India the jobs are.`:'What is hiring right now: skills in demand, companies hiring and remote share, counted from live jobs.',route:'/hiring-trends',active:'hiring-trends',noindex:!trends,body:trendsBody(trends,{origin:site.origin})}),!!trends);
+await fs.writeFile(path.join(out,'feed.xml'),jobFeed(liveJobs?.jobs||snapshot.jobs||[],{origin:site.origin}));
 const rolesNow = Date.now();
 for(const c of companies){
   if(!/^[a-zA-Z0-9-]+$/.test(c.id)) throw new Error('Unexpected company slug: '+c.id);
@@ -203,7 +211,7 @@ await fs.writeFile(path.join(out,'robots.txt'),`User-agent: *\nAllow: /\n\nSitem
 await fs.writeFile(path.join(out,'ads.txt'),'google.com, pub-5489149193350421, DIRECT, f08c47fec0942fa0\n');
 await fs.mkdir(path.join(out,'js'),{recursive:true});
 await fs.mkdir(path.join(out,'css'),{recursive:true});
-for(const file of ['app.js','directory-core.js','pay-format.js','site.js','data-client.js','supabase-config.js','jobs-core.js','jobs.js','job-workspace-core.js','site-config.js','hackathons.js','hackathon-core.js','opportunities.js','opportunity-core.js','government-exam-core.js','government-jobs.js','ui-helpers.js','brand-assets.js','icons.js','job-card.js','job-text.js','home.js','dsa-cloud.js','dsa-enhancements.js','auth-client.js','account-sync.js','account.js','company-jobs.js','features.js','palette.js','palette-core.js','tracker.js','tracker-core.js','salaries.js','salary-core.js','salary-view.js','take-home.js','take-home-core.js','take-home-view.js']) await fs.copyFile('js/'+file,path.join(out,'js',file));
+for(const file of ['app.js','directory-core.js','pay-format.js','site.js','data-client.js','supabase-config.js','jobs-core.js','jobs.js','job-workspace-core.js','site-config.js','hackathons.js','hackathon-core.js','opportunities.js','opportunity-core.js','government-exam-core.js','government-jobs.js','ui-helpers.js','brand-assets.js','icons.js','job-card.js','job-text.js','home.js','dsa-cloud.js','dsa-enhancements.js','auth-client.js','account-sync.js','account.js','company-jobs.js','features.js','palette.js','palette-core.js','tracker.js','tracker-core.js','salaries.js','salary-core.js','salary-view.js','take-home.js','take-home-core.js','take-home-view.js','offer-core.js','offer-compare.js','resume-core.js','resume-match.js','skills-core.js','calendar-core.js']) await fs.copyFile('js/'+file,path.join(out,'js',file));
 for(const file of ['styles.css','editorial.css','jobs.css','polish.css','electric.css','hackathons.css','government-jobs.css','refined.css','job-workspace.css','tokens.css','shell.css','homepage.css','jobs-premium.css','dsa.css','premium.css','account.css','features.css']) await fs.copyFile('css/'+file,path.join(out,'css',file));
 for(const file of ['analytics.js','pwa.js']) await fs.copyFile('js/'+file,path.join(out,'js',file));
 await fs.cp('assets',path.join(out,'assets'),{recursive:true});

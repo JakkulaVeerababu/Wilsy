@@ -5,7 +5,9 @@ import {salaryRows, sortRows, facet, ROLE_GROUPS} from '../js/salary-core.js';
 import {statsHtml, chartHtml, rowsHtml} from '../js/salary-view.js';
 import {takeHome, FY} from '../js/take-home-core.js';
 import {takeHomeResult} from '../js/take-home-view.js';
-import {whatsappUrl} from '../js/features.js';
+import {whatsappUrl, referralMessage} from '../js/features.js';
+import {offerFields, offerTable, DEFAULT_OFFERS} from '../js/offer-core.js';
+import {SKILLS} from '../js/skills-core.js';
 
 // Page bodies for the application tracker, salary explorer and in-hand salary calculator, plus the
 // share bar used on job pages and the quick-search index. Shared by the static build.
@@ -80,6 +82,48 @@ export function calculatorBody() {
   <script type="module" src="/js/take-home.js"></script></main>`;
 }
 
+export function offerBody() {
+  return `<main id="main-content" class="editorial-shell calc-shell offer-shell">${crumbs('Compare job offers')}
+  ${hero(`OFFER COMPARISON · FY ${FY}`, 'Which offer pays more?', 'Put two or three offers side by side: monthly in-hand pay, first-year cash with the joining bonus, income tax and equity.')}
+  <section class="offers" data-offers aria-label="Compare job offers">
+    <form class="offer-form" data-offer-form novalidate>${offerFields(DEFAULT_OFFERS)}</form>
+    <div class="offer-result" data-offer-result aria-live="polite">${offerTable(DEFAULT_OFFERS)}</div>
+    <div class="offer-tools"><button class="secondary-button" type="button" data-offer-copy>${icon('link')} Copy a link to this comparison</button><a class="secondary-button" href="/salary-calculator">See the full in-hand breakdown</a></div>
+    <p class="offer-status" data-offer-status role="status" aria-live="polite"></p>
+    <p class="quiet-callout">The same estimate as the <a href="/salary-calculator">in-hand calculator</a>: the new tax regime for FY ${FY}, basic pay at 50% of fixed pay, PF at 12% of basic and gratuity inside the CTC. Variable pay counts as if paid in full. Equity is shown as stated and never added to cash. Everything is worked out in your browser; a copied link carries only what you typed.</p>
+  </section>
+  <script type="module" src="/js/offer-compare.js"></script></main>`;
+}
+
+export function resumeBody() {
+  return `<main id="main-content" class="editorial-shell resume-shell">${crumbs('Resume match')}
+  ${hero('RESUME MATCH', 'Does your resume fit the job?', 'Paste your resume and a job description to see which of the job’s skills your resume shows, and which are missing.')}
+  <section class="resume-match" data-resume aria-label="Resume match checker">
+    <p class="resume-job" data-resume-job role="status" hidden></p>
+    <div class="resume-inputs">
+      <div class="calc-field"><label for="resume-text">Your resume (paste the text)</label><textarea id="resume-text" rows="12" maxlength="30000" spellcheck="false" placeholder="Open your resume, select all, copy, and paste it here."></textarea>
+        <div class="resume-keep"><label class="calc-check"><input type="checkbox" id="resume-remember"> Remember my resume on this device</label><button class="text-button" type="button" data-resume-clear>Clear</button></div></div>
+      <div class="calc-field"><label for="job-text">Job description</label><textarea id="job-text" rows="12" maxlength="30000" spellcheck="false" placeholder="Paste the job description, including the requirements."></textarea></div>
+    </div>
+    <div class="resume-result" data-resume-result aria-live="polite"><p class="match-empty">Paste your resume and a job description to see the match.</p></div>
+    <noscript><p class="tracker-status">The resume check needs JavaScript.</p></noscript>
+    <p class="quiet-callout">The check runs in your browser. Your resume is never uploaded or sent to WILSY, and it is kept on this device only if you tick “Remember”. It looks for ${SKILLS.length} common skills and tools, so treat it as a quick check, not a verdict. <a href="/jobs">Find a job to check against</a></p>
+  </section>
+  <script type="module" src="/js/resume-match.js"></script></main>`;
+}
+
+/** Job pages: write a referral request to someone at the company. features.js rebuilds it as you type. */
+export function referralBox(job, url) {
+  const people = 'https://www.linkedin.com/search/results/people/?keywords=' + encodeURIComponent(job.company);
+  return `<details class="ask-referral" id="ask-referral" data-referral="${e(JSON.stringify({title: job.title, company: job.company, url}))}"><summary>${icon('message')} Ask someone at ${e(job.company)} for a referral</summary>
+  <div class="referral-body"><p>A referral can get your application read sooner. Find people who work there on <a href="${e(people)}" target="_blank" rel="noopener noreferrer">LinkedIn</a>, then send a short, polite note.</p>
+    <div class="referral-fields"><div class="calc-field"><label for="referral-me">Your name</label><input id="referral-me" name="me" autocomplete="name" maxlength="60"></div><div class="calc-field"><label for="referral-about">About you, in a few words</label><input id="referral-about" name="about" maxlength="120" placeholder="final-year CSE student at VIT"></div></div>
+    <fieldset class="referral-kind"><legend>Message</legend><label><input type="radio" name="referral-kind" value="note" checked> LinkedIn note (300 characters)</label><label><input type="radio" name="referral-kind" value="message"> Full message</label></fieldset>
+    <label class="sr-only" for="referral-text">Your message</label><textarea id="referral-text" rows="7" data-referral-text>${e(referralMessage({title: job.title, company: job.company, url}))}</textarea>
+    <div class="referral-actions"><span class="salary-note" data-referral-count aria-live="polite"></span><button class="secondary-button" type="button" data-referral-copy>Copy message</button></div>
+    <p class="salary-note">Replace [Name] with the person’s name before sending. What you type stays in this browser.</p></div></details>`;
+}
+
 /** The quick-search index: t title, u url, d description, k keywords, g group (page, company or guide). */
 export function searchIndex({companies, guides = [], landing = [], curated = []}) {
   const pages = [
@@ -88,6 +132,10 @@ export function searchIndex({companies, guides = [], landing = [], curated = []}
     ['Saved jobs', '/jobs?saved=1', 'Roles you saved', 'bookmarks shortlist'],
     ['Salary explorer', '/salaries', 'Pay at 1,000 companies, in INR', 'salary pay compensation ctc compare'],
     ['In-hand salary calculator', '/salary-calculator', 'CTC to monthly take-home', 'take home in hand ctc tax calculator monthly'],
+    ['Compare job offers', '/offer-compare', 'Which offer pays more in hand', 'offer compare ctc joining bonus esop which offer'],
+    ['Resume match', '/resume-match', 'Check your resume against a job', 'resume cv ats keywords skills match check'],
+    ['Hiring trends', '/hiring-trends', 'What is hiring right now, from live jobs', 'trends market skills in demand hiring report statistics'],
+    ['RSS feed of new jobs', '/feed.xml', 'Follow new jobs in a feed reader', 'rss feed subscribe telegram'],
     ['Government jobs', '/government-jobs', 'Official notices and exams', 'sarkari exam upsc ssc psu'],
     ['Hackathons', '/hackathons', 'Open challenges and prizes', 'hackathon challenge'],
     ['Competitions', '/competitions', 'Case competitions and challenges', 'case competition quiz'],
