@@ -46,7 +46,11 @@ jobs:
           node collectors/collect.mjs --shard "$SHARD" --shards 10
   # Partner feeds: job sites that gave WILSY permission to collect their listings
   # (collectors/thejobcompany.mjs). One request at a time, about one a second.
+  # Runs after the shards (whether or not they pass), so its database writes do not compete with
+  # theirs for the 8-second statement timeout.
   partners:
+    needs: collect
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency: collect-partner-thejobcompany

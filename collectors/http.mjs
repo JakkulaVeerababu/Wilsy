@@ -1,8 +1,16 @@
+import net from 'node:net';
 import {HttpError} from './ats.mjs';
 
 // Polite HTTP: identifies WILSY, limits parallel requests per host, retries 429/5xx and network
 // failures with backoff (honouring Retry-After), and never follows redirects off HTTPS.
 export const USER_AGENT='WILSYJobsBot/1.0 (+https://www.wilsy.in/about; contact@wilsy.in)';
+
+// Node tries a host's IPv4 and IPv6 addresses in turn and gives each attempt only 250 ms (Node 22).
+// GitHub's runners have no IPv6, so an IPv4 handshake slower than that fails the whole connection
+// (ETIMEDOUT, then ENETUNREACH). Hosts far from the runners, like the partner site in India, often
+// need longer, so each address gets 5 seconds.
+export const CONNECT_ATTEMPT_MS=5000;
+if(net.getDefaultAutoSelectFamilyAttemptTimeout()<CONNECT_ATTEMPT_MS)net.setDefaultAutoSelectFamilyAttemptTimeout(CONNECT_ATTEMPT_MS);
 
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
 

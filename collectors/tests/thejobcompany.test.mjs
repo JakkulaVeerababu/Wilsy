@@ -110,3 +110,17 @@ test('a job without an employer link stays reachable through the partner page', 
 test('an empty listing fails loudly instead of expiring every partner job', async () => {
   await assert.rejects(run({pages:1,page:async()=>({text:'<html></html>'}),wait:async()=>{},knownIds:async()=>new Map(),ingest:async()=>({})}),/No jobs found/);
 });
+
+test('a failed seen/expire update is recorded, not thrown, after the new jobs are saved', async () => {
+  const page=async url=>{
+    if(url.endsWith('?page=1'))return {text:[201,200].map(card).join('')};
+    if(url.includes('apply_page'))return {text:applyPage('https://jobs.example.com/'+/job_id=(\d+)/.exec(url)[1])};
+    return {text:detail({title:'Backend Engineer'})};
+  };
+  const saved=[];
+  const result=await run({pages:1,page,wait:async()=>{},knownIds:async()=>new Map([['200','published']]),
+    ingest:async feed=>{if(feed.expire)throw new Error('Database 500: {"code":"57014"}');saved.push(...feed.jobs);return {found:feed.jobs.length};}});
+  assert.deepEqual(saved.map(j=>j.external_id),['201']);
+  assert.equal(result.found,1);assert.equal(result.update_errors,1);assert.equal(result.read_errors,0);
+  assert.match(result.errors.at(-1),/^seen\/expire update: Database 500/);
+});

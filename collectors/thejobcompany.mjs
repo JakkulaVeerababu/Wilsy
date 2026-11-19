@@ -132,7 +132,10 @@ export async function run({pages=3,page,knownIds,ingest,readRange=null,wait=paus
   const totals={listed:unique.length,read:jobs.length,read_errors:errors.length};
   const add=r=>{for(const [k,v] of Object.entries(r||{}))if(typeof v==='number')totals[k]=(totals[k]||0)+v;};
   for(const chunk of chunkJobs(jobs,{maxJobs:10}))add(await ingest({source:SOURCE,name:SOURCE_NAME,jobs:chunk}));
-  add(await ingest({source:SOURCE,name:SOURCE_NAME,jobs:[],seen,expire:true}));
+  // Marking listed jobs as seen and closing ones unseen for three days is repeated every hour, and the
+  // new jobs are already saved by now, so a database timeout here is recorded instead of failing the run.
+  try{add(await ingest({source:SOURCE,name:SOURCE_NAME,jobs:[],seen,expire:true}));}
+  catch(error){totals.update_errors=1;errors.push(`seen/expire update: ${error.message}`);}
   log(JSON.stringify({...totals,range,errors:errors.slice(0,5)}));
   return {...totals,range,errors};
 }
@@ -169,13 +172,13 @@ async function main() {
   if(!dry)await db(RUNS,{prefer:'return=minimal',body:{run_key:`partner-${SOURCE}-${started.getTime()}`,schedule_name:SCHEDULE,
     source_scope:`${SOURCE} pages 1-${pages}`,started_at:started.toISOString(),finished_at:new Date().toISOString(),
     companies_checked:1,jobs_found:result.found||0,jobs_inserted:result.inserted||0,jobs_updated:result.updated||0,invalid_skipped:result.invalid||0,
-    sources_failed:result.read_errors?1:0,status:result.read_errors?(result.read?'partial':'failed'):'success',
+    sources_failed:result.read_errors?1:0,status:result.read_errors?(result.read?'partial':'failed'):result.update_errors?'partial':'success',
     error_summary:result.errors.slice(0,20).join(' | ')||null,
     metadata:{worker:'partner',partner:SOURCE,min_id:result.range?.min??null,max_id:result.range?.max??null,listed:result.listed,read:result.read,unchanged:result.unchanged||0,
       duplicate:result.duplicate||0,seen:result.seen||0,expired:result.expired||0,other_roles:result.other_roles||0}}});
   if(dry)console.log(JSON.stringify(sample.slice(0,3).map(j=>({...j,description:j.description?.slice(0,160)})),null,2));
   if(process.env.GITHUB_STEP_SUMMARY){
-    const cols=['listed','read','found','inserted','updated','unchanged','duplicate','seen','expired','other_roles','read_errors'];
+    const cols=['listed','read','found','inserted','updated','unchanged','duplicate','seen','expired','other_roles','read_errors','update_errors'];
     await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,[`### ${SOURCE_NAME}`,'',`| ${cols.join(' | ')} |`,`|${'---|'.repeat(cols.length)}`,
       `| ${cols.map(c=>result[c]||0).join(' | ')} |`,'',...result.errors.slice(0,10).map(e=>`- ${e}`),''].join('\n')).catch(()=>{});
   }

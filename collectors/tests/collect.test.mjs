@@ -2,8 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {shardOf,collectBoard,loadBoards,runStatus,retryableDbError,chunkJobs,jobKind,createDb,CHUNK_JOBS,CHUNK_BYTES} from '../collect.mjs';
 import {HttpError} from '../ats.mjs';
-import {createClient} from '../http.mjs';
+import net from 'node:net';
+import {createClient,CONNECT_ATTEMPT_MS} from '../http.mjs';
 import {READERS} from '../boards.mjs';
+
+test('loading the HTTP client gives each IPv4/IPv6 connection attempt at least 5 seconds', () => {
+  assert.ok(CONNECT_ATTEMPT_MS>=5000);
+  assert.ok(net.getDefaultAutoSelectFamilyAttemptTimeout()>=CONNECT_ATTEMPT_MS);
+});
 import {plainText,jobType,workMode,canonicalUrl} from '../boards.mjs';
 
 test('Shards split the watchlist without overlap or gaps',()=>{
