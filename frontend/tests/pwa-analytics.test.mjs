@@ -118,13 +118,13 @@ test('Static pages and job-page function pages end their head the same way', asy
   assert.match(id, /^[0-9a-f]{12}$/);
   assert.equal(deploymentBuildId({VERCEL_DEPLOYMENT_ID:'dpl_test123'}), id, 'the build and the function agree');
   const head = '<html><head><meta charset="utf-8"><title>x</title></head><body></body></html>';
-  assert.equal(finishHead(head, {env:{}, buildId:''}), '<html><head><meta charset="utf-8"><title>x</title><script type="module" src="/js/pwa.js"></script></head><body></body></html>');
+  assert.equal(finishHead(head, {env:{}, buildId:''}), '<html><head><meta charset="utf-8"><title>x</title><script type="module" src="/js/pwa.js"></script><script type="module" src="/js/features.js"></script></head><body></body></html>');
   assert.doesNotMatch(finishHead(head, {env:{}, buildId:'"><script>'}), /wilsy-build/);
   const env = {VERCEL:'1', VERCEL_DEPLOYMENT_ID:'dpl_test123', WILSY_GSC_TOKEN:'abcDEF123_-abcDEF123_-abc'};
   const full = finishHead(head, {env});
   assert.match(full, /<meta charset="utf-8"><meta name="wilsy-build" content="[0-9a-f]{12}"><title>/);
   assert.equal(pageBuild(full), id);
-  assert.match(full, /<meta name="google-site-verification" content="abcDEF123_-abcDEF123_-abc"><script type="module" src="\/js\/pwa.js"><\/script><script>window.va=/);
+  assert.match(full, /<meta name="google-site-verification" content="abcDEF123_-abcDEF123_-abc"><script type="module" src="\/js\/pwa.js"><\/script><script type="module" src="\/js\/features.js"><\/script><script>window.va=/);
   // A job page rendered on demand gets the same tags, with this deployment's build id.
   const job = {id:123, title:'Backend Engineer (Go)', company:'Acme', apply_url:'https://jobs.example.com/1', description:'Design and run the services behind our payments platform. '.repeat(12),
     posted_at:'2026-11-10T10:00:00Z', work_mode:'hybrid', job_type:'full_time', location:'Bengaluru, India'};
@@ -137,7 +137,7 @@ test('Static pages and job-page function pages end their head the same way', asy
     const html = await response.text();
     assert.equal(pageBuild(html), id);
     assert.match(html, /<meta name="google-site-verification" content="abcDEF123_-abcDEF123_-abc">/);
-    assert.match(html, /<script type="module" src="\/js\/pwa.js"><\/script><script>window.va=[^<]*<\/script><script defer src="\/_vercel\/insights\/script.js"><\/script><\/head>/);
+    assert.match(html, /<script type="module" src="\/js\/pwa.js"><\/script><script type="module" src="\/js\/features.js"><\/script><script>window.va=[^<]*<\/script><script defer src="\/_vercel\/insights\/script.js"><\/script><\/head>/);
   } finally {
     for(const [key, value] of Object.entries(saved)) if(value === undefined) delete process.env[key]; else process.env[key] = value;
   }

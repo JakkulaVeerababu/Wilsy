@@ -25,6 +25,9 @@ Events never carry personal data: no email addresses, names, job ids, account id
 | `sign_in` | Sign-in completes. | `method`: `email_code` (typed code), `google`, or `email_link` (the link in the sign-in email). |
 | `alert_on` | A saved search's alerts go from off to daily or weekly. Changing daily to weekly is not counted. | `frequency`: `daily` or `weekly`. |
 | `app_install` | The browser reports WILSY was installed as an app. | `via`: `wilsy_button` (the "Install app" entry) or `browser` (the browser's own install menu). |
+| `share` | A visitor shares a job or page with the share buttons. | `via`: `whatsapp`, `copy` (copy link) or `native` (the phone's share sheet). `page`: as for `apply_click`. |
+| `referral` | A visit arrives with a campus ambassador's `?ref=` link (counted once per visit; the code is then removed from the address bar). | `code`: the ambassador's code, 2–24 lowercase letters, digits and hyphens, issued by WILSY (for example `iitb-07`); it names the ambassador's link, not the visitor. `page`: as for `apply_click`. |
+| `tracker_move` | A role moves to another stage on the application tracker (/tracker). | `stage`: `saved`, `applied`, `interviewing`, `offer` or `closed`. |
 
 ### The `filters` value
 

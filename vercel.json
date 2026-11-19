@@ -21,6 +21,9 @@
     "api/job-page.mjs": {
       "includeFiles": "{package.json,frontend/css/*.css,frontend/data/companies.json,frontend/data/exchange-rate.json}",
       "maxDuration": 10
+    },
+    "api/search.mjs": {
+      "maxDuration": 10
     }
   },
   "headers": [

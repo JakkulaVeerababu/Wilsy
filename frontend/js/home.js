@@ -44,6 +44,7 @@ function initHome() {
     }
   }
   mountLogoMarquee();
+  mountScrollLight();
   mountRailNav();
   updateSaved();
   // The form loads /jobs, so the event is queued and sent from there.
@@ -117,4 +118,41 @@ function mountLogoMarquee() {
     viewport.scrollLeft=0;
     root.classList.remove('is-manual');
   });
+}
+
+// Large statements light up word by word, in reading order, as they scroll into view: unlit words start
+// when a block's top reaches the lower part of the screen and every word is lit by the time its bottom
+// passes 60% of the screen height, so a block is fully readable before it reaches the middle.
+// Words stay lit once lit. Without this script, or with reduced motion, every word is simply shown lit.
+function mountScrollLight() {
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+  if(reduce.matches||!('IntersectionObserver' in window))return;
+  const blocks=[...document.querySelectorAll('[data-scroll-lit]')].map(el=>({el,words:[...el.querySelectorAll('.home-lw')],lit:0})).filter(b=>b.words.length);
+  if(!blocks.length)return;
+  const visible=new Set();
+  // Runs on scroll directly: browsers send at most one scroll event per frame, and only on-screen blocks are measured.
+  const update=()=>{
+    if(!visible.size)return;
+    const vh=innerHeight;
+    for(const block of visible){
+      const rect=block.el.getBoundingClientRect();
+      const progress=Math.min(1,Math.max(0,(vh*.88-rect.top)/(rect.height+vh*.28)));
+      const target=Math.round(progress*block.words.length);
+      for(let i=block.lit;i<target;i++)block.words[i].classList.add('is-on');
+      if(target>block.lit)block.lit=target;
+      if(block.lit>=block.words.length)visible.delete(block);
+    }
+  };
+  const observer=new IntersectionObserver(entries=>{
+    for(const entry of entries){
+      const block=blocks.find(b=>b.el===entry.target);
+      if(entry.isIntersecting&&block.lit<block.words.length)visible.add(block);else visible.delete(block);
+    }
+    update();
+  });
+  for(const block of blocks){block.el.classList.add('is-lit-ready');observer.observe(block.el);}
+  addEventListener('scroll',update,{passive:true});
+  addEventListener('resize',update);
+  // If the reader switches reduced motion on, show everything lit at once.
+  reduce.addEventListener?.('change',()=>{if(reduce.matches)for(const block of blocks)block.el.classList.remove('is-lit-ready');});
 }

@@ -30,3 +30,38 @@ jobs:
       - name: Hackathons API contract
         if: ${{ !cancelled() }}
         run: node scripts/verify-hackathons-api.mjs
+      - name: Website, sitemaps and cached search respond
+        if: ${{ !cancelled() }}
+        run: node scripts/check-site.mjs
+  # Makes failures visible to the whole team, not only the owner's inbox: one open "Live checks failing"
+  # issue while checks fail (a comment at most every six hours), closed automatically when they pass again.
+  report:
+    needs: production
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Open, update or close the outage issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RESULT: ${{ needs.production.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Live checks failing"
+          open=$(gh issue list --state open --search "\"$title\" in:title" --json number,title,updatedAt \
+            --jq "map(select(.title == \"$title\"))[0] // empty | \"\(.number) \(.updatedAt)\"")
+          number=${open%% *}; updated=${open#* }
+          if [ "$RESULT" = "success" ]; then
+            [ -n "$number" ] && gh issue close "$number" --comment "Recovered: every live check passed in $RUN_URL"
+            exit 0
+          fi
+          [ "$RESULT" = "failure" ] || exit 0
+          if [ -z "$number" ]; then
+            gh issue create --title "$title" --body "The hourly production checks failed: $RUN_URL
+
+          Open the run to see which step failed (collectors, job or hackathon API, or the website and search). This issue closes itself when a later run passes."
+          elif [ $(( $(date +%s) - $(date -d "$updated" +%s) )) -ge 21600 ]; then
+            gh issue comment "$number" --body "Still failing: $RUN_URL"
+          fi

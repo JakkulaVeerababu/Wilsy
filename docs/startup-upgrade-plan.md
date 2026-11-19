@@ -7,6 +7,7 @@ Ground rules for every item below:
 
 - Keep the UI calm and flat. No backdrop blur, animated glows, marquees, scroll reveals, count-ups, gradient text, or grid/dot backgrounds.
   One exception, added at the owner's request on 18 Nov 2026: the homepage employer-logo strip drifts in a slow loop. It stops on hover, keyboard focus, its pause button and offscreen, and stays still for reduced motion.
+  Second exception, also at the owner's request on 18 Nov 2026 ("Razorpay-level" design): the homepage uses an editorial style. The hero has static diagonal light and a hairline frame with square nodes; Browse has very large display type with decorative shapes; "How WILSY works" lights its words in reading order as you scroll (all lit without the script or with reduced motion); cards and buttons use square-cut corners; the header turns to frosted glass once scrolled. Animated glows, count-ups and gradient text stay out.
 - No invented proof: no fake testimonials, press logos, user counts or ratings. Every number on the site comes from the data.
 - No Supabase grant or schema changes in this plan. New data reads use the existing public search RPCs.
 - Devpost and MLH are never scraped.
@@ -222,3 +223,24 @@ Left out, and why:
 - **Central Sector Scheme of Scholarships (PM-USP):** its guidelines on the National Scholarship Portal did not load, and other sites disagree on its income limit. Add it once the official guidelines can be read.
 - **LIC Golden Jubilee Scholarship:** the official page did not show the scheme's details.
 - **Aggregators such as Buddy4Study:** never cited. Every entry links to the official site or notice.
+
+## Status (19 Nov 2026): growth and product batch built, not deployed
+
+Built in the working tree and covered by `frontend/tests/features.test.mjs`. Nothing below needs a database change or a new account.
+
+| Feature | What shipped | Where |
+|---|---|---|
+| Application tracker | `/tracker`: saved roles on a board (Saved, Applied, Interviewing, Offer, Closed) with drag and drop, a stage picker, notes and a CSV download. It stays in the browser (`wilsy-tracker`); account sync still needs the reviewed schema change in row 9 above. | `js/tracker-core.js`, `js/tracker.js` |
+| Share and referral loops | WhatsApp, copy-link and phone share buttons on job pages and in the job dialog (WhatsApp links carry `utm_source=whatsapp`). The campus page builds `?ref=<code>` links; a visit with `ref` fires the `referral` event once per session. | `js/features.js`, `scripts/feature-pages.mjs` |
+| Quick search (Ctrl/⌘ K) | A header search button and keyboard shortcut open a dialog over pages, companies, guides, programmes, live jobs and recently viewed jobs. The index is `/data/search-index.json`, loaded on first use. | `js/palette.js`, `js/palette-core.js` |
+| Salary explorer | `/salaries`: the 1,000 published example ranges as INR estimates, with filters, the median and middle half, a pay-band chart and a sortable table. | `js/salary-core.js`, `js/salaries.js` |
+| In-hand salary calculator | `/salary-calculator`: CTC to monthly in-hand pay under the FY 2026-27 new regime (rebate to ₹12 lakh with marginal relief, surcharge relief, 4% cess, PF and professional tax). | `js/take-home-core.js` |
+| Sitemap of every live job | On Vercel builds, one pass over the public search writes `sitemap-jobs.xml` with every indexable job page not already in `sitemap.xml`, and robots.txt lists it. | `scripts/live-jobs.mjs` |
+| Company pages show roles to Google | The same pass renders the open-role count and the six newest roles into each company page; the browser still refreshes them. | `scripts/build-site.mjs` |
+| Edge-cached search | `GET /api/search` answers public searches from Vercel's cache (one minute, then five minutes stale while refreshing). Browsers on wilsy.in try it first and fall back to Supabase. Saved-job lists always go straight to Supabase. | `api/search.mjs`, `js/data-client.js` |
+| Team-visible monitoring | Live checks now also load the main pages, the tools, the sitemaps and `/api/search`. A failed run opens one "Live checks failing" GitHub issue (a comment at most every six hours) and a passing run closes it. | `scripts/check-site.mjs`, `.github/workflows/live-checks.yml` |
+
+Before or right after deploying:
+
+- **Vercel plan:** `/api/search` is a second function. Most calls should be served from the edge cache, but check function usage after a day.
+- **Issue notifications:** GitHub notifies people who watch the repository. Ask everyone on call to watch it, or at least to subscribe to issues.

@@ -43,7 +43,7 @@ test('Sitemap covers exactly the public pages and excludes the error page',async
   // research internship and scholarship) plus every indexable /jobs/<page> (job pages, and landing
   // pages that have jobs).
   const jobPages=htmlFiles.filter(f=>f.startsWith('jobs'+path.sep)&&!/noindex/.test(pages.get(f)));
-  assert.equal(urls.length,1047+jobPages.length);
+  assert.equal(urls.length,1050+jobPages.length);
   for(const route of ['competitions','contests','open-source-programs','open-source-programs/google-summer-of-code','research-internships','research-internships/science-academies-srfp','scholarships','scholarships/aicte-pragati'])assert.ok(urls.includes('https://www.wilsy.in/'+route),route);
   assert.ok(urls.includes('https://www.wilsy.in/employers'));
   assert.ok(urls.includes('https://www.wilsy.in/campus'));assert.equal(new Set(urls).size,urls.length);

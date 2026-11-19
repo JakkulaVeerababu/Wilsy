@@ -30,4 +30,14 @@ test('Card previews skip opening section headings but keep real first words',asy
   assert.equal(previewJobText('About us: we design accessible products for millions of people.'),'We design accessible products for millions of people.');
   assert.equal(previewJobText('AI Engineers wanted to build the future of agents at scale here.'),'AI Engineers wanted to build the future of agents at scale here.');
   assert.equal(previewJobText('NASA JPL is hiring engineers to build spacecraft software today.'),'NASA JPL is hiring engineers to build spacecraft software today.');
+  assert.equal(previewJobText('About Stripe Stripe is a financial infrastructure platform for businesses.'),'Stripe is a financial infrastructure platform for businesses.');
+  assert.equal(previewJobText('About Anthropic Anthropic’s mission is to create reliable AI systems.'),'Anthropic’s mission is to create reliable AI systems.');
+  assert.equal(previewJobText('ABOUT OVERVIEW.AI http://OVERVIEW.AI Overview.ai http://Overview.ai is bringing AI to factories everywhere.'),'Overview.ai is bringing AI to factories everywhere.');
+  assert.equal(previewJobText('About Figma: the design platform where teams build products together.'),'The design platform where teams build products together.');
+  assert.equal(previewJobText('https://example.com'),'See the employer listing for the full role description.');
+  assert.equal(previewJobText('Who we are\n\nAbout Stripe\n\nStripe is a financial infrastructure platform for businesses.'),'Stripe is a financial infrastructure platform for businesses.');
+  assert.equal(previewJobText('Why AssemblyAI\n\nAssemblyAI builds the best-in-class Voice AI models for developers.'),'AssemblyAI builds the best-in-class Voice AI models for developers.');
+  // A colon later in a real sentence is not a heading.
+  assert.equal(previewJobText('ABOUT US\n\nWe’re solving AI’s hardest problem: alignment. Encord is the data layer for AI.'),'We’re solving AI’s hardest problem: alignment. Encord is the data layer for AI.');
+  assert.equal(previewJobText('About half of our team works remotely: we hire across many time zones.'),'About half of our team works remotely: we hire across many time zones.');
 });

@@ -9,6 +9,12 @@ const count = value => Number(value || 0).toLocaleString('en-IN');
 const companyLink = (item,companies) => profileFor({company_slug:item.slug,company:item.name},companies)
   ? `/companies/${encodeURIComponent(profileFor({company_slug:item.slug,company:item.name},companies).id)}`
   : `/jobs?company=${encodeURIComponent(item.name)}`;
+// Each word becomes its own span so home.js can light the words in reading order as the reader scrolls.
+// Tags pass through untouched. Without the script, or with reduced motion, every word shows lit.
+const lit = html => html.replace(/(<[^>]+>)|([^<\s]+)/g,(m,tag,word)=>tag||`<span class="home-lw">${word}</span>`);
+// Decorative shapes set inline with the display type; hidden from screen readers.
+const shapeArrow = '<svg class="home-shape home-shape-arrow" viewBox="0 0 168 80" aria-hidden="true" focusable="false"><rect width="168" height="80" rx="40" fill="#d8f8a8"/><circle cx="128" cy="40" r="40" fill="#b6efd9"/><path d="M38 40h88m-24-24 24 24-24 24" fill="none" stroke="#1f45ec" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const shapeSpark = '<svg class="home-shape home-shape-spark" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><path d="M40 0c3 22 18 37 40 40-22 3-37 18-40 40-3-22-18-37-40-40C22 37 37 22 40 0Z" fill="#a9ecd2"/></svg>';
 const logoIds = ['google','microsoft','openai','nvidia','apple','amazon','meta','stripe','airbnb','netflix','uber','atlassian','anthropic','databricks','figma','notion'];
 
 function featuredCard(item,companies) {
@@ -60,12 +66,13 @@ function browse(dsaStats) {
     ['/dsa','code','DSA roadmap',`${dsaStats?.patterns || 127} patterns to prepare for interviews.`],
   ];
   return `<section class="home-browse home-section" id="browse" aria-labelledby="browse-title">
-    <div class="home-section-heading"><div><p class="home-kicker">BROWSE</p><h2 id="browse-title">Start where you are.</h2></div><a class="home-section-link" href="/jobs">All jobs ${icon('arrow')}</a></div>
+    <div class="home-section-heading home-display-heading"><div><p class="home-kicker">BROWSE</p><h2 id="browse-title" class="home-display">Start ${shapeArrow}<br><em>where you</em><br>${shapeSpark} are.</h2></div></div>
     <div class="home-browse-grid">
       <div class="home-browse-group"><h3>By role</h3><nav class="home-chip-list" aria-label="Jobs by role">${browseRoles.map(chip).join('')}</nav></div>
       <div class="home-browse-group"><h3>By career stage</h3><nav class="home-chip-list" aria-label="Jobs by career stage">${browseStages.map(chip).join('')}</nav></div>
     </div>
-    <div class="home-route-grid">${routes.map(([url,ic,title,text])=>`<a href="${url}"><span class="home-route-icon">${icon(ic)}</span><strong>${title}</strong><span>${text}</span></a>`).join('')}</div>
+    <div class="home-route-grid">${routes.map(([url,ic,title,text])=>`<a href="${url}"><span class="home-route-icon">${icon(ic)}</span><strong>${title}</strong><span>${text}</span><span class="home-route-arrow" aria-hidden="true">${icon('arrow')}</span></a>`).join('')}</div>
+    <a class="home-section-link home-browse-all" href="/jobs">All jobs ${icon('arrow')}</a>
   </section>`;
 }
 
@@ -73,9 +80,10 @@ export function homePage({snapshot, companies, guides, fx, dsaStats}) {
   const jobs = snapshot.jobs.slice(0,6), featured = snapshot.featured.slice(0,6);
   const now = Date.now();
   const date = new Intl.DateTimeFormat('en-IN',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Kolkata'}).format(new Date(snapshot.updatedAt));
-  const guideCard = guide => `<a class="home-guide-card" href="/guides/${e(guide.slug)}"><span class="home-guide-meta">${e(guide.category)} · ${e(guide.minutes)} MIN READ</span><h3>${e(guide.title)}</h3><p>${e(guide.description)}</p><span class="home-text-link">Read the guide ${icon('arrow')}</span></a>`;
+  const guideCard = guide => `<a class="home-guide-card" href="/guides/${e(guide.slug)}"><span class="home-guide-top"><span class="home-guide-meta">${e(guide.category)}</span><span class="home-guide-time">${e(guide.minutes)} min read</span></span><h3>${e(guide.title)}</h3><p>${e(guide.description)}</p><span class="home-guide-foot">Read the guide<span class="home-guide-go" aria-hidden="true">${icon('arrow')}</span></span></a>`;
   return `<main id="main-content" class="home-shell">
   <section class="home-hero" aria-labelledby="home-title">
+    <div class="home-hero-frame" aria-hidden="true"><i></i><i></i></div>
     <div class="home-hero-copy">
       <p class="home-live-pill"><span></span> SOURCE-LINKED ROLES · UPDATED <time data-snapshot-date datetime="${e(snapshot.updatedAt)}">${e(date)}</time></p>
       <h1 id="home-title">Find the work<br><em>that moves you forward.</em></h1>
@@ -107,17 +115,19 @@ export function homePage({snapshot, companies, guides, fx, dsaStats}) {
     <p class="home-results-status">Role counts from ${e(date)}. Employer verification is shown only when recorded by the source.</p>
   </section>
   <section class="home-why home-section" id="how-jobs-work" aria-labelledby="why-title">
-    <div class="home-section-heading"><div><p class="home-kicker">HOW WILSY WORKS</p><h2 id="why-title">Real sources. Clear details. Your decision.</h2></div><a class="home-section-link" href="/methodology">Our source methodology ${icon('arrow')}</a></div>
-    <div class="home-why-grid">
-      <article><span class="home-why-num">01</span><h3>We collect from the source</h3><p>Roles come from employers’ own career pages and recruiting platforms, checked every hour. Each listing links back to where it was found.</p></article>
-      <article><span class="home-why-num">02</span><h3>You see the details that matter</h3><p>Location, experience, workplace and disclosed pay in rupees. Unknown details stay unspecified. INR conversions are estimates, not Indian offers.</p></article>
-      <article><span class="home-why-num">03</span><h3>You apply with the employer</h3><p>Save and compare roles, research the company, then apply on the employer’s site. WILSY never asks for your résumé or charges a fee.</p></article>
-    </div>
+    <p class="home-kicker">HOW WILSY WORKS</p>
+    <h2 id="why-title" class="home-statement" data-scroll-lit>${lit('Every role here links to the employer. Every detail is shown as published. The decision stays <em>yours.</em>')}</h2>
+    <ol class="home-steps">
+      <li><span class="home-step-num">(01)</span><h3>Straight from the source</h3><p>Every role links back to the employer’s own careers page.</p></li>
+      <li><span class="home-step-num">(02)</span><h3>Only what matters</h3><p>Location, experience and pay in rupees. Nothing guessed.</p></li>
+      <li><span class="home-step-num">(03)</span><h3>Apply with the employer</h3><p>WILSY never asks for your résumé or charges a fee.</p></li>
+    </ol>
+    <p class="home-why-foot">INR conversions are estimates, not Indian offers. <a class="home-section-link" href="/methodology">Our source methodology ${icon('arrow')}</a></p>
   </section>
   <section class="home-guides home-section" aria-labelledby="home-guides-title">
     <div class="home-section-heading"><div><p class="home-kicker">CAREER GUIDES</p><h2 id="home-guides-title">A little guidance goes a long way.</h2></div><a class="home-section-link" href="/guides">All career guides ${icon('arrow')}</a></div>
     <div class="home-guide-grid">${guides.slice(0,3).map(guideCard).join('')}</div>
-    <a class="home-dsa-banner" href="/dsa"><span class="home-dsa-stat"><b>${dsaStats?.patterns || dsaStats?.categories || 16}</b><small>${dsaStats?.patterns ? 'patterns' : 'topics'}</small></span><span><span class="home-kicker">WILSY / DSA ROADMAP</span><strong>Build the patterns behind your next interview.</strong><span>${dsaStats?.categories || 16} topics. ${dsaStats?.patterns || ''} patterns. An interactive mind-map and a place to track your progress.</span></span>${icon('arrow')}</a>
+    <a class="home-dsa-banner" href="/dsa"><span class="home-dsa-stat"><b>${dsaStats?.patterns || dsaStats?.categories || 16}</b><small>${dsaStats?.patterns ? 'patterns' : 'topics'}</small></span><span><span class="home-kicker">DSA ROADMAP</span><strong>Build the patterns behind your next interview.</strong><span>${dsaStats?.categories || 16} topics. ${dsaStats?.patterns || ''} patterns. An interactive mind-map and a place to track your progress.</span></span>${icon('arrow')}</a>
   </section>
   <section class="home-final-cta" aria-labelledby="final-cta-title"><div><p class="home-kicker">FREE ACCOUNT</p><h2 id="final-cta-title">Keep your search<br><em>on every device.</em></h2><p>Sync saved jobs, hackathons and searches with an email code. No password, no fee.</p></div><div class="home-final-actions"><a class="home-cta-primary" href="/jobs?saved=1" data-account-open>Create a free account ${icon('arrow')}</a><a class="home-cta-secondary" href="/jobs">Browse live jobs ${icon('arrow')}</a></div></section>
 </main><script type="application/json" id="home-initial-data">${json({jobs,fx,updatedAt:snapshot.updatedAt})}</script><script type="module" src="/js/home.js"></script>`;

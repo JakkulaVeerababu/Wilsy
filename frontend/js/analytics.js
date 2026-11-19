@@ -2,7 +2,7 @@
 // window.va is defined only on Vercel deployments, so everywhere else track() does nothing.
 // Events never carry personal data: no emails, ids or typed text, only the short values below.
 // Vercel Pro records 2 properties per event, so each event has at most 2.
-export const EVENTS = ['search','job_open','apply_click','job_save','search_save','sign_in','alert_on','app_install'];
+export const EVENTS = ['search','job_open','apply_click','job_save','search_save','sign_in','alert_on','app_install','share','referral','tracker_move'];
 const ROLES = ['software-engineering','backend','frontend','ai-ml','genai','data','devops-cloud','cybersecurity','ece-core','vlsi','embedded'];
 const STAGES = ['internship','fresher','new-grad','apprenticeship'];
 const MODES = ['remote','hybrid','onsite'];
@@ -56,8 +56,8 @@ export function pageKind(pathname = '/') {
 // Links that leave WILSY for the employer's application page, by where they sit.
 export const APPLY_LINKS = [
   ['.job-result-card .job-apply-link','card'],
-  ['.job-detail-actions a[target="_blank"]','dialog'],
-  ['.job-page-actions a[target="_blank"]','job_page'],
+  ['.job-detail-actions a[target="_blank"]:not([data-share-whatsapp])','dialog'],
+  ['.job-page-actions a[target="_blank"]:not([data-share-whatsapp])','job_page'],
   ['.compare-table a[target="_blank"]','compare'],
 ];
 export function applySource(link) {

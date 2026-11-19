@@ -5,6 +5,7 @@ import {jobLogo, jobTags, profileFor} from '../js/job-card.js';
 import {escapeHtml as e} from '../js/directory-core.js';
 import {site} from '../js/site-config.js';
 import {landingPages, landingUrl, workspaceUrl} from './landing-pages.mjs';
+import {shareBar} from './feature-pages.mjs';
 
 // Job pages (/jobs/<id>-<slug>) with JobPosting data, and the landing pages that list them.
 // The build pre-renders pages for jobs it sees; api/job-page.mjs renders every other live job on request
@@ -105,10 +106,12 @@ export function jobBody(job, {companies, fx, now, pages, similar=[], similarTitl
   const mode = ['remote','hybrid','onsite'].includes(job.work_mode) ? label(job.work_mode) : '';
   const place = known(job.location) || [known(job.city),known(job.country)].filter(Boolean).join(', ');
   const crumb = landing ? `<a href="${landingUrl(landing)}">${e(landing.title)}</a><span>/</span>` : '';
-  return `<main id="main-content" class="editorial-shell job-page">
+  const recent = JSON.stringify({id:String(job.id),title:job.title,company:job.company,path:jobPath(job)});
+  return `<main id="main-content" class="editorial-shell job-page" data-recent-job="${e(recent)}">
   <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><a href="/jobs">Jobs</a><span>/</span>${crumb}<span aria-current="page">${e(job.title)}</span></nav>
   <header class="job-page-head">${jobLogo(job,companies)}<div><p class="job-page-company">${profile?`<a href="/companies/${encodeURIComponent(profile.id)}">${e(job.company)}</a>`:e(job.company)}</p><h1>${e(job.title)}</h1><div class="job-card-tags">${jobTags(job)}</div></div></header>
   <div class="job-page-actions"><a class="primary-button" href="${e(url)}" target="_blank" rel="noopener noreferrer">Apply on employer site</a><a class="secondary-button" href="/jobs?job=${encodeURIComponent(job.id)}">Save or compare</a></div>
+  ${shareBar(site.origin+jobPath(job), `${job.title} at ${job.company} on WILSY:`)}
   <div class="job-page-layout"><article class="prose job-page-description"><h2>About the role</h2>${descriptionParagraphs(job.description)||`<p>The full description is on the <a href="${e(url)}" target="_blank" rel="noopener noreferrer">employer’s listing</a>.</p>`}<p class="jobs-date-note">This is the description captured from the source. The employer’s listing is the final word on requirements.</p></article>
   <aside class="job-page-facts"><dl>${fact('Pay',pay.primary+(pay.secondary?` (${pay.secondary})`:''))}${fact('Location',place)}${fact('Workplace',mode)}${fact('Experience',exp)}${fact('Job type',employment[job.job_type]?label(job.job_type):'')}${fact('Seniority',job.seniority_level?label(job.seniority_level):'')}${fact('Posted',postingLabel(job))}${fact('Source',job.source_name||(job.ats_platform?label(job.ats_platform):''))}</dl>
   <a href="mailto:${site.email}?subject=${encodeURIComponent('Report listing: '+job.id+' '+job.title)}">Report this listing</a></aside></div>
