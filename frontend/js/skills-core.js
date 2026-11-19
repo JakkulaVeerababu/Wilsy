@@ -78,3 +78,7 @@ export function indiaCity(text) {
   const t = String(text || '').toLowerCase();
   return INDIA_CITIES.find(([, re]) => re.test(t))?.[0] || '';
 }
+
+// Web addresses for skill pages (/skills/<slug>): readable spellings for names with symbols.
+const SKILL_SLUGS = {'C++': 'cpp', 'C#': 'csharp', '.NET': 'dotnet', 'Node.js': 'nodejs', 'Next.js': 'nextjs', 'A/B testing': 'ab-testing', 'CI/CD': 'ci-cd'};
+export const skillSlug = name => SKILL_SLUGS[name] || String(name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');

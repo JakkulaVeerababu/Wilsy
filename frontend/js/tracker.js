@@ -3,14 +3,19 @@ import {readSaved, jobPath, jobSalary} from './jobs-core.js';
 import {escapeHtml as e} from './directory-core.js';
 import {announceSaved} from './ui-helpers.js';
 import {track} from './analytics.js';
-import {STAGES, readTracker, writeTracker, snapshot, syncSaved, setStage, setNotes, removeItem, columns, toCsv, TRACKER_KEY} from './tracker-core.js';
+import {eventActions} from './calendar-core.js';
+import {STAGES, readTracker, writeTracker, snapshot, syncSaved, setStage, setNotes, removeItem, columns, toCsv, TRACKER_KEY,
+  isCustom, addCustom, setNext, upcoming, fromShare} from './tracker-core.js';
 
-// The /tracker page: a board of saved roles by application stage. Everything stays in this browser.
+// The /tracker page: a board of saved roles by application stage, plus roles added by hand from any
+// other site, with the next step (an interview, a test) on each. Everything stays in this browser.
 const root = document.querySelector('[data-tracker]');
 if(root) start(root);
 
 function start(root) {
   const board = root.querySelector('.tracker-board'), status = root.querySelector('[data-tracker-status]');
+  const adder = root.querySelector('[data-add]'), addForm = root.querySelector('[data-add-form]'), addError = root.querySelector('[data-add-error]');
+  const soon = root.querySelector('[data-upcoming]');
   const fx = JSON.parse(root.querySelector('#tracker-fx')?.textContent || '{}');
   let tracker = {version: 1, items: {}}, storageOk = true, missing = 0;
   try { tracker = readTracker(localStorage); } catch { storageOk = false; }
@@ -20,17 +25,30 @@ function start(root) {
     try { writeTracker(localStorage, tracker); } catch { storageOk = false; say('This browser is blocking storage, so changes last only until you leave the page.'); }
   };
   const dateLabel = iso => iso ? new Intl.DateTimeFormat('en-IN', {day: 'numeric', month: 'short'}).format(new Date(iso)) : '';
+  const whenLabel = iso => new Intl.DateTimeFormat('en-IN', {weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit'}).format(new Date(iso));
+  const pad = n => String(n).padStart(2, '0');
+  const localInput = iso => { const d = new Date(iso); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
   const stageOptions = current => STAGES.map(([id, name]) => `<option value="${id}"${id === current ? ' selected' : ''}>${name}</option>`).join('');
+  const reminder = item => eventActions({id: item.id, title: `${item.next.what}: ${item.title} at ${item.company}`, start: item.next.at, url: item.apply || (item.path ? location.origin + item.path : ''), note: item.notes.slice(0, 300)});
 
+  function nextStep(item) {
+    const id = e(item.id), next = item.next;
+    return `<div class="tracker-next">${next ? `<p class="tracker-next-when"><strong>${e(next.what)}</strong> <time datetime="${e(next.at)}">${e(whenLabel(next.at))}</time></p>${reminder(item)}` : ''}
+      <details class="tracker-next-edit"><summary>${next ? 'Change the next step' : 'Add an interview or next step'}</summary>
+        <form data-next-form="${id}"><label class="sr-only" for="next-what-${id}">Next step for ${e(item.title)}</label><input id="next-what-${id}" name="what" maxlength="80" value="${e(next?.what || '')}" placeholder="Interview, test, HR call…">
+          <label class="sr-only" for="next-at-${id}">Date and time</label><input id="next-at-${id}" name="at" type="datetime-local" value="${next ? e(localInput(next.at)) : ''}" required>
+          <button type="submit">Save</button>${next ? `<button type="button" data-next-clear="${id}">Remove</button>` : ''}</form></details></div>`;
+  }
   function card(item) {
     const since = item.history[item.stage] || item.addedAt;
     const title = item.path ? `<a class="tracker-title" href="${e(item.path)}">${e(item.title)}</a>` : `<span class="tracker-title">${e(item.title)}</span>`;
     return `<li class="tracker-card" draggable="true" data-id="${e(item.id)}">
-      <p class="tracker-company">${e(item.company)}</p>${title}
+      <p class="tracker-company">${e(item.company)}${isCustom(item.id) ? ' <span class="tracker-badge">Added by you</span>' : ''}</p>${title}
       ${item.place || item.pay ? `<p class="tracker-meta">${[item.place, item.pay].filter(Boolean).map(e).join(' · ')}</p>` : ''}
       <div class="tracker-row"><label class="sr-only" for="stage-${e(item.id)}">Stage for ${e(item.title)}</label><select id="stage-${e(item.id)}" data-stage="${e(item.id)}">${stageOptions(item.stage)}</select>${since ? `<span class="tracker-since">since ${e(dateLabel(since))}</span>` : ''}</div>
-      <details class="tracker-notes"${item.notes ? ' open' : ''}><summary>Notes${item.notes ? '' : ' <span>(add)</span>'}</summary><label class="sr-only" for="notes-${e(item.id)}">Notes for ${e(item.title)}</label><textarea id="notes-${e(item.id)}" data-notes="${e(item.id)}" rows="3" maxlength="2000" placeholder="Recruiter, interview date, follow-up…">${e(item.notes)}</textarea></details>
-      <div class="tracker-actions">${item.apply ? `<a href="${e(item.apply)}" target="_blank" rel="noopener noreferrer">Employer page</a>` : ''}<button type="button" data-remove="${e(item.id)}" aria-label="Remove ${e(item.title)} from the tracker">Remove</button></div>
+      ${item.stage === 'closed' ? '' : nextStep(item)}
+      <details class="tracker-notes"${item.notes ? ' open' : ''}><summary>Notes${item.notes ? '' : ' <span>(add)</span>'}</summary><label class="sr-only" for="notes-${e(item.id)}">Notes for ${e(item.title)}</label><textarea id="notes-${e(item.id)}" data-notes="${e(item.id)}" rows="3" maxlength="2000" placeholder="Recruiter, salary discussed, follow-up…">${e(item.notes)}</textarea></details>
+      <div class="tracker-actions">${item.apply ? `<a href="${e(item.apply)}" target="_blank" rel="noopener noreferrer">${isCustom(item.id) ? 'Job link' : 'Employer page'}</a>` : ''}<button type="button" data-remove="${e(item.id)}" aria-label="Remove ${e(item.title)} from the tracker">Remove</button></div>
     </li>`;
   }
   function render() {
@@ -42,8 +60,11 @@ function start(root) {
     const moved = total - count('saved');
     root.querySelector('[data-tracker-summary]').innerHTML = total
       ? `<strong>${total}</strong> role${total === 1 ? '' : 's'} tracked · <strong>${moved}</strong> applied or further · <strong>${count('interviewing') + count('offer')}</strong> in interviews or offers`
-      : 'No roles yet. Save a job and it appears under Saved.';
+      : 'No roles yet. Save a job, or add one from another site.';
     root.querySelector('[data-export]').disabled = !total;
+    const next = upcoming(tracker);
+    soon.hidden = !next.length;
+    soon.querySelector('ol').innerHTML = next.map(item => `<li><time datetime="${e(item.next.at)}">${e(whenLabel(item.next.at))}</time><span><strong>${e(item.next.what)}</strong> · ${e(item.title)} at ${e(item.company)}</span></li>`).join('');
   }
   function move(id, stage) {
     const item = tracker.items[id]; if(!item || item.stage === stage) return;
@@ -61,13 +82,25 @@ function start(root) {
     clearTimeout(typing);
     typing = setTimeout(() => { saveBoard(setNotes(tracker, field.dataset.notes, field.value)); say('Notes saved on this device.'); }, 500);
   });
+  board.addEventListener('submit', event => {
+    const form = event.target.closest('[data-next-form]'); if(!form) return;
+    event.preventDefault();
+    const id = form.dataset.nextForm, at = Date.parse(form.elements.at.value);
+    if(!Number.isFinite(at)) { form.elements.at.focus(); say('Pick a date and time for the next step.'); return; }
+    saveBoard(setNext(tracker, id, {what: form.elements.what.value, at: new Date(at).toISOString()})); render();
+    say(`Next step saved. Use “Remind me” to add it to your calendar.`);
+    track('tool_use', {tool: 'tracker_next'});
+    board.querySelector(`[data-id="${CSS.escape(id)}"] .cal-actions a`)?.focus();
+  });
   board.addEventListener('click', event => {
+    const clear = event.target.closest('[data-next-clear]');
+    if(clear) { saveBoard(setNext(tracker, clear.dataset.nextClear, null)); render(); say('Next step removed.'); return; }
     const remove = event.target.closest('[data-remove]'); if(!remove) return;
     const id = remove.dataset.remove, item = tracker.items[id];
     saveBoard(removeItem(tracker, id));
-    // Unsave it too, or the next sync would bring it straight back under Saved.
-    try { localStorage.setItem('wilsy-saved-jobs', JSON.stringify(readSaved(localStorage).filter(v => v !== id))); announceSaved(); } catch {}
-    render(); say(`${item?.title || 'Role'} removed from the tracker and your saved jobs.`);
+    // Unsave a WILSY job too, or the next sync would bring it straight back under Saved.
+    if(!isCustom(id)) { try { localStorage.setItem('wilsy-saved-jobs', JSON.stringify(readSaved(localStorage).filter(v => v !== id))); announceSaved(); } catch {} }
+    render(); say(`${item?.title || 'Role'} removed from the tracker${isCustom(id) ? '' : ' and your saved jobs'}.`);
     root.querySelector('[data-tracker-summary]').focus?.();
   });
   // Drag and drop between columns; the stage menu on each card does the same with a keyboard.
@@ -82,6 +115,38 @@ function start(root) {
     document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(link.href), 1000);
     say('Spreadsheet downloaded.');
   });
+
+  // Add a role from another site: by hand, from the share sheet (installed app) or from the bookmarklet.
+  const openAdder = () => { adder.open = true; adder.scrollIntoView({block: 'start', behavior: 'smooth'}); addForm.elements.title.focus({preventScroll: true}); };
+  root.querySelector('[data-add-open]').addEventListener('click', openAdder);
+  addForm.addEventListener('submit', event => {
+    event.preventDefault();
+    const f = addForm.elements, link = f.apply.value.trim();
+    if(link && !/^https:\/\//i.test(link)) { addError.hidden = false; addError.textContent = 'Use the full link, starting with https://'; f.apply.focus(); return; }
+    const result = addCustom(tracker, {title: f.title.value, company: f.company.value, apply: link, place: f.place.value, stage: f.stage.value, notes: f.notes.value});
+    if(result.error) { addError.hidden = false; addError.textContent = result.error; f.title.focus(); return; }
+    addError.hidden = true;
+    saveBoard(result.tracker); render();
+    const item = tracker.items[result.id];
+    say(`${item.title} at ${item.company} added under ${STAGES.find(([id]) => id === item.stage)[1]}.`);
+    track('tool_use', {tool: 'tracker_add'});
+    addForm.reset(); adder.open = false;
+    document.getElementById('stage-' + result.id)?.focus();
+  });
+  const bookmarklet = root.querySelector('[data-bookmarklet]');
+  if(bookmarklet) {
+    bookmarklet.href = bookmarklet.href.replace(/https:\/\/www\.wilsy\.in/, location.origin);
+    bookmarklet.addEventListener('click', event => { event.preventDefault(); say('Drag the “Add to WILSY” button to your bookmarks bar, then press it on any job page.'); });
+  }
+  const params = new URLSearchParams(location.search);
+  if(['title', 'text', 'url'].some(key => params.get(key)) || params.has('add')) {
+    const shared = fromShare({title: params.get('title') || '', text: params.get('text') || '', url: params.get('url') || ''});
+    const f = addForm.elements;
+    f.title.value = shared.title; f.company.value = shared.company; f.apply.value = shared.apply; f.place.value = shared.place;
+    history.replaceState(null, '', location.pathname + '#add');
+    openAdder();
+    if(shared.title || shared.apply) say('Check the details, then add it to your board.');
+  } else if(location.hash === '#add') openAdder();
 
   // Saved roles come from the public search, 20 at a time; only listings that are still live come back.
   async function loadSaved() {

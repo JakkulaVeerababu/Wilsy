@@ -40,6 +40,40 @@ export function googleCalendarUrl({title, deadline, url = '', note = ''}) {
     dates: `${compact(day)}/${compact(nextDay(day))}`, details: [note, safeUrl(url)].filter(Boolean).join('\n')});
 }
 
+// Timed events (an interview or a test from the application tracker): an hour long by default, with
+// reminders a day and an hour before.
+const stamp = time => new Date(time).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+const span = ({start, minutes = 60}) => { const at = Date.parse(start || ''); return Number.isFinite(at) ? [at, at + Math.max(5, Math.min(Number(minutes) || 60, 1440)) * 60000] : null; };
+
+export function eventIcs({id = '', title, start, minutes = 60, url = '', note = ''}, now = Date.now()) {
+  const times = span({start, minutes}), link = safeUrl(url);
+  if(!times || !String(title || '').trim()) return null;
+  const uid = String(id || title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'event';
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//WILSY//Applications//EN', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT',
+    `UID:event-${uid}-${stamp(times[0])}@wilsy.in`, `DTSTAMP:${stamp(now)}`, `DTSTART:${stamp(times[0])}`, `DTEND:${stamp(times[1])}`,
+    `SUMMARY:${icsText(String(title).trim())}`, ...(link ? [`URL:${icsText(link)}`] : []),
+    `DESCRIPTION:${icsText([note, link && 'Job: ' + link].filter(Boolean).join('\n'))}`,
+    'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:Tomorrow', 'TRIGGER:-P1D', 'END:VALARM',
+    'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:In an hour', 'TRIGGER:-PT1H', 'END:VALARM',
+    'END:VEVENT', 'END:VCALENDAR'];
+  return lines.map(fold).join('\r\n') + '\r\n';
+}
+
+export function eventGoogleUrl({title, start, minutes = 60, url = '', note = ''}) {
+  const times = span({start, minutes});
+  if(!times || !String(title || '').trim()) return '';
+  return 'https://calendar.google.com/calendar/render?' + new URLSearchParams({action: 'TEMPLATE', text: String(title).trim(),
+    dates: `${stamp(times[0])}/${stamp(times[1])}`, details: [note, safeUrl(url)].filter(Boolean).join('\n')});
+}
+
+/** "Remind me" links for a timed event, like calendarActions; empty without a usable time. */
+export function eventActions(item, {label = 'Add it to your calendar'} = {}) {
+  const google = eventGoogleUrl(item);
+  if(!google) return '';
+  const data = JSON.stringify({id: item.id || '', title: item.title, start: new Date(Date.parse(item.start)).toISOString(), minutes: item.minutes || 60, url: safeUrl(item.url), note: item.note || ''});
+  return `<div class="cal-actions" role="group" aria-label="${e(label)}"><span class="cal-label">Remind me</span><a href="${e(google)}" target="_blank" rel="noopener noreferrer">Google Calendar</a><button type="button" data-ics="${e(data)}">Apple / Outlook (.ics)</button></div>`;
+}
+
 /** "Add the deadline to your calendar" links; empty when there is no usable date. features.js handles the file. */
 export function calendarActions(item, {label = 'Add the deadline to your calendar'} = {}) {
   const google = googleCalendarUrl(item);

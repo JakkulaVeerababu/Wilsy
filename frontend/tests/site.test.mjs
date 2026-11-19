@@ -27,7 +27,8 @@ test('All generated internal links, local images, scripts, and styles resolve',(
   for(const [file,html] of pages){
     for(const match of html.matchAll(/(?:href|src)="([^"]*)"/g)){
       const url=match[1].replace(/&amp;/g,'&');
-      if(!url||/^(?:https?:|mailto:|data:|#|\/_vercel\/)/.test(url))continue;
+      // javascript: is the tracker's "Add to WILSY" bookmarklet, not a link.
+      if(!url||/^(?:https?:|mailto:|data:|javascript:|#|\/_vercel\/)/.test(url))continue;
       const pathname=decodeURIComponent(new URL(url,'https://www.wilsy.in/'+file.replaceAll(path.sep,'/')).pathname);
       let target=pathname==='/'?'index.html':pathname.slice(1);
       if(!path.extname(target))target+='.html';
@@ -39,11 +40,11 @@ test('All generated internal links, local images, scripts, and styles resolve',(
 test('Sitemap covers exactly the public pages and excludes the error page',async()=>{
   const xml=await fs.readFile(path.join(root,'sitemap.xml'),'utf8');
   const urls=[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
-  // 1,047 core pages (including the opportunity sections and one page per open-source program,
+  // 1,057 core pages (including the career tools, the opportunity sections and one page per open-source program,
   // research internship and scholarship) plus every indexable /jobs/<page> (job pages, and landing
   // pages that have jobs).
   const jobPages=htmlFiles.filter(f=>f.startsWith('jobs'+path.sep)&&!/noindex/.test(pages.get(f)));
-  assert.equal(urls.length,1052+jobPages.length);
+  assert.equal(urls.length,1057+jobPages.length);
   for(const route of ['competitions','contests','open-source-programs','open-source-programs/google-summer-of-code','research-internships','research-internships/science-academies-srfp','scholarships','scholarships/aicte-pragati'])assert.ok(urls.includes('https://www.wilsy.in/'+route),route);
   assert.ok(urls.includes('https://www.wilsy.in/employers'));
   assert.ok(urls.includes('https://www.wilsy.in/campus'));assert.equal(new Set(urls).size,urls.length);

@@ -17,7 +17,8 @@ import {loadDsaProject,dsaPage,writeDsaAssets} from './dsa-page.mjs';
 import {landingPages,landingUrl} from './landing-pages.mjs';
 import {fetchLandingJobs,publishable,pageWorthy,jobPath,landingBody,jobPageOptions} from './job-pages.mjs';
 import {serviceWorker,shellAssets} from './service-worker.mjs';
-import {trackerBody,salariesBody,calculatorBody,offerBody,resumeBody,searchIndex} from './feature-pages.mjs';
+import {trackerBody,salariesBody,calculatorBody,offerBody,resumeBody,scamBody,hikeBody,gratuityBody,toolsBody,embedBody,searchIndex} from './feature-pages.mjs';
+import {skillStats,skillsIndexBody,skillBody,skillStructured} from './skill-pages.mjs';
 import {hiringTrends,trendsBody} from './trends.mjs';
 import {jobFeed} from './feeds.mjs';
 import {salaryRows} from '../js/salary-core.js';
@@ -115,6 +116,11 @@ await write('/tracker',documentPage({title:'Application tracker',description:'Tr
 await write('/salaries',documentPage({title:'Salary explorer: what 1,000 tech companies pay',description:'Compare published pay at 1,000 technology companies as INR estimates. Filter by role, sector, stage and remote, and see how pay is spread.',route:'/salaries',active:'salaries',body:salariesBody({companies,fx})}));
 await write('/salary-calculator',documentPage({title:'In-hand salary calculator (FY 2026-27, new regime)',description:'Work out your monthly in-hand salary from CTC under the new tax regime: PF, professional tax, income tax, rebate up to ₹12 lakh and cess.',route:'/salary-calculator',active:'salary-calculator',body:calculatorBody()}));
 await write('/offer-compare',documentPage({title:'Compare job offers: which pays more in hand?',description:'Compare two or three job offers side by side: monthly in-hand pay, first-year cash with the joining bonus, income tax and equity, under the FY 2026-27 new regime.',route:'/offer-compare',active:'offer-compare',ads:false,body:offerBody()}));
+await write('/tools',documentPage({title:'Free career tools',description:'Free tools for your job search: application tracker, job scam check, in-hand salary, salary hike and gratuity calculators, offer comparison, resume match and hiring trends.',route:'/tools',active:'tools',ads:false,body:toolsBody()}));
+await write('/scam-check',documentPage({title:'Job scam check: is this job offer real?',description:'Paste a job offer, WhatsApp message or email to check it for the warning signs of job scams: fees, task scams, OTP requests, fake company emails. Free, and private.',route:'/scam-check',active:'scam-check',ads:false,body:scamBody()}));
+await write('/salary-hike-calculator',documentPage({title:'Salary hike calculator: what a raise adds in hand',description:'See how much a salary hike adds to your monthly in-hand pay after tax and PF (FY 2026-27, new regime), and the hike you need for a target take-home.',route:'/salary-hike-calculator',active:'salary-hike-calculator',body:hikeBody()}));
+await write('/gratuity-calculator',documentPage({title:'Gratuity calculator (labour codes 2025)',description:'Work out your gratuity: 15/26 of monthly basic and DA for each year of service, the five-year and fixed-term rules, the ₹20 lakh cap and tax under the labour codes.',route:'/gratuity-calculator',active:'gratuity-calculator',body:gratuityBody({today:new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())})}));
+await write('/embed',documentPage({title:'Free jobs widget for your website',description:'Show the newest internships and jobs on your college, placement-cell or community website with two lines of code. Always up to date, no cookies, free.',route:'/embed',active:'embed',ads:false,body:embedBody()}));
 await write('/resume-match',documentPage({title:'Resume match: check your resume against a job',description:'Paste your resume and a job description to see which skills you show and which are missing. Runs in your browser; your resume is never uploaded.',route:'/resume-match',active:'resume-match',ads:false,body:resumeBody()}));
 
 // Landing pages (/jobs/<slug>) and static job pages (/jobs/<id>-<slug>). Live deploys read the public
@@ -180,7 +186,13 @@ const liveJobs = process.env.WILSY_REFRESH_JOBS === '1' ? await fetchAllLiveJobs
 const companyRoles = liveJobs ? rolesByCompany(liveJobs.jobs,companies) : new Map();
 // Hiring trends and the RSS feed come from the same live pass; without it the feed uses the dated snapshot.
 const trends = liveJobs ? hiringTrends(liveJobs.jobs,{companies,asOf:liveJobs.asOf}) : null;
-await write('/hiring-trends',documentPage({title:'Hiring trends: what’s hiring right now',description:trends?`${trends.total.toLocaleString('en-IN')} live jobs at ${trends.companies.toLocaleString('en-IN')} employers: the most-requested skills, the companies hiring most, remote share and where in India the jobs are.`:'What is hiring right now: skills in demand, companies hiring and remote share, counted from live jobs.',route:'/hiring-trends',active:'hiring-trends',noindex:!trends,body:trendsBody(trends,{origin:site.origin})}),!!trends);
+// Skill pages: one per skill with enough live jobs (live builds only); /skills explains itself without them.
+const skills = liveJobs ? skillStats(liveJobs.jobs,{companies}) : [];
+const skillNames = new Set(skills.map(s=>s.name));
+await write('/skills',documentPage({title:'Skills in demand: jobs by skill',description:skills.length?`How many of ${liveJobs.jobs.length.toLocaleString('en-IN')} live jobs mention each of ${skills.length} skills, from Python and SQL to LLMs, with who is hiring and the newest roles.`:'Live jobs and employers for each skill, counted from the jobs WILSY tracks.',route:'/skills',active:'skills',noindex:!skills.length,body:skillsIndexBody(skills,{total:liveJobs?.jobs.length||0,asOf:liveJobs?.asOf})}),!!skills.length);
+for(const s of skills) await write('/skills/'+s.slug,documentPage({title:`${s.name} jobs: who’s hiring now`,description:`${s.total.toLocaleString('en-IN')} live jobs mention ${s.name}, at ${s.companies.toLocaleString('en-IN')} employers. See who is hiring, the skills that come with it and the newest roles.`,route:'/skills/'+s.slug,active:'skills',ads:false,body:skillBody(s,{origin:site.origin,asOf:liveJobs.asOf,names:skillNames}),structured:skillStructured(s,site.origin)}));
+if(skills.length) console.log(`Built ${skills.length} skill pages.`);
+await write('/hiring-trends',documentPage({title:'Hiring trends: what’s hiring right now',description:trends?`${trends.total.toLocaleString('en-IN')} live jobs at ${trends.companies.toLocaleString('en-IN')} employers: the most-requested skills, the companies hiring most, remote share and where in India the jobs are.`:'What is hiring right now: skills in demand, companies hiring and remote share, counted from live jobs.',route:'/hiring-trends',active:'hiring-trends',noindex:!trends,body:trendsBody(trends,{origin:site.origin,skillPages:skillNames})}),!!trends);
 await fs.writeFile(path.join(out,'feed.xml'),jobFeed(liveJobs?.jobs||snapshot.jobs||[],{origin:site.origin}));
 const rolesNow = Date.now();
 for(const c of companies){
@@ -211,9 +223,11 @@ await fs.writeFile(path.join(out,'robots.txt'),`User-agent: *\nAllow: /\n\nSitem
 await fs.writeFile(path.join(out,'ads.txt'),'google.com, pub-5489149193350421, DIRECT, f08c47fec0942fa0\n');
 await fs.mkdir(path.join(out,'js'),{recursive:true});
 await fs.mkdir(path.join(out,'css'),{recursive:true});
-for(const file of ['app.js','directory-core.js','pay-format.js','site.js','data-client.js','supabase-config.js','jobs-core.js','jobs.js','job-workspace-core.js','site-config.js','hackathons.js','hackathon-core.js','opportunities.js','opportunity-core.js','government-exam-core.js','government-jobs.js','ui-helpers.js','brand-assets.js','icons.js','job-card.js','job-text.js','home.js','dsa-cloud.js','dsa-enhancements.js','auth-client.js','account-sync.js','account.js','company-jobs.js','features.js','palette.js','palette-core.js','tracker.js','tracker-core.js','salaries.js','salary-core.js','salary-view.js','take-home.js','take-home-core.js','take-home-view.js','offer-core.js','offer-compare.js','resume-core.js','resume-match.js','skills-core.js','calendar-core.js']) await fs.copyFile('js/'+file,path.join(out,'js',file));
+for(const file of ['app.js','directory-core.js','pay-format.js','site.js','data-client.js','supabase-config.js','jobs-core.js','jobs.js','job-workspace-core.js','site-config.js','hackathons.js','hackathon-core.js','opportunities.js','opportunity-core.js','government-exam-core.js','government-jobs.js','ui-helpers.js','brand-assets.js','icons.js','job-card.js','job-text.js','home.js','dsa-cloud.js','dsa-enhancements.js','auth-client.js','account-sync.js','account.js','company-jobs.js','features.js','palette.js','palette-core.js','tracker.js','tracker-core.js','salaries.js','salary-core.js','salary-view.js','take-home.js','take-home-core.js','take-home-view.js','offer-core.js','offer-compare.js','resume-core.js','resume-match.js','skills-core.js','calendar-core.js','scam-core.js','scam-check.js','hike-core.js','salary-hike.js','gratuity-core.js','gratuity.js','embed-builder.js']) await fs.copyFile('js/'+file,path.join(out,'js',file));
 for(const file of ['styles.css','editorial.css','jobs.css','polish.css','electric.css','hackathons.css','government-jobs.css','refined.css','job-workspace.css','tokens.css','shell.css','homepage.css','jobs-premium.css','dsa.css','premium.css','account.css','features.css']) await fs.copyFile('css/'+file,path.join(out,'css',file));
 for(const file of ['analytics.js','pwa.js']) await fs.copyFile('js/'+file,path.join(out,'js',file));
+// The jobs widget lives at the site root (/embed.js), so the code people paste stays short.
+await fs.copyFile('js/embed.js',path.join(out,'embed.js'));
 await fs.cp('assets',path.join(out,'assets'),{recursive:true});
 {
   // The app shell: the offline page, the job list (the installed app's start page) and what they load.
@@ -231,6 +245,6 @@ await fs.writeFile(path.join(out,'data/salaries.json'),JSON.stringify(salaryRows
   // The quick-search index: pages, landing pages, companies, guides and curated programmes.
   const curated=[];
   for(const cfg of Object.values(curatedSections)){const data=JSON.parse(await fs.readFile(cfg.file,'utf8'));for(const p of curatedEntries(data))curated.push([p.name,`${cfg.path}/${p.slug}`,cfg.label]);}
-  await fs.writeFile(path.join(out,'data/search-index.json'),JSON.stringify(searchIndex({companies,guides,landing:landingPages.map(p=>[landingUrl(p),p.title]),curated})));
+  await fs.writeFile(path.join(out,'data/search-index.json'),JSON.stringify(searchIndex({companies,guides,landing:landingPages.map(p=>[landingUrl(p),p.title]),curated,skills:skills.map(s=>[s.name,s.slug,s.total])})));
 }
 console.log(`Built ${sitemap.length} indexable pages, custom 404, sitemap, robots.txt, and ads.txt in dist.`);

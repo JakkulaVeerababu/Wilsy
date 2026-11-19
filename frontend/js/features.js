@@ -1,10 +1,22 @@
 import {track, pageKind} from './analytics.js';
 import {rememberJob} from './palette-core.js';
-import {deadlineIcs} from './calendar-core.js';
+import {deadlineIcs, eventIcs} from './calendar-core.js';
+import {readTracker, writeTracker, trackJob, STAGES} from './tracker-core.js';
+import {escapeHtml as e} from './directory-core.js';
 
 // Site-wide extras on every page: quick search (Ctrl/⌘ K), share buttons, campus referral links, the
-// recently viewed jobs list, deadline reminders and the referral-request writer on job pages. The
-// quick-search dialog itself loads on first use.
+// recently viewed jobs list, calendar reminders, the referral-request writer on job pages, and "Mark as
+// applied" / "Did you apply?" for the application tracker. The quick-search dialog loads on first use.
+
+export const PENDING_KEY = 'wilsy-apply-pending';
+/** The job a [data-track-job] / [data-apply-job] attribute describes, or null. */
+export const readJob = value => { try { const job = JSON.parse(value); return /^\d+$/.test(String(job?.id)) ? job : null; } catch { return null; } };
+const stageName = id => STAGES.find(([key]) => key === id)?.[1] || '';
+const trackedStage = id => { try { return readTracker(localStorage).items[String(id)]?.stage || null; } catch { return null; } };
+/** Put a job on the tracker under Applied (or leave it where it is if it's further on); its stage, or null if storage is blocked. */
+function markApplied(job) {
+  try { const next = trackJob(readTracker(localStorage), job, 'applied'); writeTracker(localStorage, next); return next.items[String(job.id)]?.stage || null; } catch { return null; }
+}
 
 export const REF_KEY = 'wilsy-ref';
 /** Campus ambassador codes: lowercase letters, digits and hyphens, 2–24 characters (for example "iitb-07"). */
@@ -65,10 +77,10 @@ if(globalThis.document) {
     const ics = event.target.closest('[data-ics]');
     if(ics) {
       let item; try { item = JSON.parse(ics.dataset.ics); } catch { return; }
-      const text = deadlineIcs(item);
+      const text = item.start ? eventIcs(item) : deadlineIcs(item);
       if(!text) return;
       const url = URL.createObjectURL(new Blob([text], {type: 'text/calendar'})), link = document.createElement('a');
-      link.href = url; link.download = `${String(item.title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50) || 'deadline'}-deadline.ics`;
+      link.href = url; link.download = `${String(item.title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50) || 'event'}-${item.start ? 'reminder' : 'deadline'}.ics`;
       document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
       track('tool_use', {tool: 'calendar'});
     }
@@ -102,6 +114,70 @@ if(globalThis.document) {
     });
     update();
   }
+
+  // Mark as applied (job pages): puts the job on the tracker under Applied.
+  const marker = document.querySelector('[data-track-job]');
+  const markedJob = marker && readJob(marker.dataset.trackJob);
+  const appliedLink = stage => Object.assign(document.createElement('a'), {className: 'secondary-button is-tracked', href: '/tracker', textContent: `${stageName(stage)} ✓ · Your tracker`});
+  if(markedJob) {
+    const stage = trackedStage(markedJob.id);
+    if(stage && stage !== 'saved') marker.replaceWith(appliedLink(stage));
+    else {
+      marker.hidden = false;
+      marker.addEventListener('click', () => {
+        const done = markApplied(markedJob);
+        if(done) { const link = appliedLink(done); marker.replaceWith(link); link.focus(); track('tool_use', {tool: 'mark_applied', via: 'button'}); }
+      });
+    }
+  }
+
+  // "Did you apply?": after the Apply link opens the employer's site, ask once when the visitor comes back.
+  const remember = event => {
+    if(event.type === 'auxclick' && event.button !== 1) return;
+    const link = event.target.closest?.('a[data-apply-job]'), applied = link && readJob(link.dataset.applyJob);
+    if(!applied) return;
+    const stage = trackedStage(applied.id);
+    if(stage && stage !== 'saved') return;
+    try { sessionStorage.setItem(PENDING_KEY, JSON.stringify({job: applied, at: Date.now()})); } catch {}
+  };
+  document.addEventListener('click', remember, true);
+  document.addEventListener('auxclick', remember, true);
+  let prompt;
+  const closePrompt = () => { prompt?.remove(); prompt = null; };
+  function ask(pending) {
+    closePrompt();
+    prompt = document.createElement('div');
+    prompt.className = 'apply-prompt';
+    prompt.setAttribute('role', 'dialog');
+    prompt.setAttribute('aria-labelledby', 'apply-prompt-title');
+    prompt.innerHTML = `<p id="apply-prompt-title"><strong>Did you apply?</strong><span>${e(pending.title)} at ${e(pending.company)}</span></p><div class="apply-prompt-actions"><button type="button" class="primary-button" data-applied>Yes, track it</button><button type="button" class="secondary-button" data-not-yet>Not yet</button></div><button type="button" class="apply-prompt-close" data-not-yet aria-label="Close">×</button>`;
+    prompt.addEventListener('click', event => {
+      if(event.target.closest('[data-not-yet]')) { closePrompt(); return; }
+      if(!event.target.closest('[data-applied]')) return;
+      const stage = markApplied(pending);
+      if(!stage) { closePrompt(); return; }
+      // Same job as this page's "Mark as applied" button: show it as tracked too.
+      if(marker?.isConnected && String(markedJob?.id) === String(pending.id)) marker.replaceWith(appliedLink(stage));
+      prompt.innerHTML = `<p id="apply-prompt-title" role="status"><strong>Added to your tracker</strong><span>Under ${e(stageName(stage))}. Add the interview date there when you hear back.</span></p><div class="apply-prompt-actions"><a class="primary-button" href="/tracker">Open the tracker</a></div><button type="button" class="apply-prompt-close" data-not-yet aria-label="Close">×</button>`;
+      prompt.querySelector('a').focus({preventScroll: true});
+      track('tool_use', {tool: 'mark_applied', via: 'prompt'});
+      setTimeout(() => { if(prompt && !prompt.contains(document.activeElement)) closePrompt(); }, 12000);
+    });
+    prompt.addEventListener('keydown', event => { if(event.key === 'Escape') closePrompt(); });
+    document.body.append(prompt);
+    prompt.querySelector('[data-applied]').focus({preventScroll: true});
+  }
+  const askIfBack = () => {
+    if(document.visibilityState !== 'visible') return;
+    let pending; try { pending = JSON.parse(sessionStorage.getItem(PENDING_KEY) || 'null'); } catch {}
+    const away = Date.now() - Number(pending?.at || 0);
+    if(!readJob(JSON.stringify(pending?.job || null)) || away < 8000) return; // back within seconds: probably didn't apply yet
+    try { sessionStorage.removeItem(PENDING_KEY); } catch {}
+    const stage = trackedStage(pending.job.id);
+    if(away < 6 * 36e5 && !(stage && stage !== 'saved')) ask(pending.job);
+  };
+  document.addEventListener('visibilitychange', askIfBack);
+  addEventListener('pageshow', askIfBack);
 
   // Campus referral link builder.
   const builder = document.querySelector('[data-ref-builder]');

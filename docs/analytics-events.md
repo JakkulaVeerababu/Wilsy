@@ -28,7 +28,7 @@ Events never carry personal data: no email addresses, names, job ids, account id
 | `share` | A visitor shares a job or page with the share buttons. | `via`: `whatsapp`, `copy` (copy link) or `native` (the phone's share sheet). `page`: as for `apply_click`. |
 | `referral` | A visit arrives with a campus ambassador's `?ref=` link (counted once per visit; the code is then removed from the address bar). | `code`: the ambassador's code, 2–24 lowercase letters, digits and hyphens, issued by WILSY (for example `iitb-07`); it names the ambassador's link, not the visitor. `page`: as for `apply_click`. |
 | `tracker_move` | A role moves to another stage on the application tracker (/tracker). | `stage`: `saved`, `applied`, `interviewing`, `offer` or `closed`. |
-| `tool_use` | A visitor uses a career tool: types in the offer comparison or the resume match (once per page view), copies a referral-request message on a job page, or adds a deadline to their calendar. | `tool`: `offer_compare`, `resume_match`, `referral` or `calendar`. Nothing typed into a tool is sent. |
+| `tool_use` | A visitor uses a career tool: types in the offer comparison, resume match, scam check, salary hike or gratuity calculator (once per page view); copies a referral-request message or the widget code; adds a deadline or an interview to their calendar; adds a role, a next step or an "applied" mark to the application tracker. | `tool`: `offer_compare`, `resume_match`, `scam_check`, `salary_hike`, `gratuity`, `referral`, `calendar`, `embed`, `tracker_add`, `tracker_next` or `mark_applied`. With `mark_applied`, `via` is `button` (job page) or `prompt` ("Did you apply?"). Nothing typed into a tool is sent, and the scam check's verdict isn't either. |
 
 ### The `filters` value
 

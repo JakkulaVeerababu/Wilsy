@@ -3,7 +3,7 @@
 import {site} from '../js/site-config.js';
 
 const origin = process.env.WILSY_ORIGIN || site.origin;
-const pages = ['/', '/jobs', '/companies', '/tracker', '/salaries', '/salary-calculator', '/offer-compare', '/resume-match', '/hiring-trends', '/guides', '/government-jobs', '/hackathons'];
+const pages = ['/', '/jobs', '/companies', '/tracker', '/salaries', '/salary-calculator', '/offer-compare', '/resume-match', '/hiring-trends', '/tools', '/scam-check', '/salary-hike-calculator', '/gratuity-calculator', '/skills', '/embed', '/guides', '/government-jobs', '/hackathons'];
 
 async function get(route, attempt = 1) {
   try {
@@ -35,6 +35,9 @@ const search = await get('/api/search');
 let jobs = null;
 try { jobs = JSON.parse(search.text); } catch {}
 if(search.status !== 200 || !Array.isArray(jobs?.jobs) || !(jobs.total > 0)) fail('/api/search', search.error || `HTTP ${search.status}, ${Array.isArray(jobs?.jobs) ? jobs.total + ' jobs' : 'no job list'}`);
+// The jobs widget other sites load.
+const widget = await get('/embed.js');
+if(widget.status !== 200 || !widget.text.includes('WilsyJobs')) fail('/embed.js', widget.error || `HTTP ${widget.status}`);
 
 if(failures.length) {
   console.error(`Site check failed (${failures.length}):\n- ${failures.join('\n- ')}`);

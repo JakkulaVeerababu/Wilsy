@@ -3,6 +3,10 @@ import {renderJobCard, jobLogo, profileFor} from '../js/job-card.js';
 import {icon} from '../js/icons.js';
 import {browseRoles, browseStages} from './landing-pages.mjs';
 import {logoSize, logoOpaque} from './logo-size.mjs';
+import {TOOLS, toolCard} from './feature-pages.mjs';
+
+// The homepage's six tool cards; /tools lists them all.
+const HOME_TOOLS = ['/tracker', '/scam-check', '/salary-calculator', '/offer-compare', '/resume-match', '/salary-hike-calculator'];
 
 const json = value => JSON.stringify(value).replace(/</g,'\\u003c');
 const count = value => Number(value || 0).toLocaleString('en-IN');
@@ -80,7 +84,6 @@ export function homePage({snapshot, companies, guides, fx, dsaStats}) {
   const jobs = snapshot.jobs.slice(0,6), featured = snapshot.featured.slice(0,6);
   const now = Date.now();
   const date = new Intl.DateTimeFormat('en-IN',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Kolkata'}).format(new Date(snapshot.updatedAt));
-  const guideCard = guide => `<a class="home-guide-card" href="/guides/${e(guide.slug)}"><span class="home-guide-top"><span class="home-guide-meta">${e(guide.category)}</span><span class="home-guide-time">${e(guide.minutes)} min read</span></span><h3>${e(guide.title)}</h3><p>${e(guide.description)}</p><span class="home-guide-foot">Read the guide<span class="home-guide-go" aria-hidden="true">${icon('arrow')}</span></span></a>`;
   return `<main id="main-content" class="home-shell">
   <section class="home-hero" aria-labelledby="home-title">
     <div class="home-hero-frame" aria-hidden="true"><i></i><i></i></div>
@@ -124,9 +127,11 @@ export function homePage({snapshot, companies, guides, fx, dsaStats}) {
     </ol>
     <p class="home-why-foot">INR conversions are estimates, not Indian offers. <a class="home-section-link" href="/methodology">Our source methodology ${icon('arrow')}</a></p>
   </section>
-  <section class="home-guides home-section" aria-labelledby="home-guides-title">
-    <div class="home-section-heading"><div><p class="home-kicker">CAREER GUIDES</p><h2 id="home-guides-title">A little guidance goes a long way.</h2></div><a class="home-section-link" href="/guides">All career guides ${icon('arrow')}</a></div>
-    <div class="home-guide-grid">${guides.slice(0,3).map(guideCard).join('')}</div>
+  <section class="home-guides home-toolkit home-section" aria-labelledby="home-guides-title">
+    <div class="home-section-heading"><div><p class="home-kicker">FREE TOOLS AND GUIDES</p><h2 id="home-guides-title">Tools for <em>every step.</em></h2></div><a class="home-section-link" href="/tools">All ${TOOLS.length} tools ${icon('arrow')}</a></div>
+    <div class="tool-grid home-tool-grid">${HOME_TOOLS.map(url=>toolCard(TOOLS.find(t=>t[0]===url))).join('')}</div>
+    <div class="home-guide-line"><p class="home-guide-line-head"><span class="home-guide-line-label">Career guides</span><a class="home-guide-line-all" href="/guides">All guides ${icon('arrow')}</a></p>
+      <ul class="home-guide-links">${guides.slice(0,3).map(guide=>`<li><a href="/guides/${e(guide.slug)}"><span>${e(guide.title)}</span>${icon('arrow')}</a></li>`).join('')}</ul></div>
     <a class="home-dsa-banner" href="/dsa"><span class="home-dsa-stat"><b>${dsaStats?.patterns || dsaStats?.categories || 16}</b><small>${dsaStats?.patterns ? 'patterns' : 'topics'}</small></span><span><span class="home-kicker">DSA ROADMAP</span><strong>Build the patterns behind your next interview.</strong><span>${dsaStats?.categories || 16} topics. ${dsaStats?.patterns || ''} patterns. An interactive mind-map and a place to track your progress.</span></span>${icon('arrow')}</a>
   </section>
   <section class="home-final-cta" aria-labelledby="final-cta-title"><div><p class="home-kicker">FREE ACCOUNT</p><h2 id="final-cta-title">Keep your search<br><em>on every device.</em></h2><p>Sync saved jobs, hackathons and searches with an email code. No password, no fee.</p></div><div class="home-final-actions"><a class="home-cta-primary" href="/jobs?saved=1" data-account-open>Create a free account ${icon('arrow')}</a><a class="home-cta-secondary" href="/jobs">Browse live jobs ${icon('arrow')}</a></div></section>

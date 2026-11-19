@@ -52,7 +52,7 @@ test('Tracker spreadsheet quotes cells and blocks formulas', () => {
   assert.match(row, /^Offer,"'=HYPERLINK\(""x""\)","Acme, Inc"/);
   assert.match(csv, /2026-11-03/);
   assert.match(csv, /https:\/\/www\.wilsy\.in\/jobs\/7-role/);
-  assert.match(csv, /"line\nbreak"$/);
+  assert.match(csv, /"line\nbreak",,$/, 'the next-step columns come after the notes');
 });
 
 const companies = [

@@ -3,11 +3,14 @@ import {databaseRequest, searchFromQuery} from '../js/data-client.js';
 // GET /api/search: the public job search behind a shared edge cache. The same search from many visitors
 // (the homepage, company pages, popular filters) is answered from Vercel's cache for a minute, and a stale
 // copy is served for up to five more minutes while a fresh one is fetched. Only public filters are accepted.
+// Any site may read it (the jobs widget, /embed.js, runs on other people's sites): it is public data, GET only,
+// with no cookies or credentials.
 const json = (status, body, cache) => new Response(JSON.stringify(body), {status, headers: {
   'Content-Type': 'application/json; charset=utf-8',
   'Cache-Control': cache,
   ...(cache.startsWith('public') ? {'CDN-Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300'} : {}),
   'X-Content-Type-Options': 'nosniff',
+  'Access-Control-Allow-Origin': '*',
 }});
 
 export function createSearchHandler({request = databaseRequest} = {}) {

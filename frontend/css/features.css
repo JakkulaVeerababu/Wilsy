@@ -260,3 +260,184 @@ html.dark-theme .search-new-count{color:#7ee2a8}
 .match-chips.is-close li{border:1px dashed #9bb8ef;background:#eef4ff;color:#1d3f7a}
 .match-chips.is-close li span{font-weight:500;opacity:.75}
 html.dark-theme .match-chips.is-close li{border-color:#3d5c99;background:#15233f;color:#c5d8ff}
+
+/* Tools hub and tool cards (also the homepage's career toolkit) */
+.tools-group{margin-top:40px}
+.tools-group h2{margin:0 0 14px;font-size:clamp(20px,2.2vw,26px);letter-spacing:-.02em;color:var(--ink)}
+.tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.tool-card{position:relative;display:flex;flex-direction:column;gap:6px;min-height:150px;padding:20px 48px 18px 20px;border:1px solid var(--line);border-radius:18px;background:var(--surface);color:var(--ink);text-decoration:none;transition:border-color .2s,box-shadow .2s}
+.tool-card:hover{border-color:var(--blue);box-shadow:var(--shadow-xs)}
+.tool-card:focus-visible{outline:3px solid var(--focus,var(--blue));outline-offset:2px}
+.tool-card-icon{display:grid;place-items:center;width:40px;height:40px;margin-bottom:6px;border-radius:12px;background:var(--blue-soft,rgba(8,102,255,.08));color:var(--blue)}
+.tool-card-icon .icon{width:20px;height:20px}
+.tool-card h2,.tool-card h3{margin:0;font-size:17px;font-weight:650;letter-spacing:-.015em;color:var(--ink)}
+.tool-card p{margin:0;font-size:14px;line-height:1.5;color:var(--muted)}
+.tool-card-go{position:absolute;top:20px;right:18px;color:var(--muted);transition:transform .2s,color .2s}
+.tool-card-go .icon{width:18px;height:18px}
+.tool-card:hover .tool-card-go{color:var(--blue);transform:translateX(3px)}
+.home-tool-grid{margin-top:32px}
+/* Homepage: the top three guides as a compact row of links under the tools. */
+.home-guide-line{margin-top:28px}
+.home-guide-line-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 10px}
+.home-guide-line-label{font:600 11px var(--mono,ui-monospace,monospace);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.home-guide-line-all{display:inline-flex;align-items:center;gap:6px;color:var(--blue);font-size:14px;font-weight:600;text-decoration:none}
+.home-guide-line-all:hover{text-decoration:underline}
+.home-guide-line-all .icon{width:16px;height:16px}
+.home-guide-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0;padding:0;list-style:none}
+.home-guide-links a{display:flex;align-items:center;justify-content:space-between;gap:14px;height:100%;box-sizing:border-box;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);font-size:15px;font-weight:600;line-height:1.35;letter-spacing:-.01em;text-decoration:none;transition:border-color .2s,color .2s}
+.home-guide-links .icon{flex:none;width:17px;height:17px;color:var(--muted);transition:transform .2s,color .2s}
+.home-guide-links a:hover{border-color:var(--blue)}
+.home-guide-links a:hover .icon{color:var(--blue);transform:translateX(3px)}
+:is(.home-guide-links a,.home-guide-line-all):focus-visible{outline:3px solid var(--focus,var(--blue));outline-offset:2px}
+@media(max-width:760px){.home-guide-links{grid-template-columns:1fr;gap:8px}}
+@media(prefers-reduced-motion:reduce){.home-guide-links a,.home-guide-links .icon{transition:none}}
+@media(max-width:980px){.tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.tool-grid{grid-template-columns:1fr}.tool-card{min-height:0}
+  /* On phones the homepage keeps its six tools short: two columns, icon and name only. */
+  .home-tool-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.home-tool-grid .tool-card{padding:16px 14px}.home-tool-grid .tool-card p{display:none}.home-tool-grid .tool-card h3{font-size:15px;padding-right:18px}.home-tool-grid .tool-card-go{top:16px;right:12px}}
+@media(prefers-reduced-motion:reduce){.tool-card,.tool-card-go{transition:none}}
+
+/* Job scam check */
+.scam-check{display:flex;flex-direction:column;gap:16px;margin-top:28px}
+.scam-check>.calc-field{padding:18px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.scam-check textarea{display:block;width:100%;box-sizing:border-box;padding:12px 13px;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-size:15px;line-height:1.5;resize:vertical}
+.scam-check .resume-keep{justify-content:flex-start;gap:18px}
+.scam-result{padding:22px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.scam-verdict{display:flex;flex-direction:column;gap:6px;padding:16px 18px;border:1px solid;border-radius:16px}
+.scam-verdict strong{font-size:clamp(22px,2.6vw,30px);font-weight:800;letter-spacing:-.02em}
+.scam-verdict span{font-size:15px;line-height:1.5}
+.scam-verdict.is-high{border-color:#f3b8ae;background:#fff0ee;color:#8a1c0d}
+.scam-verdict.is-some{border-color:#efc98a;background:#fff6e8;color:#6b3d00}
+.scam-verdict.is-none{border-color:#a9dfbf;background:#e9f8ef;color:#0b5d32}
+.scam-flags,.scam-signs ul{display:grid;gap:10px;margin:16px 0 0;padding:0;list-style:none}
+.scam-flags li,.scam-signs li{padding:14px 16px;border:1px solid var(--line);border-left:4px solid #e3a548;border-radius:12px;background:var(--surface)}
+.scam-flags li.is-high,.scam-signs li.is-high{border-left-color:#d93a24}
+.scam-level{display:inline-block;margin-bottom:4px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#8f5300}
+li.is-high>.scam-level{color:#b42318}
+.scam-flags h3,.scam-signs h3{margin:0;font-size:16px;line-height:1.35;color:var(--ink)}
+.scam-flags p,.scam-signs p{margin:6px 0 0;font-size:14px;line-height:1.55;color:var(--muted-strong)}
+.scam-flags .scam-found{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.scam-found q{font-style:italic;color:var(--ink-soft)}
+.scam-next{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.scam-next h3{margin:0 0 8px;font-size:15px;color:var(--ink)}
+.scam-next ul{margin:0;padding-left:18px;font-size:14px;line-height:1.6;color:var(--muted-strong)}
+.scam-help{margin-top:28px;padding:22px 24px;border-radius:20px;background:#0a0a0a;color:#fff}
+.scam-help h2{margin:0 0 12px;font-size:clamp(20px,2.4vw,26px);color:#fff}
+.scam-steps{display:grid;gap:8px;margin:0;padding-left:20px;font-size:15px;line-height:1.55}
+.scam-steps a{color:#dff76a}
+.scam-signs{margin-top:32px}
+.scam-signs h2{margin:0;font-size:clamp(20px,2.4vw,26px);color:var(--ink)}
+.scam-signs ul{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:760px){.scam-signs ul{grid-template-columns:1fr}}
+html.dark-theme .scam-verdict.is-high{border-color:#7a2c20;background:#3a1410;color:#ffc9bf}
+html.dark-theme .scam-verdict.is-some{border-color:#7a5a20;background:#3a2a10;color:#ffd79a}
+html.dark-theme .scam-verdict.is-none{border-color:#24704a;background:#123d27;color:#bff0d3}
+html.dark-theme .scam-level{color:#ffc46b}
+html.dark-theme li.is-high>.scam-level{color:#ff9d8c}
+html.dark-theme .scam-help{background:#161d2c}
+
+/* Salary hike and gratuity calculators */
+.hike-steps{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.hike-steps button{min-height:32px;padding:0 12px;border:1px solid var(--line-strong);border-radius:999px;background:var(--surface);color:var(--ink-soft);font:inherit;font-size:13px;font-weight:650;cursor:pointer}
+.hike-steps button:hover{border-color:var(--blue);color:var(--blue)}
+.hike-steps button[aria-pressed="true"]{border-color:var(--blue);background:var(--blue);color:#fff}
+.hike-table thead th{padding:6px 4px;font-size:11px;font-weight:800;letter-spacing:.04em;text-align:right;text-transform:uppercase;color:rgba(10,10,10,.62)}
+.hike-table thead th:first-child{text-align:left}
+.hike-note{margin:14px 0 0;font-size:14px;line-height:1.5;color:#0a0a0a}
+.calc>.offer-tools{grid-column:1/-1}
+@media(max-width:480px){.hike-table thead th:nth-child(4),.hike-table td:nth-of-type(3){display:none}}
+.gratuity-status{margin:0 0 12px;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.6);font-size:14px;font-weight:650;line-height:1.45;color:#0a0a0a}
+.gratuity-status.is-no{background:#0a0a0a;color:#fff}
+.gratuity-formula{margin:14px 0 0;font-size:15px;color:#0a0a0a;font-variant-numeric:tabular-nums}
+.calc>.gratuity-notes{grid-column:1/-1;max-width:none;margin:0}
+.gratuity-notes h2{margin-top:0}
+.calc-result .match-empty{color:#0a0a0a}
+
+/* Application tracker: next steps, adding roles from other sites */
+.tracker-upcoming{margin:0 0 16px;padding:16px 18px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}
+.tracker-upcoming h2{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:16px;color:var(--ink)}
+.tracker-upcoming h2 .icon{width:18px;height:18px;color:var(--blue)}
+.tracker-upcoming ol{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.tracker-upcoming li{display:flex;flex-wrap:wrap;gap:2px 14px;font-size:14px;color:var(--ink-soft)}
+.tracker-upcoming time{min-width:170px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.tracker-add{margin:0 0 18px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}
+.tracker-add>summary{padding:14px 18px;font-weight:700;color:var(--ink);cursor:pointer}
+.tracker-add-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:0 18px}
+.tracker-add-wide,.tracker-add-error,.tracker-add-actions{grid-column:1/-1}
+.tracker-add-form textarea{display:block;width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-size:15px;resize:vertical}
+.tracker-add-error{margin:0;font-size:14px;font-weight:650;color:#b42318}
+.tracker-add-tip{margin:14px 18px 16px;line-height:1.7}
+.bookmarklet{display:inline-flex;align-items:center;gap:6px;margin-left:4px;padding:5px 12px;border:1px dashed var(--blue);border-radius:999px;background:var(--blue-soft,rgba(8,102,255,.08));color:var(--blue);font-weight:700;text-decoration:none;white-space:nowrap;cursor:grab}
+.bookmarklet .icon{width:15px;height:15px}
+.tracker-badge{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--surface-subtle);color:var(--muted-strong);font-size:11px;font-weight:700;letter-spacing:0;text-transform:none;vertical-align:1px}
+.tracker-next{margin-top:10px;font-size:13px}
+.tracker-next-when{display:flex;flex-wrap:wrap;gap:2px 8px;margin:0;padding:8px 10px;border-radius:10px;background:var(--blue-soft,rgba(8,102,255,.08));color:var(--ink)}
+.tracker-next-when time{color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.tracker-next .cal-actions{margin-top:8px;gap:6px}
+.tracker-next .cal-actions a,.tracker-next .cal-actions button{min-height:30px;padding:0 10px;font-size:12px}
+.tracker-next-edit{margin-top:8px}
+.tracker-next-edit summary{font-weight:650;color:var(--blue);cursor:pointer}
+.tracker-next-edit form{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tracker-next-edit input{flex:1 1 140px;min-width:0;min-height:36px;padding:0 9px;box-sizing:border-box;border:1px solid var(--line-strong);border-radius:9px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px}
+.tracker-next-edit button{min-height:36px;padding:0 12px;border:1px solid var(--line-strong);border-radius:9px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px;font-weight:650;cursor:pointer}
+.tracker-next-edit button[type=submit]{border-color:var(--blue);background:var(--blue);color:#fff}
+@media(max-width:640px){.tracker-add-form{grid-template-columns:1fr}.tracker-upcoming time{min-width:0}}
+
+/* "Did you apply?" prompt and "Mark as applied" */
+.apply-prompt{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:60;display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;box-sizing:border-box;width:min(560px,calc(100vw - 32px));padding:14px 48px 14px 18px;border:1px solid var(--line);border-radius:18px;background:var(--surface);box-shadow:var(--shadow-lg,0 18px 50px rgba(0,0,0,.18));transform:translateX(-50%);animation:apply-in .25s ease-out}
+.apply-prompt p{display:flex;flex:1 1 220px;flex-direction:column;gap:2px;min-width:0;margin:0;font-size:14px;color:var(--ink-soft)}
+.apply-prompt p strong{font-size:16px;color:var(--ink)}
+.apply-prompt p span{display:-webkit-box;overflow:hidden;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.apply-prompt-actions{display:flex;flex-wrap:wrap;gap:8px}
+.apply-prompt-actions a,.apply-prompt-actions button{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 16px;border:1px solid var(--line-strong);border-radius:999px;background:var(--surface);color:var(--ink);font:inherit;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer}
+.apply-prompt-actions a,.apply-prompt-actions [data-applied]{border-color:var(--blue);background:var(--blue);color:#fff}
+.apply-prompt-close{position:absolute;top:8px;right:8px;width:32px;height:32px;border:0;border-radius:50%;background:none;color:var(--muted);font-size:22px;line-height:1;cursor:pointer}
+.apply-prompt-close:hover{background:var(--surface-subtle);color:var(--ink)}
+@keyframes apply-in{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
+@media(prefers-reduced-motion:reduce){.apply-prompt{animation:none}}
+.job-page-actions .is-tracked{border-color:#a9dfbf;color:#0b5d32}
+html.dark-theme .job-page-actions .is-tracked{border-color:#24704a;color:#9ff0c2}
+
+/* Jobs widget builder */
+.embed-builder{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:18px;margin-top:28px;align-items:start}
+.embed-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.embed-form>.calc-field:first-child{grid-column:1/-1}
+.embed-preview{min-width:0;padding:18px;border:1px dashed var(--line-strong);border-radius:20px;background:var(--surface-subtle)}
+.embed-preview .eyebrow,.embed-code-box .eyebrow{margin:0 0 10px}
+.embed-code-box{grid-column:1/-1;min-width:0;padding:18px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.embed-code{margin:0 0 12px;padding:14px;overflow-x:auto;border-radius:12px;background:#0a0a0a;color:#e8f0ff;font:13px/1.55 var(--mono,ui-monospace,monospace);white-space:pre-wrap;word-break:break-all}
+.embed-notes{max-width:760px;margin-top:28px}
+@media(max-width:900px){.embed-builder{grid-template-columns:1fr}}
+@media(max-width:520px){.embed-form{grid-template-columns:1fr}}
+
+/* Skill pages */
+.skill-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.skill-newest{margin-top:28px}
+.skill-newest h2{margin:0 0 12px;font-size:clamp(20px,2.4vw,26px);color:var(--ink)}
+.skill-jobs{margin:0;padding:0;overflow:hidden;border:1px solid var(--line);border-radius:18px;background:var(--surface);list-style:none}
+.skill-jobs li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px}
+.skill-jobs li+li{border-top:1px solid var(--line)}
+.skill-jobs a{display:flex;flex-direction:column;gap:2px;min-width:0;color:var(--ink);text-decoration:none}
+.skill-jobs a strong{font-size:15px;font-weight:650}
+.skill-jobs a:hover strong{color:var(--blue);text-decoration:underline}
+.skill-jobs a span{font-size:13px;color:var(--muted)}
+.skill-jobs time{flex:none;font-size:12px;color:var(--muted);white-space:nowrap}
+.skill-more{display:inline-block;margin-top:12px;font-weight:700;color:var(--blue)}
+@media(max-width:560px){.skill-jobs li{flex-direction:column;align-items:flex-start;gap:4px}}
+
+/* Dark theme fixes.
+   The lime result panels look the same in both themes, but the dark theme recolours text inside
+   content pages with its light --ink colours; inside a panel those colours are set back to dark. */
+html.dark-theme :is(.calc-result,.offer-result,.searches-new){--ink:#0a0a0a;--ink-soft:#1f2937;--muted:#3d4a5c;--line:rgba(10,10,10,.14);--line-strong:rgba(10,10,10,.24);--surface:#fff;--surface-raised:#fff}
+html.dark-theme :is(.calc-headline>div:first-child,.gratuity-status.is-no){--ink:#fff;--ink-soft:#fff;--muted:rgba(255,255,255,.78)}
+/* Secondary buttons sit on the raised surface everywhere (account.css did this only for job pages),
+   so they never show light text on their light-theme white background. */
+html.dark-theme body .secondary-button{background:var(--surface-raised);border-color:var(--line-strong);color:var(--ink)}
+html.dark-theme body .secondary-button:hover{background:var(--tint-hover);border-color:var(--blue)}
+/* Tables in the lime result panels are drawn with their own translucent rules, so the site-wide
+   white table and blue header-cell fills stay out of them. */
+:is(.calc-result,.offer-result) :is(table,th){background:transparent}
+/* The salary explorer table follows the theme in dark mode instead of keeping the light fills. */
+html.dark-theme .salary-table,html.dark-theme .salary-table :is(th,td){background:transparent}
+/* Dark theme: links in running text use the light accent blue; the brand blue is too dark on near-black. */
+html.dark-theme .prose a:not(.primary-button):not(.secondary-button){color:#9bc2ff}

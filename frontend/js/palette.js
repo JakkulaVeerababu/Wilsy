@@ -14,6 +14,8 @@ const QUICK = [
   ['Compare job offers', '/offer-compare', 'Which offer pays more in hand'],
   ['Resume match', '/resume-match', 'Check your resume against a job'],
   ['Hiring trends', '/hiring-trends', 'What is hiring right now'],
+  ['Job scam check', '/scam-check', 'Is this job offer real?'],
+  ['All career tools', '/tools', 'Calculators, tracker and more'],
   ['Hackathons', '/hackathons', 'Open challenges and prizes'],
   ['DSA roadmap', '/dsa', 'Interview patterns and practice'],
 ];

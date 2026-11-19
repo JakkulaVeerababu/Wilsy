@@ -9,11 +9,25 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0866ff",
-  "categories": ["business", "productivity"],
+  "categories": [
+    "business",
+    "productivity"
+  ],
   "shortcuts": [
     {"name": "Saved jobs", "url": "/jobs?saved=1&source=pwa"},
-    {"name": "Internships", "url": "/jobs?stage=internship&source=pwa"}
+    {"name": "Internships", "url": "/jobs?stage=internship&source=pwa"},
+    {"name": "Application tracker", "url": "/tracker?source=pwa"}
   ],
+  "share_target": {
+    "action": "/tracker",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
   "icons": [
     {
       "src": "/assets/icon-192.png",

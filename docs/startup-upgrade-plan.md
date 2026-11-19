@@ -258,3 +258,25 @@ Before or right after deploying:
 | RSS feed of new jobs | /feed.xml, linked from every page head and the footer | The newest 60 jobs on each deploy, for feed readers and Telegram or Slack bots. |
 
 Analytics: one new event, `tool_use`, with the tool's name only (see docs/analytics-events.md).
+
+## Status (20 Nov 2026): job-seeker toolkit batch built, not deployed
+
+| Feature | Where | Notes |
+|---|---|---|
+| Job scam check | /scam-check | Paste an offer, WhatsApp message or email. Checks 14 warning signs (fees, "tasks", OTP or PIN requests, remote-access apps, crypto, free email addresses and lookalike domains for 16 big employers, and more) in the browser; nothing is uploaded. Points to the 1930 helpline, cybercrime.gov.in and Chakshu. |
+| Tracker: jobs from any site | /tracker | "Add a job" form, an "Add to WILSY" bookmarklet, and the installed app appears in Android's share sheet. Shared links fill in the role and company (Greenhouse, Lever, Ashby, Workable, SmartRecruiters and Workday), and LinkedIn titles add the place. |
+| Tracker: interview reminders | /tracker | A next step with date and time per role, a "Coming up" list for the next 14 days, and a Google Calendar link or .ics file with alarms a day and an hour before. The spreadsheet export gains two columns. |
+| Mark as applied | Job pages, the job popup | A "Mark as applied" button on job pages. On job pages and in the job popup, a "Did you apply?" prompt once when the visitor comes back from the employer's site (after 8 seconds, within 6 hours). |
+| Salary hike calculator | /salary-hike-calculator | In-hand pay before and after a hike (or a new CTC), and the hike needed for a target monthly in-hand. |
+| Gratuity calculator | /gratuity-calculator | Labour codes in force from 21 Nov 2025: one year of service for fixed-term staff, the 50% wage rule, the ₹20 lakh cap and the tax-free limit. |
+| Tools hub | /tools, "Tools" in the header, the homepage | 13 tools in five groups. On the homepage the tools share one section with the guides, so it keeps 8 sections and about the same height. |
+| Jobs by skill | /skills, /skills/&lt;skill&gt; | One page per skill with 5 or more live jobs (88 on 20 Nov), counted from the live job pass; linked from hiring trends. Noindex and out of the sitemap when a build has no live data. |
+| Jobs widget | /embed, /embed.js | A script any site (college placement cells, communities) can paste to show the newest matching jobs. Shadow DOM, no cookies or storage; links carry utm tags. |
+| Dark mode fixes | Site-wide | Secondary buttons, the lime calculator results, the salary explorer table and links in running text were hard to read in dark mode. |
+
+Analytics: `tool_use` gains the tools `scam_check`, `salary_hike`, `gratuity`, `embed`, `tracker_add`, `tracker_next` and `mark_applied` (with `via`). No personal data.
+
+After deploying, check:
+- **`/api/search` now answers other sites** (`Access-Control-Allow-Origin: *`) so the widget works. It returns only public job data and uses no cookies. Watch function usage once sites embed it.
+- **Skill pages need the live job pass** (`WILSY_REFRESH_JOBS=1`, as on Vercel).
+- **The share target** shows up only after the site is installed as an app on Android.

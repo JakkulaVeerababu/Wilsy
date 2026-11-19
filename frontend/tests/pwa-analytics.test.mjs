@@ -50,7 +50,7 @@ test('Every event is documented, and apply clicks are detected on every apply li
   const jobsJs = await fs.readFile('js/jobs.js', 'utf8'), jobPages = await fs.readFile('scripts/job-pages.mjs', 'utf8');
   assert.match(jobsJs, /class="job-detail-actions"><a href="\$\{e\(url\)\}" target="_blank"/);
   assert.match(jobsJs, /compare-table[\s\S]*target="_blank" rel="noopener noreferrer" aria-label="Apply for/);
-  assert.match(jobPages, /class="job-page-actions"><a class="primary-button" href="\$\{e\(url\)\}" target="_blank"/);
+  assert.match(jobPages, /class="job-page-actions"><a class="primary-button"[^>]* href="\$\{e\(url\)\}" target="_blank"/);
   assert.deepEqual(APPLY_LINKS.map(([, from]) => from), ['card', 'dialog', 'job_page', 'compare']);
 });
 

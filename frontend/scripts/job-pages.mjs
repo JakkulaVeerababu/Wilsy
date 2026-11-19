@@ -107,10 +107,12 @@ export function jobBody(job, {companies, fx, now, pages, similar=[], similarTitl
   const place = known(job.location) || [known(job.city),known(job.country)].filter(Boolean).join(', ');
   const crumb = landing ? `<a href="${landingUrl(landing)}">${e(landing.title)}</a><span>/</span>` : '';
   const recent = JSON.stringify({id:String(job.id),title:job.title,company:job.company,path:jobPath(job)});
+  // What the application tracker keeps when the visitor marks the job as applied (features.js).
+  const tracked = e(JSON.stringify({id:String(job.id),title:job.title,company:job.company,path:jobPath(job),apply:url,place,pay:pay.primary}));
   return `<main id="main-content" class="editorial-shell job-page" data-recent-job="${e(recent)}">
   <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><a href="/jobs">Jobs</a><span>/</span>${crumb}<span aria-current="page">${e(job.title)}</span></nav>
   <header class="job-page-head">${jobLogo(job,companies)}<div><p class="job-page-company">${profile?`<a href="/companies/${encodeURIComponent(profile.id)}">${e(job.company)}</a>`:e(job.company)}</p><h1>${e(job.title)}</h1><div class="job-card-tags">${jobTags(job)}</div></div></header>
-  <div class="job-page-actions"><a class="primary-button" href="${e(url)}" target="_blank" rel="noopener noreferrer">Apply on employer site</a><a class="secondary-button" href="/jobs?job=${encodeURIComponent(job.id)}">Save or compare</a><a class="secondary-button" href="/resume-match?job=${encodeURIComponent(job.id)}">Check your resume</a></div>
+  <div class="job-page-actions"><a class="primary-button" data-apply-job="${tracked}" href="${e(url)}" target="_blank" rel="noopener noreferrer">Apply on employer site</a><button class="secondary-button" type="button" data-track-job="${tracked}" hidden>Mark as applied</button><a class="secondary-button" href="/jobs?job=${encodeURIComponent(job.id)}">Save or compare</a><a class="secondary-button" href="/resume-match?job=${encodeURIComponent(job.id)}">Check your resume</a></div>
   ${shareBar(site.origin+jobPath(job), `${job.title} at ${job.company} on WILSY:`)}
   ${referralBox(job, site.origin+jobPath(job))}
   <div class="job-page-layout"><article class="prose job-page-description"><h2>About the role</h2>${descriptionParagraphs(job.description)||`<p>The full description is on the <a href="${e(url)}" target="_blank" rel="noopener noreferrer">employer’s listing</a>.</p>`}<p class="jobs-date-note">This is the description captured from the source. The employer’s listing is the final word on requirements.</p></article>
