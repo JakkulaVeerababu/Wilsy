@@ -19,6 +19,11 @@ import {CATEGORIES, PWBD_YEARS, MAX_OTHER_YEARS, AGE_BANDS, agePlan, ageResult} 
 import {DURATIONS, PASSAGES, words, testText} from '../js/typing-core.js';
 import {LEAVE_BASES, settlement, settlementResult} from '../js/settlement-core.js';
 import {QUESTIONS, IA_GROUPS, shortName, questionForm, answerChecks, checksList, exampleText} from '../js/interview-core.js';
+import {DA_RATE, DA_SINCE, LEVELS, X_CITIES, TA_CITIES, POSTS, govPay, govPayResult, cellLabel} from '../js/govpay-core.js';
+import {EPF_RATE, RATE_YEAR, WAGE_CEILING, CEILING_SINCE, epfPlan, epfResult} from '../js/epf-core.js';
+import {FORMULAS, SEMESTERS, cgpaPlan, cgpaResult} from '../js/cgpa-core.js';
+import {experience, experienceResult, jobRow} from '../js/experience-core.js';
+import {rupees} from '../js/take-home-core.js';
 import {site} from '../js/site-config.js';
 
 // Page bodies for the career tools (tracker, salary explorer, calculators, offer comparison, resume match,
@@ -36,9 +41,13 @@ export const TOOLS = [
   ['/deadlines', 'calendar', 'Deadlines calendar', 'Last dates for hackathons, competitions, scholarships and exams, soonest first.', 'Apply'],
   ['/scam-check', 'shield', 'Job scam check', 'Paste an offer or a WhatsApp message to check it for the signs of a job scam.', 'Apply'],
   ['/age-calculator', 'cake', 'Age calculator for government jobs', 'Your age on a notice’s cut-off date, the birth dates that qualify and your relaxation.', 'Apply'],
+  ['/cgpa-calculator', 'graduation', 'CGPA to percentage calculator', 'CGPA to percentage, CGPA from your semesters and the SGPA you need.', 'Apply'],
+  ['/experience-calculator', 'briefcase', 'Work experience calculator', 'Your total experience in years and months, with overlaps and gaps.', 'Apply'],
   ['/salary-calculator', 'calculator', 'In-hand salary calculator', 'From CTC to monthly take-home under the new tax regime.', 'Pay'],
+  ['/government-salary-calculator', 'government', 'Government salary calculator', 'In-hand pay for central government posts: basic pay, DA, HRA, NPS and tax.', 'Pay'],
   ['/offer-compare', 'scale', 'Compare job offers', 'Two or three offers side by side: in hand, first-year cash and equity.', 'Pay'],
   ['/salary-hike-calculator', 'trending', 'Salary hike calculator', 'What a raise really adds to your monthly pay, and the hike you need.', 'Pay'],
+  ['/epf-calculator', 'piggy', 'EPF calculator', 'Your PF balance at retirement, with your employer’s share and 8.25% interest.', 'Pay'],
   ['/notice-period-calculator', 'logout', 'Notice period calculator', 'Your last working day, an early release and what a buyout costs.', 'Switch'],
   ['/career-letters', 'mail', 'Resignation and offer letters', 'Resignation, offer acceptance, negotiation and follow-up emails, ready to copy.', 'Switch'],
   ['/gratuity-calculator', 'wallet', 'Gratuity calculator', 'What you get when you leave, under the labour codes.', 'Switch'],
@@ -130,7 +139,7 @@ export function calculatorBody() {
       <div class="calc-field calc-field-main"><label for="calc-ctc">Yearly CTC (₹)</label><input id="calc-ctc" name="ctc" type="number" inputmode="numeric" min="0" max="1000000000" step="10000" value="1200000" aria-describedby="calc-ctc-words"><span id="calc-ctc-words" class="calc-words">₹12 lakh a year</span></div>
       <div class="calc-field"><label for="calc-variable">Variable pay or bonus in the CTC (₹ a year)</label><input id="calc-variable" name="variable" type="number" inputmode="numeric" min="0" step="10000" value="0"></div>
       <div class="calc-field"><label for="calc-basic">Basic pay, % of fixed pay</label><input id="calc-basic" name="basic" type="number" inputmode="numeric" min="10" max="100" step="5" value="50"><span class="calc-words">Under the labour codes, basic and allowances usually make up at least 50% of pay.</span></div>
-      <div class="calc-field"><label for="calc-pf">Provident fund (PF)</label><select id="calc-pf" name="pf"><option value="basic">12% of basic</option><option value="capped">12% of ₹15,000 a month (capped)</option><option value="none">No PF</option></select></div>
+      <div class="calc-field"><label for="calc-pf">Provident fund (PF)</label><select id="calc-pf" name="pf"><option value="basic">12% of basic</option><option value="capped">12% of ₹25,000 a month (the wage ceiling)</option><option value="none">No PF</option></select></div>
       <div class="calc-field"><label for="calc-pt">Professional tax (₹ a year)</label><select id="calc-pt" name="pt"><option value="2400">₹2,400 (Karnataka, Telangana and others)</option><option value="2500">₹2,500 (Maharashtra and others)</option><option value="0">None (Delhi, Haryana and others)</option></select></div>
       <label class="calc-check"><input type="checkbox" name="gratuity" checked> The CTC includes gratuity</label>
     </form>
@@ -195,7 +204,7 @@ export function scamBody() {
 
 export function hikeBody() {
   const start = hikeResult({current: 1200000, hike: 20});
-  const pf = '<option value="basic">12% of basic</option><option value="capped">12% of ₹15,000 a month (capped)</option><option value="none">No PF</option>';
+  const pf = '<option value="basic">12% of basic</option><option value="capped">12% of ₹25,000 a month (the wage ceiling)</option><option value="none">No PF</option>';
   const pt = '<option value="2400">₹2,400 (Karnataka, Telangana and others)</option><option value="2500">₹2,500 (Maharashtra and others)</option><option value="0">None (Delhi, Haryana and others)</option>';
   return `<main id="main-content" class="editorial-shell calc-shell hike-shell">${toolCrumbs('Salary hike calculator')}
   ${hero(`SALARY HIKE CALCULATOR · FY ${FY}`, 'What will the hike add in hand?', 'Enter your CTC and the hike, or the new CTC, to see how much more reaches your bank account each month after tax and PF.')}
@@ -496,6 +505,123 @@ export function interviewBody() {
   <script type="module" src="/js/interview-answers.js"></script></main>`;
 }
 
+export function govPayBody() {
+  const start = govPay({level: '7', city: 'X'});
+  const levels = LEVELS.map(([id, first, last]) => `<option value="${id}"${id === '7' ? ' selected' : ''}>Level ${id}: ${rupees(first)}${last > first ? ` to ${rupees(last)}` : ''}</option>`).join('');
+  const cells = start.cells.map((pay, i) => `<option value="${pay}"${i ? '' : ' selected'}>${e(cellLabel(start.cells, i))}</option>`).join('');
+  const posts = POSTS.map(([id, name, level]) => `<button type="button" data-gp-post="${id}" data-level="${level}" aria-pressed="${id === 'inspector'}">${e(name)}</button>`).join('');
+  return `<main id="main-content" class="editorial-shell calc-shell gp-shell">${toolCrumbs('Government salary calculator')}
+  ${hero('GOVERNMENT SALARY CALCULATOR', 'What does a government job pay in hand?', 'Pick a post or a pay level to see the monthly pay in central government jobs under the 7th Pay Commission: basic pay, DA, HRA and transport allowance, less NPS, CGHS, CGEGIS and income tax.')}
+  <section class="calc" data-gp aria-label="Government salary calculator">
+    <form class="calc-form" data-gp-form novalidate>
+      <fieldset class="ff-group"><legend>Pick a post</legend><div class="hike-steps gp-posts">${posts}</div></fieldset>
+      <div class="calc-field calc-field-main"><label for="gp-level">Pay level</label><select id="gp-level" name="level">${levels}</select></div>
+      <div class="calc-field"><label for="gp-basic">Basic pay</label><select id="gp-basic" name="basic" aria-describedby="gp-basic-help">${cells}</select><span id="gp-basic-help" class="calc-words">New joiners start at the level’s first cell. Each yearly increment adds about 3%.</span></div>
+      <div class="ff-pair"><div class="calc-field"><label for="gp-city">City for HRA</label><select id="gp-city" name="city" aria-describedby="gp-city-help"><option value="X" selected>X city (30%)</option><option value="Y">Y city (20%)</option><option value="Z">Z city (10%)</option></select></div>
+        <div class="calc-field"><label for="gp-da">DA (% of basic pay)</label><input id="gp-da" name="da" type="number" inputmode="numeric" min="0" max="200" step="1" value="${DA_RATE}" aria-describedby="gp-city-help"></div></div>
+      <span id="gp-city-help" class="calc-words">X cities: ${e(X_CITIES.join(', '))}. Y: most other big cities (5 lakh to 50 lakh people), such as Jaipur, Lucknow, Patna and Bhopal. Z: everywhere else. DA is ${DA_RATE}% from ${DA_SINCE}.</span>
+      <label class="calc-check"><input type="checkbox" name="higherTa" checked> Posted in a city with the higher transport allowance</label>
+      <details class="gp-cities"><summary>The 19 cities with the higher transport allowance</summary><p>${e(TA_CITIES.join(', '))}, with their urban areas.</p></details>
+      <div class="calc-field"><label for="gp-pension">Pension</label><select id="gp-pension" name="pension"><option value="nps" selected>NPS or UPS: 10% of basic pay + DA</option><option value="none">Old pension scheme (no NPS deduction)</option></select></div>
+      <label class="calc-check"><input type="checkbox" name="cghs" checked> CGHS contribution (in cities with CGHS)</label>
+      <div class="calc-field"><label for="gp-other">Other deductions a month (₹, optional)</label><input id="gp-other" name="other" type="number" inputmode="numeric" min="0" max="1000000" step="100" placeholder="0" aria-describedby="gp-other-help"><span id="gp-other-help" class="calc-words">GPF, loan repayments, professional tax or society dues.</span></div>
+    </form>
+    <div class="calc-result" data-gp-result aria-live="polite">${govPayResult(start)}</div>
+    <section class="prose gp-notes" aria-labelledby="gp-how"><h2 id="gp-how">How government pay is worked out</h2>
+      <p><strong>Pay levels.</strong> Central government posts are paid on the 7th Pay Commission’s pay matrix. Each post has a pay level: you join at the level’s first cell and move up one cell, about 3%, with each yearly increment. Promotions move you to a higher level.</p>
+      <p><strong>Allowances.</strong> Dearness allowance (DA) is a share of basic pay, ${DA_RATE}% from ${DA_SINCE}, revised every January and July. House rent allowance is 30%, 20% or 10% of basic pay in X, Y and Z cities if you don’t live in government housing. Transport allowance depends on your level and city, with DA on top. Some posts get more allowances, such as for risk or special duty.</p>
+      <p><strong>Deductions.</strong> If you joined after 1 January 2004, 10% of basic pay + DA goes to NPS, or to UPS if you chose it, and the government adds 14% (18.5% under UPS). CGHS (health) and CGEGIS (group insurance) take a small fixed amount. Income tax follows the new regime: none up to ₹12 lakh of taxable income, after the ₹75,000 standard deduction.</p>
+      <p><strong>The 8th Pay Commission.</strong> It was set up on 3 November 2025 and has until May 2027 to report. Until new pay is notified, the 7th Pay Commission’s matrix applies.</p>
+    </section>
+    <p class="quiet-callout">An estimate for central government jobs: your post’s notice and your pay slip are the final word, and state government jobs follow state pay rules. Worked out in your browser. See <a href="/government-jobs">open government jobs</a> or <a href="/age-calculator">check your age limit</a>.</p>
+  </section>
+  <script type="module" src="/js/gov-salary.js"></script></main>`;
+}
+
+export function epfBody() {
+  const start = epfPlan({age: 25, wage: 30000, rise: 5});
+  const number = (name, id, label, value, attrs, help = '') => `<div class="calc-field"><label for="${id}">${e(label)}</label><input id="${id}" name="${name}" type="number" ${attrs}${value === '' ? ' placeholder="0"' : ` value="${value}"`}${help ? ` aria-describedby="${id}-help"` : ''}>${help ? `<span id="${id}-help" class="calc-words">${e(help)}</span>` : ''}</div>`;
+  return `<main id="main-content" class="editorial-shell calc-shell epf-shell">${toolCrumbs('EPF calculator')}
+  ${hero('EPF CALCULATOR', 'How much will your PF grow to?', 'See your EPF balance at retirement from your basic pay + DA: what you put in, what your employer puts in after the pension scheme, and the interest at 8.25% a year.')}
+  <section class="calc" data-epf aria-label="EPF calculator">
+    <form class="calc-form" data-epf-form novalidate>
+      <div class="calc-field calc-field-main"><label for="epf-wage">Basic pay + DA a month (₹)</label><input id="epf-wage" name="wage" type="number" inputmode="numeric" min="0" max="10000000" step="1000" value="30000" aria-describedby="epf-wage-help"><span id="epf-wage-help" class="calc-words">From your payslip. PF is 12% of it.</span></div>
+      <div class="ff-pair">${number('age', 'epf-age', 'Your age', 25, 'inputmode="numeric" min="15" max="75" step="1"')}${number('retire', 'epf-retire', 'Retire at', 58, 'inputmode="numeric" min="18" max="75" step="1"')}</div>
+      <div class="ff-pair">${number('rise', 'epf-rise', 'Pay rise a year (%)', 5, 'inputmode="decimal" min="0" max="30" step="0.5"')}${number('rate', 'epf-rate', 'Interest a year (%)', EPF_RATE, 'inputmode="decimal" min="0" max="20" step="0.05"')}</div>
+      <span class="calc-words">EPF interest is ${EPF_RATE}% for ${RATE_YEAR}. EPFO sets it every year, so later years may differ.</span>
+      ${number('balance', 'epf-balance', 'EPF balance now (₹, optional)', '', 'inputmode="numeric" min="0" max="1000000000" step="1000"', 'The total in your passbook on the EPFO member portal.')}
+      <div class="calc-field"><label for="epf-on">Your employer pays PF on</label><select id="epf-on" name="pfOn"><option value="full" selected>Your full basic pay + DA</option><option value="ceiling">The wage ceiling only (${rupees(WAGE_CEILING)} a month)</option></select></div>
+      <div class="calc-field"><label for="epf-eps">Pension scheme (EPS)</label><select id="epf-eps" name="eps" aria-describedby="epf-eps-help"><option value="yes" selected>I’m a member: part of my employer’s share goes to EPS</option><option value="no">I’m not a member: all of it goes to EPF</option></select><span id="epf-eps-help" class="calc-words">If you joined after 1 September 2014 with basic pay + DA above the wage ceiling, you’re usually not in EPS. Your passbook has a pension column if you are.</span></div>
+      ${number('vpf', 'epf-vpf', 'Voluntary PF (% of basic pay + DA, optional)', '', 'inputmode="decimal" min="0" max="88" step="1"')}
+    </form>
+    <div class="calc-result" data-epf-result aria-live="polite">${epfResult(start)}</div>
+    <section class="prose epf-notes" aria-labelledby="epf-how"><h2 id="epf-how">How your EPF grows</h2>
+      <p><strong>Contributions.</strong> Each month you pay 12% of your basic pay + DA, and your employer pays 12% too. From your employer’s share, 8.33% of wages up to the wage ceiling (at most ₹2,083 a month) goes to the Employees’ Pension Scheme (EPS), and the rest to your EPF account.</p>
+      <p><strong>The new wage ceiling.</strong> From ${CEILING_SINCE}, the wage ceiling is ${rupees(WAGE_CEILING)} a month, up from ₹15,000. If your employer pays PF only on the ceiling, that is ₹3,000 a month from you and ₹3,000 from your employer.</p>
+      <p><strong>Interest.</strong> EPFO declares the rate every year: ${EPF_RATE}% for ${RATE_YEAR}, the same as the two years before. It is worked out on your monthly balance and added once a year, so it compounds. Interest on your own contributions above ₹2.5 lakh a year is taxable.</p>
+      <p><strong>Taking it out.</strong> The balance is paid out when you retire. Before that, EPFO lets you take out part of it for needs like a house, medical treatment, education or a wedding. When you change jobs, transfer the balance with your UAN instead of closing the account.</p>
+    </section>
+    <p class="quiet-callout">An estimate: the interest rate is set every year, and your passbook is the final word. Everything is worked out in your browser. See your <a href="/salary-calculator">in-hand salary</a> or your <a href="/gratuity-calculator">gratuity</a>.</p>
+  </section>
+  <script type="module" src="/js/epf.js"></script></main>`;
+}
+
+export function cgpaBody() {
+  const start = cgpaPlan({cgpa: 8, formula: 'aicte'});
+  const semesters = Array.from({length: SEMESTERS}, (_, i) => `<tr><th scope="row">${i + 1}</th><td><input name="sgpa${i}" type="number" inputmode="decimal" min="0" max="10" step="0.01" aria-label="Semester ${i + 1} SGPA"></td><td><input name="credits${i}" type="number" inputmode="decimal" min="0" max="100" step="0.5" aria-label="Semester ${i + 1} credits"></td></tr>`).join('');
+  return `<main id="main-content" class="editorial-shell calc-shell cg-shell">${toolCrumbs('CGPA calculator')}
+  ${hero('CGPA CALCULATOR', 'Turn your CGPA into a percentage.', 'Convert CGPA to percentage with the CBSE, AICTE or your university’s formula, work out your CGPA from your semester SGPAs, and see the SGPA you need for a target.')}
+  <section class="calc" data-cg aria-label="CGPA calculator">
+    <form class="calc-form" data-cg-form novalidate>
+      <fieldset class="ff-group"><legend>CGPA and percentage</legend>
+        <div class="ff-pair"><div class="calc-field calc-field-main"><label for="cg-cgpa">CGPA (out of 10)</label><input id="cg-cgpa" name="cgpa" type="number" inputmode="decimal" min="0" max="10" step="0.01" value="8"></div>
+          <div class="calc-field calc-field-main"><label for="cg-percent">Percentage</label><input id="cg-percent" name="percent" type="number" inputmode="decimal" min="0" max="100" step="0.01" value="${start.convert.percent}"></div></div>
+        <span class="calc-words">Type in either box and the other one follows.</span>
+        <div class="calc-field"><label for="cg-formula">Formula</label><select id="cg-formula" name="formula">${FORMULAS.map(([id, name]) => `<option value="${id}">${e(name)}</option>`).join('')}</select></div>
+        <div class="ff-pair" data-cg-custom hidden><div class="calc-field"><label for="cg-m">Multiply the CGPA by</label><input id="cg-m" name="multiplier" type="number" inputmode="decimal" min="0" max="20" step="0.01" placeholder="9.5"></div>
+          <div class="calc-field"><label for="cg-c">Then add (minus to take away)</label><input id="cg-c" name="offset" type="number" inputmode="decimal" min="-100" max="100" step="0.01" placeholder="0"></div></div>
+      </fieldset>
+      <fieldset class="ff-group"><legend>CGPA from your semesters</legend>
+        <table class="cg-sems"><thead><tr><th scope="col">Semester</th><th scope="col">SGPA</th><th scope="col">Credits (optional)</th></tr></thead><tbody>${semesters}</tbody></table>
+        <span class="calc-words">With credits for every semester, each one counts by its credits; without them, each counts the same.</span>
+      </fieldset>
+      <fieldset class="ff-group"><legend>The SGPA you need</legend>
+        <div class="ff-pair"><div class="calc-field"><label for="cg-target">Target CGPA</label><input id="cg-target" name="target" type="number" inputmode="decimal" min="0" max="10" step="0.01" placeholder="8.5"></div>
+          <div class="calc-field"><label for="cg-left">Semesters left</label><input id="cg-left" name="left" type="number" inputmode="numeric" min="1" max="12" step="1" placeholder="2"></div></div>
+        <div class="calc-field"><label for="cg-done">Semesters done (if you haven’t filled them in above)</label><input id="cg-done" name="done" type="number" inputmode="numeric" min="1" max="12" step="1" placeholder="4"></div>
+      </fieldset>
+    </form>
+    <div class="calc-result" data-cg-result aria-live="polite">${cgpaResult(start)}</div>
+    <section class="prose cg-notes" aria-labelledby="cg-how"><h2 id="cg-how">CGPA, SGPA and percentage</h2>
+      <p><strong>SGPA and CGPA.</strong> Your SGPA is the grade point average of one semester, weighted by each course’s credits. Your CGPA is the average over all your semesters so far, weighted by their credits.</p>
+      <p><strong>Converting to a percentage.</strong> There is no single rule: each board or university sets its own, and many print it on the grade card. CBSE’s Class 10 grades use CGPA × 9.5. The formula AICTE gives, used by many engineering colleges, is (CGPA − 0.75) × 10. Some universities simply multiply by 10.</p>
+      <p><strong>Job and exam forms.</strong> When a form asks for a percentage, use your university’s formula and keep its conversion certificate or grade card ready for document verification. If there is no formula, some forms accept the CGPA as it is: check the notice.</p>
+    </section>
+    <p class="quiet-callout">Worked out in your browser, and nothing is saved. Next, <a href="/resume-builder">build your resume</a> or see <a href="/research-internships">research internships</a> and <a href="/scholarships">scholarships</a>.</p>
+  </section>
+  <script type="module" src="/js/cgpa.js"></script></main>`;
+}
+
+export function experienceBody({today}) {
+  return `<main id="main-content" class="editorial-shell calc-shell xp-shell">${toolCrumbs('Work experience calculator')}
+  ${hero('WORK EXPERIENCE CALCULATOR', 'How much experience do you have?', 'Add your jobs and internships to get your total experience in years and months, with overlapping time counted once and the gaps between jobs listed, as on any date.')}
+  <section class="calc" data-xp aria-label="Work experience calculator">
+    <form class="calc-form" data-xp-form novalidate>
+      <div class="calc-field"><label for="xp-on">Count experience as on</label><input id="xp-on" name="asOn" type="date" value="${today}" required aria-describedby="xp-on-help"><span id="xp-on-help" class="calc-words">Today, or the date a notice asks for, such as its closing date.</span></div>
+      <div class="xp-jobs" data-xp-jobs>${jobRow(0)}${jobRow(1)}</div>
+      <button class="secondary-button xp-add" type="button" data-xp-add>Add a job</button>
+    </form>
+    <div class="calc-result" data-xp-result aria-live="polite">${experienceResult(experience([], {asOn: today}))}</div>
+    <section class="prose xp-notes" aria-labelledby="xp-how"><h2 id="xp-how">How experience is counted</h2>
+      <p><strong>Days and months.</strong> The first and the last day of each job both count, so 1 July 2023 to 30 June 2024 is exactly one year. Each stretch of work is counted in years, months and days, and 30 leftover days make a month.</p>
+      <p><strong>Overlaps and gaps.</strong> Time when two jobs overlap, such as freelance work alongside a full-time job, counts once. Gaps of a month or more between jobs are listed, because forms and interviewers often ask about them.</p>
+      <p><strong>What counts.</strong> Notices and employers decide what counts as experience: some count only full-time work after your degree, some count internships or apprenticeships. Leave out what yours doesn’t count, and keep experience letters ready for each job.</p>
+    </section>
+    <p class="quiet-callout">Worked out in your browser: your jobs aren’t saved or sent anywhere. Next, <a href="/resume-builder">build your resume</a> or <a href="/interview-answers">prepare your interview answers</a>.</p>
+  </section>
+  <script type="module" src="/js/experience.js"></script></main>`;
+}
+
 export function toolsBody() {
   const groups = [['Apply', 'Apply and keep track'], ['Pay', 'Pay and offers'], ['Switch', 'Switch jobs'], ['Research', 'Research the market'], ['Prepare', 'Prepare for interviews and tests'], ['Share', 'Share and follow']];
   return `<main id="main-content" class="editorial-shell tools-shell">${crumbs('Tools')}
@@ -588,6 +714,10 @@ export function searchIndex({companies, guides = [], landing = [], curated = [],
     ['Typing speed test', '/typing-test', 'Words a minute and accuracy', 'typing test speed wpm ssc chsl deo kdph key depressions practice keyboard'],
     ['Full and final settlement calculator', '/full-and-final-settlement', 'What you are owed when you leave', 'full and final settlement fnf f&f leave encashment last salary relieving resign gratuity notice recovery'],
     ['Interview answer builder', '/interview-answers', 'Answers to common interview questions', 'interview questions answers tell me about yourself strengths weakness star hr salary expectations why should we hire you notice period'],
+    ['Government salary calculator', '/government-salary-calculator', 'In-hand pay for government jobs', 'government sarkari salary in hand 7th pay commission cpc pay level matrix da hra ta nps ssc cgl chsl mts inspector'],
+    ['EPF calculator', '/epf-calculator', 'Your PF balance at retirement', 'epf pf provident fund calculator interest 8.25 eps pension uan balance retirement vpf wage ceiling'],
+    ['CGPA to percentage calculator', '/cgpa-calculator', 'CGPA, SGPA and percentage', 'cgpa sgpa percentage convert calculator cbse 9.5 aicte grade points marks semester'],
+    ['Work experience calculator', '/experience-calculator', 'Total experience in years and months', 'work experience calculator total years months gap overlap jobs form'],
     ['Skills in demand', '/skills', 'Live jobs for each skill', 'skills technologies demand python java sql'],
     ['Jobs widget for your website', '/embed', 'Live jobs on a college or club site', 'embed widget college website placement cell'],
     ['Add an application', '/tracker?add=1', 'Track a job from any other site', 'add application linkedin naukri track'],

@@ -11,7 +11,8 @@ export const REBATE_LIMIT = 1200000;
 const SLABS = [[400000, 0], [800000, .05], [1200000, .10], [1600000, .15], [2000000, .20], [2400000, .25], [Infinity, .30]];
 const SURCHARGE = [[5000000, .10], [10000000, .15], [20000000, .25]];
 const CESS = .04;
-export const PF_WAGE_CAP = 15000 * 12; // statutory PF wage ceiling; 12% of it is ₹21,600 a year
+// EPF wage ceiling: ₹25,000 a month from 17 September 2026 (₹15,000 before); 12% of it is ₹36,000 a year.
+export const PF_WAGE_CAP = 25000 * 12;
 
 export function slabTax(taxable) {
   let tax = 0, lower = 0;
@@ -41,7 +42,7 @@ export function incomeTax(taxable) {
 /**
  * ctc: total annual cost to company. variable: yearly bonus or variable pay inside the CTC (paid separately).
  * basicShare: basic pay as a share of fixed pay (0.5 = 50%). pf: 'basic' (12% of basic), 'capped' (12% of
- * at most ₹15,000 a month) or 'none'. gratuity: true when the CTC includes gratuity (4.81% of basic).
+ * at most ₹25,000 a month, the wage ceiling) or 'none'. gratuity: true when the CTC includes gratuity (4.81% of basic).
  * professionalTax: rupees a year (₹2,400 in many states, 0 where there is none).
  */
 export function takeHome({ctc, variable = 0, basicShare = .5, pf = 'basic', gratuity = true, professionalTax = 2400} = {}) {

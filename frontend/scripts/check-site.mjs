@@ -3,7 +3,7 @@
 import {site} from '../js/site-config.js';
 
 const origin = process.env.WILSY_ORIGIN || site.origin;
-const pages = ['/', '/jobs', '/companies', '/tracker', '/salaries', '/salary-calculator', '/offer-compare', '/resume-match', '/hiring-trends', '/tools', '/scam-check', '/salary-hike-calculator', '/gratuity-calculator', '/notice-period-calculator', '/career-letters', '/resume-builder', '/deadlines', '/age-calculator', '/typing-test', '/full-and-final-settlement', '/interview-answers', '/skills', '/embed', '/guides', '/government-jobs', '/hackathons'];
+const pages = ['/', '/jobs', '/companies', '/tracker', '/salaries', '/salary-calculator', '/offer-compare', '/resume-match', '/hiring-trends', '/tools', '/scam-check', '/salary-hike-calculator', '/gratuity-calculator', '/notice-period-calculator', '/career-letters', '/resume-builder', '/deadlines', '/age-calculator', '/typing-test', '/full-and-final-settlement', '/interview-answers', '/government-salary-calculator', '/epf-calculator', '/cgpa-calculator', '/experience-calculator', '/skills', '/embed', '/guides', '/government-jobs', '/hackathons'];
 
 async function get(route, attempt = 1) {
   try {

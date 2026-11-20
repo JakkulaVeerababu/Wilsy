@@ -123,7 +123,7 @@ html.dark-theme .salary-remote{color:#9bc2ff}
 .calc-headline>div:first-child{grid-column:1/-1;padding:18px 20px;background:#0a0a0a;color:#fff}
 .calc-headline span{display:block;font-size:12px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;opacity:.75}
 .calc-headline strong{display:block;margin-top:6px;font-size:clamp(19px,2vw,24px);font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
-.calc-headline>div:first-child strong{font-size:clamp(34px,4.4vw,52px);letter-spacing:-.04em}
+.calc-headline>div:first-child strong{font-size:clamp(34px,4.4vw,52px);line-height:1.1;letter-spacing:-.04em;white-space:normal;text-wrap:balance}
 .calc-headline small{display:block;margin-top:4px;font-size:12px;opacity:.7}
 .calc-table{width:100%;margin-top:16px;border-collapse:collapse;font-size:14px}
 .calc-table th,.calc-table td{padding:9px 4px;border-bottom:1px solid rgba(10,10,10,.12);text-align:left;font-weight:500;color:#0a0a0a}
@@ -455,7 +455,7 @@ html.dark-theme .notice-release.is-warn{--ink:#fff;--ink-soft:#fff;--muted:rgba(
 
 /* Shared by the letters and the resume builder */
 :is(.letters,.rb,.ia) .calc-field textarea{display:block;width:100%;box-sizing:border-box;padding:10px 13px;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-size:15px;line-height:1.5;resize:vertical}
-:is(.letter-edited,.rb-bar,.rb-entry,.dl-status,.typing-pick,.ia-bar,.ia-example) .text-button{padding:4px 2px;border:0;background:none;color:var(--blue);font:inherit;font-size:14px;font-weight:650;text-decoration:underline;cursor:pointer}
+:is(.letter-edited,.rb-bar,.rb-entry,.dl-status,.typing-pick,.ia-bar,.ia-example,.xp-row) .text-button{padding:4px 2px;border:0;background:none;color:var(--blue);font:inherit;font-size:14px;font-weight:650;text-decoration:underline;cursor:pointer}
 .letter-print,.resume-print,.ia-print{display:none}
 
 /* Resignation and offer letters */
@@ -693,6 +693,30 @@ html.dark-theme .typing-passage .is-current.is-bad{background:#6a2318;color:#fff
 html.dark-theme .ia-answer{--ink:#0a0a0a;--ink-soft:#1f2937;--muted:#3d4a5c;--line:rgba(10,10,10,.14);--line-strong:rgba(10,10,10,.24);--surface:#fff;--surface-raised:#fff}
 @media(max-width:900px){.ia-grid{grid-template-columns:1fr}.ia-side{position:static}}
 
+/* Government salary, EPF, CGPA and work experience calculators */
+.calc>:is(.gp-notes,.epf-notes,.cg-notes,.xp-notes){grid-column:1/-1;max-width:none;margin:0}
+:is(.gp-notes,.epf-notes,.cg-notes,.xp-notes) h2{margin-top:0}
+.gp-posts{margin-top:0}
+.gp-cities{font-size:13px;color:var(--muted)}
+.gp-cities summary{cursor:pointer;font-weight:650;color:var(--ink-soft)}
+.gp-cities p{margin:6px 0 0;line-height:1.55}
+.calc-table thead th{padding-top:4px;font-size:12px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:rgba(10,10,10,.68)}
+.calc-table thead th+th{text-align:right}
+.cg-table caption{margin-bottom:2px;text-align:left;font-size:13px;font-weight:750;color:#0a0a0a}
+.cg-sems{width:100%;border-collapse:collapse;font-size:14px;background:transparent}
+.cg-sems :is(th,td){border:0;background:transparent}
+.cg-sems th{padding:0 8px 6px 0;text-align:left;font-size:12px;font-weight:700;color:var(--muted)}
+.cg-sems tbody th{padding:3px 8px 3px 0;font-size:14px;font-weight:650;color:var(--ink-soft)}
+.cg-sems td{padding:3px 8px 3px 0}
+.cg-sems td:last-child{padding-right:0}
+.cg-sems input{width:100%;min-height:40px;padding:0 10px;border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit;font-size:15px;box-sizing:border-box}
+.xp-jobs{display:flex;flex-direction:column;gap:12px}
+.xp-job{display:flex;flex-direction:column;gap:12px;min-width:0;margin:0;padding:12px 14px 14px;border:1px solid var(--line);border-radius:16px}
+.xp-job>legend{padding:0 6px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.xp-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.xp-add{align-self:flex-start}
+.xp-table td{white-space:normal}
+:is(.xp-gaps,.xp-problems){margin:12px 0 0;padding-left:18px;font-size:14px;line-height:1.55;color:#0a0a0a}
 /* Printing a letter, the resume or interview answers as a PDF: only the document, on white paper. */
 @page letter{size:A4;margin:22mm 20mm}
 @page resume{size:A4;margin:14mm}

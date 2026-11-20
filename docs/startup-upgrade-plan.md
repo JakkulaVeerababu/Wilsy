@@ -313,3 +313,28 @@ After deploying, check:
 - **/typing-test on a real keyboard** in Chrome and Firefox: the passage scrolls with you, and the result appears when the time runs out.
 - **Print or PDF** on /interview-answers prints only the answers, on A4.
 - **The age rule for state notices**: some states let you apply until the day before your next birthday; the "until your next birthday" option covers that, but each notice's own wording is the final word.
+
+Pushed to main on 20 Nov 2026 as b304693.
+
+## Status (20 Nov 2026, night): pay and records batch, pushed
+
+| Feature | Where | Notes |
+|---|---|---|
+| Government salary calculator | /government-salary-calculator | 7th Pay Commission in-hand pay for Levels 1 to 18. Pick a post (MTS to IAS) or a level and a pay matrix cell. Adds DA at 63% (from 1 July 2026), HRA at 30, 20 or 10% by city class and transport allowance with DA, then takes off NPS or UPS at 10%, CGHS, CGEGIS and income tax under the new regime. Also shows the government's own NPS share. `?post=auditor` or `?level=7` opens a post. |
+| EPF calculator | /epf-calculator | The PF balance at retirement from basic + DA, yearly raises, today's balance and voluntary PF, at 8.25% (2025-26). Splits the employer's 12% between EPF and the pension scheme (8.33% of at most ₹25,000, the wage ceiling from 17 September 2026), with an option to pay only on the ceiling, a balance every five years and a note on the ₹2.5 lakh tax-free limit. |
+| CGPA to percentage | /cgpa-calculator | Converts CGPA to percentage and back with the AICTE formula ((CGPA − 0.75) × 10), CBSE Class 10 (× 9.5), × 10 or a university's own formula. Works out the CGPA from up to 8 semester SGPAs (credit-weighted when credits are given) and the SGPA needed in the semesters left to reach a target. |
+| Work experience calculator | /experience-calculator | Total experience across up to 12 jobs as on any date, counting the first and last day. Overlapping jobs count once, gaps of a month or more are listed with a note on explaining them, and the total copies as one form-ready line. |
+| PF wage ceiling | /salary-calculator, /salary-hike-calculator, /offer-compare | "12% of the wage ceiling" now means ₹25,000 a month (₹36,000 a year), not ₹15,000. |
+| Result headlines | All calculators | A long headline (such as "7 years, 3 months, 19 days") now wraps inside its box instead of running out of it on phones. |
+| Tools hub | /tools | 25 tools. Footer and quick search link the new ones. |
+
+Analytics: `tool_use` gains `govt_salary`, `epf`, `cgpa` and `experience` (once per page view). Nothing typed into them is sent.
+
+Keep current:
+- `DA_RATE` and `DA_SINCE` in `frontend/js/govpay-core.js` after each DA order (for January and July, usually announced in March and October).
+- `EPF_RATE` and `RATE_YEAR` in `frontend/js/epf-core.js` once each year's rate is ratified.
+- When the 8th Pay Commission's matrix is notified, `LEVELS`, the allowances and the page text change together.
+
+After deploying, check:
+- **Copy for a form** on /experience-calculator in Chrome and Safari on a phone. The test browser blocks the clipboard, so only the fallback message was seen.
+- **Date pickers** on /experience-calculator in iOS Safari: adding, removing and ticking "I work here now" on a job.
