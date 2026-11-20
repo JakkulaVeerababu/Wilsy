@@ -15,6 +15,10 @@ import {noticePlan, noticeResult, NOTICE_PRESETS} from '../js/notice-core.js';
 import {LETTERS, LETTER_FIELDS, LETTER_GROUPS, letterText, fieldLabel, mailtoLink} from '../js/letters-core.js';
 import {emptyDraft, resumeHtml, checksHtml, mainFieldHtml, entryForm} from '../js/resume-builder-core.js';
 import {DEADLINE_KINDS, upcoming, deadlineList, kindCounts} from '../js/deadlines-core.js';
+import {CATEGORIES, PWBD_YEARS, MAX_OTHER_YEARS, AGE_BANDS, agePlan, ageResult} from '../js/age-core.js';
+import {DURATIONS, PASSAGES, words, testText} from '../js/typing-core.js';
+import {LEAVE_BASES, settlement, settlementResult} from '../js/settlement-core.js';
+import {QUESTIONS, IA_GROUPS, shortName, questionForm, answerChecks, checksList, exampleText} from '../js/interview-core.js';
 import {site} from '../js/site-config.js';
 
 // Page bodies for the career tools (tracker, salary explorer, calculators, offer comparison, resume match,
@@ -31,16 +35,20 @@ export const TOOLS = [
   ['/resume-match', 'file', 'Resume match', 'See which of a job’s skills your resume shows, and which are missing.', 'Apply'],
   ['/deadlines', 'calendar', 'Deadlines calendar', 'Last dates for hackathons, competitions, scholarships and exams, soonest first.', 'Apply'],
   ['/scam-check', 'shield', 'Job scam check', 'Paste an offer or a WhatsApp message to check it for the signs of a job scam.', 'Apply'],
+  ['/age-calculator', 'cake', 'Age calculator for government jobs', 'Your age on a notice’s cut-off date, the birth dates that qualify and your relaxation.', 'Apply'],
   ['/salary-calculator', 'calculator', 'In-hand salary calculator', 'From CTC to monthly take-home under the new tax regime.', 'Pay'],
   ['/offer-compare', 'scale', 'Compare job offers', 'Two or three offers side by side: in hand, first-year cash and equity.', 'Pay'],
   ['/salary-hike-calculator', 'trending', 'Salary hike calculator', 'What a raise really adds to your monthly pay, and the hike you need.', 'Pay'],
   ['/notice-period-calculator', 'logout', 'Notice period calculator', 'Your last working day, an early release and what a buyout costs.', 'Switch'],
   ['/career-letters', 'mail', 'Resignation and offer letters', 'Resignation, offer acceptance, negotiation and follow-up emails, ready to copy.', 'Switch'],
   ['/gratuity-calculator', 'wallet', 'Gratuity calculator', 'What you get when you leave, under the labour codes.', 'Switch'],
+  ['/full-and-final-settlement', 'receipt', 'Full and final settlement', 'Salary, leave, gratuity and recoveries when you leave, and when they are due.', 'Switch'],
   ['/salaries', 'rupee', 'Salary explorer', 'Published pay at 1,000 companies, as INR estimates.', 'Research'],
   ['/hiring-trends', 'chart', 'Hiring trends', 'What is hiring right now, counted from live jobs.', 'Research'],
   ['/skills', 'sparkle', 'Skills in demand', 'Live jobs and the employers hiring for each skill.', 'Research'],
+  ['/interview-answers', 'mic', 'Interview answer builder', 'Answers to the 15 questions most interviews ask, with examples and a practice timer.', 'Prepare'],
   ['/dsa', 'code', 'DSA roadmap', 'Interview patterns with practice links and saved progress.', 'Prepare'],
+  ['/typing-test', 'keyboard', 'Typing speed test', 'Words a minute and accuracy, against the speeds SSC typing tests ask for.', 'Prepare'],
   ['/embed', 'link', 'Jobs widget', 'Live jobs for your college, club or community website.', 'Share'],
   ['/feed.xml', 'rss', 'New jobs RSS feed', 'Follow new jobs in any feed reader.', 'Share'],
 ];
@@ -352,8 +360,144 @@ export function deadlinesBody({items, now = Date.now()}) {
   <script type="module" src="/js/deadlines.js"></script></main>`;
 }
 
+export function ageBody({today}) {
+  const birth = `${Number(today.slice(0, 4)) - 24}-06-15`;
+  const start = agePlan({birth, on: today, min: 18, max: 27});
+  const year = Number(today.slice(0, 4)), next = month => `${year}-${month}-01` >= today ? `${year}-${month}-01` : `${year + 1}-${month}-01`;
+  const short = day => new Intl.DateTimeFormat('en-GB', {day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC'}).format(new Date(day + 'T00:00:00Z'));
+  const dates = [['today', 'Today', today], ['jan', short(next('01')), next('01')], ['aug', short(next('08')), next('08')]];
+  const bands = AGE_BANDS.map(([lo, hi]) => `<button type="button" data-age-band data-min="${lo}" data-max="${hi}" aria-pressed="${lo === 18 && hi === 27}">${lo}–${hi}</button>`).join('');
+  return `<main id="main-content" class="editorial-shell calc-shell age-shell">${toolCrumbs('Age calculator')}
+  ${hero('AGE CALCULATOR FOR GOVERNMENT JOBS', 'Are you within the age limit?', 'Enter your date of birth and the cut-off date from the notice to see your exact age on that day, the birth dates that qualify and your upper age limit with category relaxations.')}
+  <section class="calc" data-age aria-label="Age calculator">
+    <form class="calc-form" data-age-form novalidate>
+      <div class="calc-field calc-field-main"><label for="age-birth">Date of birth</label><input id="age-birth" name="birth" type="date" value="${birth}" max="${today}" required aria-describedby="age-birth-help"><span id="age-birth-help" class="calc-words">As on your Class 10 certificate. It stays in your browser.</span></div>
+      <div class="calc-field"><label for="age-on">Age as on (cut-off date)</label><input id="age-on" name="on" type="date" value="${today}" required aria-describedby="age-on-help"><div class="hike-steps" role="group" aria-label="Common cut-off dates">${dates.map(([id, text, day]) => `<button type="button" data-age-on="${id}" data-day="${day}" aria-pressed="${id === 'today'}">${e(text)}</button>`).join('')}</div><span id="age-on-help" class="calc-words">Notices say “age as on” a date: often 1 January, 1 August or the last date to apply.</span></div>
+      <div class="calc-field"><label for="age-min">Age limits in the notice</label><div class="age-limits"><input id="age-min" name="min" type="number" inputmode="numeric" min="0" max="100" step="1" value="18" aria-label="Minimum age"><span aria-hidden="true">to</span><input id="age-max" name="max" type="number" inputmode="numeric" min="1" max="100" step="1" value="27" placeholder="none" aria-label="Maximum age, blank for none"></div><div class="hike-steps" role="group" aria-label="Common age limits">${bands}</div></div>
+      <div class="calc-field"><label for="age-category">Category</label><select id="age-category" name="category">${CATEGORIES.map(([id, name, n]) => `<option value="${id}">${e(name)}${n ? ` (+${n} years)` : ''}</option>`).join('')}</select></div>
+      <label class="calc-check"><input type="checkbox" name="pwbd"> Person with benchmark disability (+${PWBD_YEARS} years)</label>
+      <div class="calc-field"><label for="age-other">Other relaxation (years, optional)</label><input id="age-other" name="other" type="number" inputmode="numeric" min="0" max="${MAX_OTHER_YEARS}" step="1" placeholder="0" aria-describedby="age-other-help"><span id="age-other-help" class="calc-words">For ex-servicemen, serving government employees or state rules: the years given in your notice.</span></div>
+      <div class="calc-field"><label for="age-rule">How the notice counts the upper limit</label><select id="age-rule" name="rule"><option value="reached">You must not have reached it (UPSC, SSC)</option><option value="completed">You can be that age until your next birthday</option></select></div>
+    </form>
+    <div class="calc-result" data-age-result aria-live="polite">${ageResult(start)}</div>
+    <section class="prose age-notes" aria-labelledby="age-how"><h2 id="age-how">How age limits work</h2>
+      <p><strong>Age on a cut-off date.</strong> Each notice fixes the date your age is counted on, such as 1 January or 1 August of the exam year, or the last date to apply. Your age on that day decides, not your age on the day you apply.</p>
+      <p><strong>The UPSC and SSC rule.</strong> On the cut-off date you must have reached the minimum age and must not have reached the maximum. So for ages 18 to 27 on 1 August 2025, SSC accepted candidates born from 2 August 1998 to 1 August 2007. Some state notices let you apply until the day before your next birthday instead. The birth dates printed in your notice are final.</p>
+      <p><strong>Relaxations.</strong> In central government jobs, the upper age limit rises by 3 years for OBC (non-creamy layer), 5 years for SC and ST, and 10 years for persons with benchmark disabilities (13 for OBC and 15 for SC and ST). EWS candidates get no age relaxation. Ex-servicemen, serving central government employees and some others get relaxations set out in each notice, and state jobs follow state rules.</p>
+      <p><strong>Proof of age.</strong> Recruiters usually go by the date of birth on your Class 10 (matriculation or secondary school) certificate, so use that date, and keep the certificate ready for document verification.</p>
+    </section>
+    <p class="quiet-callout">A check, not a decision: each exam’s notice is the final word on age limits, relaxations and the cut-off date. Your date of birth is worked out in your browser and never saved. See <a href="/government-jobs">open government jobs</a> and <a href="/deadlines?type=government">their last dates</a>.</p>
+  </section>
+  <script type="module" src="/js/age-calculator.js"></script></main>`;
+}
+
+export function typingBody() {
+  const start = words(testText(PASSAGES[0].id, 1));
+  return `<main id="main-content" class="editorial-shell typing-shell">${toolCrumbs('Typing test')}
+  ${hero('TYPING SPEED TEST', 'How fast do you type?', 'Type the passage to see your speed in words a minute, your accuracy and your key depressions an hour, and how you compare with the typing tests in SSC and other government exams.')}
+  <section class="typing" data-typing aria-label="Typing test">
+    <div class="typing-bar">
+      <div class="hike-steps typing-times" role="group" aria-label="Test length">${DURATIONS.map(([m, label]) => `<button type="button" data-ty-minutes="${m}" aria-pressed="${m === 1}">${e(label)}</button>`).join('')}</div>
+      <div class="typing-pick"><label for="ty-passage">Passage</label><select id="ty-passage" data-ty-select>${PASSAGES.map(p => `<option value="${p.id}">${e(p.title)}</option>`).join('')}</select><button type="button" class="text-button" data-ty-next>Next passage</button></div>
+      <label class="calc-check"><input type="checkbox" data-ty-marks checked> Show mistakes as I type</label>
+    </div>
+    <div class="typing-stats"><p><span>Time left</span><strong data-ty-timer>1:00</strong></p><p><span>Speed</span><strong data-ty-speed>0 wpm</strong></p><p><span>Wrong words</span><strong data-ty-wrong>0</strong></p></div>
+    <div class="typing-passage" data-ty-passage>${start.map((word, i) => `<span${i ? '' : ' class="is-current"'}>${e(word)}</span>`).join(' ')}</div>
+    <label class="sr-only" for="ty-input">Type the passage here</label>
+    <textarea id="ty-input" class="typing-input" data-ty-input rows="4" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Start typing the passage here. The timer starts with your first key."></textarea>
+    <div class="typing-actions"><button class="secondary-button" type="button" data-ty-restart>Restart</button><button class="secondary-button" type="button" data-ty-finish>Finish now</button><p class="typing-best" data-ty-best></p></div>
+    <p class="typing-status" data-ty-status role="status" aria-live="polite"></p>
+    <div class="calc-result typing-result" data-ty-result tabindex="-1" hidden></div>
+    <div class="typing-share" data-ty-share hidden><p>Challenge a friend to beat it</p>${shareBar(site.origin + '/typing-test', 'Try the free typing speed test on WILSY.', {label: 'Share your score'})}</div>
+  </section>
+  <section class="prose typing-notes" aria-labelledby="ty-how"><h2 id="ty-how">How the test is scored</h2>
+    <p><strong>Speed.</strong> Typing tests count a word as five key depressions, spaces included, so your gross speed is the characters you typed ÷ 5 ÷ minutes. Each wrong word takes one word a minute off, which gives your net speed. Key depressions an hour are your net speed × 5 × 60.</p>
+    <p><strong>Accuracy.</strong> A word with any mistake in it counts as one wrong word, and so does a word you skip or add. Real exams have their own rules for which mistakes count and how many are allowed, so read the instructions for your exam.</p>
+    <p><strong>Government typing tests.</strong> SSC’s typing test for lower division clerks and junior secretariat assistants asks for 35 words a minute in English, about 10,500 key depressions an hour, or 30 in Hindi, about 9,000, over 10 minutes. Its skill test for data entry operators asks for 8,000 key depressions an hour over 15 minutes. Other recruiters set their own speeds, so check your notice.</p>
+    <p><strong>Practise well.</strong> Accuracy first, then speed: sit straight, keep your fingers on the home row and look at the passage, not the keyboard. Ten minutes a day helps more than an hour once a week.</p>
+  </section>
+  <p class="quiet-callout">The passages were written for WILSY. Everything runs in your browser, and your best scores stay on this device. <a href="/age-calculator">Check the age limit for a government job</a> or see <a href="/government-jobs">open government jobs</a>.</p>
+  <script type="module" src="/js/typing-test.js"></script></main>`;
+}
+
+export function settlementBody({today}) {
+  const joined = `${Number(today.slice(0, 4)) - 3}-${today.slice(5, 7)}-01`;
+  const start = settlement({last: today, monthly: 60000, basic: 30000, leaveDays: 10, joined});
+  const select = (name, id, options, chosen) => `<select id="${id}" name="${name}">${options.map(([v, t]) => `<option value="${v}"${v === chosen ? ' selected' : ''}>${e(t)}</option>`).join('')}</select>`;
+  const money = (name, id, label, value, help = '') => `<div class="calc-field"><label for="${id}">${e(label)}</label><input id="${id}" name="${name}" type="number" inputmode="numeric" min="0" max="10000000" step="1000"${value ? ` value="${value}"` : ' placeholder="0"'}${help ? ` aria-describedby="${id}-help"` : ''}>${help ? `<span id="${id}-help" class="calc-words">${e(help)}</span>` : ''}</div>`;
+  return `<main id="main-content" class="editorial-shell calc-shell ff-shell">${toolCrumbs('Full and final settlement calculator')}
+  ${hero('FULL AND FINAL SETTLEMENT', 'What will your final settlement be?', 'Add up what your employer owes you when you leave: salary still owed, unused leave, gratuity and other dues, less any notice recovery, with the dates they are due under the labour codes.')}
+  <section class="calc" data-ff aria-label="Full and final settlement calculator">
+    <form class="calc-form" data-ff-form novalidate>
+      <div class="calc-field calc-field-main"><label for="ff-last">Last working day</label><input id="ff-last" name="last" type="date" value="${today}" required></div>
+      <fieldset class="ff-group"><legend>Your pay</legend>
+        ${money('monthly', 'ff-monthly', 'Gross monthly pay (₹)', 60000)}
+        ${money('basic', 'ff-basic', 'Basic pay + DA a month (₹)', 30000, 'From your payslip. Used for leave, gratuity and some notice recoveries.')}
+        <div class="ff-pair"><div class="calc-field"><label for="ff-days">Days of salary owed</label><input id="ff-days" name="paidDays" type="number" inputmode="numeric" min="0" max="31" step="1" placeholder="${Number(today.slice(8, 10))}" aria-describedby="ff-days-help"></div>
+          <div class="calc-field"><label for="ff-basis">A day’s salary is</label>${select('payBasis', 'ff-basis', [['month', 'Pay ÷ days in that month'], ['30', 'Pay ÷ 30']], 'month')}</div></div>
+        <span id="ff-days-help" class="calc-words">Leave it empty to count the days worked in your last month.</span>
+        ${money('other', 'ff-other', 'Bonus and other dues (₹)', 0, 'Unpaid bonus, variable pay, reimbursements or arrears.')}
+      </fieldset>
+      <fieldset class="ff-group"><legend>Leave and gratuity</legend>
+        <div class="ff-pair"><div class="calc-field"><label for="ff-leave">Unused leave to be paid (days)</label><input id="ff-leave" name="leaveDays" type="number" inputmode="decimal" min="0" max="300" step="0.5" value="10"></div>
+          <div class="calc-field"><label for="ff-leave-basis">A day of leave is</label>${select('leaveBasis', 'ff-leave-basis', LEAVE_BASES, 'basic-30')}</div></div>
+        <div class="calc-field"><label for="ff-joined">Date you joined</label><input id="ff-joined" name="joined" type="date" value="${joined}" max="${today}"></div>
+        <label class="calc-check"><input type="checkbox" name="fixedTerm"> Fixed-term contract (gratuity after one year)</label>
+      </fieldset>
+      <fieldset class="ff-group"><legend>Recoveries</legend>
+        <div class="ff-pair"><div class="calc-field"><label for="ff-short">Notice days not served</label><input id="ff-short" name="shortDays" type="number" inputmode="numeric" min="0" max="365" step="1" placeholder="0"></div>
+          <div class="calc-field"><label for="ff-recover">Recovered at</label>${select('recoverOn', 'ff-recover', [['gross', 'Gross pay ÷ 30 a day'], ['basic', 'Basic + DA ÷ 30 a day']], 'gross')}</div></div>
+        ${money('deductions', 'ff-deductions', 'Other deductions (₹)', 0, 'Loans, salary advances or company assets not returned.')}
+        <label class="calc-check"><input type="checkbox" name="saturdays"> My office works on Saturdays</label>
+      </fieldset>
+    </form>
+    <div class="calc-result" data-ff-result aria-live="polite">${settlementResult(start)}</div>
+    <section class="prose ff-notes" aria-labelledby="ff-how"><h2 id="ff-how">What goes into a full and final settlement</h2>
+      <p><strong>When it is due.</strong> Under section 17(2) of the Code on Wages, 2019, in force since 21 November 2025, wages due must be paid within two working days of leaving, whether you resign or are removed, dismissed or retrenched. Gratuity is due within 30 days of becoming payable, under section 56(3) of the Code on Social Security, 2020. Employers read the two-day rule in different ways, so ask HR for the settlement date in writing.</p>
+      <p><strong>What you are owed.</strong> Salary for the days not yet paid, unused earned leave if your policy pays it out, gratuity once you qualify, and any bonus, variable pay, reimbursements or arrears due. Your leave policy decides which leave is paid and how a day is valued; many employers use basic pay and DA ÷ 30 or ÷ 26.</p>
+      <p><strong>What can be recovered.</strong> Pay for notice days you did not serve, unless your manager waives them, plus loans, salary advances and assets you did not return. Ask for the full calculation, and check each line against your offer letter and payslips.</p>
+      <p><strong>Tax and your PF.</strong> Tax is deducted from the salary, leave encashment and bonus parts as usual. Gratuity up to ₹20 lakh is tax-free for private-sector employees. Your provident fund is separate from the settlement: transfer it to your new employer or withdraw it on the EPFO member portal with your UAN.</p>
+    </section>
+    <p class="quiet-callout">An estimate before tax for monthly-paid employees; your employer’s policy and its settlement statement are the final word. Everything is worked out in your browser. <a href="/notice-period-calculator">Work out your notice period</a> or <a href="/career-letters?letter=relieving">ask for your relieving letter</a>.</p>
+  </section>
+  <script type="module" src="/js/final-settlement.js"></script></main>`;
+}
+
+export function interviewBody() {
+  const first = QUESTIONS[0];
+  const groups = IA_GROUPS.map(([id, name]) => `<fieldset class="letter-group"><legend>${e(name)}</legend><div class="letter-chips">${QUESTIONS.filter(q => q.group === id).map(q => `<label class="letter-chip"><input type="radio" name="ia-q" value="${q.id}"${q === first ? ' checked' : ''}><span>${e(shortName(q))}</span></label>`).join('')}</div></fieldset>`).join('');
+  return `<main id="main-content" class="editorial-shell interview-shell">${toolCrumbs('Interview answer builder')}
+  ${hero('INTERVIEW ANSWERS', 'Prepare answers that land.', 'Build clear answers to the 15 questions most interviews ask, from “Tell me about yourself” to your salary expectations. See how long each answer takes to say, get tips, and practise out loud.')}
+  <section class="ia" data-ia aria-label="Interview answer builder">
+    <div class="letter-pick ia-pick" role="group" aria-label="Choose a question">${groups}</div>
+    <div class="ia-bar"><label class="rb-keep"><input type="checkbox" data-ia-keep checked> Save on this device</label><button type="button" class="text-button" data-ia-clear>Clear all answers</button></div>
+    <div class="ia-grid">
+      <div class="ia-form" data-ia-form>${questionForm(first)}</div>
+      <div class="ia-side">
+        <div class="ia-answer"><p class="eyebrow">YOUR ANSWER</p><p class="ia-preview is-empty" data-ia-preview>Your answer appears here as you write.</p><p class="ia-meta" data-ia-meta>Aim for ${first.target[0]} to ${first.target[1]} seconds</p>
+          <div class="ia-actions"><button class="primary-button" type="button" data-ia-copy>Copy answer</button><button class="secondary-button" type="button" data-ia-practice aria-pressed="false">Practise out loud</button><span class="ia-timer" data-ia-timer aria-hidden="true">0:00</span></div>
+          <p class="offer-status" data-ia-status role="status" aria-live="polite"></p></div>
+        <div class="rb-checks"><h3>Checks</h3><div data-ia-checks>${checksList(answerChecks(first, {}))}</div></div>
+        <div class="ia-more"><button class="secondary-button" type="button" data-ia-copy-all>Copy all answers</button><button class="secondary-button" type="button" data-ia-print>Print or PDF</button></div>
+      </div>
+    </div>
+  </section>
+  <section class="prose ia-bank" aria-labelledby="ia-bank-title"><h2 id="ia-bank-title">The 15 questions, with example answers</h2>
+    ${QUESTIONS.map(q => `<details><summary>${e(q.q)}</summary><p>${e(q.why)}</p><p class="ia-bank-example"><strong>Example answer.</strong> ${e(exampleText(q))}</p><p><a href="/interview-answers?q=${q.id}" data-ia-open="${q.id}">Write your answer</a></p></details>`).join('')}
+    <p class="ia-bank-note">The people, companies and numbers in the examples are made up. Use your own projects, results and words: interviewers notice answers learned by heart.</p>
+  </section>
+  <section class="prose ia-notes" aria-labelledby="ia-how"><h2 id="ia-how">How to answer well</h2>
+    <p><strong>Tell stories.</strong> For “Tell me about a time…” questions, use the STAR structure: the situation, your task, the action you took and the result. Spend most of the time on what you did, and end with a number if you can.</p>
+    <p><strong>Keep it short.</strong> Most answers work best at one to two minutes. Write the answer, say it out loud, and cut whatever you stumble over.</p>
+    <p><strong>Prepare the facts.</strong> Know your notice period, your expected salary range and two or three projects you can talk about in detail. Read the job description again on the day.</p>
+  </section>
+  <p class="quiet-callout">Your answers stay in your browser and are never uploaded. Before the interview, check the role’s pay in the <a href="/salaries">salary explorer</a>, your <a href="/notice-period-calculator">notice period</a> and how your resume fits the job in <a href="/resume-match">resume match</a>.</p>
+  <div class="ia-print" data-ia-print-copy></div>
+  <script type="module" src="/js/interview-answers.js"></script></main>`;
+}
+
 export function toolsBody() {
-  const groups = [['Apply', 'Apply and keep track'], ['Pay', 'Pay and offers'], ['Switch', 'Switch jobs'], ['Research', 'Research the market'], ['Prepare', 'Prepare for interviews'], ['Share', 'Share and follow']];
+  const groups = [['Apply', 'Apply and keep track'], ['Pay', 'Pay and offers'], ['Switch', 'Switch jobs'], ['Research', 'Research the market'], ['Prepare', 'Prepare for interviews and tests'], ['Share', 'Share and follow']];
   return `<main id="main-content" class="editorial-shell tools-shell">${crumbs('Tools')}
   ${hero('FREE CAREER TOOLS', 'Every tool for your job search.', 'Track applications, check an offer for scams, work out your in-hand pay and see what is hiring. All free, and everything you type stays in your browser.')}
   ${groups.map(([key, title]) => `<section class="tools-group" aria-labelledby="tools-${key.toLowerCase()}"><h2 id="tools-${key.toLowerCase()}">${e(title)}</h2><div class="tool-grid">${TOOLS.filter(t => t[4] === key).map(t => toolCard(t)).join('')}</div></section>`).join('')}
@@ -440,6 +584,10 @@ export function searchIndex({companies, guides = [], landing = [], curated = [],
     ['Deadlines calendar', '/deadlines', 'Every last date, soonest first', 'deadline last date closing soon calendar reminder hackathon scholarship exam'],
     ['Notice period calculator', '/notice-period-calculator', 'Your last working day and buyout', 'notice period last working day resign resignation buyout early release relieving'],
     ['Resignation and offer letters', '/career-letters', 'Resignation, offer and follow-up emails', 'resignation letter email template offer acceptance decline negotiate salary follow up thank you joining date relieving experience letter'],
+    ['Age calculator for government jobs', '/age-calculator', 'Your age on a notice’s cut-off date', 'age calculator limit eligibility government sarkari ssc upsc cut off date relaxation obc sc st ews pwbd date of birth'],
+    ['Typing speed test', '/typing-test', 'Words a minute and accuracy', 'typing test speed wpm ssc chsl deo kdph key depressions practice keyboard'],
+    ['Full and final settlement calculator', '/full-and-final-settlement', 'What you are owed when you leave', 'full and final settlement fnf f&f leave encashment last salary relieving resign gratuity notice recovery'],
+    ['Interview answer builder', '/interview-answers', 'Answers to common interview questions', 'interview questions answers tell me about yourself strengths weakness star hr salary expectations why should we hire you notice period'],
     ['Skills in demand', '/skills', 'Live jobs for each skill', 'skills technologies demand python java sql'],
     ['Jobs widget for your website', '/embed', 'Live jobs on a college or club site', 'embed widget college website placement cell'],
     ['Add an application', '/tracker?add=1', 'Track a job from any other site', 'add application linkedin naukri track'],

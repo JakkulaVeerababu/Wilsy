@@ -296,3 +296,20 @@ Analytics: `tool_use` gains `notice_period`, `letters` (via `copy`, `email`, `pr
 After deploying, check:
 - **Save as PDF** from /resume-builder in Chrome on Android and desktop: one A4 page for the example, with the links clickable.
 - **/deadlines live rows**: hackathons and competitions appear with the reviewed deadlines, and the "Showing the 48 soonest" note links to the full lists.
+
+## Status (20 Nov 2026, evening): exams and interviews batch built, not deployed
+
+| Feature | Where | Notes |
+|---|---|---|
+| Age calculator for government jobs | /age-calculator | Exact age on a notice's cut-off date (today, the next 1 January or the next 1 August with one tap), the birth dates that qualify, and the upper limit after relaxations: OBC +3, SC and ST +5, PwBD +10 more, other years from the notice; EWS gets none. Uses the UPSC and SSC rule (reached the minimum, not yet reached the maximum, so 18 to 27 on 1 Aug 2025 is born 2 Aug 1998 to 1 Aug 2007), with an option for notices that let you apply until the day before your next birthday. Leap-day birthdays are handled. |
+| Typing speed test | /typing-test | 1, 2, 5, 10 (SSC) and 15 (DEO) minute tests over 8 original passages. The timer starts with the first key; words turn green or red, pasting is off. Net speed, accuracy and key depressions an hour, compared with SSC's 35 words a minute and the DEO test's 8,000 key depressions an hour. Best scores stay in this browser, with a WhatsApp challenge link. |
+| Full and final settlement | /full-and-final-settlement | Salary still owed, leave encashment, gratuity (five years, or one on a fixed-term contract), bonus and other dues, less notice recovery and deductions. Shows "You may owe your employer" when recoveries are larger, and the due dates: wages within two working days (Code on Wages s.17(2)) and gratuity within 30 days (Code on Social Security s.56(3)). The notice period calculator links here with the last day and unserved days filled in. |
+| Interview answer builder | /interview-answers | 15 common questions in three groups. Each answer is built from short parts (STAR for the stories), with its spoken length, a target time, checks (too long or short, "perfectionist", no number in the result, "we" more than "I", a negative reason for leaving, no salary figure) and a stopwatch to practise out loud. Example answers are labelled as made up. Copy one or all, print to PDF; answers stay in localStorage while "Save on this device" is ticked. |
+| Tools hub | /tools | 21 tools; the "Prepare" group becomes "Prepare for interviews and tests". Footer and quick search link the new tools. |
+
+Analytics: `tool_use` gains `age_calculator`, `final_settlement`, `typing_test` (via the test length in minutes) and `interview_answers` (via `copy`, `print`, `practice`). No personal data: the date of birth, pay and answers stay in the browser.
+
+After deploying, check:
+- **/typing-test on a real keyboard** in Chrome and Firefox: the passage scrolls with you, and the result appears when the time runs out.
+- **Print or PDF** on /interview-answers prints only the answers, on A4.
+- **The age rule for state notices**: some states let you apply until the day before your next birthday; the "until your next birthday" option covers that, but each notice's own wording is the final word.

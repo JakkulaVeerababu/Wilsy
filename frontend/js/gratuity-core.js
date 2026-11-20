@@ -40,7 +40,12 @@ export function gratuity({wages, total = 0, joined, left, fixedTerm = false} = {
 }
 
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
-export const spanText = span => span ? [plural(span.years, 'year'), plural(span.months, 'month'), plural(span.days, 'day')].join(', ') : '';
+/** "6 months, 20 days": the parts that aren't zero. */
+export const spanText = span => {
+  if(!span) return '';
+  const parts = [[span.years, 'year'], [span.months, 'month'], [span.days, 'day']].filter(([n]) => n);
+  return (parts.length ? parts : [[0, 'day']]).map(([n, word]) => plural(n, word)).join(', ');
+};
 
 /** The result panel. */
 export function gratuityResult(r) {

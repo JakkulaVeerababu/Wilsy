@@ -17,6 +17,7 @@ const QUICK = [
   ['Job scam check', '/scam-check', 'Is this job offer real?'],
   ['Resume builder', '/resume-builder', 'A one-page resume, saved as a PDF'],
   ['Deadlines calendar', '/deadlines', 'Every last date, soonest first'],
+  ['Interview answers', '/interview-answers', 'Answers to the questions most interviews ask'],
   ['All career tools', '/tools', 'Calculators, tracker and more'],
   ['Hackathons', '/hackathons', 'Open challenges and prizes'],
   ['DSA roadmap', '/dsa', 'Interview patterns and practice'],

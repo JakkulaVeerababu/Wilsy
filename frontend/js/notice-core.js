@@ -74,6 +74,14 @@ export function letterLink(letter, plan) {
   return '/career-letters?' + p;
 }
 
+/** Links to the settlement calculator: the last day, and the notice days not served when you leave early to join. */
+export function settlementLink(plan) {
+  const early = plan.release && plan.release.short > 0;
+  const p = new URLSearchParams({last: early ? plan.release.wanted : plan.end});
+  if(early) p.set('short', String(plan.release.short));
+  return '/full-and-final-settlement?' + p;
+}
+
 /** The result panel. `today` (yyyy-mm-dd) adds how far away the last day is. */
 export function noticeResult(plan, {today = ''} = {}) {
   if(!plan) return `<p class="match-empty">Enter the date you resign and a notice period of up to ${NOTICE_MAX_DAYS} days or ${NOTICE_MAX_MONTHS} months.</p>`;
@@ -88,5 +96,5 @@ export function noticeResult(plan, {today = ''} = {}) {
     <div><span>Notice period</span><strong>${days(plan.length)}</strong><small>${plan.waived ? `${days(plan.waived)} waived, ${days(plan.served)} to serve` : 'Counting the day you resign'}</small></div>
     <div><span>If counted from the next day</span><strong>${e(shortLabel(plan.nextDayRule))}</strong><small>Some companies start the next day</small></div></div>
   ${release}
-  <div class="notice-actions"><a class="secondary-button" href="${e(letterLink('resignation', plan))}">Write your resignation letter</a>${r && r.short > 0 ? `<a class="secondary-button" href="${e(letterLink('early-release', plan))}">Ask to be released early</a>` : ''}</div>`;
+  <div class="notice-actions"><a class="secondary-button" href="${e(letterLink('resignation', plan))}">Write your resignation letter</a>${r && r.short > 0 ? `<a class="secondary-button" href="${e(letterLink('early-release', plan))}">Ask to be released early</a>` : ''}<a class="secondary-button" href="${e(settlementLink(plan))}">Estimate your final settlement</a></div>`;
 }
