@@ -29,7 +29,6 @@
 .home-search-plus .icon{width:20px;height:20px;color:#69738a}
 .home-search input{flex:1;min-width:0;height:50px;border:0;background:transparent;color:#0b1220;font:400 clamp(.98rem,1.2vw,1.1rem) var(--font);letter-spacing:-.025em;outline:0}
 .home-search input::placeholder{color:#69738a}
-.home-search kbd{font:500 12px var(--mono);color:#69738a;border:1px solid #dfe3ec;border-radius:6px;padding:3px 8px}
 .home-search-location{display:flex;align-items:center;gap:6px;padding:0 12px;border-left:1px solid #e3e7ef;color:#0b1220}
 .home-search-location .icon{width:18px;height:18px;opacity:.85}
 .home-search-location select{appearance:none;background:transparent;border:0;color:#0b1220;font:600 14px var(--font);padding:8px 4px;cursor:pointer;outline:0}
@@ -98,8 +97,6 @@
 @media(max-width:520px){.home-trust-strip>p:first-child::before,.home-trust-strip>p:first-child::after{display:none}}
 
 .home-logo-marquee{--logo-gap:clamp(40px,4.4vw,68px);--logo-fade:clamp(44px,11vw,168px);--logo-toggle-right:max(var(--gutter),(100% - var(--container)) / 2);--logo-edge:0px;position:relative;width:min(1320px,100%);margin-inline:auto}
-/* While the pause button shows, logos fade out completely before they reach it. */
-.home-logo-marquee:has(>.home-logo-toggle:not([hidden])){--logo-edge:calc(var(--logo-toggle-right) + 48px)}
 .home-logo-viewport{--logo-mask:linear-gradient(90deg,transparent,#000 var(--logo-fade),#000 calc(100% - var(--logo-edge) - var(--logo-fade)),transparent calc(100% - var(--logo-edge)));overflow:hidden;padding-block:12px;-webkit-mask-image:var(--logo-mask);mask-image:var(--logo-mask)}
 .home-logo-track{display:flex;width:max-content;animation:wilsy-logo-drift calc(var(--logo-count,12) * 5s) linear infinite;will-change:transform}
 .home-logo-row{display:flex;flex:none;align-items:center;gap:var(--logo-gap);margin:0;padding:0 var(--logo-gap) 0 0;list-style:none}
@@ -120,9 +117,11 @@
 .home-logo-track:has(:focus-visible){animation-play-state:paused}
 .home-logo-marquee.is-manual .home-logo-track{animation-name:none}
 @keyframes wilsy-logo-drift{to{transform:translate3d(calc(-100% / 3),0,0)}}
-/* Pause/play: first in focus order, drawn over the faded right edge in line with the page container. */
+/* Pause/play: first in focus order and shown only when a keyboard user tabs to it, over the faded right edge.
+   The loop still stops on hover, on keyboard focus, offscreen and for reduced motion. */
 .home-logo-toggle{position:absolute;top:50%;right:var(--logo-toggle-right);z-index:1;display:grid;place-items:center;width:36px;height:36px;padding:0;border:1px solid var(--line);border-radius:50%;background:var(--surface);color:var(--muted-strong);box-shadow:var(--shadow-sm);cursor:pointer;transform:translateY(-50%);transition:color .2s,border-color .2s,box-shadow .2s}
 .home-logo-toggle[hidden]{display:none}
+.home-logo-toggle:not(:focus-visible){opacity:0;pointer-events:none}
 .home-logo-toggle::after{content:"";position:absolute;inset:-5px;border-radius:50%}
 .home-logo-toggle:hover{color:var(--ink);border-color:var(--line-strong);box-shadow:var(--shadow-md)}
 .home-logo-toggle:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
@@ -302,7 +301,6 @@ html.dark-theme .home-final-cta{background:#000;box-shadow:0 0 0 1px #1d2738}
   .home-search{flex-wrap:wrap;border-radius:26px;padding:10px;gap:8px}
   .home-search-query{flex-basis:100%;padding:0 10px}
   .home-search input{height:50px}
-  .home-search kbd{display:none}
   .home-search-location{border-left:0;flex:1;padding:0 10px}
   .home-search-submit{height:52px;padding:0 22px}
   
@@ -370,8 +368,6 @@ html.dark-theme .home-final-cta{background:#000;box-shadow:0 0 0 1px #1d2738}
 .home-route-grid a:hover{border-color:var(--blue)}
 .home-route-grid strong{font-size:17px;font-weight:600;letter-spacing:-.02em}
 .home-route-grid a>span:last-child{font-size:14px;line-height:1.5;color:var(--muted)}
-.home-route-icon{display:grid;place-items:center;width:40px;height:40px;margin-bottom:8px;border-radius:12px;background:var(--blue-soft,rgba(8,102,255,.08));color:var(--blue)}
-.home-route-icon .icon{width:20px;height:20px}
 @media(max-width:1000px){.home-route-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){
   .home-hero{padding:112px var(--gutter) 64px}
@@ -430,17 +426,19 @@ html.dark-theme .home-hero{background:
 html body .home-shell .home-hero h1{font-size:clamp(3rem,7.4vw,6.8rem)!important;font-weight:500!important;letter-spacing:-.058em!important;line-height:.94!important}
 html body .home-shell .home-hero h1 em{color:#d3ddff!important;font-weight:400!important;letter-spacing:-.05em!important}
 .home-hero-lede{max-width:620px;margin:30px auto 44px;font-size:clamp(1.05rem,1.3vw,1.25rem);color:rgba(255,255,255,.88)}
-/* Search: a crisp white field with a black, corner-cut search button. */
-.home-search{min-height:72px;padding:8px 8px 8px 22px;border-radius:10px;box-shadow:0 34px 70px -24px rgba(4,14,90,.6),0 2px 6px rgba(4,14,90,.12)}
-.home-search:focus-within{box-shadow:0 0 0 4px rgba(255,255,255,.45),0 34px 70px -24px rgba(4,14,90,.6)}
-.home-search-submit{height:56px;padding:0 30px;border-radius:0;background:#05070d;color:#fff;font-size:15px;box-shadow:none;clip-path:polygon(14px 0,100% 0,100% 100%,0 100%,0 14px)}
-.home-search-submit:hover{background:#1f2433}
-.home-search-submit:focus-visible{outline:2px solid #fff;outline-offset:-6px}
+/* Search: a frosted white capsule with a glossy dark button, and frosted chips under it. */
+.home-search{min-height:72px;padding:8px 8px 8px 24px;border:1px solid rgba(255,255,255,.75);border-radius:999px;background:rgba(255,255,255,.86);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);box-shadow:inset 0 1px 0 #fff,0 34px 70px -26px rgba(4,14,90,.62),0 2px 6px rgba(4,14,90,.1)}
+.home-search:focus-within{box-shadow:inset 0 1px 0 #fff,0 0 0 5px rgba(255,255,255,.4),0 34px 70px -26px rgba(4,14,90,.62)}
+.home-search-location{border-left-color:rgba(11,18,32,.1)}
+.home-search-submit{height:56px;padding:0 30px;border-radius:999px;background:linear-gradient(180deg,#2b3244,#05070d);color:#fff;font-size:15px;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 10px 22px -10px rgba(4,8,20,.7)}
+.home-search-submit:hover{background:linear-gradient(180deg,#363f55,#121622)}
+.home-search-submit:focus-visible{outline:2px solid #fff;outline-offset:-5px}
 .home-search-submit .icon{transition:transform .25s var(--ease-out,ease)}
 .home-search-submit:hover .icon{transform:translateX(3px)}
+@media(max-width:760px){.home-search{border-radius:30px;padding:10px}}
 .home-quick-links{margin-top:28px}
-.home-quick-links a{padding:9px 18px;border-radius:6px;border-color:rgba(255,255,255,.34);background:rgba(255,255,255,.06);box-shadow:none}
-.home-quick-links a:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.7)}
+.home-quick-links a{padding:9px 18px;border-radius:999px;border-color:rgba(255,255,255,.36);background:var(--glass-on-blue);-webkit-backdrop-filter:blur(12px) saturate(160%);backdrop-filter:blur(12px) saturate(160%);box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
+.home-quick-links a:hover{background:var(--glass-on-blue-hover);border-color:rgba(255,255,255,.65)}
 /* Stats: three cells set into the frame. */
 .home-hero-stats{display:grid;grid-template-columns:repeat(3,1fr);width:calc(2 * var(--frame-half));margin:76px 0 0;border:0;border-radius:0;background:none;box-shadow:none;overflow:visible}
 .home-hero-stats>div{display:flex;flex-direction:column;justify-content:space-between;gap:18px;padding:26px 32px 28px;text-align:left;border-left:1px solid rgba(255,255,255,.2)}
@@ -448,7 +446,7 @@ html body .home-shell .home-hero h1 em{color:#d3ddff!important;font-weight:400!i
 .home-hero-stats dt{font-size:11px;letter-spacing:.16em;color:rgba(255,255,255,.74)}
 .home-hero-stats dd{margin:0;font-size:clamp(2.2rem,3.6vw,3.4rem);font-weight:500;letter-spacing:-.05em;line-height:1}
 
-/* Header over the hero: square-cut call to action; glassy once the page scrolls. */
+/* Header over the hero: glassy once the page scrolls. */
 .home-page .site-header.is-scrolled{background:color-mix(in srgb,var(--surface) 80%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(18px);backdrop-filter:saturate(1.6) blur(18px)}
 
 /* ---------- Section headings ---------- */
@@ -466,7 +464,7 @@ html body .home-shell .home-display em{color:var(--blue)!important;font-weight:5
 /* styles.css inverts every non-icon SVG in dark mode; these shapes keep their own colours. */
 html.dark-theme .home-shell .home-shape{filter:none}
 .home-browse-grid{margin-top:16px}
-.home-chip-list a{border-radius:6px}
+.home-chip-list a{border-radius:999px}
 .home-browse-all{margin-top:40px}
 
 /* Route cards: white rounded panels with a soft lime glow in the corner. */
@@ -488,19 +486,12 @@ html.dark-theme .home-route-grid a{border-color:color-mix(in srgb,#fff 9%,transp
 html.dark-theme .home-route-grid a::before{opacity:.28}
 html.dark-theme .home-route-grid a:hover::before{opacity:.4}
 .home-route-grid strong{margin-top:auto;font-size:20px;font-weight:500;letter-spacing:-.03em;color:var(--home-ink)}
-.home-route-grid a>span:not(.home-route-icon):not(.home-route-arrow){font-size:14.5px;color:var(--muted)}
-.home-route-icon{width:48px;height:48px;margin-bottom:24px;border-radius:14px;background:linear-gradient(145deg,#4d7bff,#1f45ec);color:#fff;box-shadow:0 10px 24px -10px rgba(59,108,255,.6),inset 0 1px 0 rgba(255,255,255,.35)}
-.home-route-icon .icon{width:22px;height:22px}
+.home-route-grid a>span:not(.home-route-arrow){font-size:14.5px;color:var(--muted)}
 /* The corner arrow sits on the glow: a round white button, like the company cards. */
 .home-route-arrow{position:absolute;top:28px;right:28px;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.7);color:#0a1d3d;transition:transform .3s var(--ease-out,ease),background .25s,color .25s}
 .home-route-arrow .icon{width:16px;height:16px;transform:rotate(-45deg)}
 .home-route-grid a:hover .home-route-arrow{background:var(--blue);color:#fff;transform:translate(2px,-2px)}
 
-/* ---------- Square-cut hero button ----------
-   premium.css rounds every button site-wide with !important. The cards and the closing panel keep
-   premium.css's rounded corners; only the hero search button and the header button are cut square. */
-html body .home-shell .home-hero .home-search-submit{border-radius:0!important}
-html body.home-page .site-header .main-nav a.nav-cta{border-radius:6px!important}
 
 /* DSA banner: an electric panel with the same diagonal light as the hero. */
 .home-dsa-banner{border:0;color:#fff;box-shadow:0 34px 70px -30px rgba(31,69,236,.75);background:

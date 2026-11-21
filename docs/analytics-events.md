@@ -22,7 +22,7 @@ Events never carry personal data: no email addresses, names, job ids, account id
 | `apply_click` | A visitor follows an apply link to the employer's site (click or middle-click). | `from`: `card`, `dialog`, `job_page` or `compare`. `page`: `home`, `jobs`, `job` (a /jobs/&lt;id&gt; page), `landing`, `company` or `other`. |
 | `job_save` | A job is saved (not when it is removed). | `page`: `home`, `jobs` (a results card) or `dialog` (the job dialog). |
 | `search_save` | "Save this search" stores a search. | `filters`: see below. |
-| `sign_in` | Sign-in completes. | `method`: `email_code` (typed code), `google`, or `email_link` (the link in the sign-in email). |
+| `sign_in` | Sign-in completes. | `method`: `email_code` (typed code), `google`, `github`, or `email_link` (the link in the sign-in email). |
 | `alert_on` | A saved search's alerts go from off to daily or weekly. Changing daily to weekly is not counted. | `frequency`: `daily` or `weekly`. |
 | `app_install` | The browser reports WILSY was installed as an app. | `via`: `wilsy_button` (the "Install app" entry) or `browser` (the browser's own install menu). |
 | `share` | A visitor shares a job or page with the share buttons. | `via`: `whatsapp`, `copy` (copy link) or `native` (the phone's share sheet). `page`: as for `apply_click`. |

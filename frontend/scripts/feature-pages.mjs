@@ -61,13 +61,14 @@ export const TOOLS = [
   ['/embed', 'link', 'Jobs widget', 'Live jobs for your college, club or community website.', 'Share'],
   ['/feed.xml', 'rss', 'New jobs RSS feed', 'Follow new jobs in any feed reader.', 'Share'],
 ];
-export const toolCard = ([url, ic, name, text], tag = 'h3') => `<a class="tool-card" href="${url}"><span class="tool-card-icon">${icon(ic)}</span><${tag}>${e(name)}</${tag}><p>${e(text)}</p><span class="tool-card-go" aria-hidden="true">${icon('arrow')}</span></a>`;
+// Text-first cards: the icon name stays in the data, but no icon tile is drawn.
+export const toolCard = ([url, , name, text], tag = 'h3') => `<a class="tool-card" href="${url}"><${tag}>${e(name)}</${tag}><p>${e(text)}</p><span class="tool-card-go" aria-hidden="true">${icon('arrow')}</span></a>`;
 const hero = (eyebrow, title, text) => `<div class="editorial-hero"><p class="eyebrow">${e(eyebrow)}</p><h1>${e(title)}</h1><p>${e(text)}</p></div>`;
 
 /** Share a page: WhatsApp (a plain link, works without scripts), copy link, and the phone's share sheet. */
 export function shareBar(url, text, {label = 'Share this role'} = {}) {
   const shared = url + (url.includes('?') ? '&' : '?') + 'utm_source=whatsapp&utm_medium=share';
-  return `<div class="share-bar" role="group" aria-label="${e(label)}"><a class="share-button share-whatsapp" data-share-whatsapp href="${e(whatsappUrl(text, shared))}" target="_blank" rel="noopener noreferrer">${icon('message')}<span>WhatsApp</span></a><button class="share-button" type="button" data-share-copy="${e(url)}">${icon('link')}<span data-label>Copy link</span></button><button class="share-button" type="button" data-share-native="${e(url)}" data-share-title="${e(text)}" hidden>${icon('external')}<span>Share</span></button></div>`;
+  return `<div class="share-bar" role="group" aria-label="${e(label)}"><a class="share-button share-whatsapp" data-share-whatsapp href="${e(whatsappUrl(text, shared))}" target="_blank" rel="noopener noreferrer"><span>WhatsApp</span></a><button class="share-button" type="button" data-share-copy="${e(url)}"><span data-label>Copy link</span></button><button class="share-button" type="button" data-share-native="${e(url)}" data-share-title="${e(text)}" hidden><span>Share</span></button></div>`;
 }
 
 // Pressed on any job page, the bookmarklet opens the tracker's "Add an application" form, filled in.
@@ -79,9 +80,9 @@ export function trackerBody({fx}) {
   ${hero('YOUR APPLICATIONS', 'Track every application.', 'Saved roles land here, and you can add jobs from any other site. Move them from Saved to Applied, Interviewing and Offer, set interview reminders and keep notes.')}
   <section class="tracker" data-tracker aria-label="Application board">
     <div class="tracker-top"><p class="tracker-summary" data-tracker-summary tabindex="-1">Loading your board…</p>
-      <div class="tracker-tools"><button class="primary-button" type="button" data-add-open>${icon('plus')} Add an application</button><a class="secondary-button" href="/jobs">${icon('search')} Find roles to save</a><button class="secondary-button" type="button" data-export disabled>Download spreadsheet</button></div></div>
+      <div class="tracker-tools"><button class="primary-button" type="button" data-add-open>Add an application</button><a class="secondary-button" href="/jobs">Find roles to save</a><button class="secondary-button" type="button" data-export disabled>Download spreadsheet</button></div></div>
     <p class="tracker-status" data-tracker-status role="status" aria-live="polite"></p>
-    <section class="tracker-upcoming" data-upcoming aria-labelledby="upcoming-title" hidden><h2 id="upcoming-title">${icon('clock')} Coming up</h2><ol></ol></section>
+    <section class="tracker-upcoming" data-upcoming aria-labelledby="upcoming-title" hidden><h2 id="upcoming-title">Coming up</h2><ol></ol></section>
     <details class="tracker-add" id="add" data-add><summary>Add an application from another site</summary>
       <form class="tracker-add-form" data-add-form novalidate>
         <div class="calc-field"><label for="add-title">Role</label><input id="add-title" name="title" maxlength="200" autocomplete="off" placeholder="Software Engineer"></div>
@@ -93,7 +94,7 @@ export function trackerBody({fx}) {
         <p class="tracker-add-error" data-add-error role="alert" hidden></p>
         <div class="tracker-add-actions"><button class="primary-button" type="submit">Add to the board</button></div>
       </form>
-      <p class="salary-note tracker-add-tip">Faster: on a phone, share a job from LinkedIn, Naukri or your browser to the installed WILSY app and it opens here, filled in. On a computer, drag this button to your bookmarks bar, then press it on any job page: <a class="bookmarklet" href="${e(bookmarklet(site.origin))}" data-bookmarklet>${icon('plus')} Add to WILSY</a></p>
+      <p class="salary-note tracker-add-tip">Faster: on a phone, share a job from LinkedIn, Naukri or your browser to the installed WILSY app and it opens here, filled in. On a computer, drag this button to your bookmarks bar, then press it on any job page: <a class="bookmarklet" href="${e(bookmarklet(site.origin))}" data-bookmarklet>Add to WILSY</a></p>
     </details>
     <div class="tracker-board">${STAGES.map(([id, name]) => `<section class="tracker-col" data-col="${id}" aria-labelledby="col-${id}"><h2 id="col-${id}">${name} <span>0</span></h2><ol class="tracker-list"></ol></section>`).join('')}</div>
     <noscript><p class="tracker-status">The tracker needs JavaScript. Your <a href="/jobs?saved=1">saved jobs</a> still work without it.</p></noscript>
@@ -155,7 +156,7 @@ export function offerBody() {
   <section class="offers" data-offers aria-label="Compare job offers">
     <form class="offer-form" data-offer-form novalidate>${offerFields(DEFAULT_OFFERS)}</form>
     <div class="offer-result" data-offer-result aria-live="polite">${offerTable(DEFAULT_OFFERS)}</div>
-    <div class="offer-tools"><button class="secondary-button" type="button" data-offer-copy>${icon('link')} Copy a link to this comparison</button><a class="secondary-button" href="/salary-calculator">See the full in-hand breakdown</a></div>
+    <div class="offer-tools"><button class="secondary-button" type="button" data-offer-copy>Copy a link to this comparison</button><a class="secondary-button" href="/salary-calculator">See the full in-hand breakdown</a></div>
     <p class="offer-status" data-offer-status role="status" aria-live="polite"></p>
     <p class="quiet-callout">The same estimate as the <a href="/salary-calculator">in-hand calculator</a>: the new tax regime for FY ${FY}, basic pay at 50% of fixed pay, PF at 12% of basic and gratuity inside the CTC. Variable pay counts as if paid in full. Equity is shown as stated and never added to cash. Everything is worked out in your browser; a copied link carries only what you typed.</p>
   </section>
@@ -315,7 +316,7 @@ export function lettersBody() {
 
 export function resumeBuilderBody() {
   const draft = emptyDraft(), main = key => mainFieldHtml(key, draft[key]);
-  const list = (name, legend, add) => `<fieldset class="rb-part"><legend>${e(legend)}</legend><div class="rb-entries" data-rb-entries="${name}">${draft[name].map((entry, i) => entryForm(name, entry, i)).join('')}</div><button type="button" class="secondary-button rb-add" data-rb-add="${name}">${icon('plus')} ${e(add)}</button></fieldset>`;
+  const list = (name, legend, add) => `<fieldset class="rb-part"><legend>${e(legend)}</legend><div class="rb-entries" data-rb-entries="${name}">${draft[name].map((entry, i) => entryForm(name, entry, i)).join('')}</div><button type="button" class="secondary-button rb-add" data-rb-add="${name}">${e(add)}</button></fieldset>`;
   return `<main id="main-content" class="editorial-shell rb-shell">${toolCrumbs('Resume builder')}
   ${hero('RESUME BUILDER', 'Build a clean, one-page resume.', 'Fill in your details and watch your resume take shape, then save it as a PDF, copy it as text or check it against a job. Free, with no sign-up, and nothing is uploaded.')}
   <section class="rb" data-rb aria-label="Resume builder">
@@ -665,7 +666,7 @@ export function embedBody() {
 /** Job pages: write a referral request to someone at the company. features.js rebuilds it as you type. */
 export function referralBox(job, url) {
   const people = 'https://www.linkedin.com/search/results/people/?keywords=' + encodeURIComponent(job.company);
-  return `<details class="ask-referral" id="ask-referral" data-referral="${e(JSON.stringify({title: job.title, company: job.company, url}))}"><summary>${icon('message')} Ask someone at ${e(job.company)} for a referral</summary>
+  return `<details class="ask-referral" id="ask-referral" data-referral="${e(JSON.stringify({title: job.title, company: job.company, url}))}"><summary>Ask someone at ${e(job.company)} for a referral</summary>
   <div class="referral-body"><p>A referral can get your application read sooner. Find people who work there on <a href="${e(people)}" target="_blank" rel="noopener noreferrer">LinkedIn</a>, then send a short, polite note.</p>
     <div class="referral-fields"><div class="calc-field"><label for="referral-me">Your name</label><input id="referral-me" name="me" autocomplete="name" maxlength="60"></div><div class="calc-field"><label for="referral-about">About you, in a few words</label><input id="referral-about" name="about" maxlength="120" placeholder="final-year CSE student at VIT"></div></div>
     <fieldset class="referral-kind"><legend>Message</legend><label><input type="radio" name="referral-kind" value="note" checked> LinkedIn note (300 characters)</label><label><input type="radio" name="referral-kind" value="message"> Full message</label></fieldset>

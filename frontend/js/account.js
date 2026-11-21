@@ -6,19 +6,24 @@ import {track} from './analytics.js';
 
 // Optional accounts: the header button, sign-in dialog and background sync of saved lists.
 const auth=createAuth();
-const state={view:'email',email:'',code:'',message:'',busy:false,counts:null,alerts:{},syncError:'',google:null};
+const state={view:'email',email:'',code:'',message:'',busy:false,counts:null,alerts:{},syncError:'',providers:null};
 let dialog,button,pending=null,again=false,debounce;
-const METHOD_KEY='wilsy-sign-in-method'; // remembers a Google sign-in across the redirect, for analytics
+const METHOD_KEY='wilsy-sign-in-method'; // remembers a Google or GitHub sign-in across the redirect, for analytics
 
 function plural(n,word){return `${n} ${word}${n===1?'':'s'}`;}
 function label(){if(button)button.textContent=auth.session()?'Account':'Sign in';}
 
+const OAUTH_NAMES={google:'Google',github:'GitHub'};
+function oauthButtons() {
+  const on=Object.keys(OAUTH_NAMES).filter(p=>state.providers?.[p]);
+  return on.length?`<div class="account-or"><span>or</span></div>${on.map(p=>`<button class="account-secondary" type="button" data-provider="${p}">Continue with ${OAUTH_NAMES[p]}</button>`).join('')}`:'';
+}
 function emailView() {
   return `<p>Sync saved jobs, hackathons and searches across your devices and choose job alerts. No password needed.</p>
     <form class="account-form" data-form="email" novalidate><label for="account-email">Email address</label>
       <input id="account-email" name="email" type="email" autocomplete="email" inputmode="email" required value="${e(state.email)}">
       <button class="account-primary" type="submit"${state.busy?' disabled':''}>${state.busy?'Sending…':'Email me a sign-in code'}</button></form>
-    ${state.google?'<div class="account-or"><span>or</span></div><button class="account-secondary" type="button" data-google>Continue with Google</button>':''}
+    ${oauthButtons()}
     <p class="account-note">Anything you saved on this device is added to your account. <a href="/privacy#accounts">How accounts work</a></p>`;
 }
 function codeView() {
@@ -63,7 +68,7 @@ async function open(message='') {
   state.message=message;render();
   if(!dialog.open)dialog.showModal();
   focusFirst();
-  if(state.google===null&&!auth.session())auth.providers().then(p=>{state.google=p.google;if(p.google&&dialog.open&&state.view==='email')render();}).catch(()=>{state.google=false;});
+  if(state.providers===null&&!auth.session())auth.providers().then(p=>{state.providers=p;if(Object.values(p).some(Boolean)&&dialog.open&&state.view==='email')render();}).catch(()=>{state.providers={};});
 }
 
 async function run(task) {
@@ -94,7 +99,8 @@ function bind() {
     if(t===dialog||t.closest('[data-close]'))return dialog.close();
     if(t.closest('[data-restart]')){state.view='email';state.code='';state.message='';return render();}
     if(t.closest('[data-resend]'))return run(async()=>{await auth.sendEmail(state.email);state.code='';state.message='A new code is on its way.';});
-    if(t.closest('[data-google]'))return run(async()=>{try{sessionStorage.setItem(METHOD_KEY,'google');}catch{}location.assign(await auth.googleUrl());});
+    const provider=t.closest('[data-provider]')?.dataset.provider;
+    if(provider)return run(async()=>{try{sessionStorage.setItem(METHOD_KEY,provider);}catch{}location.assign(await auth.providerUrl(provider));});
     if(t.closest('[data-signout]'))return run(async()=>{await auth.signOut();forgetAccount(localStorage);
       for(const key of ['wilsy-saved-jobs','wilsy-saved-hackathons','wilsy-saved-searches-v1'])window.dispatchEvent(new StorageEvent('storage',{key}));
       Object.assign(state,{view:'email',counts:null,alerts:{}});state.message='Signed out.';});

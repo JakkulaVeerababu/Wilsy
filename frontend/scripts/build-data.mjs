@@ -7,6 +7,8 @@ const previous = JSON.parse(await fs.readFile('data/companies.json','utf8').catc
 const cached = new Map((previous.companies||[]).map(c=>[c.id,c]));
 const careers = JSON.parse(await fs.readFile('../.research/career-links.json','utf8').catch(()=>'{}'));
 const key = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+// Names and taglines are shown as plain text, so emoji in a company's own tagline are left out.
+export const plain = (s) => String(s || '').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B50}\u{2B55}\u{FE0F}\u{200D}]/gu, '').replace(/\s{2,}/g, ' ').trim();
 const safeUrl = (s) => { try { const u = new URL(s); return ['https:', 'http:'].includes(u.protocol) ? u.href : null; } catch { return null; } };
 export function parseSalary(s) {
   if (!s || !/^\$/.test(s) || /CAD|AUD|SGD|NZD|HKD|month|hour|week|day|OTE/i.test(s)) return null;
@@ -42,7 +44,7 @@ const featuredKeys = new Set(featured.map(c=>key(c.name)));
 const candidates = input.filter(c => ['Active','Public'].includes(c.status) && !c.nonprofit && safeUrl(c.website) && safeUrl(c.logo_url || c.small_logo_thumb_url) && !featuredKeys.has(key(c.name))).map(c=>({c,jobs:listedJobs(c)})).filter(x=>x.jobs.length);
 candidates.sort((a,b) => Number(b.c.top_company) - Number(a.c.top_company) || (b.c.team_size || 0) - (a.c.team_size || 0) || a.c.name.localeCompare(b.c.name));
 const seen = new Set();
-const companies = featured.map((c,i) => ({ id: c.slug, name:c.name, description:c.description, website:c.website, careers:c.careers, careersHost:'Company careers', source:c.source, sourceName:'Employer careers website', logo:`assets/logos/${c.slug}.svg`, logoKey:c.logoKey, sector:c.sector, location:c.location, regions:[c.location], tags:c.tags, stage:'Established', teamSize:null, featured:true, tier:tier(c), salary:{min:c.min,max:c.max}, payKind:c.payKind, role:'Engineering', sample:{title:c.title,role:'Engineering',location:c.jobLocation,experience:c.experience,salary:{min:c.min,max:c.max},equity:c.equity,bonus:c.bonus,payKind:c.payKind,source:c.source,remote:false}, jobs:[], remote:false, checkedAt:snapshot, order:i }));
+const companies = featured.map((c,i) => ({ id: c.slug, name:plain(c.name), description:plain(c.description), website:c.website, careers:c.careers, careersHost:'Company careers', source:c.source, sourceName:'Employer careers website', logo:`assets/logos/${c.slug}.svg`, logoKey:c.logoKey, sector:c.sector, location:c.location, regions:[c.location], tags:c.tags, stage:'Established', teamSize:null, featured:true, tier:tier(c), salary:{min:c.min,max:c.max}, payKind:c.payKind, role:'Engineering', sample:{title:c.title,role:'Engineering',location:c.jobLocation,experience:c.experience,salary:{min:c.min,max:c.max},equity:c.equity,bonus:c.bonus,payKind:c.payKind,source:c.source,remote:false}, jobs:[], remote:false, checkedAt:snapshot, order:i }));
 for (const {c,jobs} of candidates) {
   if(companies.length >= 1000) break;
   const domain = new URL(c.website).hostname.replace(/^www\./,'');
@@ -53,7 +55,7 @@ for (const {c,jobs} of candidates) {
   const sample = eligible[Math.floor((eligible.length-1)/2)];
   const profile = safeUrl(c.url);
   const careers = `${profile.replace(/\/$/,'')}/jobs`;
-  companies.push({id:c.slug,name:c.name,description:(c.one_liner || `${c.industry} technology company.`).slice(0,210),website:safeUrl(c.website),careers,careersHost:'Company jobs on YC',source:profile,sourceName:'Employer profile on Y Combinator',logo:c.logo_url||c.small_logo_thumb_url,sector:sector(c),location:c.all_locations || 'Location not listed',regions:c.regions || [],tags:(c.tags||[]).slice(0,5),stage:c.status==='Public'?'Established':c.stage==='Growth'?'Growth':'Startup',teamSize:c.team_size||null,featured:false,tier:tier(sample.salary),salary:sample.salary,payKind:sample.payKind,role:sample.role,sample,jobs:[sample,...jobs.filter(j=>j.source!==sample.source)].slice(0,6),remote:jobs.some(j=>j.remote),checkedAt:snapshot,order:companies.length});
+  companies.push({id:c.slug,name:plain(c.name),description:plain(c.one_liner || `${c.industry} technology company.`).slice(0,210),website:safeUrl(c.website),careers,careersHost:'Company jobs on YC',source:profile,sourceName:'Employer profile on Y Combinator',logo:c.logo_url||c.small_logo_thumb_url,sector:sector(c),location:c.all_locations || 'Location not listed',regions:c.regions || [],tags:(c.tags||[]).slice(0,5),stage:c.status==='Public'?'Established':c.stage==='Growth'?'Growth':'Startup',teamSize:c.team_size||null,featured:false,tier:tier(sample.salary),salary:sample.salary,payKind:sample.payKind,role:sample.role,sample,jobs:[sample,...jobs.filter(j=>j.source!==sample.source)].slice(0,6),remote:jobs.some(j=>j.remote),checkedAt:snapshot,order:companies.length});
 }
 if(companies.length!==1000) throw new Error(`Expected 1,000 unique companies, found ${companies.length}`);
 for(const c of companies){

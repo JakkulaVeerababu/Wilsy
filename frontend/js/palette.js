@@ -34,10 +34,9 @@ function build() {
   dialog.innerHTML = `<div class="palette-panel"><h2 id="palette-title" class="sr-only">Quick search</h2>
     <div class="palette-field"><svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
       <input id="palette-input" type="search" role="combobox" aria-expanded="true" aria-controls="palette-list" aria-autocomplete="list" autocomplete="off" spellcheck="false" placeholder="Search jobs, companies, pages…" aria-label="Search jobs, companies and pages">
-      <button class="palette-close" type="button" data-palette-close>Esc</button></div>
+      <button class="palette-close" type="button" data-palette-close>Cancel</button></div>
     <ul id="palette-list" class="palette-list" role="listbox" aria-label="Results"></ul>
-    <p class="palette-status" role="status" aria-live="polite"></p>
-    <p class="palette-hint" aria-hidden="true"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>Enter</kbd> open</span><span><kbd>Esc</kbd> close</span></p></div>`;
+    <p class="palette-status" role="status" aria-live="polite"></p></div>`;
   document.body.append(dialog);
   input = dialog.querySelector('input'); list = dialog.querySelector('ul'); status = dialog.querySelector('.palette-status');
   input.addEventListener('input', () => { active = 0; render(); queueJobs(); });

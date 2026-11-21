@@ -1,9 +1,10 @@
 import {supabaseConfig} from './supabase-config.js';
 
-// Minimal Supabase Auth client: email code or link, Google, refresh and sign-out. Links and
+// Minimal Supabase Auth client: email code or link, Google or GitHub, refresh and sign-out. Links and
 // OAuth use PKCE, so tokens never appear in URLs. Dependencies are injectable for tests.
 export const SESSION_KEY='wilsy-auth';
 const VERIFIER_KEY='wilsy-auth-verifier';
+export const OAUTH=['google','github'];
 const EMAIL=/^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/;
 
 export class AuthError extends Error {
@@ -71,15 +72,18 @@ export function createAuth({storage=globalThis.localStorage,fetcher=globalThis.f
       if(!/^\d{6,10}$/.test(code))throw new AuthError('Enter the code from your email.',0);
       return store(await request('verify',{body:{type:'email',email,token:code}}));
     },
-    async googleUrl() {
+    // The address that starts a Google or GitHub sign-in.
+    async providerUrl(provider) {
+      if(!OAUTH.includes(provider))throw new AuthError('That sign-in option is not available.',0);
       const pkce=await challenge();
-      return `${root}/authorize?${new URLSearchParams({provider:'google',redirect_to:returnTo(),...pkce})}`;
+      return `${root}/authorize?${new URLSearchParams({provider,redirect_to:returnTo(),...pkce})}`;
     },
+    // Which of Google and GitHub are switched on in Supabase; a button shows only for those.
     async providers() {
       const settings=await request('settings',{method:'GET'});
-      return {google:settings.external?.google===true};
+      return Object.fromEntries(OAUTH.map(p=>[p,settings.external?.[p]===true]));
     },
-    // Finishes an email-link or Google sign-in when the page loads with ?code= or an auth error.
+    // Finishes an email-link, Google or GitHub sign-in when the page loads with ?code= or an auth error.
     async completeRedirect() {
       const url=new URL(location.href);
       const code=url.searchParams.get('code'),failure=url.searchParams.get('error_description');

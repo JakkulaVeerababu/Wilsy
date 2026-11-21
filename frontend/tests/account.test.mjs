@@ -84,3 +84,13 @@ test('Auth errors read clearly',()=>{
   assert.match(authMessage(500,{msg:'db down'}),/unavailable right now/);
   assert.match(authMessage(403,{msg:'Token has expired or is invalid'}),/expired or was already used/);
 });
+test('Google and GitHub sign-in start from Supabase, and only switched-on ones are offered',async()=>{
+  const {auth}=fakeAuth({responses:{settings:[200,{external:{email:true,google:true,github:false}}]}});
+  assert.deepEqual(await auth.providers(),{google:true,github:false});
+  for(const provider of ['google','github']){
+    const url=new URL(await auth.providerUrl(provider));
+    assert.match(url.pathname,/\/auth\/v1\/authorize$/);assert.equal(url.searchParams.get('provider'),provider);
+    assert.equal(url.searchParams.get('code_challenge_method'),'s256');assert.equal(url.searchParams.get('redirect_to'),'https://www.wilsy.in/jobs');
+  }
+  await assert.rejects(auth.providerUrl('facebook'),/not available/);
+});

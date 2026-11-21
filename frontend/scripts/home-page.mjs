@@ -25,7 +25,7 @@ function featuredCard(item,companies) {
   return `<a class="home-featured-company" href="${companyLink(item,companies)}">
     ${jobLogo({company:item.name,company_slug:item.slug},companies)}<h3>${e(item.name)}</h3>
     <p><strong>${count(item.roles)}</strong> open roles</p>
-    ${item.verified === true ? `<span class="home-verified-label">${icon('check')} Employer verified</span>` : '<span class="home-verified-label">Source-linked roles</span>'}
+    ${item.verified === true ? `<span class="home-verified-label">Employer verified</span>` : '<span class="home-verified-label">Source-linked roles</span>'}
     <span class="home-featured-arrow" aria-hidden="true">${icon('arrow')}</span>
   </a>`;
 }
@@ -75,7 +75,7 @@ function browse(dsaStats) {
       <div class="home-browse-group"><h3>By role</h3><nav class="home-chip-list" aria-label="Jobs by role">${browseRoles.map(chip).join('')}</nav></div>
       <div class="home-browse-group"><h3>By career stage</h3><nav class="home-chip-list" aria-label="Jobs by career stage">${browseStages.map(chip).join('')}</nav></div>
     </div>
-    <div class="home-route-grid">${routes.map(([url,ic,title,text])=>`<a href="${url}"><span class="home-route-icon">${icon(ic)}</span><strong>${title}</strong><span>${text}</span><span class="home-route-arrow" aria-hidden="true">${icon('arrow')}</span></a>`).join('')}</div>
+    <div class="home-route-grid">${routes.map(([url,,title,text])=>`<a href="${url}"><strong>${title}</strong><span>${text}</span><span class="home-route-arrow" aria-hidden="true">${icon('arrow')}</span></a>`).join('')}</div>
     <a class="home-section-link home-browse-all" href="/jobs">All jobs ${icon('arrow')}</a>
   </section>`;
 }
@@ -92,7 +92,7 @@ export function homePage({snapshot, companies, guides, fx, dsaStats}) {
       <h1 id="home-title">Find the work<br><em>that moves you forward.</em></h1>
       <p class="home-hero-lede">Jobs, internships, government notices and hackathons for India. Every role links to the employer, with pay in rupees.</p>
       <form class="home-search" id="job-search-form" action="/jobs" method="get" role="search">
-        <div class="home-search-query"><span class="home-search-plus">${icon('search')}</span><label class="sr-only" for="job-search">Role, company or skill</label><input id="job-search" name="q" maxlength="200" autocomplete="off" placeholder="Job title, company or skill"><kbd aria-hidden="true">/</kbd></div>
+        <div class="home-search-query"><span class="home-search-plus">${icon('search')}</span><label class="sr-only" for="job-search">Role, company or skill</label><input id="job-search" name="q" maxlength="200" autocomplete="off" placeholder="Job title, company or skill"></div>
         <label class="home-search-location"><span class="sr-only">Country</span>${icon('pin')}<select id="job-location" name="country"><option value="">Anywhere</option><option value="India">India</option><option value="United States">United States</option><option value="United Kingdom">United Kingdom</option></select></label>
         <button class="home-search-submit" type="submit">Search ${icon('arrow')}</button>
       </form>
@@ -104,7 +104,7 @@ export function homePage({snapshot, companies, guides, fx, dsaStats}) {
       </dl>
     </div>
   </section>
-  <section class="home-trust-strip" aria-label="Companies represented in the collection"><p>Roles and research from teams including</p>${logoStrip(featured,companies)}<p class="home-trust-line">${icon('check')} Every listing links to its source. No affiliation or endorsement implied.</p></section>
+  <section class="home-trust-strip" aria-label="Companies represented in the collection"><p>Roles and research from teams including</p>${logoStrip(featured,companies)}<p class="home-trust-line">Every listing links to its source. No affiliation or endorsement implied.</p></section>
   ${browse(dsaStats)}
   <section class="home-opportunities home-section" id="fresh-opportunities" aria-labelledby="fresh-title">
     <div class="home-section-heading"><div><p class="home-kicker">FRESH OPPORTUNITIES</p><h2 id="fresh-title">Hiring <em>right now.</em></h2></div><a class="home-section-link" href="/jobs">View all jobs ${icon('arrow')}</a></div>
