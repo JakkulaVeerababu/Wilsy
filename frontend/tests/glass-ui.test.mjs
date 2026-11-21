@@ -72,3 +72,12 @@ test('Homepage hero: blue glass with an italic serif line, and no grid lines or 
   assert.match(home, /<body class="has-hero home-page">/);
   assert.doesNotMatch(home, /home-hero-frame|home-stage/);
 });
+
+test('Homepage hero: the WILSY index line and four frosted chips, hidden from screen readers', async () => {
+  const css = await read('css/homepage.css'), home = await read('dist/index.html');
+  assert.match(home, /<p class="home-live-pill"><span><\/span> INTRODUCING THE WILSY INDEX<\/p>/);
+  assert.match(home, /<div class="home-hero-chips" aria-hidden="true"><span class="hero-chip hero-chip-1">/);
+  assert.match(home, /INR salary context<\/span><\/div>/);
+  assert.match(css, /@media\(max-width:1199px\)\{html body \.home-shell \.home-hero-chips\{display:none\}\}/);
+  assert.match(css, /@media\(prefers-reduced-motion:reduce\)\{html body \.home-shell \.hero-chip,/);
+});

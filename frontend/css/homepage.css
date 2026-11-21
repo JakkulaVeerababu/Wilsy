@@ -621,3 +621,24 @@ html body .home-shell .home-hero::after{content:"";position:absolute;left:0;righ
     color-mix(in srgb,var(--paper) 86%,transparent) 84%,var(--paper) 100%)}
 html body .home-shell .home-hero-copy{z-index:2}
 @media(max-width:760px){html body .home-shell .home-hero::after{height:170px}}
+/* ---------- Hero pill and floating chips ----------
+   "Introducing the WILSY index" above the headline, and four frosted glass chips that drift slowly
+   around it on wide screens. Hidden on narrower screens, still with reduced motion. */
+html body .home-shell .home-hero{position:relative;overflow:hidden}
+html body .home-shell .home-live-pill{display:inline-flex;align-items:center;gap:12px;margin:0 0 30px;font:600 12px/1 var(--mono);letter-spacing:.22em;color:rgba(255,255,255,.92)}
+html body .home-shell .home-live-pill span{width:8px;height:8px;border-radius:50%;background:#7dffc4;box-shadow:0 0 0 4px rgba(125,255,196,.25);animation:wilsy-chip-pulse 2.4s ease-in-out infinite}
+html body .home-shell .home-hero-chips{position:absolute;inset:0;z-index:1;pointer-events:none}
+html body .home-shell .hero-chip{position:absolute;display:inline-flex;align-items:center;gap:10px;padding:11px 18px;border-radius:14px;font-size:15px;font-weight:600;letter-spacing:-.02em;color:#fff;
+  background:linear-gradient(135deg,rgba(18,42,160,.5),rgba(40,80,235,.24));border:1px solid rgba(255,255,255,.24);-webkit-backdrop-filter:blur(16px) saturate(160%);backdrop-filter:blur(16px) saturate(160%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 20px 50px -12px rgba(5,20,100,.35);animation:wilsy-chip-float 7s ease-in-out infinite}
+html body .home-shell .hero-chip .icon{width:19px;height:19px}
+html body .home-shell .hero-chip img{width:30px;height:30px;border-radius:8px;background:#fff;padding:4px;object-fit:contain}
+html body .home-shell .hero-chip-1{left:7%;top:27%}
+html body .home-shell .hero-chip-2{right:7%;top:23%;animation-delay:-4s}
+html body .home-shell .hero-chip-3{left:5%;top:72%;animation-delay:-2s}
+html body .home-shell .hero-chip-4{right:5%;top:70%;animation-delay:-1s}
+@keyframes wilsy-chip-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes wilsy-chip-pulse{0%,100%{box-shadow:0 0 0 4px rgba(125,255,196,.25)}50%{box-shadow:0 0 0 7px rgba(125,255,196,.08)}}
+@media(max-width:1199px){html body .home-shell .home-hero-chips{display:none}}
+@media(max-width:760px){html body .home-shell .home-live-pill{margin-bottom:22px;font-size:10px;letter-spacing:.16em}}
+@media(prefers-reduced-motion:reduce){html body .home-shell .hero-chip,html body .home-shell .home-live-pill span{animation:none}}

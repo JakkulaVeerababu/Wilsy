@@ -80,6 +80,14 @@ function browse(dsaStats) {
   </section>`;
 }
 
+// Four frosted chips that float around the hero on wide screens: two hiring companies from the
+// snapshot and two promises. Decorative, so hidden from screen readers and from phones.
+function heroChips(featured,companies) {
+  const logos = featured.map(item=>profileFor({company:item.name,company_slug:item.slug},companies)).filter(c=>c?.logo).slice(0,2);
+  const logo = (c,n) => `<span class="hero-chip hero-chip-logo hero-chip-${n}"><img src="/${e(c.logo)}" alt="" width="26" height="26" loading="lazy" decoding="async">${e(c.name)}</span>`;
+  return `<div class="home-hero-chips" aria-hidden="true"><span class="hero-chip hero-chip-1">${icon('check')} Source verified</span>${logos[0]?logo(logos[0],2):''}${logos[1]?logo(logos[1],3):''}<span class="hero-chip hero-chip-4">${icon('rupee')} INR salary context</span></div>`;
+}
+
 export function homePage({snapshot, companies, guides, fx, dsaStats}) {
   const jobs = snapshot.jobs.slice(0,6), featured = snapshot.featured.slice(0,6);
   const now = Date.now();
@@ -87,6 +95,7 @@ export function homePage({snapshot, companies, guides, fx, dsaStats}) {
   return `<main id="main-content" class="home-shell">
   <section class="home-hero" aria-labelledby="home-title">
     <div class="home-hero-copy">
+      <p class="home-live-pill"><span></span> INTRODUCING THE WILSY INDEX</p>
       <h1 id="home-title">Find the work<br><em>that moves you forward.</em></h1>
       <p class="home-hero-lede">Jobs, internships, government notices and hackathons for India. Every role links to the employer, with pay in rupees.</p>
       <form class="home-search" id="job-search-form" action="/jobs" method="get" role="search">
@@ -96,6 +105,7 @@ export function homePage({snapshot, companies, guides, fx, dsaStats}) {
       </form>
       <nav class="home-quick-links" aria-label="Quick job searches"><span>Try</span><a href="/jobs?stage=internship">Internships</a><a href="/jobs?stage=fresher">Freshers</a><a href="/jobs?mode=remote">Remote</a><a href="/government-jobs">Government</a><a href="/jobs?time=today">Today</a></nav>
     </div>
+    ${heroChips(featured,companies)}
   </section>
   <section class="home-trust-strip" aria-label="Companies represented in the collection"><p>Roles and research from teams including</p>${logoStrip(featured,companies)}<p class="home-trust-line">Every listing links to its source. No affiliation or endorsement implied.</p></section>
   ${browse(dsaStats)}
