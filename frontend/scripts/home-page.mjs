@@ -86,9 +86,7 @@ export function homePage({snapshot, companies, guides, fx, dsaStats}) {
   const date = new Intl.DateTimeFormat('en-IN',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Kolkata'}).format(new Date(snapshot.updatedAt));
   return `<main id="main-content" class="home-shell">
   <section class="home-hero" aria-labelledby="home-title">
-    <div class="home-hero-frame" aria-hidden="true"><i></i><i></i></div>
     <div class="home-hero-copy">
-      <p class="home-live-pill"><span></span> SOURCE-LINKED ROLES · UPDATED <time data-snapshot-date datetime="${e(snapshot.updatedAt)}">${e(date)}</time></p>
       <h1 id="home-title">Find the work<br><em>that moves you forward.</em></h1>
       <p class="home-hero-lede">Jobs, internships, government notices and hackathons for India. Every role links to the employer, with pay in rupees.</p>
       <form class="home-search" id="job-search-form" action="/jobs" method="get" role="search">
@@ -97,11 +95,6 @@ export function homePage({snapshot, companies, guides, fx, dsaStats}) {
         <button class="home-search-submit" type="submit">Search ${icon('arrow')}</button>
       </form>
       <nav class="home-quick-links" aria-label="Quick job searches"><span>Try</span><a href="/jobs?stage=internship">Internships</a><a href="/jobs?stage=fresher">Freshers</a><a href="/jobs?mode=remote">Remote</a><a href="/government-jobs">Government</a><a href="/jobs?time=today">Today</a></nav>
-      <dl class="home-hero-stats" aria-label="The job index right now">
-        <div><dt>Live jobs</dt><dd id="stat-total">${count(snapshot.stats.total)}</dd></div>
-        <div><dt>Companies hiring</dt><dd id="stat-companies">${count(snapshot.stats.companies)}</dd></div>
-        <div><dt>Remote roles</dt><dd id="stat-remote">${count(snapshot.stats.remote)}</dd></div>
-      </dl>
     </div>
   </section>
   <section class="home-trust-strip" aria-label="Companies represented in the collection"><p>Roles and research from teams including</p>${logoStrip(featured,companies)}<p class="home-trust-line">Every listing links to its source. No affiliation or endorsement implied.</p></section>

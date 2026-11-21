@@ -406,19 +406,7 @@ html.dark-theme .home-hero{background:
   radial-gradient(75% 65% at 100% 100%,rgba(120,150,255,.28),rgba(120,150,255,0) 70%),
   radial-gradient(65% 70% at 0% 0%,rgba(2,8,60,.6),rgba(2,8,60,0) 70%),
   linear-gradient(180deg,#0c1f86 0%,#1434c4 60%,#1a3dd6 100%)}
-/* The frame: two hairlines down the page edges and two across the page, with square nodes where they meet. */
-.home-hero-frame{position:absolute;inset:0;z-index:0;pointer-events:none}
-.home-hero-frame i{position:absolute;top:0;bottom:0;width:1px;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.24) 12%,rgba(255,255,255,.24) 88%,rgba(255,255,255,0))}
-.home-hero-frame i:first-child{left:calc(50% - var(--frame-half))}
-.home-hero-frame i:last-child{left:calc(50% + var(--frame-half))}
 .home-hero h1,.home-hero-stats{position:relative}
-.home-hero h1::before,.home-hero-stats::before,.home-hero-stats::after{content:"";position:absolute;left:50%;width:100cqw;height:7px;transform:translateX(-50%);pointer-events:none;background:
-  linear-gradient(var(--node),var(--node)) calc(50% - var(--frame-half)) 0/7px 7px no-repeat,
-  linear-gradient(var(--node),var(--node)) calc(50% + var(--frame-half)) 0/7px 7px no-repeat,
-  linear-gradient(rgba(255,255,255,.24),rgba(255,255,255,.24)) 0 3px/100% 1px no-repeat}
-.home-hero h1::before{top:-40px}
-.home-hero-stats::before{top:-4px}
-.home-hero-stats::after{bottom:-4px}
 
 .home-live-pill{gap:12px;margin:0 0 72px;padding:0;border:0;background:none;box-shadow:none;font-size:12px;letter-spacing:.22em;color:rgba(255,255,255,.9)}
 .home-live-pill span{width:8px;height:8px;border-radius:50%;background:#7dffc4;box-shadow:0 0 0 4px rgba(125,255,196,.2)}
@@ -469,12 +457,6 @@ html.dark-theme .home-shell .home-shape{filter:none}
 
 /* Route cards: white rounded panels with a soft lime glow in the corner. */
 .home-route-grid{position:relative;gap:20px;margin-top:72px}
-.home-route-grid::before,.home-route-grid::after{content:"";position:absolute;left:50%;width:100cqw;height:7px;transform:translateX(-50%);pointer-events:none;background:
-  linear-gradient(var(--home-ink),var(--home-ink)) calc(50% - var(--frame-half)) 0/7px 7px no-repeat,
-  linear-gradient(var(--home-ink),var(--home-ink)) calc(50% + var(--frame-half)) 0/7px 7px no-repeat,
-  repeating-linear-gradient(90deg,var(--line-strong) 0 6px,transparent 6px 12px) 0 3px/100% 1px no-repeat}
-.home-route-grid::before{top:-28px}
-.home-route-grid::after{bottom:-28px}
 .home-route-grid a{position:relative;min-height:230px;padding:28px;border:1px solid color-mix(in srgb,var(--ink) 9%,transparent);border-radius:24px;background:var(--surface);color:var(--home-ink);box-shadow:0 1px 2px rgba(16,24,40,.04),0 14px 32px -14px rgba(16,24,40,.1);transition:border-color .3s,box-shadow .3s,transform .3s var(--ease-out,ease)}
 html.dark-theme .home-route-grid a{border-color:color-mix(in srgb,#fff 9%,transparent)}
 .home-route-grid a:hover{border-color:color-mix(in srgb,var(--blue) 42%,transparent);box-shadow:0 1px 2px rgba(16,24,40,.04),0 26px 48px -18px color-mix(in srgb,var(--blue) 34%,transparent)}
@@ -538,7 +520,6 @@ html body .home-shell .home-final-cta h2 em{color:rgba(10,10,10,.55)!important}
 }
 @media(max-width:760px){
   .home-hero{padding:112px var(--gutter) 48px}
-  .home-hero-frame,.home-hero h1::before,.home-route-grid::before,.home-route-grid::after{display:none}
   .home-live-pill{margin-bottom:36px;font-size:9.5px;letter-spacing:.14em}
   html body .home-shell .home-hero h1{font-size:clamp(2.6rem,12vw,3.6rem)!important}
   .home-hero-stats{width:calc(100% + 2 * var(--gutter));margin:48px calc(-1 * var(--gutter)) 0}
@@ -589,3 +570,54 @@ html body .home-shell .home-guide-card p{display:-webkit-box;-webkit-line-clamp:
 
 @media(max-width:1000px){.home-steps{grid-template-columns:1fr}.home-steps>li{min-height:0}html body .home-shell .home-steps h3{margin-top:28px}}
 @media(max-width:760px){.home-guide-card{min-height:0}html body .home-shell .home-guide-card h3{margin-top:28px}}
+/* ---------- Hero, blue glass ----------
+   Bright royal blue with soft diagonal light, a pale glow at the lower right, white type with an
+   Instrument Serif italic second line, and a frosted search pill. No grid lines or corner squares. */
+html body .home-shell .home-hero{min-height:0;padding:168px var(--gutter) 260px;color:#fff;background:
+  linear-gradient(108deg,transparent 0 14%,rgba(255,255,255,.12) 20%,rgba(255,255,255,0) 30%),
+  linear-gradient(108deg,transparent 0 34%,rgba(255,255,255,.07) 38%,rgba(255,255,255,0) 44%),
+  linear-gradient(108deg,transparent 0 58%,rgba(255,255,255,.16) 64%,rgba(255,255,255,0) 74%),
+  linear-gradient(108deg,transparent 0 76%,rgba(255,255,255,.2) 82%,rgba(255,255,255,0) 92%),
+  radial-gradient(34% 46% at 104% 104%,rgba(236,240,255,.75),rgba(236,240,255,0) 72%),
+  radial-gradient(28% 36% at 96% 40%,rgba(150,225,255,.22),rgba(150,225,255,0) 70%),
+  radial-gradient(60% 70% at -4% -6%,rgba(14,36,190,.55),rgba(14,36,190,0) 70%),
+  linear-gradient(180deg,#2654f4 0%,#2f5fff 60%,#3a68ff 100%)}
+html.dark-theme body .home-shell .home-hero{background:
+  linear-gradient(108deg,transparent 0 14%,rgba(255,255,255,.06) 20%,rgba(255,255,255,0) 30%),
+  linear-gradient(108deg,transparent 0 58%,rgba(255,255,255,.08) 64%,rgba(255,255,255,0) 74%),
+  linear-gradient(108deg,transparent 0 76%,rgba(255,255,255,.09) 82%,rgba(255,255,255,0) 92%),
+  radial-gradient(34% 46% at 104% 104%,rgba(120,150,255,.3),rgba(120,150,255,0) 72%),
+  radial-gradient(60% 70% at -4% -6%,rgba(2,8,60,.6),rgba(2,8,60,0) 70%),
+  linear-gradient(180deg,#0c1f86 0%,#1434c4 60%,#1a3dd6 100%)}
+html body .home-shell .home-hero h1{color:#fff!important;font-weight:500!important;letter-spacing:-.05em!important;line-height:1!important}
+html body .home-shell .home-hero h1::before{display:none}
+html body .home-shell .home-hero h1 em{display:inline-block;padding:0 .06em .04em 0;font-family:'Instrument Serif',Georgia,'Times New Roman',serif!important;font-style:italic;font-weight:400!important;font-size:1.12em;letter-spacing:-.02em!important;line-height:1;color:#fff!important}
+html body .home-shell .home-live-pill{color:rgba(255,255,255,.92)}
+html body .home-shell .home-hero-lede{color:rgba(255,255,255,.88)}
+/* The search: a frosted pill on the blue, white text, and the glossy dark button. */
+html body .home-shell .home-search{background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.08)),rgba(10,26,120,.2);border:1px solid rgba(255,255,255,.4);
+  -webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 30px 60px -28px rgba(4,14,90,.6)}
+html body .home-shell .home-search:focus-within{border-color:rgba(255,255,255,.8);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 0 0 4px rgba(255,255,255,.22),0 30px 60px -28px rgba(4,14,90,.6)}
+html body .home-shell .home-search input{color:#fff}
+html body .home-shell .home-search input::placeholder{color:rgba(255,255,255,.86);opacity:1}
+html body .home-shell .home-search-plus .icon,html body .home-shell .home-search-location .icon{color:rgba(255,255,255,.9)}
+html body .home-shell .home-search-location{border-left-color:rgba(255,255,255,.3)}
+html body .home-shell .home-search-location select{color:#fff}
+html body .home-shell .home-search-location select option{color:#0b1220;background:#fff}
+html body .home-shell .home-search-submit:focus-visible{outline:2px solid #fff;outline-offset:2px}
+html body .home-shell .home-quick-links span{color:rgba(255,255,255,.8)}
+@media(max-width:760px){
+  html body .home-shell .home-hero{padding:120px var(--gutter) 190px}
+}
+/* The bottom of the hero melts into the white page: an eased fade (many stops, so there is no visible band)
+   over a soft light bloom behind the headline. */
+html body .home-shell .home-hero::before{content:"";position:absolute;left:50%;top:60px;width:min(1100px,90%);height:420px;transform:translateX(-50%);z-index:0;pointer-events:none;
+  background:radial-gradient(50% 50% at 50% 50%,rgba(255,255,255,.16),rgba(255,255,255,0) 70%)}
+html body .home-shell .home-hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:240px;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,
+    color-mix(in srgb,var(--paper) 0%,transparent) 0%,color-mix(in srgb,var(--paper) 4%,transparent) 14%,
+    color-mix(in srgb,var(--paper) 14%,transparent) 28%,color-mix(in srgb,var(--paper) 30%,transparent) 42%,
+    color-mix(in srgb,var(--paper) 50%,transparent) 56%,color-mix(in srgb,var(--paper) 70%,transparent) 70%,
+    color-mix(in srgb,var(--paper) 86%,transparent) 84%,var(--paper) 100%)}
+html body .home-shell .home-hero-copy{z-index:2}
+@media(max-width:760px){html body .home-shell .home-hero::after{height:170px}}

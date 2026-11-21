@@ -106,8 +106,8 @@ test('WILSY routes share the premium shell and preserved feature entry points',(
   assert.match(home,/id="home-job-results"/);
   assert.match(home,/href="\/dsa"/);
   assert.match(home,/Every listing links to its source/);
-  assert.match(home,/id="stat-total">[0-9,]+</);
-  assert.doesNotMatch(home,/id="stat-total">—</);
+  // The hero has no date line or stats row: just the headline, the search and the quick links.
+  assert.doesNotMatch(home,/id="stat-total"|home-live-pill|home-hero-stats/);
   assert.match(jobs,/href="https:\/\/www\.wilsy\.in\/jobs"/);
   for(const html of [jobs]){
     assert.match(html,/id="job-search-form"/);

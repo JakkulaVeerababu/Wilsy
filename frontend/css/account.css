@@ -79,3 +79,34 @@ html body .gov-exam-card-actions a span,html.dark-theme body #main-content .gov-
 /* Job pages and the missing-job page: the secondary button was white with light text in the dark theme. */
 html.dark-theme body :is(.job-page,.not-found) .secondary-button{background:var(--surface-raised);border-color:var(--line-strong);color:var(--ink)}
 html.dark-theme body :is(.job-page,.not-found) .secondary-button:hover{background:var(--tint-hover);border-color:var(--blue)}
+/* Signed-out card: a soft gradient panel on the left (wide screens only) and the form on the right. */
+.account-dialog:has(.has-brand){max-width:880px}
+.account-shell.has-brand{display:grid}
+.account-brand{display:none}
+@media(min-width:820px){
+  .account-shell.has-brand{grid-template-columns:minmax(0,1fr) minmax(0,1.08fr)}
+  .account-brand{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:40px;padding:36px;overflow:hidden;color:var(--ink);
+    background:repeating-linear-gradient(118deg,transparent 0 56px,rgba(255,255,255,.5) 56px 62px,transparent 62px 118px),linear-gradient(150deg,#e8f1ff 0%,#dcf6fb 38%,#f1edff 72%,#e6f0ff 100%)}
+  .account-shell.has-brand .account-panel{padding:40px 40px 32px}
+}
+html.dark-theme .account-brand{background:repeating-linear-gradient(118deg,transparent 0 56px,rgba(255,255,255,.04) 56px 62px,transparent 62px 118px),linear-gradient(150deg,#0e2245 0%,#0b2a3a 40%,#1c1a3d 75%,#0f1d38 100%)}
+.account-brand-mark{margin:0;font:800 24px var(--font);letter-spacing:-.6px;color:var(--blue)}
+.account-brand-mark span{color:var(--muted-strong)}
+.account-brand-title{margin:0 0 18px;font:800 clamp(26px,2.6vw,32px)/1.15 var(--font);letter-spacing:-.8px;text-wrap:balance}
+.account-brand-list{display:grid;gap:10px;margin:0;padding:0;list-style:none;color:var(--muted-strong);font-size:15px;line-height:1.45}
+.account-brand-list li{position:relative;padding-left:18px}
+.account-brand-list li::before{content:"";position:absolute;left:0;top:.55em;width:7px;height:7px;border-radius:50%;background:var(--blue)}
+/* Sign in with Google / GitHub: white buttons with each provider's own logo. */
+.account-oauth{display:grid;gap:10px;margin:0 0 14px}
+.account-oauth.is-pair{grid-template-columns:repeat(2,minmax(0,1fr))}
+.account-provider{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:50px;padding:0 16px;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface);color:var(--ink);font:650 15px var(--font);cursor:pointer;transition:background-color .2s,border-color .2s,box-shadow .2s}
+.account-provider:hover{background:var(--surface-subtle);border-color:color-mix(in srgb,var(--ink) 28%,transparent);box-shadow:0 2px 8px rgba(15,23,42,.06)}
+.account-provider:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.account-provider:disabled{opacity:.6;cursor:progress}
+.account-provider svg{flex:none;width:20px;height:20px}
+/* The /sign-in page shows the same card in the page instead of a dialog. */
+.signin-page{display:grid;place-items:center;min-height:calc(100dvh - 72px);padding:clamp(88px,10vw,120px) 16px clamp(40px,6vw,72px);background:var(--surface-subtle)}
+.signin-app{width:100%;max-width:960px;border:1px solid var(--line);border-radius:28px;background:var(--surface);box-shadow:var(--shadow-lg);overflow:hidden}
+.signin-app:not(:has(.has-brand)){max-width:520px}
+.signin-app .account-panel{padding:clamp(24px,4vw,44px)}
+@media(min-width:820px){.signin-app .account-brand{padding:44px;min-height:520px}}

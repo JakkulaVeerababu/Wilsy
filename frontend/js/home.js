@@ -1,4 +1,4 @@
-import {searchJobs,jobFacets} from './data-client.js';
+import {searchJobs} from './data-client.js';
 import {readState,stateQuery,readSaved,filterKeys} from './jobs-core.js';
 import {renderJobCard} from './job-card.js';
 import {isEditing,savedNotice,savedPlace,announceSaved} from './ui-helpers.js';
@@ -24,24 +24,14 @@ function initHome() {
     $('.home-saved-link').hidden=!saved.length;
   }
   const render = ()=>{$('#home-job-results').innerHTML=rows.slice(0,6).map(job=>renderJobCard(job,{companies,fx:initial.fx,saved,interactive:true})).join('');updateSaved();};
-  function setCount(selector,value) {
-    const el=$(selector),end=Number(value);if(!Number.isSafeInteger(end)||end<0)return;
-    el.textContent=end.toLocaleString('en-IN');
-  }
   async function refresh() {
     if(document.hidden||isEditing(document.activeElement)||$('#home-job-results').contains(document.activeElement))return;
     lastUpdate=Date.now();
-    const [result,stats]=await Promise.allSettled([searchJobs({}),jobFacets()]);
+    const [result]=await Promise.allSettled([searchJobs({})]);
     if(result.status==='fulfilled'&&Array.isArray(result.value.jobs)){
       rows=result.value.jobs.slice(0,6);render();
       $('#home-jobs-status').textContent=rows.length?'Live collection refreshed. Confirm availability with the employer.':'No published roles right now. Explore company career pages while the collection updates.';
     } else $('#home-jobs-status').textContent='Live refresh unavailable. Showing the dated snapshot; check availability on the employer’s site.';
-    if(stats.status==='fulfilled'){
-      setCount('#stat-total',stats.value.total);setCount('#stat-companies',stats.value.companies_count);setCount('#stat-remote',stats.value.remote_count);
-      // The totals are live now, so the summary carries today's date (India time).
-      const now=new Date(),today=new Intl.DateTimeFormat('en-IN',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Kolkata'}).format(now);
-      document.querySelectorAll('[data-snapshot-date]').forEach(el=>{el.textContent=today;el.dateTime=now.toISOString();});
-    }
   }
   mountLogoMarquee();
   mountScrollLight();

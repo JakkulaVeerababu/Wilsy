@@ -1,9 +1,10 @@
 import fs from 'node:fs/promises';
-const families = [{name:'DM Sans',slug:'dm-sans'}, {name:'Manrope',slug:'manrope'}];
+// Instrument Serif italic is the display accent in the homepage headline.
+const families = [{name:'DM Sans',slug:'dm-sans'}, {name:'Manrope',slug:'manrope'}, {name:'Instrument Serif',slug:'instrument-serif-italic',axis:'ital@1'}];
 await fs.mkdir('assets/fonts',{recursive:true});
 let css='';
 for(const family of families){
-  const url=`https://fonts.googleapis.com/css2?family=${family.name.replace(/ /g,'+')}:wght@400..800&display=swap`;
+  const url=`https://fonts.googleapis.com/css2?family=${family.name.replace(/ /g,'+')}:${family.axis||'wght@400..800'}&display=swap`;
   const r=await fetch(url,{headers:{'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36'},signal:AbortSignal.timeout(20000)});
   if(!r.ok)throw new Error('Font CSS unavailable');
   const text=await r.text();
@@ -22,5 +23,6 @@ for(const family of families){
 await fs.writeFile('assets/fonts/fonts.css',css);
 for(const [file,url] of [
   ['DM-Sans-OFL.txt','https://raw.githubusercontent.com/google/fonts/main/ofl/dmsans/OFL.txt'],
-  ['Manrope-OFL.txt','https://raw.githubusercontent.com/google/fonts/main/ofl/manrope/OFL.txt']
+  ['Manrope-OFL.txt','https://raw.githubusercontent.com/google/fonts/main/ofl/manrope/OFL.txt'],
+  ['Instrument-Serif-OFL.txt','https://raw.githubusercontent.com/google/fonts/main/ofl/instrumentserif/OFL.txt']
 ]){const r=await fetch(url,{signal:AbortSignal.timeout(20000)});if(!r.ok)throw new Error('Font license unavailable');await fs.writeFile('assets/fonts/'+file,await r.text());}

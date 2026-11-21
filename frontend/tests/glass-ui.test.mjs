@@ -45,3 +45,30 @@ test('Company names and taglines carry no emoji', async () => {
   assert.deepEqual(companies.filter(c => emoji.test(`${c.name} ${c.description}`)).map(c => c.id), []);
   assert.ok(companies.some(c => c.id === 'pump-co' && c.description === 'The Costco for cloud is here'));
 });
+
+test('A /sign-in page and sign-in buttons with the Google and GitHub logos', async () => {
+  const page = await read('dist/sign-in.html');
+  assert.match(page, /<div id="sign-in-app" class="signin-app">/);
+  assert.match(page, /<meta name="robots" content="noindex,follow">/);
+  assert.doesNotMatch(await read('dist/sitemap.xml'), /\/sign-in</);
+  const js = await read('js/account.js');
+  assert.match(js, /fill="#4285F4"/);
+  assert.match(js, /viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor"/);
+  assert.match(js, /data-provider="\$\{p\}" aria-label="Continue with \$\{OAUTH_NAMES\[p\]\}"/);
+  const css = await read('css/account.css');
+  assert.match(css, /\.account-oauth\.is-pair\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}/);
+  assert.match(css, /html\.dark-theme \.account-brand\{/);
+});
+
+test('Homepage hero: blue glass with an italic serif line, and no grid lines or squares', async () => {
+  const css = await read('css/homepage.css'), home = await read('dist/index.html');
+  assert.match(css, /html body \.home-shell \.home-hero\{min-height:0;padding:168px var\(--gutter\) 260px;color:#fff;background:/);
+  // The blue melts into the page colour at the bottom of the hero.
+  assert.match(css, /var\(--paper\) 86%,transparent\) 84%,var\(--paper\) 100%\)\}/);
+  assert.match(css, /font-family:'Instrument Serif',Georgia,'Times New Roman',serif!important;font-style:italic/);
+  assert.match(css, /html body \.home-shell \.home-search input::placeholder\{color:rgba\(255,255,255,\.86\);opacity:1\}/);
+  assert.doesNotMatch(css, /7px 7px|home-hero-frame|border-image:|home-stage/);
+  assert.match(await read('assets/fonts/fonts.css'), /font-family: 'Instrument Serif';\s*font-style: italic;/);
+  assert.match(home, /<body class="has-hero home-page">/);
+  assert.doesNotMatch(home, /home-hero-frame|home-stage/);
+});
