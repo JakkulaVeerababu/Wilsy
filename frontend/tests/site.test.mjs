@@ -96,7 +96,8 @@ test('WILSY routes share the premium shell and preserved feature entry points',(
     assert.match(html,/<link rel="stylesheet" href="\/css\/b-[0-9a-f]{12}\.css"/);
   }
   // The core product pages carry no ads; elsewhere AdSense loads only after the page is idle.
-  for(const file of ['index.html','jobs.html'])assert.doesNotMatch(pages.get(file),/pagead2|google-adsense-account/);
+  // They still carry the account tag, which only tells AdSense the site is ours (it checks the homepage).
+  for(const file of ['index.html','jobs.html']){assert.doesNotMatch(pages.get(file),/pagead2/);assert.match(pages.get(file),/<meta name="google-adsense-account" content="ca-pub-5489149193350421">/);}
   assert.match(pages.get('guides.html'),/requestIdleCallback[^<]*pagead2\.googlesyndication\.com/);
   assert.doesNotMatch(pages.get('guides.html'),/<script async src="https:\/\/pagead2/);
   const home=pages.get('index.html'),jobs=pages.get('jobs.html');

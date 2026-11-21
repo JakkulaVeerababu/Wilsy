@@ -107,7 +107,7 @@ test('The new sections are built, linked together, and the contest calendar carr
   }
   assert.match(competitions,/data-kind="competition"/);assert.match(competitions,/src="\/js\/opportunities.js"/);
   assert.match(contests,/data-kind="contest"/);
-  assert.ok(!/adsbygoogle|google-adsense-account/.test(contests),'no ads on the contest calendar');
+  assert.ok(!/adsbygoogle|pagead2/.test(contests),'no ads on the contest calendar');
   assert.match(contests,/codechef\.com\/contests/,'CodeChef appears only as a link');
   const gsoc=await page('open-source-programs/google-summer-of-code');
   assert.match(gsoc,/Google Summer of Code/);assert.match(gsoc,/href="https:\/\/summerofcode\.withgoogle\.com\/"/);
