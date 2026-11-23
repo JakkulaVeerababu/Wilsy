@@ -88,8 +88,25 @@ function heroChips(featured,companies) {
   return `<div class="home-hero-chips" aria-hidden="true"><span class="hero-chip hero-chip-1">${icon('check')} Source verified</span>${logos[0]?logo(logos[0],2):''}${logos[1]?logo(logos[1],3):''}<span class="hero-chip hero-chip-4">${icon('rupee')} INR salary context</span></div>`;
 }
 
+
+// Questions answered in "How WILSY works"; build-site.mjs publishes the same list as FAQPage data.
+export const HOME_FAQ = [
+  ['Is WILSY free to use?', 'Yes. Searching, saving jobs and every tool are free. WILSY never charges a fee or asks for your résumé, and a free account is optional.'],
+  ['Where do the jobs come from?', 'From employers’ own careers pages and the public job boards they use. Every listing links to its source, and the collection is refreshed through the day.'],
+  ['Why is pay shown in rupees?', 'Pay published in another currency is converted at a dated reference exchange rate so you can compare it. Converted figures are estimates, not Indian offers or take-home pay.'],
+  ['How do I apply for a job?', 'Choose Apply on any role. It opens the employer’s own listing, and you apply with them directly.'],
+  ['How can I tell if a job offer is fake?', 'Genuine employers do not ask you to pay for a job, training or equipment. Paste a suspicious message into the free job scam check to see the warning signs.'],
+  ['Do I need an account to save jobs?', 'No. Saved jobs stay on this device. A free account, opened with an email code, keeps them in sync on every device.'],
+];
+// Countries in the hero search; home.js adds the rest of the live list under "More countries".
+export const HERO_COUNTRIES = ['India','United States','United Kingdom','Canada','Germany','Singapore','Ireland','Netherlands','Australia','Japan'];
+// Shortcuts above the fresh jobs: each is a live search, and "View all jobs" follows the active one.
+export const JOB_TABS = [['all','All',{}],['remote','Remote',{mode:'remote'}],['internship','Internships',{stage:'internship'}],['fresher','Freshers',{stage:'fresher'}],['india','India',{country:'India'}]];
+const tabQuery = filters => new URLSearchParams(filters).toString();
+
 export function homePage({snapshot, companies, guides, fx, dsaStats}) {
-  const jobs = snapshot.jobs.slice(0,6), featured = snapshot.featured.slice(0,6);
+  const jobs = snapshot.jobs.slice(0,6), featured = snapshot.featured.slice(0,6), stats = snapshot.stats || {};
+  const stat = (key,value,label) => `<div><dt>${label}</dt><dd data-stat="${key}" data-value="${Number(value)||0}">${count(value)}</dd></div>`;
   const now = Date.now();
   const date = new Intl.DateTimeFormat('en-IN',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Kolkata'}).format(new Date(snapshot.updatedAt));
   return `<main id="main-content" class="home-shell">
@@ -99,18 +116,21 @@ export function homePage({snapshot, companies, guides, fx, dsaStats}) {
       <h1 id="home-title">Find the work<br><em>that moves you forward.</em></h1>
       <p class="home-hero-lede">Jobs, internships, government notices and hackathons for India. Every role links to the employer, with pay in rupees.</p>
       <form class="home-search" id="job-search-form" action="/jobs" method="get" role="search">
-        <div class="home-search-query"><span class="home-search-plus">${icon('search')}</span><label class="sr-only" for="job-search">Role, company or skill</label><input id="job-search" name="q" maxlength="200" autocomplete="off" placeholder="Job title, company or skill"></div>
-        <label class="home-search-location"><span class="sr-only">Country</span>${icon('pin')}<select id="job-location" name="country"><option value="">Anywhere</option><option value="India">India</option><option value="United States">United States</option><option value="United Kingdom">United Kingdom</option></select></label>
+        <div class="home-search-query"><span class="home-search-plus">${icon('search')}</span><label class="sr-only" for="job-search">Role, company or skill</label><input id="job-search" name="q" maxlength="200" autocomplete="off" placeholder="Job title, company or skill" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="home-suggest" aria-keyshortcuts="/"></div>
+        <label class="home-search-location"><span class="sr-only">Country</span>${icon('pin')}<select id="job-location" name="country"><option value="">Anywhere</option>${HERO_COUNTRIES.map(c=>`<option value="${e(c)}">${e(c)}</option>`).join('')}</select></label>
         <button class="home-search-submit" type="submit">Search ${icon('arrow')}</button>
+        <div class="home-suggest" id="home-suggest" role="listbox" aria-label="Search suggestions" hidden></div>
       </form>
-      <nav class="home-quick-links" aria-label="Quick job searches"><span>Try</span><a href="/jobs?stage=internship">Internships</a><a href="/jobs?stage=fresher">Freshers</a><a href="/jobs?mode=remote">Remote</a><a href="/government-jobs">Government</a><a href="/jobs?time=today">Today</a></nav>
+      <nav class="home-quick-links" aria-label="Quick job searches"><span>Try</span><a href="/jobs?stage=internship">Internships</a><a href="/jobs?stage=fresher">Freshers</a><a href="/jobs?mode=remote">Remote</a><a href="/government-jobs">Government</a><a href="/jobs?time=today">Today</a></nav>
     </div>
     ${heroChips(featured,companies)}
   </section>
   <section class="home-trust-strip" aria-label="Companies represented in the collection"><p>Roles and research from teams including</p>${logoStrip(featured,companies)}<p class="home-trust-line">Every listing links to its source. No affiliation or endorsement implied.</p></section>
   ${browse(dsaStats)}
   <section class="home-opportunities home-section" id="fresh-opportunities" aria-labelledby="fresh-title">
-    <div class="home-section-heading"><div><p class="home-kicker">FRESH OPPORTUNITIES</p><h2 id="fresh-title">Hiring <em>right now.</em></h2></div><a class="home-section-link" href="/jobs">View all jobs ${icon('arrow')}</a></div>
+    <div class="home-section-heading"><div><p class="home-kicker">FRESH OPPORTUNITIES</p><h2 id="fresh-title">Hiring <em>right now.</em></h2></div><a class="home-section-link" id="home-jobs-all" href="/jobs">View all jobs ${icon('arrow')}</a></div>
+    <dl class="home-live-stats" aria-label="The live collection">${stat('total',stats.total,'Live roles')}${stat('companies_count',stats.companies,'Hiring companies')}${stat('remote_count',stats.remote,'Remote roles')}${stat('profiles',companies.length,'Company profiles')}</dl>
+    <div class="home-job-tabs" role="group" aria-label="Show fresh roles">${JOB_TABS.map(([key,label,filters],i)=>`<button type="button" data-job-tab="${key}" data-query="${e(tabQuery(filters))}" aria-pressed="${i===0}">${label}<span data-tab-count></span></button>`).join('')}</div>
     <div class="home-job-grid" id="home-job-results">${jobs.map(job=>renderJobCard(job,{companies,fx,now})).join('')}</div>
     <p id="home-jobs-status" class="home-results-status" role="status">Published collection snapshot · ${e(date)}. Verify current availability with each employer.</p>
     <a class="home-saved-link" href="/jobs?saved=1" hidden>View your saved roles ${icon('arrow')}</a>
@@ -128,6 +148,7 @@ export function homePage({snapshot, companies, guides, fx, dsaStats}) {
       <li><span class="home-step-num">(02)</span><h3>Only what matters</h3><p>Location, experience and pay in rupees. Nothing guessed.</p></li>
       <li><span class="home-step-num">(03)</span><h3>Apply with the employer</h3><p>WILSY never asks for your résumé or charges a fee.</p></li>
     </ol>
+    <div class="home-faq"><h3 class="home-faq-title">Common questions</h3>${HOME_FAQ.map(([q,a],i)=>`<details${i===0?' open':''}><summary>${e(q)}<span class="home-faq-icon" aria-hidden="true">${icon('plus')}</span></summary><p>${e(a)}</p></details>`).join('')}</div>
     <p class="home-why-foot">INR conversions are estimates, not Indian offers. <a class="home-section-link" href="/methodology">Our source methodology ${icon('arrow')}</a></p>
   </section>
   <section class="home-guides home-toolkit home-section" aria-labelledby="home-guides-title">

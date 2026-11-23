@@ -7,7 +7,7 @@ import {escapeHtml as e, safeHref} from '../js/directory-core.js';
 import {guides,policyPages,programPages} from './site-content.mjs';
 import {header,footer,documentPage,jsonld,bundleCss,finishHead,deploymentBuildId} from './page-shell.mjs';
 import {jobsPage} from './jobs-page.mjs';
-import {homePage} from './home-page.mjs';
+import {homePage, HOME_FAQ} from './home-page.mjs';
 import {hackathonsPage} from './hackathons-page.mjs';
 import {competitionsPage,contestsPage} from './opportunity-pages.mjs';
 import {curatedSections,curatedListing,curatedArticle,entries as curatedEntries} from './curated-pages.mjs';
@@ -109,7 +109,7 @@ home=home.replace(/(<link rel="canonical" href=")[^"]+/, '$1'+site.origin+'/comp
 await write('/companies',home);
 const snapshot = await loadHomeSnapshot();
 const jobsMeta={title:'Find your next opportunity',description:'Discover current jobs with direct application links. Filter roles, internships, work arrangements, experience, skills and disclosed salaries on Wilsy Jobs.',active:'jobs',body:jobsPage({snapshot,companies,fx})};
-await write('/',documentPage({ads:false,title:'Find the work that moves you forward',description:'Source-linked jobs, 1,000 company profiles, government exams, hackathons, DSA preparation and INR salary context. Discover your next move with WILSY.',active:'home',route:'/',body:homePage({snapshot,companies,fx,guides,dsaStats:dsaProject.stats}),structured:{'@context':'https://schema.org','@type':'WebSite',name:'WILSY',url:site.origin+'/'}}));
+await write('/',documentPage({ads:false,title:'Find the work that moves you forward',description:'Source-linked jobs, 1,000 company profiles, government exams, hackathons, DSA preparation and INR salary context. Discover your next move with WILSY.',active:'home',route:'/',body:homePage({snapshot,companies,fx,guides,dsaStats:dsaProject.stats}),structured:{'@context':'https://schema.org','@graph':[{'@type':'WebSite',name:'WILSY',url:site.origin+'/'},{'@type':'FAQPage',mainEntity:HOME_FAQ.map(([name,text])=>({'@type':'Question',name,acceptedAnswer:{'@type':'Answer',text}}))}]}}));
 // /jobs is now the canonical full workspace; old root queries are forwarded client-side.
 await write('/jobs',documentPage({...jobsMeta,route:'/jobs',ads:false}));
 // Tools: application tracker, salary explorer and in-hand salary calculator.

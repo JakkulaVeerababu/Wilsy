@@ -794,3 +794,13 @@ html body :is(.jobs-search,.hack-search,.search-toolbar .search-box,.dsa-search)
 @media(prefers-reduced-transparency:reduce){
   :root,html.dark-theme{--glass-bar:var(--surface);--glass-sheet:var(--surface);--glass-menu:var(--surface)}
 }
+
+/* Reading progress and back to top (features.js), on every page. */
+.scroll-progress{position:fixed;inset:0 0 auto;height:3px;z-index:1000;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,var(--blue),var(--violet));pointer-events:none}
+.back-to-top{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(20px,env(safe-area-inset-bottom));z-index:900;display:grid;place-items:center;width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);box-shadow:var(--shadow-md);cursor:pointer;animation:back-to-top-in .2s ease-out;transition:transform .2s,border-color .2s}
+.back-to-top[hidden]{display:none}
+.back-to-top:hover{transform:translateY(-2px);border-color:var(--blue);color:var(--blue)}
+.back-to-top svg{width:22px;height:22px}
+@keyframes back-to-top-in{from{opacity:0;transform:translateY(8px)}}
+@media(prefers-reduced-motion:reduce){.back-to-top{animation:none;transition:none}}
+@media print{.scroll-progress,.back-to-top{display:none}}

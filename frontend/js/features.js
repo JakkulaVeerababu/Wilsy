@@ -198,3 +198,31 @@ if(globalThis.document) {
     field.addEventListener('input', update);
   }
 }
+
+// Back to top and a thin reading-progress bar, on every page. Both appear only once the page has been
+// scrolled well past the first screen; the button moves focus to the top so keyboard users land there too.
+if(globalThis.document) {
+  const bar = document.createElement('div');
+  bar.className = 'scroll-progress'; bar.setAttribute('aria-hidden', 'true');
+  const top = document.createElement('button');
+  top.type = 'button'; top.className = 'back-to-top'; top.hidden = true;
+  top.setAttribute('aria-label', 'Back to top'); top.title = 'Back to top';
+  top.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 19V5m-6 6 6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  document.body.append(bar, top);
+  let queued = false;
+  const sync = () => {
+    queued = false;
+    const max = document.documentElement.scrollHeight - innerHeight, y = scrollY;
+    bar.style.transform = `scaleX(${max > 0 ? Math.min(1, y / max) : 0})`;
+    top.hidden = y < innerHeight * 1.2;
+  };
+  addEventListener('scroll', () => { if(!queued) { queued = true; requestAnimationFrame(sync); } }, {passive: true});
+  addEventListener('resize', sync); sync();
+  top.addEventListener('click', () => {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    scrollTo({top: 0, behavior: reduce ? 'auto' : 'smooth'});
+    const target = document.querySelector('#main-content') || document.body;
+    if(!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+    target.focus({preventScroll: true});
+  });
+}
