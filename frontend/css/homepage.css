@@ -439,7 +439,6 @@ html body .home-shell .home-hero h1 em{color:#d3ddff!important;font-weight:400!i
 
 /* ---------- Section headings ---------- */
 .home-kicker{font-size:13px;color:var(--blue)}
-.home-kicker::before{content:"/";margin-right:.1em}
 html body .home-shell .home-section-heading h2{font-size:clamp(2.2rem,4.4vw,4.1rem);font-weight:500!important;letter-spacing:-.05em!important;line-height:1;max-width:18ch;color:var(--home-ink)}
 .home-section-link{color:var(--home-ink)}
 
@@ -533,19 +532,6 @@ html body .home-shell .home-final-cta h2 em{color:rgba(10,10,10,.55)!important}
   .home-route-grid strong{margin-top:0}
   html body .home-shell .home-statement{margin-bottom:56px}
 }
-
-/* ---------- Faint hero light inside the boxes ----------
-   The same diagonal panes as the hero, at a whisper: soft-edged blue light rising from the lower right.
-   premium.css owns each card's background colour, so this only adds an image layer on top of it. */
-.home-shell{--card-light:
-  linear-gradient(112deg,rgba(59,108,255,0) 48%,rgba(59,108,255,.07) 55%,rgba(59,108,255,0) 66%),
-  linear-gradient(112deg,rgba(59,108,255,0) 70%,rgba(59,108,255,.09) 77%,rgba(59,108,255,0) 90%),
-  radial-gradient(75% 60% at 100% 0%,rgba(59,108,255,.08),rgba(59,108,255,0) 70%)}
-html.dark-theme .home-shell{--card-light:
-  linear-gradient(112deg,rgba(120,150,255,0) 48%,rgba(120,150,255,.06) 55%,rgba(120,150,255,0) 66%),
-  linear-gradient(112deg,rgba(120,150,255,0) 70%,rgba(120,150,255,.08) 77%,rgba(120,150,255,0) 90%),
-  radial-gradient(75% 60% at 100% 0%,rgba(120,150,255,.08),rgba(120,150,255,0) 70%)}
-.home-shell :is(.home-job-grid .job-result-card,.home-featured-company,.home-guide-card,.home-steps>li){background-image:var(--card-light)}
 
 /* ---------- How WILSY works: three short steps ---------- */
 .home-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;max-width:none;margin:0;padding:0;list-style:none;text-align:left}

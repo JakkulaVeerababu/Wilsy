@@ -81,3 +81,8 @@ test('Homepage hero: the WILSY index line and four frosted chips, hidden from sc
   assert.match(css, /@media\(max-width:1199px\)\{html body \.home-shell \.home-hero-chips\{display:none\}\}/);
   assert.match(css, /@media\(prefers-reduced-motion:reduce\)\{html body \.home-shell \.hero-chip,/);
 });
+
+test('Homepage boxes are plain white and section labels carry no slash', async () => {
+  const css = await read('css/homepage.css');
+  assert.doesNotMatch(css, /--card-light|home-kicker::before/);
+});
