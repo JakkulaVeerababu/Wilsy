@@ -81,7 +81,7 @@ Approved scope: items 1–9. Built in separate commits and deployed on 14 Nov 20
 | 8. Live roles on company pages | Done. |
 | 9. Trust details | Done. "Report listing" in the job dialog and on job pages, "updated N min ago" on /jobs, and an About section on how listings are collected. |
 
-Still open: 10 (alert emails; needs an email provider account and DNS), 11 (server-rendered pages for every job), 12 (accessibility pass) and city landing pages (needs a Supabase change).
+Still open: 10 (alert emails; needs an email provider account and DNS) and city landing pages (needs a Supabase change). 11 and 12 were done later: a page for every job (Phase 0 below) and automated accessibility checks over every built page (4e9e430, `frontend/tests/a11y.test.mjs`).
 
 ## Phase 0 progress (14 Nov 2026)
 
@@ -91,7 +91,7 @@ From the growth plan (`WILSY-Growth-Plan-2026-2030.pdf`), built and live:
 - **For employers and Campus ambassadors pages** (`/employers`, `/campus`), linked from every footer.
 - **A page for every live job** (cf5d5d8, a66c711): `api/job-page.mjs` renders `/jobs/<id>-<slug>` on request when no page was pre-built. It is cached for an hour at Vercel's edge.
 
-Still in progress: database proposals (collector timeout root cause, city filter) and the installable app, funnel events and accessibility checks.
+The installable app, funnel events and accessibility checks shipped in 4e9e430. Still waiting on the founders: the database proposals (collector timeout root cause in `docs/proposals/collector-timeouts.sql`, city filter).
 
 ## Scaling features: proposal (14 Nov 2026)
 
@@ -338,3 +338,24 @@ Keep current:
 After deploying, check:
 - **Copy for a form** on /experience-calculator in Chrome and Safari on a phone. The test browser blocks the clipboard, so only the fallback message was seen.
 - **Date pickers** on /experience-calculator in iOS Safari: adding, removing and ticking "I work here now" on a job.
+
+## Status (23 Nov 2026): the remaining opportunity sections
+
+The founders chose to build sections 6, 8, 9 and 10 from the ranked list above. Apprenticeships (7) are still not built.
+
+| Section | Where | How |
+|---|---|---|
+| Workshops & events (8) | /events | Unstop workshops, webinars and conferences, read in the same hourly Unstop pass as competitions (`collectors/opportunities.mjs`), stored as kind `event`. Free to attend only, and coaching institutes' "free demo" and "training in <city>" adverts are left out. A dry read on 23 Nov found 73: 56 workshops, 11 webinars and talks, 6 conferences. Uses the existing search and facets functions, so no database change. |
+| Free courses (10) | /free-courses | `collectors/courses.mjs`, once a day in the daily snapshot workflow, stored as kind `course`. Microsoft Learn's official Catalog API (796 learning paths, school-only paths left out) and NPTEL's public course list (3,482 courses; facts and links only, because NPTEL's lessons are CC BY-NC-SA and WILSY shows ads). Filter by topic (11 topics) and source. No database change. |
+| Startup grants (9) | /startup-grants, one page per grant | Hand-curated in `frontend/data/startup-grants.json`, like Scholarships, and checked daily by `collectors/programs-check.mjs`. 4 grants: Startup India Seed Fund, BIRAC BIG, NIDHI-PRAYAS and Kerala Startup Mission's grants. Left out until their official pages can be read: NIDHI-EIR (PDF only), the Atal New India Challenge (no current call), MeitY's TIDE 2.0 and SAMRIDH (script-drawn pages) and Startup Karnataka's Elevate (site did not load). |
+| Unstop internships (6) | /jobs, once switched on | `collectors/unstop-internships.mjs`. Quality rules: paid, stipend shown, no fee to apply, open and public, and a tech role by its title (Unstop descriptions often open with company blurbs that would pass the description check). A dry read on 23 Nov kept 42 of 679. **Not active:** `wilsy_ingest_partner` accepts only The Job Company. |
+
+The section tabs now list nine sections and scroll in one row on phones. The footer and quick search link the new pages.
+
+To switch on Unstop internships:
+1. Review and apply `docs/proposals/unstop-internships.sql` (two changes to `wilsy_ingest_partner`: allow `unstop`, and don't count Unstop links as direct-apply links).
+2. Set the repository variable `WILSY_UNSTOP_INTERNSHIPS` to `on`. The hourly hackathon workflow then runs the collector.
+
+After deploying, check:
+- **/events fills within an hour** (the next hourly collector run), and **/free-courses after the next daily snapshot** (or run "Daily job snapshot" by hand). Until then both show "getting started".
+- **Supabase load**: about 4,300 course rows are added to `opportunities`. Searches filter by kind, so competitions and contests are unaffected.

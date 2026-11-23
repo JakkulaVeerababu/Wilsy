@@ -1,20 +1,29 @@
-// Shared by the Competitions and Coding contests pages, and by the tests. No DOM here.
+// Shared by the Competitions, Workshops & events, Free courses and Coding contests pages, and by the tests. No DOM here.
 export const KINDS={
-  competition:{path:'/competitions',plural:'competitions',filterKeys:['q','subtype','mode','when','cash','sort'],pageSize:12},
-  contest:{path:'/contests',plural:'contests',filterKeys:['source','when'],pageSize:36},
+  competition:{path:'/competitions',noun:'competition',plural:'competitions',filterKeys:['q','subtype','mode','when','cash','sort'],pageSize:12},
+  event:{path:'/events',noun:'event',plural:'events',filterKeys:['q','subtype','mode','when','sort'],pageSize:12},
+  course:{path:'/free-courses',noun:'course',plural:'courses',filterKeys:['q','subtype','source'],pageSize:24},
+  contest:{path:'/contests',noun:'contest',plural:'contests',filterKeys:['source','when'],pageSize:36},
 };
 export const SUBTYPES={case:'Case competition',quiz:'Quiz',innovation:'Innovation challenge',general:'Competition'};
+export const EVENT_SUBTYPES={workshop:'Workshop',webinar:'Webinar or talk',conference:'Conference'};
+// Course topics. collectors/courses.mjs maps each source's own subjects and disciplines onto these.
+export const COURSE_TOPICS={ai:'AI and machine learning',data:'Data and databases',programming:'Programming and software',cloud:'Cloud and DevOps',security:'Security',
+  electronics:'Electronics and electrical',engineering:'Core engineering',maths:'Mathematics',science:'Science',business:'Business and management',humanities:'Humanities and law'};
+export const COURSE_SOURCES=['Microsoft Learn','NPTEL'];
 export const CONTEST_SOURCES=['Codeforces','AtCoder'];
 const CONTEST_SUBTYPES={div1:'Div. 1',div2:'Div. 2',div3:'Div. 3',div4:'Div. 4',div1_div2:'Div. 1 + 2',div2_div3:'Div. 2 + 3',educational:'Educational',global:'Global round',
   abc:'Beginner',arc:'Regular',agc:'Grand',ahc:'Heuristic'};
-export const subtypeLabel=item=>(item.kind==='contest'?CONTEST_SUBTYPES:SUBTYPES)[item.subtype]||null;
+const SUBTYPE_LABELS={competition:SUBTYPES,event:EVENT_SUBTYPES,course:COURSE_TOPICS,contest:CONTEST_SUBTYPES};
+export const subtypeLabel=item=>(SUBTYPE_LABELS[item.kind]||SUBTYPES)[item.subtype]||null;
 
-const allowed={subtype:Object.keys(SUBTYPES),mode:['online','offline','hybrid'],when:['week'],cash:['yes'],source:CONTEST_SOURCES,sort:['soon','new']};
+const allowedFor=(kind,key)=>({subtype:Object.keys(SUBTYPE_LABELS[kind]),mode:['online','offline','hybrid'],when:['week'],cash:['yes'],
+  source:kind==='course'?COURSE_SOURCES:CONTEST_SOURCES,sort:['soon','new']})[key];
 export function readOpportunityState(kind,search=''){
   const p=new URLSearchParams(search),state={};
   for(const key of KINDS[kind].filterKeys){
     const value=(p.get(key)||'').slice(0,key==='q'?200:40);
-    state[key]=key==='q'||allowed[key].includes(value)?value:'';
+    state[key]=key==='q'||allowedFor(kind,key).includes(value)?value:'';
   }
   if('sort' in state)state.sort=state.sort||'soon';
   state.page=Math.min(5000,Math.max(1,parseInt(p.get('page'),10)||1));

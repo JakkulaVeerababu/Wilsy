@@ -56,6 +56,10 @@
 .contest-elsewhere a{color:var(--blue);font-weight:600}
 @media (max-width:760px){
   .section-tabs a{min-height:44px}
+  /* Nine sections: one scrollable row on phones instead of five rows of pills. */
+  .section-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-16px;padding-right:16px}
+  .section-tabs::-webkit-scrollbar{display:none}
+  .section-tabs a{flex:none;white-space:nowrap}
   .contest-row{grid-template-columns:1fr;gap:8px}
   .contest-actions{flex-wrap:wrap}
   .contest-actions button,.contest-actions a{min-height:44px}

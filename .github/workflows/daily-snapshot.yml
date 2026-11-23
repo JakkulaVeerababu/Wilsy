@@ -1,7 +1,7 @@
 # Keeps the site's built-in snapshots current. Once a day it closes published roles that are gone from
 # their own job board (collectors/recheck.mjs), reads the public job search API
 # (read-only, public key), the official ISRO and BARC recruitment pages and the official pages
-# of the hand-curated open-source programs, research internships and scholarships, rebuilds, runs the
+# of the hand-curated open-source programs, research internships, scholarships and startup grants, rebuilds, runs the
 # tests and commits whatever changed. The commit redeploys the site, so first paint, crawlers and
 # no-JavaScript visitors see today's roles and only government notices that are still open.
 # Started daily at 01:41 UTC (07:11 IST) by Supabase pg_cron (wilsy-dispatch-daily-snapshot).
@@ -50,11 +50,21 @@ jobs:
         continue-on-error: true
         shell: bash
         run: node collectors/programs-check.mjs | tee -a "$GITHUB_STEP_SUMMARY"
+      # Free courses (NPTEL, Microsoft Learn) into public.opportunities, once a day: they change slowly.
+      # A failure only leaves yesterday's list in place.
+      - name: Collect free courses
+        id: courses
+        continue-on-error: true
+        timeout-minutes: 5
+        env:
+          SUPABASE_URL: https://pnkthqatdlozrojwefnc.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node collectors/courses.mjs
       - run: npm run build
       - run: npm test
       - name: Commit when a snapshot changed
         run: |
-          files="frontend/data/jobs-home.json frontend/data/government-jobs.json frontend/data/open-source-programs.json frontend/data/research-internships.json frontend/data/scholarships.json"
+          files="frontend/data/jobs-home.json frontend/data/government-jobs.json frontend/data/open-source-programs.json frontend/data/research-internships.json frontend/data/scholarships.json frontend/data/startup-grants.json"
           if git diff --quiet -- $files; then echo "Snapshots unchanged."; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -65,6 +75,9 @@ jobs:
       - name: Flag a stale-job recheck failure
         if: steps.recheck.outcome == 'failure'
         run: echo "::warning::Jobs not seen recently were not rechecked today; see the step log."
+      - name: Flag a free courses failure
+        if: steps.courses.outcome == 'failure'
+        run: echo "::warning::Free courses were not refreshed today; see the step log."
       - name: Flag a government notices failure
         if: steps.government.outcome == 'failure'
         run: echo "::warning::Government notices were not refreshed today; see the step log."

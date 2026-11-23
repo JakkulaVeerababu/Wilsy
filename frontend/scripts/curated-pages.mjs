@@ -1,4 +1,4 @@
-// Hand-curated opportunity sections: Open-source programs, Research internships and Scholarships.
+// Hand-curated opportunity sections: Open-source programs, Research internships, Scholarships and Startup grants.
 // Each is a listing page plus one page per entry, built from a JSON file in data/ that a person keeps
 // up to date from official pages. collectors/programs-check.mjs re-reads those pages every day and
 // flags date changes for review. Rebuilt every day by the daily snapshot.
@@ -10,6 +10,8 @@ export const entries=data=>data.items||data.programs||[];
 // Open, opening or closed only when the official page has announced dates (entry.next);
 // otherwise the usual timing is shown and nothing is guessed.
 export function programStatus(program,now=Date.now()){
+  // Schemes whose official page says they take applications all year (no rounds).
+  if(program.rolling===true)return {key:'open',text:'Open all year'};
   const opens=Date.parse(program.next?.opens||''),closes=Date.parse(program.next?.closes||'');
   if(Number.isFinite(closes)&&closes<now)return {key:'closed',text:'Applications closed'};
   if(Number.isFinite(opens)&&opens>now)return {key:'soon',text:`Opens ${day(opens)}`};
@@ -78,6 +80,25 @@ export const curatedSections={
     tips:['Read the official guidelines for this year: income limits and eligible courses change.','Keep your marks sheets, income certificate and bank details ready before the portal opens.','Apply only on the official portal. Real scholarships never charge a fee to apply.'],
     principles:{eyebrow:'BEFORE YOU APPLY',heading:'Free to apply.<br>Always on the official portal.',items:[['Never pay to apply','Government and company scholarships do not charge application fees. Be wary of anyone who asks for money.'],['Renew on time','Most scholarships must be renewed every year, with minimum marks and attendance.'],['From official pages','Every fact links to the scholarship’s own site or notice. Confirm the current rules there before you apply.']]},
     asideLinks:[['/research-internships','Research internships'],['/jobs','Find jobs']]
+  },
+  grants:{
+    key:'grants',label:'Startup grants',path:'/startup-grants',file:'data/startup-grants.json',noun:'grant',plural:'grants',
+    title:'Startup grants in India: Seed Fund, BIRAC BIG, NIDHI-PRAYAS',
+    description:'Government grants for Indian startups and student innovators: Startup India Seed Fund, BIRAC BIG, NIDHI-PRAYAS and state grants. Who can apply, how much and how, from official pages.',
+    pageTitle:p=>`${p.name}: eligibility, amount and how to apply`,
+    pageDescription:p=>`${p.summary} Who can apply, the amount and how to apply for ${p.name}, from the official site.`,
+    eyebrow:'WILSY STARTUP GRANTS',heading:'Build the prototype<br><span>before you raise.</span>',
+    lede:'Government grants that fund a proof of concept or a first product without taking a share of your company: who can apply, how much they give and how to apply, from each scheme’s official page.',
+    heroLinks:[['#entries','See the grants'],['/hackathons','Test your idea at a hackathon']],
+    indexLabel:'GRANT INDEX',indexNoun:'grants tracked',
+    index:items=>[[items.filter(p=>p.tags.includes('Students')).length,'open to students'],[items.filter(p=>p.tags.includes('Any sector')).length,'any sector']],
+    toolbarEyebrow:'FUND YOUR FIRST VERSION',
+    cardRows:[['Who can apply','who'],['Amount','amount']],
+    facts:[['Given by','organizer'],['Who can apply','who'],['Amount','amount'],['How to apply','format'],['Usual timing','usual'],['Latest round','last_edition']],
+    articleEyebrow:'STARTUP GRANT',
+    tips:['Read the scheme’s current guidelines: sectors, company age and recognition rules decide who qualifies.','Write down the milestone the money will reach (a prototype, a trial, a first customer) and what it will cost.','Apply only through the official portal or the scheme’s listed incubators. Government grants never charge a fee to apply or ask you to pay an agent.'],
+    principles:{eyebrow:'BEFORE YOU APPLY',heading:'Grants, not equity.<br>Always from the source.',items:[['Never pay an agent','Government grant schemes are free to apply for. Be wary of consultants who promise approval for a fee.'],['Show the milestone','Grants pay for a defined step: a proof of concept, a prototype or a trial. Say exactly what yours will achieve.'],['From official pages','Every fact links to the scheme’s own site. Confirm the current rules and calls there before you apply.']]},
+    asideLinks:[['/scholarships','Scholarships'],['/hackathons','Hackathons']]
   }
 };
 
@@ -108,7 +129,7 @@ export function curatedArticle(cfg,p){
   const later=checkedDaily(p)?' WILSY checks the official page every day and updates this page when they are.':' WILSY updates this page when they are.';
   return `<dl class="program-facts">${row('Status',status.text)}${cfg.facts.map(([term,key,fallback])=>row(term,p[key]||fallback)).join('')}</dl>
 <h2>What it is</h2><p>${e(p.summary)}</p>
-<h2>When to apply</h2><p>${e(p.usual)}${p.next?'':` The next dates are not announced yet.${later}`}</p>
+<h2>When to apply</h2><p>${e(p.usual)}${p.next||p.rolling?'':` The next dates are not announced yet.${later}`}</p>
 <h2>Before you apply</h2><ul>${cfg.tips.map(t=>`<li>${e(t)}</li>`).join('')}</ul>
 <div class="contact-box"><div class="contact-actions">${external(p.url,`Open the ${p.name} site`,'primary-button')}${p.check_url!==p.url&&checkedDaily(p)?external(p.check_url,'Official timeline','secondary-button'):''}</div></div>
 <p class="quiet-callout">These details come from the official site. If something is out of date, <a href="mailto:contact@wilsy.in?subject=${encodeURIComponent(`${cfg.noun[0].toUpperCase()+cfg.noun.slice(1)} correction: ${p.name}`)}">let us know</a>.</p>`;

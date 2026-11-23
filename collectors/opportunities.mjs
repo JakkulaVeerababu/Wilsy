@@ -1,8 +1,8 @@
-// Opportunities collector: competitions and coding contests for public.opportunities
+// Opportunities collector: competitions, workshops and events, and coding contests for public.opportunities
 // (table and read functions: supabase/migrations/20261115024903_wilsy_opportunities.sql).
 //
 // Sources and why they may be read:
-// - Unstop competitions and quizzes: the same public API the hackathon collector uses. Its robots.txt
+// - Unstop competitions, quizzes, workshops, webinars and conferences: the same public API the hackathon collector uses. Its robots.txt
 //   allows /api/public/*, and its terms of use have no clause against automated reading.
 // - Codeforces: the official API (contest.list), called once per run; its limit is 1 call per 2 seconds.
 //   Its terms forbid commercialising site material, so only contest facts are stored: name, start,
@@ -42,7 +42,7 @@ const subtypeOf=value=>{const s=String(value||'').toLowerCase().replace(/[^a-z0-
 const inr=n=>`₹${Number(n).toLocaleString('en-IN')}`;
 
 // Every row has the same keys, so a batch upsert sends one consistent column list.
-function row(f) {
+export function row(f) {
   return {kind:f.kind,subtype:f.subtype??null,source_name:f.source_name,external_id:String(f.external_id),title:text(f.title,200),
     organizer:text(f.organizer,200),description:f.description||null,eligibility:text(f.eligibility,600),tags:f.tags||[],
     participation_mode:['online','offline','hybrid'].includes(f.participation_mode)?f.participation_mode:null,
@@ -75,19 +75,48 @@ export function normaliseUnstopCompetition(item) {
       prize_amount:pool,prize_currency:pool?'INR':null,prize_text:pool?`${inr(pool)} in cash prizes`:null})
   };
 }
-export async function readUnstopCompetitions(get) {
+// Workshops, webinars and conferences (kind 'event'). Free to attend only, and never a coaching
+// institute's sales demo ("free demo class"): those are adverts for paid courses.
+const SALES_DEMO=/\bdemo\b|\bfree trial\b|\btraining in [a-z]+\b|\bcourse fee\b/i;
+export function unstopEventSubtype(item) {
+  const type=String(item.type||'').toLowerCase();
+  if(type==='conferences')return 'conference';
+  if(type==='webinars')return 'webinar';
+  if(type!=='workshops')return null;
+  return /\bwebinars?\b|\bmasterclass\b|\btalks?\b/i.test(String(item.title||''))?'webinar':'workshop';
+}
+export function normaliseUnstopEvent(item) {
+  const regn=item.regnRequirements||{},place=item.address_with_country_logo||{};
+  const mode=String(item.region||'').toLowerCase(),subtype=unstopEventSubtype(item);
+  const eligible=(Array.isArray(item.filters)?item.filters:[]).filter(f=>f?.type==='eligible').map(f=>f.name);
+  return {
+    open:!!subtype&&item.regn_open===1&&String(item.status).toUpperCase()==='LIVE'&&item.visibility==='public'&&item.isPaid!==true&&!SALES_DEMO.test(String(item.title||'')),
+    row:row({kind:'event',subtype,source_name:SOURCES.unstop,external_id:item.id,title:item.title,organizer:item.organisation?.name,
+      description:plainText(item.details,6000)||null,eligibility:eligible.length?`Open to: ${uniq(eligible).join(', ')}.`:null,
+      tags:uniq([...(item.required_skills||[]).map(s=>s?.skill_name||s?.skill),...(item.workfunction||[]).map(w=>w?.name)]),
+      participation_mode:mode,city:mode==='online'?null:place.city,country:mode==='online'?null:(place.country?.name||place.country),
+      official_url:https(item.seo_url)||https(`https://unstop.com/${String(item.public_url||'').replace(/^\/+/,'')}`),
+      registration_opens_at:iso(regn.start_regn_dt),registration_deadline_at:iso(regn.end_regn_dt),ends_at:iso(item.end_date)})
+  };
+}
+// Competitions and quizzes (kind 'competition'), then workshops, webinars and conferences (kind 'event'),
+// in one read: an Unstop row is closed as no longer listed only when every type was read completely.
+export const UNSTOP_TYPES=['competitions','quizzes','workshops','webinars','conferences'];
+const EVENT_TYPES=new Set(['workshops','webinars','conferences']);
+export async function readUnstop(get,types=UNSTOP_TYPES) {
   const items=new Map();
-  for(const type of ['competitions','quizzes']){
+  for(const type of types){
     for(let page=1;page<=MAX_PAGES;page++){
       const body=await get(`https://unstop.com/api/public/opportunity/search-result?opportunity=${type}&oppstatus=open&per_page=${PAGE_SIZE}&page=${page}`);
       const data=body?.data;
       if(!Array.isArray(data?.data))throw new Error('Unexpected Unstop response');
-      for(const item of data.data)if(item?.id!=null&&!items.has(item.id))items.set(item.id,item);
+      for(const item of data.data)if(item?.id!=null&&!items.has(item.id))items.set(item.id,{...item,type:EVENT_TYPES.has(type)?type:item.type});
       if(page>=Number(data.last_page||1)||!data.data.length)break;
     }
   }
-  return [...items.values()].map(normaliseUnstopCompetition);
+  return [...items.values()].map(item=>EVENT_TYPES.has(String(item.type).toLowerCase())?normaliseUnstopEvent(item):normaliseUnstopCompetition(item));
 }
+export const readUnstopCompetitions=get=>readUnstop(get,['competitions','quizzes']);
 
 // ---------- Codeforces ----------
 export function codeforcesSubtype(name) {
@@ -175,10 +204,10 @@ export function plan({existing,fetched,readOk,now=new Date()}) {
   return {upserts,closes};
 }
 
-async function main() {
-  const url=process.env.SUPABASE_URL,secret=process.env.SUPABASE_SERVICE_ROLE_KEY;
+// The service-role REST client for public.opportunities, with retries on gateway errors.
+export function database(url=process.env.SUPABASE_URL,secret=process.env.SUPABASE_SERVICE_ROLE_KEY) {
   if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url||'')||!secret)throw new Error('Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.');
-  const db=async(target,{body,method=body?'POST':'GET',prefer}={})=>{
+  return async(target,{body,method=body?'POST':'GET',prefer}={})=>{
     for(let attempt=0;;attempt++){
       try{
         const response=await fetch(`${url}/rest/v1/${target}`,{method,headers:{apikey:secret,Authorization:`Bearer ${secret}`,'Content-Type':'application/json',...(prefer?{Prefer:prefer}:{})},
@@ -189,13 +218,18 @@ async function main() {
       }catch(error){if(error.final||attempt>=2)throw error;await new Promise(r=>setTimeout(r,500*4**attempt));}
     }
   };
-  const started=new Date(),client=createClient();
+}
+
+// One collection run: read every source, then add, refresh and close rows of the given kinds.
+// readers: [source name, () => items]. Used by this collector and by collectors/courses.mjs.
+export async function collect({readers,kinds,label,db=database()}) {
+  const started=new Date();
   const fetched=[],readOk={},counts={},errors=[];
-  for(const [name,read] of [[SOURCES.unstop,()=>readUnstopCompetitions(client.json)],[SOURCES.codeforces,()=>readCodeforces(client.json)],[SOURCES.atcoder,()=>readAtCoder(client.page)]]){
+  for(const [name,read] of readers){
     try{const items=await read();counts[name]=items.length;readOk[name]=items.length>0;fetched.push(...items);}
     catch(error){readOk[name]=false;errors.push(`${name}: ${error.message}`);}
   }
-  const existing=await db('opportunities?select=id,source_name,external_id,status,registration_deadline_at,ends_at&status=eq.live&limit=20000');
+  const existing=await db(`opportunities?select=id,source_name,external_id,status,registration_deadline_at,ends_at&status=eq.live&kind=in.(${kinds.join(',')})&limit=20000`);
   const work=plan({existing,fetched,readOk,now:started});
   let writeErrors=0;
   for(let i=0;i<work.upserts.length;i+=200){
@@ -214,8 +248,16 @@ async function main() {
   const status=!errors.length?'success':failedSources===Object.keys(readOk).length||writeErrors?'failed':'partial';
   const summary={sources:counts,listed:work.upserts.length,closed:work.closes.length,status,errors:errors.slice(0,10)};
   console.log(JSON.stringify(summary));
+  const names=readers.map(([name])=>name);
   if(process.env.GITHUB_STEP_SUMMARY)await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,
-    `### Competitions and contests: ${status}\n\n| Unstop | Codeforces | AtCoder | listed | closed |\n|---|---|---|---|---|\n| ${counts.Unstop??'failed'} | ${counts.Codeforces??'failed'} | ${counts.AtCoder??'failed'} | ${summary.listed} | ${summary.closed} |\n\n${errors.slice(0,10).map(e=>`- ${e.replace(/[|<>]/g,' ')}`).join('\n')}\n`).catch(()=>{});
+    `### ${label}: ${status}\n\n| ${names.join(' | ')} | listed | closed |\n|${'---|'.repeat(names.length+2)}\n| ${names.map(n=>counts[n]??'failed').join(' | ')} | ${summary.listed} | ${summary.closed} |\n\n${errors.slice(0,10).map(e=>`- ${e.replace(/[|<>]/g,' ')}`).join('\n')}\n`).catch(()=>{});
   if(status==='failed')process.exitCode=1;
+  return summary;
+}
+
+async function main() {
+  const client=createClient();
+  await collect({label:'Competitions, events and contests',kinds:['competition','event','contest'],
+    readers:[[SOURCES.unstop,()=>readUnstop(client.json)],[SOURCES.codeforces,()=>readCodeforces(client.json)],[SOURCES.atcoder,()=>readAtCoder(client.page)]]});
 }
 if(process.argv[1]&&import.meta.filename===path.resolve(process.argv[1]))await main();

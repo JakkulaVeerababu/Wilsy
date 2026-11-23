@@ -1,0 +1,114 @@
+{
+  "note": "Hand-curated. Every fact comes from the scheme's official page. 'next' is filled in only once the official page announces the dates; 'rolling' marks schemes whose official page says they take applications all year. collectors/programs-check.mjs re-reads each 'check_url' daily (except entries with check.auto false) and sets 'check.seen' when the dates on that page change; a person then reviews the entry and copies 'check.seen' into 'check.reviewed'. Left out until their official pages can be read: NIDHI-EIR (guidelines only as a PDF), the Atal New India Challenge (no current call on aim.gov.in), MeitY's TIDE 2.0 and SAMRIDH (script-drawn pages) and Startup Karnataka's Elevate (site did not load).",
+  "reviewed_at": "2026-11-23",
+  "items": [
+    {
+      "slug": "startup-india-seed-fund",
+      "name": "Startup India Seed Fund Scheme",
+      "short": "SISFS",
+      "organizer": "DPIIT, Government of India",
+      "url": "https://seedfund.startupindia.gov.in/",
+      "check_url": "https://seedfund.startupindia.gov.in/",
+      "summary": "Up to ₹20 lakh as a grant to prove a concept or build a prototype, and up to ₹50 lakh as debt for market entry, given through selected incubators.",
+      "who": "A startup recognised by DPIIT, incorporated not more than 2 years before it applies. The full eligibility rules are on the scheme's site.",
+      "amount": "Grant of up to ₹20 lakh for proof of concept, prototype development or product trials, paid in milestone-based instalments. Up to ₹50 lakh as debt or convertible debentures for market entry, commercialisation or scaling up.",
+      "format": "Apply on the Seed Fund portal to one or more of the scheme's incubators",
+      "usual": "Applications are open all year: startups apply on the portal and the chosen incubators review them.",
+      "last_edition": "Open on a rolling basis.",
+      "next": null,
+      "rolling": true,
+      "tags": [
+        "Government",
+        "Any sector",
+        "Proof of concept",
+        "Up to ₹20 lakh grant"
+      ],
+      "check": {
+        "auto": false,
+        "reason": "The Seed Fund portal is drawn by a script and shows no text to automated readers, so WILSY does not check it daily."
+      }
+    },
+    {
+      "slug": "birac-big",
+      "name": "Biotechnology Ignition Grant (BIG)",
+      "short": "BIG",
+      "organizer": "BIRAC, Department of Biotechnology",
+      "url": "https://birac.nic.in/big.php",
+      "check_url": "https://birac.nic.in/cfp.php",
+      "summary": "BIRAC's flagship grant for young biotech startups and researchers: up to ₹50 lakh over 18 months to turn an idea into a proof of concept.",
+      "who": "Startups, companies and individual researchers with a biotechnology idea that could be commercialised. The guidelines on the BIRAC site set out who qualifies.",
+      "amount": "Up to ₹50 lakh as grant-in-aid, for a project of up to 18 months.",
+      "format": "Apply online on the BIRAC portal when a call is open; BIG Partners across India mentor and monitor the grantees",
+      "usual": "BIRAC says calls are announced twice a year, on 1 January and 1 July, and stay open for about 45 days. Recent calls have not always kept to that calendar, so watch BIRAC's calls for proposals page.",
+      "last_edition": "The 25th call closed on 30 November 2025.",
+      "next": null,
+      "tags": [
+        "Government",
+        "Biotech",
+        "Healthcare",
+        "Up to ₹50 lakh"
+      ],
+      "check": {
+        "seen": "f49d38d8cd0fa7ef",
+        "checked_at": "2026-11-23T15:31:07.936Z",
+        "ok": true,
+        "reviewed": "f49d38d8cd0fa7ef"
+      }
+    },
+    {
+      "slug": "nidhi-prayas",
+      "name": "NIDHI-PRAYAS",
+      "short": "PRAYAS",
+      "organizer": "Department of Science and Technology",
+      "url": "https://nidhi.dst.gov.in/schemes-programmes/nidhiprayas/",
+      "check_url": "https://nidhi.dst.gov.in/schemes-programmes/nidhiprayas/",
+      "summary": "Up to ₹10 lakh for students and young innovators to turn a technology idea into a working prototype, with lab space and mentoring at a PRAYAS centre.",
+      "who": "Students, researchers, innovators, entrepreneurs and startups, in any sector. You apply through a NIDHI-PRAYAS centre at a selected incubator.",
+      "amount": "Up to ₹10 lakh per innovator or startup, plus access to the incubator's facilities, fabrication labs and mentors.",
+      "format": "Apply to a NIDHI-PRAYAS centre (at selected technology business incubators); the list of centres is on the NIDHI site",
+      "usual": "Each PRAYAS centre runs its own calls. Check the centres near you, or the NIDHI-PRAYAS website, for open calls.",
+      "last_edition": "Run by DST with SINE, IIT Bombay, as the programme's management unit.",
+      "next": null,
+      "tags": [
+        "Government",
+        "Students",
+        "Any sector",
+        "Prototype",
+        "Up to ₹10 lakh"
+      ],
+      "check": {
+        "seen": null,
+        "checked_at": "2026-11-23T15:31:07.936Z",
+        "ok": true
+      }
+    },
+    {
+      "slug": "kerala-startup-mission-grants",
+      "name": "Kerala Startup Mission grants",
+      "short": "KSUM",
+      "organizer": "Kerala Startup Mission, Government of Kerala",
+      "url": "https://startupmission.kerala.gov.in/schemes/early-stage-funding",
+      "check_url": "https://startupmission.kerala.gov.in/schemes/early-stage-funding",
+      "summary": "Kerala's ladder of non-repayable grants, from an idea grant of up to ₹3 lakh to a scale-up grant of up to ₹15 lakh, with a larger productisation grant for women-led and transgender-led startups.",
+      "who": "Innovators and startups in Kerala, with a focus on first-time founders, student innovators and women-led startups. Each grant's page on the KSUM site says who qualifies.",
+      "amount": "Idea Grant up to ₹3 lakh; Productisation Grant up to ₹7 lakh; Women / Transgender Productisation Grant up to ₹12 lakh; Market Acceleration Grant up to ₹10 lakh; Scaleup Grant up to ₹15 lakh. Grants don't have to be repaid.",
+      "format": "Apply online on the Kerala Startup Mission site, grant by grant",
+      "usual": "KSUM lists these grants as open for applications on its early-stage funding page.",
+      "last_edition": "KSUM also offers seed loans and patent reimbursement, listed on the same page.",
+      "next": null,
+      "rolling": true,
+      "tags": [
+        "Kerala",
+        "Government",
+        "Students",
+        "Women founders",
+        "Up to ₹15 lakh"
+      ],
+      "check": {
+        "seen": null,
+        "checked_at": "2026-11-23T15:31:07.936Z",
+        "ok": true
+      }
+    }
+  ]
+}

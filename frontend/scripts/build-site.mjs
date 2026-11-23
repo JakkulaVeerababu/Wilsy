@@ -9,7 +9,7 @@ import {header,footer,documentPage,jsonld,bundleCss,finishHead,deploymentBuildId
 import {jobsPage} from './jobs-page.mjs';
 import {homePage, HOME_FAQ} from './home-page.mjs';
 import {hackathonsPage} from './hackathons-page.mjs';
-import {competitionsPage,contestsPage} from './opportunity-pages.mjs';
+import {competitionsPage,eventsPage,coursesPage,contestsPage} from './opportunity-pages.mjs';
 import {curatedSections,curatedListing,curatedArticle,entries as curatedEntries} from './curated-pages.mjs';
 import {governmentJobsPage} from './government-jobs-page.mjs';
 import {fetchJobSnapshot} from './job-snapshot.mjs';
@@ -171,6 +171,8 @@ await write('/dsa',documentPage({title:'DSA roadmap — patterns, practice & pro
 await writeDsaAssets(out,dsaProject);
 await write('/hackathons',documentPage({title:'Hackathons & challenges',description:'Explore verified hackathons with eligibility, dates, prize breakdowns and official registration links. Save your next challenge on WILSY.',route:'/hackathons',active:'hackathons',body:hackathonsPage}));
 await write('/competitions',documentPage({title:'Competitions & case challenges',description:'Free-to-enter case competitions, innovation challenges and quizzes for Indian students, with prizes, eligibility and registration deadlines from each listing.',route:'/competitions',active:'competitions',body:competitionsPage}));
+await write('/events',documentPage({title:'Free workshops, webinars & events',description:'Free workshops, webinars and conferences for Indian students and early-career professionals, from colleges, tech fests and companies, with dates and registration links.',route:'/events',active:'events',body:eventsPage}));
+await write('/free-courses',documentPage({title:'Free online courses: NPTEL and Microsoft Learn',description:'Search free NPTEL courses from IITs and IISc and Microsoft Learn learning paths by topic: AI, data, programming, cloud, electronics, core engineering and more.',route:'/free-courses',active:'courses',body:coursesPage}));
 // No ads here: Codeforces’ terms forbid commercialising its material, so the contest calendar stays ad-free.
 await write('/contests',documentPage({title:'Coding contests calendar',description:'Upcoming Codeforces and AtCoder contests in your time zone, with length, rated range and a calendar file for each round.',route:'/contests',active:'contests',ads:false,body:contestsPage}));
 // Hand-curated sections (Open-source programs, Research internships, Scholarships): a listing page and

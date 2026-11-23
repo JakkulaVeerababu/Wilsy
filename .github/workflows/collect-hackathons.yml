@@ -1,6 +1,6 @@
 # Hourly hackathon collector: open registrations from Unstop's public API and Devfolio.
 # Adds new events, refreshes known ones and closes events whose registration has ended.
-# Then collects competitions (Unstop) and coding contests (Codeforces, AtCoder) into
+# Then collects competitions and free workshops and events (Unstop) and coding contests (Codeforces, AtCoder) into
 # public.opportunities (collectors/opportunities.mjs; table: supabase/migrations/20261115024903_wilsy_opportunities.sql).
 # Started at :23 every hour by Supabase pg_cron (supabase/migrations/20261112020000_wilsy_hourly_dispatch.sql).
 name: Collect hackathons
@@ -34,3 +34,13 @@ jobs:
           SUPABASE_URL: https://pnkthqatdlozrojwefnc.supabase.co
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node collectors/opportunities.mjs
+      # Unstop internships for /jobs (collectors/unstop-internships.mjs): paid, stipend shown, no fee,
+      # tech roles only. Off until docs/proposals/unstop-internships.sql is applied; then set the
+      # repository variable WILSY_UNSTOP_INTERNSHIPS to "on" (Settings → Secrets and variables → Actions).
+      - name: Collect Unstop internships
+        if: always() && vars.WILSY_UNSTOP_INTERNSHIPS == 'on'
+        continue-on-error: true
+        env:
+          SUPABASE_URL: https://pnkthqatdlozrojwefnc.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node collectors/unstop-internships.mjs

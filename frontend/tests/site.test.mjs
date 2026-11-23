@@ -40,11 +40,11 @@ test('All generated internal links, local images, scripts, and styles resolve',(
 test('Sitemap covers exactly the public pages and excludes the error page',async()=>{
   const xml=await fs.readFile(path.join(root,'sitemap.xml'),'utf8');
   const urls=[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
-  // 1,069 core pages (including the career tools, the opportunity sections and one page per open-source program,
-  // research internship and scholarship) plus every indexable /jobs/<page> (job pages, and landing
+  // 1,076 core pages (including the career tools, the opportunity sections and one page per open-source program,
+  // research internship, scholarship and startup grant) plus every indexable /jobs/<page> (job pages, and landing
   // pages that have jobs).
   const jobPages=htmlFiles.filter(f=>f.startsWith('jobs'+path.sep)&&!/noindex/.test(pages.get(f)));
-  assert.equal(urls.length,1069+jobPages.length);
+  assert.equal(urls.length,1076+jobPages.length);
   for(const route of ['competitions','contests','open-source-programs','open-source-programs/google-summer-of-code','research-internships','research-internships/science-academies-srfp','scholarships','scholarships/aicte-pragati'])assert.ok(urls.includes('https://www.wilsy.in/'+route),route);
   assert.ok(urls.includes('https://www.wilsy.in/employers'));
   assert.ok(urls.includes('https://www.wilsy.in/campus'));assert.equal(new Set(urls).size,urls.length);

@@ -42,7 +42,7 @@ export function checkProgram(program,result,now=new Date()) {
 }
 
 // The hand-curated files this check covers (the open-source file keeps its entries under "programs").
-export const CURATED_FILES=[['Open-source programs','frontend/data/open-source-programs.json'],['Research internships','frontend/data/research-internships.json'],['Scholarships','frontend/data/scholarships.json']];
+export const CURATED_FILES=[['Open-source programs','frontend/data/open-source-programs.json'],['Research internships','frontend/data/research-internships.json'],['Scholarships','frontend/data/scholarships.json'],['Startup grants','frontend/data/startup-grants.json']];
 const entries=data=>data.items||data.programs||[];
 
 // Checks one file. Entries with check.auto false are skipped: their sites refuse automated readers.
