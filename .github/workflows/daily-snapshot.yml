@@ -1,4 +1,5 @@
-# Keeps the site's built-in snapshots current. Once a day it reads the public job search API
+# Keeps the site's built-in snapshots current. Once a day it closes published roles that are gone from
+# their own job board (collectors/recheck.mjs), reads the public job search API
 # (read-only, public key), the official ISRO and BARC recruitment pages and the official pages
 # of the hand-curated open-source programs, research internships and scholarships, rebuilds, runs the
 # tests and commits whatever changed. The commit redeploys the site, so first paint, crawlers and
@@ -13,7 +14,7 @@ concurrency: daily-snapshot
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -21,6 +22,17 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Closes published roles the hourly collectors have not seen for 3 days once their own board
+      # no longer lists them, and marks the ones still listed as seen (collectors/recheck.mjs). It runs
+      # before the snapshot so the snapshot never shows them. A failure here changes nothing else.
+      - name: Recheck jobs not seen recently
+        id: recheck
+        continue-on-error: true
+        timeout-minutes: 10
+        env:
+          SUPABASE_URL: https://pnkthqatdlozrojwefnc.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node collectors/recheck.mjs
       - name: Refresh the public snapshot
         run: npm run snapshot:jobs
       # An outage on a government site must not hold back the job snapshot; the collector leaves
@@ -50,6 +62,9 @@ jobs:
           git commit -m "chore: daily public job snapshot"
           git push
           echo "### Snapshot refreshed" >> "$GITHUB_STEP_SUMMARY"
+      - name: Flag a stale-job recheck failure
+        if: steps.recheck.outcome == 'failure'
+        run: echo "::warning::Jobs not seen recently were not rechecked today; see the step log."
       - name: Flag a government notices failure
         if: steps.government.outcome == 'failure'
         run: echo "::warning::Government notices were not refreshed today; see the step log."
