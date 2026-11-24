@@ -180,6 +180,6 @@ test('The four new tools are on the tools hub, in quick search and the footer, h
     assert.match(html, /<h1>/);
     assert.match(html, /<link rel="canonical" href="https:\/\/www\.wilsy\.in/);
   }
-  assert.equal(TOOLS.length, 25);
+  assert.equal(TOOLS.length, 26);
   for(const file of ['govpay-core.js', 'gov-salary.js', 'epf-core.js', 'epf.js', 'cgpa-core.js', 'cgpa.js', 'experience-core.js', 'experience.js']) await fs.access(`dist/js/${file}`);
 });

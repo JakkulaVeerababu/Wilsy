@@ -22,6 +22,7 @@ export function myWilsyBody() {
         <div class="skill-add"><input id="skill-input" list="skill-options" autocomplete="off" maxlength="40" placeholder="Type a skill and press Enter: Python, SQL, React…"><button class="secondary-button" type="button" data-skill-add>Add</button></div>
         <datalist id="skill-options">${SKILLS.map(([name]) => `<option value="${e(name)}">`).join('')}</datalist>
         <details class="mywilsy-resume"><summary>Fill in from my resume</summary>
+          <label class="sr-only" for="profile-resume">Resume text</label>
           <textarea id="profile-resume" rows="6" maxlength="30000" spellcheck="false" placeholder="Paste your resume text. WILSY picks out the skills it knows; the text stays on this device."></textarea>
           <button class="secondary-button" type="button" data-skill-resume>Add skills from this text</button></details>
       </div>
