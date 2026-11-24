@@ -28,11 +28,15 @@ export function jobType(raw,title='') {
   if(/full/.test(v))return 'full_time';
   return /\bintern(ship)?\b/i.test(title)?'internship':'other';
 }
+// Hints in order of trust: the first that names a mode decides, so a board's own "Hybrid" is not
+// overridden by a looser flag after it (Ashby marks some hybrid roles isRemote).
 export function workMode(...hints) {
-  const v=hints.filter(Boolean).join(' ').toLowerCase();
-  if(/remote/.test(v))return 'remote';
-  if(/hybrid/.test(v))return 'hybrid';
-  if(/on-?site|in[- ]office|office/.test(v))return 'onsite';
+  for(const hint of hints.filter(Boolean)){
+    const v=String(hint).toLowerCase();
+    if(/remote/.test(v))return 'remote';
+    if(/hybrid/.test(v))return 'hybrid';
+    if(/on-?site|in[- ]office|office/.test(v))return 'onsite';
+  }
   return 'unspecified';
 }
 const PERIODS={year:'year',yearly:'year',annual:'year','1 year':'year','per-year-salary':'year',month:'month','1 month':'month','per-month-salary':'month',

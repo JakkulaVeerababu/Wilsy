@@ -35,6 +35,7 @@ const toolCrumbs = label => crumbs(label, ['/tools', 'Tools']);
 
 /** Every career tool: [url, icon, name, what it does, group]. The tools hub and the homepage list them. */
 export const TOOLS = [
+  ['/my-wilsy', 'sparkle', 'My WILSY', 'Your best job matches, the jobs you qualify for, skills to learn next and a free 30-day plan.', 'Apply'],
   ['/tracker', 'kanban', 'Application tracker', 'Saved → Applied → Interviewing → Offer, with interview reminders. Add jobs from any site.', 'Apply'],
   ['/resume-builder', 'pen', 'Resume builder', 'Write a clean one-page resume and save it as a PDF. Nothing is uploaded.', 'Apply'],
   ['/resume-match', 'file', 'Resume match', 'See which of a job’s skills your resume shows, and which are missing.', 'Apply'],
@@ -165,17 +166,26 @@ export function offerBody() {
 
 export function resumeBody() {
   return `<main id="main-content" class="editorial-shell resume-shell">${toolCrumbs('Resume match')}
-  ${hero('RESUME MATCH', 'Does your resume fit the job?', 'Paste your resume and a job description to see which of the job’s skills your resume shows, and which are missing.')}
+  ${hero('RESUME MATCH', 'Find the jobs your resume fits', 'Upload your resume to see live jobs ranked from your highest chance of a match to your lowest, or check it against one job description.')}
   <section class="resume-match" data-resume aria-label="Resume match checker">
+    <div class="resume-upload"><div><h2>Upload your resume</h2><p>PDF, Word (.docx) or a text file, up to 5 MB. It is read in your browser and never uploaded or sent to WILSY.</p></div>
+      <label class="primary-button resume-upload-button" for="resume-file">Choose a file</label><input id="resume-file" class="sr-only" type="file" accept=".pdf,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain">
+      <p class="resume-upload-status" data-resume-file-status role="status"></p></div>
+    <section class="resume-jobs" aria-labelledby="resume-jobs-title"><div class="resume-jobs-head"><div><p class="eyebrow">JOBS FOR YOUR RESUME</p><h2 id="resume-jobs-title">Live jobs, highest chance first</h2></div>
+      <div class="resume-jobs-controls"><div class="calc-field"><label for="resume-years">Years of work experience</label><input id="resume-years" type="number" inputmode="decimal" min="0" max="40" step="0.5" placeholder="From your resume"></div>
+      <button class="primary-button" type="button" data-resume-jobs>Find matching jobs</button></div></div>
+      <div data-resume-jobs-list aria-live="polite"><p class="match-empty">Upload or paste your resume, then find matching jobs.</p></div>
+      <p class="salary-note">The chance is an estimate: the share of each job’s listed skills your resume shows (a related skill counts half), lowered when the job asks for more years than your resume shows. It can’t see everything an employer weighs, so read each job before you apply.</p></section>
+    <h2 class="resume-one-job">Check against one job</h2>
     <p class="resume-job" data-resume-job role="status" hidden></p>
     <div class="resume-inputs">
-      <div class="calc-field"><label for="resume-text">Your resume (paste the text)</label><textarea id="resume-text" rows="12" maxlength="30000" spellcheck="false" placeholder="Open your resume, select all, copy, and paste it here."></textarea>
+      <div class="calc-field"><label for="resume-text">Your resume (uploaded, or paste the text)</label><textarea id="resume-text" rows="12" maxlength="30000" spellcheck="false" placeholder="Open your resume, select all, copy, and paste it here."></textarea>
         <div class="resume-keep"><label class="calc-check"><input type="checkbox" id="resume-remember"> Remember my resume on this device</label><button class="text-button" type="button" data-resume-clear>Clear</button></div></div>
       <div class="calc-field"><label for="job-text">Job description</label><textarea id="job-text" rows="12" maxlength="30000" spellcheck="false" placeholder="Paste the job description, including the requirements."></textarea></div>
     </div>
     <div class="resume-result" data-resume-result aria-live="polite"><p class="match-empty">Paste your resume and a job description to see the match.</p></div>
     <noscript><p class="tracker-status">The resume check needs JavaScript.</p></noscript>
-    <p class="quiet-callout">The check runs in your browser. Your resume is never uploaded or sent to WILSY, and it is kept on this device only if you tick “Remember”. It looks for ${SKILLS.length} common skills and tools, so treat it as a quick check, not a verdict. <a href="/jobs">Find a job to check against</a></p>
+    <p class="quiet-callout">The check runs in your browser. Your resume, uploaded or pasted, is never sent to WILSY, and it is kept on this device only if you tick “Remember”. To find matching jobs, WILSY searches live jobs by the skill names found in it, never the resume itself. It looks for ${SKILLS.length} common skills and tools, so treat it as a quick check, not a verdict. <a href="/jobs">Find a job to check against</a></p>
   </section>
   <script type="module" src="/js/resume-match.js"></script></main>`;
 }

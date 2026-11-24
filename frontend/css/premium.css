@@ -711,3 +711,62 @@ html body .job-detail-actions>a.job-report-link:hover,html body .job-detail-acti
   .job-page-head{gap:14px}.job-page-head .job-logo{flex-basis:52px;width:52px;height:52px}
   .job-page-actions a{flex:1 1 100%}
 }
+
+/* ---------- Footer, every page ----------
+   Lime with near-black type: a large uppercase line on the left, then link columns in one size and weight,
+   each group under a muted olive heading, some columns holding two groups; a short bottom row, then a large
+   green "wilsy.in" that melts into the lime at the end of the page.
+   ".site-footer.premium-footer" outranks the older footer, label and headline rules above. */
+html body .site-footer.premium-footer{--foot-bg:#d1fe17;--foot-ink:#131517;--foot-muted:#5f7010;--foot-line:rgba(19,21,23,.16);padding:clamp(40px,4vw,56px) var(--gutter) 0!important;background:var(--foot-bg)!important;color:var(--foot-ink);border-top:0!important;box-shadow:none}
+html body .site-footer.premium-footer::after{display:none}
+html body .site-footer.premium-footer .footer-main{grid-template-columns:minmax(0,1.45fr) repeat(5,minmax(0,1fr))!important;gap:48px 24px!important;width:auto;max-width:none;margin:0!important;padding:0 0 clamp(12px,1.5vw,24px)!important;border:0}
+html body .site-footer.premium-footer .footer-intro{grid-column:auto;display:block;max-width:none;margin:0;padding:0;border:0}
+html body .site-footer.premium-footer .footer-intro>p{max-width:11em;margin:0!important;font-family:var(--font)!important;font-style:normal!important;font-weight:600!important;font-size:clamp(1.75rem,2.5vw,2.6rem);line-height:1.08;letter-spacing:-.015em!important;text-transform:uppercase;color:var(--foot-ink)}
+html body .site-footer.premium-footer .footer-intro>p em{display:inline;padding:0;margin:0;font:inherit!important;font-style:normal!important;letter-spacing:inherit!important;color:inherit;background:none;-webkit-text-fill-color:currentColor}
+html body .site-footer.premium-footer .footer-intro>span{display:block;max-width:34ch;margin:24px 0 0;font-size:15px;line-height:1.6;color:var(--foot-muted)}
+html body .site-footer.premium-footer .footer-newsletter{margin:28px 0 0;max-width:none;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+html body .site-footer.premium-footer .footer-newsletter .footer-label{margin:0 0 12px!important;font-family:var(--font)!important;font-size:15px!important;font-weight:500!important;line-height:1.4;letter-spacing:0!important;text-transform:none;color:var(--foot-muted)}
+html body .site-footer.premium-footer .footer-newsletter a{display:inline-flex;align-items:center;gap:10px;width:auto;min-height:46px;padding:0 20px;border:0;background:var(--foot-ink);color:var(--foot-bg);font-size:15px;transition:background-color .2s}
+html body .site-footer.premium-footer .footer-newsletter a:hover{background:#000;color:var(--foot-bg)}
+html body .site-footer.premium-footer .footer-newsletter a svg{width:16px;height:16px;transition:transform .25s var(--ease)}
+html body .site-footer.premium-footer .footer-newsletter a:hover svg{transform:translateX(3px)}
+html body .site-footer.premium-footer .footer-newsletter small{display:block;max-width:34ch;margin-top:12px;font-size:13px;line-height:1.6;color:var(--foot-muted)}
+/* Columns: a heading row, then links on a 36px rhythm; a blank row between two groups. */
+html body .site-footer.premium-footer .footer-col{display:flex;flex-direction:column;gap:36px;min-width:0}
+html body .site-footer.premium-footer .footer-main nav{display:flex!important;flex-direction:column;align-items:flex-start;gap:0!important;min-width:0;padding:0}
+html body .site-footer.premium-footer .footer-main nav h2{margin:0 0 7.5px!important;padding:7.5px 0 0;font-family:var(--font)!important;font-size:15px!important;font-weight:500!important;line-height:1.4!important;letter-spacing:0!important;text-transform:none;white-space:normal;color:var(--foot-muted)}
+html body .site-footer.premium-footer .footer-main nav :is(a,.footer-install){display:block;max-width:100%;min-height:0;margin:0;padding:7.5px 0!important;border-radius:0;background:none!important;color:var(--foot-ink)!important;font-size:15px!important;font-weight:500;line-height:1.4!important;text-align:left;text-decoration:none!important}
+html body .site-footer.premium-footer .footer-main nav .footer-install[hidden]{display:none}
+html body .site-footer.premium-footer .footer-main nav :is(a,.footer-install):hover{color:#000!important;text-decoration:underline!important;text-decoration-thickness:1px!important;text-underline-offset:4px}
+html body .site-footer.premium-footer :is(a,button):focus-visible{outline:2px solid var(--foot-ink);outline-offset:3px;border-radius:4px}
+/* The copyright and salary note, small, under the account link. */
+html body .site-footer.premium-footer .footer-intro>.footer-legal{max-width:34ch;margin:32px 0 0!important;font:400 12.5px/1.6 var(--font)!important;letter-spacing:0!important;text-transform:none;color:var(--foot-muted)}
+/* (Older bottom-row rules, unused now.) */
+html body .site-footer.premium-footer .footer-bottom{display:flex!important;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 32px!important;width:auto;max-width:none;margin:0!important;padding:20px 0 24px!important;border-top:1px solid var(--foot-line)!important;color:var(--foot-ink);font-size:13px!important;line-height:1.6}
+html body .site-footer.premium-footer .footer-bottom>span{display:block;white-space:nowrap;font-weight:400;color:var(--foot-ink)}
+html body .site-footer.premium-footer .footer-bottom p{flex:1 1 auto;min-width:0;max-width:none;margin:0;font-size:13px!important;text-align:center;color:var(--foot-muted)}
+/* The wordmark: as wide as the columns, a smooth deep-green to lime gradient, its lower part cut by the
+   end of the page. Decorative, so hidden from screen readers in the markup. */
+html body .site-footer.premium-footer .footer-giant{display:block;height:.56em;margin:0;overflow:hidden;font:700 min(calc((100vw - 2 * var(--gutter)) * .33),30rem)/.8 var(--font);letter-spacing:-.075em;text-align:center;white-space:nowrap;user-select:none;pointer-events:none;
+  background:linear-gradient(180deg,#5f8f00 0%,#86bd00 38%,#aee30a 72%,#d1fe17 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+/* Narrower screens: the line and the account link take the first row, then the columns. */
+@media(max-width:1400px){
+  html body .site-footer.premium-footer .footer-main{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+  html body .site-footer.premium-footer .footer-intro{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);column-gap:48px;align-items:start}
+  html body .site-footer.premium-footer .footer-intro>p{grid-row:1/span 2;max-width:13em}
+  html body .site-footer.premium-footer .footer-intro>span{grid-column:2;margin:0}
+  html body .site-footer.premium-footer .footer-newsletter{grid-column:2;margin-top:20px}
+  html body .site-footer.premium-footer .footer-intro>.footer-legal{grid-column:2;grid-row:auto;max-width:34ch;margin-top:20px!important}
+}
+@media(max-width:1100px){
+  html body .site-footer.premium-footer .footer-main{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:44px 24px!important}
+}
+@media(max-width:760px){
+  html body .site-footer.premium-footer .footer-intro{display:block}
+  html body .site-footer.premium-footer .footer-intro>span{margin-top:20px}
+  html body .site-footer.premium-footer .footer-newsletter{margin-top:24px}
+  html body .site-footer.premium-footer .footer-main{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:40px 20px!important}
+  html body .site-footer.premium-footer .footer-bottom{flex-direction:column;align-items:flex-start}
+  html body .site-footer.premium-footer .footer-bottom p{text-align:left}
+}
+@media(prefers-reduced-motion:reduce){html body .site-footer.premium-footer :is(.footer-newsletter a,.footer-newsletter a svg){transition:none}}

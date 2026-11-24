@@ -20,6 +20,8 @@ async function search(req,res){
   res.end(Buffer.from(await response.arrayBuffer()));
 }
 http.createServer(async(req,res)=>{
+  // Collapse leading slashes so a request like "//" is not read as a protocol-relative URL (that threw and killed the server).
+  req.url='/'+String(req.url||'/').replace(/^\/+/,'');
   if(new URL(req.url,'http://localhost').pathname==='/api/search'){try{await search(req,res);}catch(error){console.error(error);res.writeHead(502);res.end();}return;}
   try{
     const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);

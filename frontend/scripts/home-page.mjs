@@ -114,9 +114,9 @@ export function homePage({snapshot, companies, guides, fx, dsaStats}) {
     <div class="home-hero-copy">
       <p class="home-live-pill"><span></span> INTRODUCING THE WILSY INDEX</p>
       <h1 id="home-title">Find the work<br><em>that moves you forward.</em></h1>
-      <p class="home-hero-lede">Jobs, internships, government notices and hackathons for India. Every role links to the employer, with pay in rupees.</p>
+      <p class="home-hero-lede">Real opportunities, researched for you. Every role links to its source, with INR salary context.</p>
       <form class="home-search" id="job-search-form" action="/jobs" method="get" role="search">
-        <div class="home-search-query"><span class="home-search-plus">${icon('search')}</span><label class="sr-only" for="job-search">Role, company or skill</label><input id="job-search" name="q" maxlength="200" autocomplete="off" placeholder="Job title, company or skill" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="home-suggest" aria-keyshortcuts="/"></div>
+        <div class="home-search-query"><span class="home-search-plus">${icon('plus')}</span><label class="sr-only" for="job-search">Role, company or skill</label><input id="job-search" name="q" maxlength="200" autocomplete="off" placeholder="Ask for a role, company or skill" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="home-suggest" aria-keyshortcuts="/"><kbd aria-hidden="true">/</kbd></div>
         <label class="home-search-location"><span class="sr-only">Country</span>${icon('pin')}<select id="job-location" name="country"><option value="">Anywhere</option>${HERO_COUNTRIES.map(c=>`<option value="${e(c)}">${e(c)}</option>`).join('')}</select></label>
         <button class="home-search-submit" type="submit">Search ${icon('arrow')}</button>
         <div class="home-suggest" id="home-suggest" role="listbox" aria-label="Search suggestions" hidden></div>

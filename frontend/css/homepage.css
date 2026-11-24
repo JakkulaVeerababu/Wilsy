@@ -498,8 +498,8 @@ html body .home-shell .home-statement{max-width:21ch;margin:0 auto 96px;font-siz
 
 /* ---------- Closing panel: lime, with dark type and pill buttons ----------
    The same lime in light and dark themes; the type on it stays near-black. */
-.home-shell{--lime:#dff76a;--lime-soft:#effbb4;--lime-ink:#0a0a0a}
-.home-final-cta,html.dark-theme .home-final-cta{width:min(1200px,100% - 2 * var(--gutter));align-items:center;padding:clamp(32px,4.2vw,60px) clamp(24px,5vw,72px);background:var(--lime);color:var(--lime-ink);box-shadow:none}
+.home-shell{--lime:#d1fe17;--lime-soft:#efffb0;--lime-ink:#0a0a0a}
+.home-final-cta,html.dark-theme .home-final-cta{width:min(1200px,100% - 2 * var(--gutter));align-items:center;padding:clamp(32px,4.2vw,60px) clamp(24px,5vw,72px);background:radial-gradient(90% 120% at 0% 0%,rgba(255,255,255,.32),transparent 60%),var(--lime);color:var(--lime-ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 24px 60px -30px rgba(120,160,0,.55)}
 .home-final-cta h2{margin-bottom:14px}
 .home-final-cta .home-kicker{color:#4f5a14}
 .home-final-cta h2{color:var(--lime-ink)}
@@ -577,7 +577,9 @@ html.dark-theme body .home-shell .home-hero{background:
   linear-gradient(180deg,#0c1f86 0%,#1434c4 60%,#1a3dd6 100%)}
 html body .home-shell .home-hero h1{color:#fff!important;font-weight:500!important;letter-spacing:-.05em!important;line-height:1!important}
 html body .home-shell .home-hero h1::before{display:none}
-html body .home-shell .home-hero h1 em{display:inline-block;padding:0 .06em .04em 0;font-family:'Instrument Serif',Georgia,'Times New Roman',serif!important;font-style:italic;font-weight:400!important;font-size:1.12em;letter-spacing:-.02em!important;line-height:1;color:#fff!important}
+/* Palatino italic (Palatino Linotype on Windows, Palatino on macOS, the URW clones on Linux), white easing to mint at the end. */
+/* The padding gives the gradient fill room for the descenders of "y" and "f"; the matching negative margin keeps the layout. */
+html body .home-shell .home-hero h1 em{display:inline-block;padding:.12em .1em .26em .04em;margin:-.12em -.1em -.26em -.04em;font-family:'Palatino Linotype','Book Antiqua',Palatino,'URW Palladio L','P052',Georgia,serif!important;font-style:italic!important;font-weight:400!important;font-size:1em;letter-spacing:-.02em!important;line-height:1;color:#fff!important;background:linear-gradient(90deg,#fff 0%,#fff 58%,#d2fbe9 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 html body .home-shell .home-live-pill{color:rgba(255,255,255,.92)}
 html body .home-shell .home-hero-lede{color:rgba(255,255,255,.88)}
 /* The search: a frosted pill on the blue, white text, and the glossy dark button. */
@@ -673,3 +675,50 @@ html body .home-shell .hero-chip-4{right:5%;top:70%;animation-delay:-1s}
 .home-faq details[open] .home-faq-icon .icon{transform:rotate(45deg)}
 .home-faq details p{margin:0 0 20px;color:var(--muted);font-size:15.5px;line-height:1.7;max-width:68ch}
 @media(prefers-reduced-motion:reduce){.home-suggest{animation:none}.home-faq-icon .icon{transition:none}}
+
+/* ---------- Hero, as designed (wider than a phone) ----------
+   Measured from the approved hero: a 4.6rem headline, a monospaced "Introducing" line, a 662px frosted
+   search with a "/" key hint and a white Search button, smaller "Try" chips, and four tags with a clipped
+   top-left corner. Phones keep the layout above. */
+@media(min-width:761px){
+  html body.home-page .home-shell .home-hero{padding:188px var(--gutter) 300px}
+  html:not(.dark-theme) body.home-page .home-shell .home-hero{background:
+    linear-gradient(108deg,transparent 0 14%,rgba(255,255,255,.1) 20%,rgba(255,255,255,0) 30%),
+    linear-gradient(108deg,transparent 0 58%,rgba(255,255,255,.12) 64%,rgba(255,255,255,0) 74%),
+    radial-gradient(26% 30% at 99% 58%,rgba(236,190,178,.5),rgba(236,190,178,0) 70%),
+    radial-gradient(50% 46% at 100% 88%,rgba(150,215,236,.95),rgba(150,215,236,0) 72%),
+    radial-gradient(30% 40% at 100% 40%,rgba(120,170,255,.35),rgba(120,170,255,0) 70%),
+    radial-gradient(40% 36% at 22% 100%,rgba(120,160,250,.35),rgba(120,160,250,0) 70%),
+    radial-gradient(60% 70% at -4% -6%,rgba(14,36,190,.5),rgba(14,36,190,0) 70%),
+    linear-gradient(180deg,#2a52f0 0%,#3561f7 55%,#4d7af5 100%)}
+  /* .home-hero in these two selectors outranks premium.css, which sets every label in Manrope. */
+  html body.home-page .home-shell .home-hero .home-live-pill{margin:0 0 28px;font:700 12px/1 var(--mono)!important;letter-spacing:.2em!important;color:#fff}
+  html body.home-page .home-shell .home-hero h1{font-size:clamp(2.5rem,5.2vw,4.6rem)!important;letter-spacing:-.055em!important;line-height:.98!important}
+  html body.home-page .home-shell .home-hero h1 em{letter-spacing:-.035em!important}
+  html body.home-page .home-shell .home-hero-lede{max-width:560px;margin:22px auto 34px;font-size:clamp(1rem,1.15vw,1.125rem);line-height:1.6;color:rgba(255,255,255,.86)}
+  /* Sized from the viewport: the hero copy column shrinks to its content, so 100% would follow the 560px intro on tablets. */
+  html body.home-page .home-shell .home-search{width:min(662px,100vw - 2 * var(--gutter) - 16px);min-height:66px;padding:8px 8px 8px 22px;gap:0;background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.12));border:1.5px solid rgba(255,255,255,.55);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 22px 48px -24px rgba(4,14,90,.55)}
+  html body.home-page .home-shell .home-search-query{gap:12px}
+  html body.home-page .home-shell .home-search-plus .icon{width:20px;height:20px}
+  html body.home-page .home-shell .home-search kbd{flex:none;display:inline-grid;place-items:center;width:24px;height:24px;margin:0 5px 0 4px;border:1px solid rgba(255,255,255,.5);border-radius:6px;background:rgba(255,255,255,.08);font:500 12px/1 var(--mono);color:rgba(255,255,255,.9)}
+  html body.home-page .home-shell .home-search-location{flex:0 0 170px;min-width:0;padding:0 10px 0 16px;border-left:1px solid rgba(255,255,255,.35)}
+  html body.home-page .home-shell .home-search-location select{min-width:0;width:100%;font:700 15px var(--font);text-overflow:ellipsis}
+  html body.home-page .home-shell .home-search-submit{height:50px;padding:0 23px;background:#fff;color:#1f4ff0;font-size:15px;box-shadow:0 8px 20px -8px rgba(4,14,90,.4)}
+  html body.home-page .home-shell .home-search-submit:hover{background:#eef3ff}
+  html body.home-page .home-shell .home-search-submit:focus-visible{outline:2px solid #fff;outline-offset:3px}
+  html body.home-page .home-shell .home-quick-links{margin-top:25px;gap:10px}
+  html body.home-page .home-shell .home-hero .home-quick-links span{margin-right:6px;font:600 11px var(--mono)!important;letter-spacing:.2em!important;color:rgba(255,255,255,.78)}
+  html body.home-page .home-shell .home-quick-links a{min-height:38px;padding:0 16px;font-size:13px;border-color:rgba(255,255,255,.4)}
+  /* Tags: square with the top-left corner cut. The first company tag sits low on the left, the second high on the right. */
+  html body.home-page .home-shell .hero-chip{height:46px;padding:0 18px;gap:11px;border-radius:0;font-size:14.5px;
+    clip-path:polygon(12px 0,100% 0,100% 100%,0 100%,0 12px);background:linear-gradient(135deg,rgba(18,40,165,.5),rgba(30,64,210,.3));border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
+  html body.home-page .home-shell .hero-chip .icon{width:18px;height:18px}
+  html body.home-page .home-shell .hero-chip img{width:26px;height:26px;border-radius:6px;padding:3px}
+  html body.home-page .home-shell .hero-chip-1{left:9.2%;top:213px}
+  html body.home-page .home-shell .hero-chip-2{left:13.2%;right:auto;top:583px}
+  html body.home-page .home-shell .hero-chip-3{right:10%;left:auto;top:188px}
+  html body.home-page .home-shell .hero-chip-4{right:7.9%;top:594px}
+}
+/* Tablets: no floating tags here, so a shorter hero. Touch screens get no "/" key hint; the placeholder keeps its room. */
+@media(min-width:761px) and (max-width:1199px){html body.home-page .home-shell .home-hero{padding-bottom:220px}}
+@media(max-width:1023px){html body.home-page .home-shell .home-search kbd{display:none}}

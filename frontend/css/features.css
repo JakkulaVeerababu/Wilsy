@@ -795,12 +795,132 @@ html body :is(.jobs-search,.hack-search,.search-toolbar .search-box,.dsa-search)
   :root,html.dark-theme{--glass-bar:var(--surface);--glass-sheet:var(--surface);--glass-menu:var(--surface)}
 }
 
-/* Reading progress and back to top (features.js), on every page. */
+/* Reading progress (features.js), on every page. */
 .scroll-progress{position:fixed;inset:0 0 auto;height:3px;z-index:1000;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,var(--blue),var(--violet));pointer-events:none}
-.back-to-top{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(20px,env(safe-area-inset-bottom));z-index:900;display:grid;place-items:center;width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);box-shadow:var(--shadow-md);cursor:pointer;animation:back-to-top-in .2s ease-out;transition:transform .2s,border-color .2s}
-.back-to-top[hidden]{display:none}
-.back-to-top:hover{transform:translateY(-2px);border-color:var(--blue);color:var(--blue)}
-.back-to-top svg{width:22px;height:22px}
-@keyframes back-to-top-in{from{opacity:0;transform:translateY(8px)}}
-@media(prefers-reduced-motion:reduce){.back-to-top{animation:none;transition:none}}
-@media print{.scroll-progress,.back-to-top{display:none}}
+@media print{.scroll-progress{display:none}}
+/* My WILSY: profile, matches, skill gaps and the 30-day plan */
+.mywilsy{display:flex;flex-direction:column;gap:18px;margin-top:28px}
+.mywilsy-profile{display:flex;flex-direction:column;gap:16px;padding:22px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.mywilsy-profile h2,.mywilsy-block h2{margin:0;font-size:20px;letter-spacing:-.01em;color:var(--ink)}
+.skill-tags{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px;padding:0;list-style:none}
+.skill-tags:empty{display:none}
+.skill-tags li{display:inline-flex;align-items:center;gap:4px;padding:4px 4px 4px 12px;border-radius:999px;background:var(--surface-tint);color:var(--ink);font-size:14px;font-weight:650}
+.skill-tags button{display:inline-grid;place-items:center;width:26px;height:26px;border:0;border-radius:999px;background:transparent;color:var(--muted-strong);font-size:17px;line-height:1;cursor:pointer}
+.skill-tags button:hover,.skill-tags button:focus-visible{background:var(--line);color:var(--ink)}
+.skill-add{display:flex;gap:8px}
+.skill-add input{flex:1;min-width:0}
+.mywilsy-resume{margin-top:10px;font-size:14px}
+.mywilsy-resume summary{color:var(--blue);font-weight:650;cursor:pointer}
+.mywilsy-resume textarea{display:block;width:100%;box-sizing:border-box;margin:10px 0;padding:12px 13px;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-size:14px;line-height:1.55;resize:vertical}
+.mywilsy-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:end}
+.mywilsy-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.mywilsy-foot .text-button{padding:6px 2px;border:0;background:none;color:var(--muted-strong);font:inherit;font-size:13px;text-decoration:underline;cursor:pointer}
+.mywilsy-status{min-height:1em;margin:0;font-size:13px;color:var(--muted-strong)}
+.mywilsy-hint{margin:-4px 0 -4px;font-size:13px;color:var(--muted-strong)}
+.mywilsy-results{display:flex;flex-direction:column;gap:18px}
+.mywilsy-results>.match-empty{padding:22px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.mywilsy-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.mywilsy-summary>div{display:flex;flex-direction:column;gap:4px;padding:18px 20px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}
+.mywilsy-summary strong{font-size:clamp(24px,3vw,32px);font-weight:800;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.mywilsy-summary span{font-size:14px;color:var(--muted-strong)}
+.mywilsy-note{margin:0;font-size:14px;color:var(--muted-strong)}
+.mywilsy-block{display:flex;flex-direction:column;gap:12px;padding:22px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.mywilsy-block h3{margin:8px 0 0;font-size:16px;color:var(--ink)}
+.mywilsy-block>.secondary-button{align-self:flex-start}
+.mywilsy-lead{margin:-4px 0 0;font-size:14px;color:var(--muted-strong)}
+.mywilsy-jobs,.mywilsy-gaps,.mywilsy-plan,.mywilsy-companies,.mywilsy-soon{margin:0;padding:0;list-style:none}
+.mywilsy-job{display:flex;gap:16px;justify-content:space-between;padding:16px 0;border-top:1px solid var(--line)}
+.mywilsy-job:first-child{border-top:0;padding-top:4px}
+.mywilsy-job-main{display:flex;flex-direction:column;gap:6px;min-width:0}
+.mywilsy-job-title{font-size:16px;font-weight:750;color:var(--ink);text-decoration:none}
+.mywilsy-job-title:hover{color:var(--blue);text-decoration:underline}
+.mywilsy-job-meta{margin:0;font-size:14px;color:var(--muted-strong)}
+.mywilsy-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.mywilsy-chips li{padding:3px 9px;border-radius:999px;font-size:12px;font-weight:650}
+.mywilsy-chips .is-have{background:#e7f8ee;color:#0b5d32}
+.mywilsy-chips .is-have::before{content:"✓ "}
+.mywilsy-chips .is-close{border:1px dashed #9bb8ef;background:#eef4ff;color:#1d3f7a}
+.mywilsy-chips .is-missing{border:1px dashed #e3a548;background:#fff6e8;color:#7a4100}
+html.dark-theme .mywilsy-chips .is-have{background:#123d27;color:#bff0d3}
+html.dark-theme .mywilsy-chips .is-close{border-color:#3d5f9e;background:#14233f;color:#bcd3ff}
+html.dark-theme .mywilsy-chips .is-missing{border-color:#8a6420;background:#3a2a10;color:#ffd79a}
+.mywilsy-job-fit{margin:0;font-size:13px;font-weight:650}
+.mywilsy-job-fit.is-ok{color:#0b5d32}
+.mywilsy-job-fit.is-ok::before{content:"✓ "}
+.mywilsy-job-fit.is-short{color:#8a4b00}
+.mywilsy-job-score{display:flex;flex-direction:column;align-items:flex-end;flex:none;gap:2px;text-align:right}
+.mywilsy-job-score strong{font-size:24px;font-weight:800;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums}
+.mywilsy-job-score span{font-size:12px;color:var(--muted-strong)}
+.mywilsy-job-score a{margin-top:6px;font-size:13px;font-weight:650;color:var(--blue)}
+.mywilsy-gaps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mywilsy-gaps li{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border:1px solid var(--line);border-radius:14px}
+.mywilsy-gaps li>div{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
+.mywilsy-gaps strong{font-size:16px;color:var(--ink)}
+.mywilsy-gaps span{font-size:13px;color:var(--muted-strong)}
+.mywilsy-gaps a{font-size:13px;font-weight:650;color:var(--blue);overflow-wrap:anywhere}
+.mywilsy-plan{display:flex;flex-direction:column;gap:10px}
+.mywilsy-plan li{display:flex;gap:14px;align-items:flex-start}
+.mywilsy-week{flex:none;min-width:68px;padding:4px 10px;border-radius:999px;background:var(--surface-tint);color:var(--blue);font-size:12px;font-weight:750;text-align:center}
+.mywilsy-plan strong{font-size:15px;color:var(--ink)}
+.mywilsy-plan p{margin:2px 0 0;font-size:14px;line-height:1.55;color:var(--ink-soft)}
+.mywilsy-plan a,.mywilsy-soon a,.mywilsy-note a{color:var(--blue)}
+.mywilsy-companies{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mywilsy-companies a{display:flex;flex-direction:column;gap:3px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;color:var(--ink);text-decoration:none}
+.mywilsy-companies a:hover{border-color:var(--blue)}
+.mywilsy-companies span{font-size:13px;color:var(--muted-strong)}
+.mywilsy-soon li{padding:8px 0;border-top:1px solid var(--line);font-size:14px;color:var(--ink-soft)}
+.mywilsy-soon li:first-child{border-top:0}
+.mywilsy-soon span{color:#8a4b00;font-weight:650}
+html.dark-theme .mywilsy-job-fit.is-ok{color:#7ee2a8}
+html.dark-theme .mywilsy-job-fit.is-short,html.dark-theme .mywilsy-soon span{color:#ffc978}
+@media(max-width:900px){.mywilsy-fields{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.mywilsy-fields,.mywilsy-summary,.mywilsy-gaps,.mywilsy-companies{grid-template-columns:1fr}.mywilsy-job{flex-direction:column;gap:8px}.mywilsy-job-score{flex-direction:row;align-items:baseline;gap:8px;text-align:left}.mywilsy-job-score a{margin:0 0 0 auto}.mywilsy-profile,.mywilsy-block{padding:18px}}
+/* Company profiles: hiring signals and pay transparency, from live roles */
+.company-signals{margin:0 0 24px;padding:28px;border:1px solid var(--line);border-radius:24px;background:var(--surface)}
+.company-signals .company-open-roles-head>span{font-size:13px;font-weight:600;color:var(--muted-strong);white-space:nowrap}
+.signal-pay{padding:16px 18px;border-radius:16px;background:var(--surface-subtle)}
+.signal-pay>div:first-child{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px}
+.signal-pay strong{font-size:34px;font-weight:800;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums}
+.signal-pay small{font-size:15px;font-weight:700;color:var(--muted-strong)}
+.signal-pay span{font-size:15px;font-weight:700;color:var(--ink-soft)}
+.signal-pay p{margin:8px 0 0;font-size:13px;color:var(--muted-strong)}
+.signal-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0 0}
+.signal-grid>div{padding:14px 16px;border:1px solid var(--line);border-radius:14px}
+.signal-grid dt{font-size:13px;color:var(--muted-strong)}
+.signal-grid dd{margin:4px 0 0;font-size:24px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+.signal-line{margin:14px 0 0;font-size:14px;line-height:1.6;color:var(--ink-soft)}
+.signal-line a,.signal-note a{color:var(--blue)}
+.signal-note{margin:14px 0 0;font-size:13px;color:var(--muted-strong)}
+@media(max-width:640px){.company-signals{padding:20px}.signal-grid{grid-template-columns:1fr}}
+/* Resume match: upload and jobs ranked by chance */
+.resume-upload{display:grid;grid-template-columns:1fr auto;gap:8px 20px;align-items:center;padding:22px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.resume-upload h2,.resume-jobs h2,.resume-one-job{margin:0;font-family:var(--heading);font-size:22px;color:var(--ink)}
+.resume-upload p{margin:4px 0 0;font-size:14px;color:var(--muted-strong)}
+.resume-upload-button{cursor:pointer;min-height:44px;display:inline-flex;align-items:center}
+.resume-upload:has(#resume-file:focus-visible) .resume-upload-button{outline:3px solid var(--blue);outline-offset:2px}
+.resume-upload-status{grid-column:1/-1;margin:0;font-size:14px;color:var(--ink-soft)}
+.resume-upload-status:empty{display:none}
+.resume-jobs{margin:22px 0 30px}
+.resume-jobs-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.resume-jobs-controls{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.resume-jobs-controls .calc-field{margin:0;max-width:190px}
+.resume-jobs-controls .primary-button{min-height:44px}
+.resume-jobs-summary{margin:0 0 12px;font-size:14px;color:var(--ink-soft)}
+.resume-job-list{display:grid;gap:12px;margin:0;padding:0;list-style:none}
+.resume-job-card{display:grid;grid-template-columns:110px 1fr;gap:18px;padding:18px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}
+.resume-job-score{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;border-radius:14px;padding:12px 6px;text-align:center;background:var(--surface-subtle)}
+.resume-job-score strong{font-size:26px;line-height:1;color:var(--ink)}
+.resume-job-score span{font-size:12px;font-weight:600;color:var(--ink-soft)}
+.resume-job-score.is-high{background:#e3f6ea}.resume-job-score.is-high span{color:#0f6b34}
+.resume-job-score.is-good{background:#e7efff}.resume-job-score.is-good span{color:#1e47c2}
+.resume-job-score.is-fair{background:#fff4dc}.resume-job-score.is-fair span{color:#7a4f00}
+.resume-job-body h3{margin:0;font-size:17px}.resume-job-body h3 a{color:var(--ink);text-decoration:none}.resume-job-body h3 a:hover{text-decoration:underline}
+.resume-job-meta{margin:3px 0 0;font-size:14px;color:var(--muted-strong)}
+.resume-job-skills,.resume-job-note{margin:10px 0 0;font-size:14px;line-height:1.55;color:var(--ink-soft)}
+.resume-job-actions{display:flex;flex-wrap:wrap;gap:6px 16px;margin:10px 0 0;font-size:14px}
+.resume-job-actions a{color:var(--blue);font-weight:600;min-height:24px}
+.resume-one-job{margin:8px 0 12px}
+.dark-theme .resume-job-score.is-high{background:#123b24}.dark-theme .resume-job-score.is-high span{color:#8ee6ad}
+.dark-theme .resume-job-score.is-good{background:#16264f}.dark-theme .resume-job-score.is-good span{color:#9fb8ff}
+.dark-theme .resume-job-score.is-fair{background:#3a2d0d}.dark-theme .resume-job-score.is-fair span{color:#f3cf7a}
+@media(max-width:640px){.resume-upload{grid-template-columns:1fr}.resume-job-card{grid-template-columns:1fr;gap:12px}.resume-job-score{flex-direction:row;justify-content:flex-start;gap:10px;padding:10px 14px}.resume-jobs-controls .calc-field{max-width:none;flex:1}}

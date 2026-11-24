@@ -5,9 +5,12 @@ import fs from 'node:fs/promises';
 // The glass look: no keyboard-shortcut badges, no icon tiles or emoji, and frosted controls that stay readable.
 const read = file => fs.readFile(new URL('../' + file, import.meta.url), 'utf8');
 
-test('No keyboard-shortcut badges in the header, the search bars or quick search', async () => {
+test('No keyboard-shortcut badges in the header, the search bars or quick search, except the homepage hero’s "/" hint', async () => {
   for(const page of ['dist/index.html', 'dist/jobs.html', 'dist/tools.html', 'dist/companies.html']) {
-    assert.doesNotMatch(await read(page), /<kbd/, page);
+    let html = await read(page);
+    // The homepage hero search carries one "/" hint, as in the approved hero design.
+    if(page === 'dist/index.html') html = html.replace('<kbd aria-hidden="true">/</kbd>', '');
+    assert.doesNotMatch(html, /<kbd/, page);
   }
   // The shortcut itself still works and is announced.
   assert.match(await read('scripts/page-shell.mjs'), /aria-keyshortcuts="Control\+K Meta\+K"/);
@@ -34,7 +37,8 @@ test('Glass UI: a frosted header, search and menu, with plain fallbacks', async 
   assert.match(css, /@media\(min-width:901px\)\{html body\.has-hero \.site-header:not\(\.is-scrolled\) \.account-toggle\{/);
   assert.match(css, /@media\(prefers-reduced-transparency:reduce\)/);
   const home = await read('css/homepage.css');
-  assert.doesNotMatch(home, /clip-path:polygon|border-radius:6px!important/);
+  // The hero tags have a clipped top-left corner by design; nothing else is forced square.
+  assert.doesNotMatch(home, /border-radius:6px!important/);
   // The logo strip's pause button shows only when a keyboard user tabs to it.
   assert.match(home, /\.home-logo-toggle:not\(:focus-visible\)\{opacity:0;pointer-events:none\}/);
 });
@@ -65,7 +69,7 @@ test('Homepage hero: blue glass with an italic serif line, and no grid lines or 
   assert.match(css, /html body \.home-shell \.home-hero\{min-height:0;padding:168px var\(--gutter\) 260px;color:#fff;background:/);
   // The blue melts into the page colour at the bottom of the hero.
   assert.match(css, /var\(--paper\) 86%,transparent\) 84%,var\(--paper\) 100%\)\}/);
-  assert.match(css, /font-family:'Instrument Serif',Georgia,'Times New Roman',serif!important;font-style:italic/);
+  assert.match(css, /font-family:'Palatino Linotype','Book Antiqua',Palatino,'URW Palladio L','P052',Georgia,serif!important;font-style:italic!important/);
   assert.match(css, /html body \.home-shell \.home-search input::placeholder\{color:rgba\(255,255,255,\.86\);opacity:1\}/);
   assert.doesNotMatch(css, /7px 7px|home-hero-frame|border-image:|home-stage/);
   assert.match(await read('assets/fonts/fonts.css'), /font-family: 'Instrument Serif';\s*font-style: italic;/);

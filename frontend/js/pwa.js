@@ -7,8 +7,8 @@ const entries = () => document.querySelectorAll('[data-install-app]');
 function showEntries() {
   if(entries().length) { entries().forEach(el => { el.hidden = false; }); return; }
   const make = className => Object.assign(document.createElement('button'), {type:'button', className:'install-app '+className, textContent:'Install app'});
-  // In the footer's Explore list on every screen, and in the header menu on small screens.
-  const footer = document.querySelector('.site-footer nav[aria-label="Explore Wilsy"]');
+  // In the footer's Company list on every screen, and in the header menu on small screens.
+  const footer = document.querySelector('.site-footer nav[aria-label="Company"]');
   const menu = document.querySelector('#main-navigation .nav-cta');
   for(const [place, button] of [[footer, make('footer-install')], [menu, make('nav-install')]]) {
     if(!place) continue;

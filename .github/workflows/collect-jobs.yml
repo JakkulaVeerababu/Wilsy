@@ -1,5 +1,6 @@
 # The collector fleet: 10 agents, each reading a tenth of the watchlist's job boards every hour.
 # Needs the SUPABASE_SERVICE_ROLE_KEY repository secret; without it every agent fails loudly.
+# After the agents, the enrich job reads skills, experience and level from the new jobs (collectors/enrich.mjs).
 # Each agent writes its totals to the run summary and fails when it reads nothing or more than
 # 30% of its boards fail.
 # Started at :07 every hour by Supabase pg_cron (supabase/migrations/20261112020000_wilsy_hourly_dispatch.sql);
@@ -71,3 +72,27 @@ jobs:
           # The newest three pages every hour; once a day, about six weeks back so older listings stay marked as open.
           if [ -z "$PAGES" ]; then if [ "$(date -u +%H)" = "01" ]; then PAGES=15; else PAGES=3; fi; fi
           node collectors/thejobcompany.mjs --pages "$PAGES"
+  # Job details (collectors/enrich.mjs): skills, years of experience, the lowest degree accepted,
+  # graduation years, fresher / new-grad flags and seniority, read from each job's own text once the
+  # collectors have stored it. Each hour: jobs not read yet, at most 3,000. In the 02:00 UTC run:
+  # every live job again, writing only those whose text now says something different.
+  # Fills only empty fields (or fields it filled before), so details from the employer are kept.
+  enrich:
+    needs: [collect, partners]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency: enrich-jobs
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Read job details
+        env:
+          SUPABASE_URL: https://pnkthqatdlozrojwefnc.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ONLY_SHARD: ${{ inputs.shard }}
+        run: |
+          if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then echo "::error::SUPABASE_SERVICE_ROLE_KEY is missing; no job details were read."; exit 1; fi
+          if [ -z "$ONLY_SHARD" ] && [ "$(date -u +%H)" = "02" ]; then node collectors/enrich.mjs --all; else node collectors/enrich.mjs --limit 3000; fi

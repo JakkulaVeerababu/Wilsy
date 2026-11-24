@@ -60,5 +60,21 @@ export function rolesByCompany(jobs, companies) {
     out.get(id).push(job);
   }
   const time = job => Date.parse(job.posted_at || job.first_seen_at || job.discovered_at || '') || 0;
-  return new Map([...out].map(([id, list]) => [id, {total: list.length, jobs: list.sort((a, b) => time(b) - time(a)).slice(0, 6)}]));
+  return new Map([...out].map(([id, list]) => [id, {total: list.length, jobs: list.sort((a, b) => time(b) - time(a)).slice(0, 6), signals: companySignals(list)}]));
+}
+
+/**
+ * Hiring signals for one employer, counted from its live jobs: pay transparency (the share of open roles
+ * that state pay, 0-100), roles first found in the last 30 days, entry-level and remote roles, the teams
+ * hiring and the skills asked for most.
+ */
+export function companySignals(jobs, {now = Date.now()} = {}) {
+  const total = jobs.length, count = test => jobs.filter(test).length;
+  const found = job => Date.parse(job.first_seen_at || job.discovered_at || job.posted_at || '') || 0;
+  const top = values => { const tally = new Map(); for(const v of values) tally.set(v, (tally.get(v) || 0) + 1);
+    return [...tally].sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0]))); };
+  const withPay = count(job => job.pay);
+  return {total, withPay, payScore: total ? Math.round(withPay / total * 100) : null, newLast30: count(job => found(job) > now - 30 * 86_400_000),
+    entry: count(job => job.entry), remote: count(job => job.work_mode === 'remote'),
+    families: top(jobs.map(job => job.family).filter(f => f && f !== 'Other')).slice(0, 3), skills: top(jobs.flatMap(job => job.skills || [])).slice(0, 6).map(([s]) => s)};
 }

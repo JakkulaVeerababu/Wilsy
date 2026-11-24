@@ -143,6 +143,8 @@ test('Job type, workplace and URLs normalise like the existing collector',()=>{
   assert.equal(jobType('FullTime'),'full_time');assert.equal(jobType('Intern'),'internship');
   assert.equal(jobType('','Software Engineering Intern'),'internship');assert.equal(jobType('','Engineer'),'other');
   assert.equal(workMode('Remote'),'remote');assert.equal(workMode('OnSite'),'onsite');assert.equal(workMode('','London'),'unspecified');
+  assert.equal(workMode('Hybrid','remote','London'),'hybrid'); // the board's own workplace type wins
+  assert.equal(workMode(null,'remote','London'),'remote');
   assert.equal(canonicalUrl('https://jobs.example/1/#apply'),'https://jobs.example/1');
 });
 

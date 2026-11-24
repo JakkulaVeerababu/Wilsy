@@ -1,6 +1,9 @@
 import {matchResume, verdict, RESUME_KEY, RESUME_MAX, RESUME_HANDOFF} from './resume-core.js';
+import {resumeYears, rankJobs, searchSkills} from './resume-jobs-core.js';
+import {readResumeFile} from './resume-file.js';
+import {findSkills} from './skills-core.js';
 import {searchJobs} from './data-client.js';
-import {jobPath} from './jobs-core.js';
+import {jobPath, applyUrl} from './jobs-core.js';
 import {escapeHtml as e} from './directory-core.js';
 import {sourceText} from './ui-helpers.js';
 import {track} from './analytics.js';
@@ -51,4 +54,57 @@ if(root) {
     }).catch(() => { jobInfo.textContent = 'Couldn’t load the job. Paste its description below instead.'; });
   }
   render();
+
+  // Upload: the file is read into the resume box, here in the browser.
+  const fileInput = root.querySelector('#resume-file'), fileStatus = root.querySelector('[data-resume-file-status]');
+  const yearsInput = root.querySelector('#resume-years'), list = root.querySelector('[data-resume-jobs-list]'), findButton = root.querySelector('[data-resume-jobs]');
+  const fillYears = () => { const y = resumeYears(resume.value); yearsInput.placeholder = y == null ? 'Not found: enter it' : `${y} from your resume`; };
+  fileInput?.addEventListener('change', async () => {
+    const file = fileInput.files?.[0]; if(!file) return;
+    fileStatus.textContent = `Reading ${file.name}…`;
+    try {
+      resume.value = (await readResumeFile(file)).slice(0, RESUME_MAX);
+      if(remember.checked) keep();
+      const found = findSkills(resume.value).length;
+      fileStatus.textContent = `Read ${file.name}: ${found} skill${found === 1 ? '' : 's'} found.`;
+      track('tool_use', {tool: 'resume_match', via: 'upload'});
+      fillYears(); render(); findJobs();
+    } catch(error) {
+      fileStatus.textContent = error?.message?.length < 200 ? error.message : 'Couldn’t read that file. Paste your resume text instead.';
+    } finally { fileInput.value = ''; }
+  });
+  resume.addEventListener('input', fillYears);
+
+  // Matching jobs: live jobs for the resume's main skills, scored here and listed highest chance first.
+  const PER_SKILL_PAGES = 2;
+  let jobsRequest = 0, jobsCounted = false;
+  const card = r => {
+    const j = r.job, link = applyUrl(j.apply_url), tone = r.score >= 70 ? 'high' : r.score >= 45 ? 'good' : r.score >= 25 ? 'fair' : 'low';
+    const where = [j.location || j.city, j.work_mode && j.work_mode !== 'unspecified' ? j.work_mode.replace(/^./, c => c.toUpperCase()) : ''].filter(Boolean).join(' · ');
+    return `<li class="resume-job-card"><div class="resume-job-score is-${tone}"><strong>${r.score}%</strong><span>${e(r.chance)}</span></div>
+      <div class="resume-job-body"><h3><a href="${e(jobPath(j))}">${e(j.title)}</a></h3><p class="resume-job-meta">${e(j.company)}${where ? ` · ${e(where)}` : ''}</p>
+      <div class="match-meter" role="img" aria-label="${r.score}% estimated match"><span style="width:${r.score}%"></span></div>
+      <p class="resume-job-skills"><strong>You show:</strong> ${e([...r.matched, ...r.close.map(([s, near]) => `${s} (via ${near})`)].join(', '))}${r.missing.length ? `<br><strong>Missing:</strong> ${e(r.missing.slice(0, 6).join(', '))}${r.missing.length > 6 ? ` and ${r.missing.length - 6} more` : ''}` : ''}</p>
+      ${r.gap ? `<p class="resume-job-note">Asks for ${r.asks}+ years of experience.</p>` : ''}
+      <p class="resume-job-actions"><a href="${e(jobPath(j))}">See the job</a><a href="/resume-match?job=${encodeURIComponent(j.id)}">Check my resume against it</a>${link ? `<a href="${e(link)}" target="_blank" rel="noopener noreferrer">Apply on ${e(j.company)}’s site</a>` : ''}</p></div></li>`;
+  };
+  async function findJobs() {
+    const text = resume.value.trim(), skills = findSkills(text);
+    if(!text) { list.innerHTML = '<p class="match-empty">Upload or paste your resume first.</p>'; return; }
+    if(!skills.length) { list.innerHTML = '<p class="match-empty">No skills we recognise appear in this resume. Make sure it lists your tools and technologies, such as Python, SQL or React.</p>'; return; }
+    const typed = yearsInput.value.trim(), years = typed !== '' && Number.isFinite(Number(typed)) ? Math.max(0, Number(typed)) : resumeYears(text);
+    const current = ++jobsRequest, query = searchSkills(skills);
+    findButton.disabled = true; list.setAttribute('aria-busy', 'true');
+    list.innerHTML = `<p class="match-empty">Searching live jobs for ${e(query.join(', '))}…</p>`;
+    const pages = await Promise.allSettled(query.flatMap(skill => Array.from({length: PER_SKILL_PAGES}, (_, i) => searchJobs({skill}, i * 20))));
+    if(current !== jobsRequest) return;
+    findButton.disabled = false; list.setAttribute('aria-busy', 'false');
+    const jobs = pages.filter(p => p.status === 'fulfilled').flatMap(p => p.value?.jobs || []);
+    if(!jobs.length) { list.innerHTML = `<p class="match-empty">${pages.every(p => p.status === 'rejected') ? 'Couldn’t reach the live jobs. Try again in a moment.' : 'No live jobs ask for these skills right now. Try again tomorrow: new jobs arrive every hour.'}</p>`; return; }
+    const ranked = rankJobs(jobs, skills, years).slice(0, 30);
+    if(!jobsCounted) { jobsCounted = true; track('tool_use', {tool: 'resume_jobs'}); }
+    list.innerHTML = `<p class="resume-jobs-summary">${ranked.length} live job${ranked.length === 1 ? '' : 's'} for your skills (${e(skills.slice(0, 8).join(', '))}${skills.length > 8 ? '…' : ''})${years != null ? `, with ${years} year${years === 1 ? '' : 's'} of experience` : ''}. Highest chance first.</p><ol class="resume-job-list">${ranked.map(card).join('')}</ol>`;
+  }
+  findButton?.addEventListener('click', findJobs);
+  fillYears();
 }
