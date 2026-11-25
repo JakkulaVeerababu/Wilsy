@@ -74,14 +74,17 @@ jobs:
           node collectors/thejobcompany.mjs --pages "$PAGES"
   # Job details (collectors/enrich.mjs): skills, years of experience, the lowest degree accepted,
   # graduation years, fresher / new-grad flags and seniority, read from each job's own text once the
-  # collectors have stored it. Each hour: jobs not read yet, at most 3,000. In the 02:00 UTC run:
-  # every live job again, writing only those whose text now says something different.
+  # collectors have stored it. Each hour: jobs not read yet, at most 300, written one at a time.
+  # It runs only when every collector and the partner feed succeeded, so it never adds load to a
+  # database that is already struggling. (On 24 Nov 2026 a first pass of 3,000 writes, plus a planned
+  # daily pass over every live job, left the database timing out for hours.) A full pass (--all) is
+  # for running by hand at a quiet time.
   # Fills only empty fields (or fields it filled before), so details from the employer are kept.
   enrich:
     needs: [collect, partners]
-    if: ${{ !cancelled() }}
+    if: ${{ needs.collect.result == 'success' && needs.partners.result == 'success' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     concurrency: enrich-jobs
     steps:
       - uses: actions/checkout@v5
@@ -92,7 +95,6 @@ jobs:
         env:
           SUPABASE_URL: https://pnkthqatdlozrojwefnc.supabase.co
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          ONLY_SHARD: ${{ inputs.shard }}
         run: |
           if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then echo "::error::SUPABASE_SERVICE_ROLE_KEY is missing; no job details were read."; exit 1; fi
-          if [ -z "$ONLY_SHARD" ] && [ "$(date -u +%H)" = "02" ]; then node collectors/enrich.mjs --all; else node collectors/enrich.mjs --limit 3000; fi
+          node collectors/enrich.mjs --limit 300
