@@ -770,3 +770,94 @@ html body .site-footer.premium-footer .footer-giant{display:block;height:.56em;m
   html body .site-footer.premium-footer .footer-bottom p{text-align:left}
 }
 @media(prefers-reduced-motion:reduce){html body .site-footer.premium-footer :is(.footer-newsletter a,.footer-newsletter a svg){transition:none}}
+
+/* Page tops: the same blue as the homepage hero, with a soft light from above. The blue runs on into the
+   space under the heading and melts into the page over a long eased fade, so there is no hard edge. */
+html body :is(.jobs-page-heading,.gov-jobs-hero,.hack-hero,.dsa-intro,.page-shell>.intro,.editorial-hero,.profile-hero)::before{bottom:calc(-1 * clamp(40px,5vw,80px))!important;background:
+  linear-gradient(180deg,transparent calc(100% - 230px),
+    color-mix(in srgb,var(--paper) 4%,transparent) calc(100% - 196px),
+    color-mix(in srgb,var(--paper) 14%,transparent) calc(100% - 162px),
+    color-mix(in srgb,var(--paper) 30%,transparent) calc(100% - 128px),
+    color-mix(in srgb,var(--paper) 50%,transparent) calc(100% - 94px),
+    color-mix(in srgb,var(--paper) 70%,transparent) calc(100% - 62px),
+    color-mix(in srgb,var(--paper) 87%,transparent) calc(100% - 30px),
+    var(--paper) 100%),
+  radial-gradient(55% 60% at 50% 0%,rgba(255,255,255,.14),rgba(255,255,255,0) 70%),
+  var(--band)!important}
+
+/* Job cards: the pay, date and buttons line up along the bottom of every card in a row, and an undisclosed
+   salary reads as quiet text rather than a heading. */
+html body .job-result-card>.job-card-bottom{margin-top:auto!important}
+html body .job-result-card .job-card-pay.is-undisclosed strong{font-weight:500!important;color:var(--muted)!important}
+
+/* The footer's ".in" in blue: deep at the top, fading into the lime at the bottom like "wilsy". */
+html body .site-footer.premium-footer .footer-giant span{background:linear-gradient(180deg,#1b3fe0 0%,#2b59ff 42%,rgba(74,115,255,.55) 74%,rgba(74,115,255,0) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+/* ===== Top bar: a floating, frosted light pill on every page (wide screens) =====
+   Dark links, a white round theme button and a blue "Start searching" pill. */
+@media(min-width:901px){
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)),html body .site-header.is-scrolled,html body.has-hero .site-header:not(.is-scrolled),html body:not(.has-hero) .site-header{background:transparent!important;border-bottom-color:transparent!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;padding:12px var(--gutter) 0}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner{max-width:1400px;height:70px;min-height:70px;margin:0 auto;padding:0 12px 0 22px!important;gap:14px;border-radius:22px;border:1px solid rgba(255,255,255,.7);background:rgba(240,244,255,.82);-webkit-backdrop-filter:blur(18px) saturate(170%);backdrop-filter:blur(18px) saturate(170%);box-shadow:0 1px 0 rgba(255,255,255,.6) inset,0 12px 32px -16px rgba(10,25,80,.28)}
+  html body:not(.has-hero) .site-header .header-inner,html body .site-header.is-scrolled .header-inner{border-color:var(--line);background:color-mix(in srgb,var(--surface) 86%,transparent)}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner :is(.main-nav a:not(.nav-cta),.main-nav button:not(.theme-toggle),.brand,.brand .brand-wordmark){color:var(--ink)!important}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .brand .brand-wordmark>span{color:var(--blue)!important}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .main-nav{margin-left:auto}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .main-nav a:not(.nav-cta){font-size:15px;font-weight:500;padding:0 13px;height:40px;display:inline-flex;align-items:center}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .main-nav a:not(.nav-cta):is(:hover,.active,[aria-current=page]){background:rgba(19,21,23,.06)!important;color:var(--ink)!important}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner :is(.nav-search,.account-toggle){border:1px solid rgba(19,21,23,.08)!important;background:rgba(255,255,255,.7)!important;color:var(--ink)!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner :is(.nav-search,.account-toggle):hover{background:#fff!important}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .main-nav .theme-toggle{width:46px!important;min-width:46px;height:46px!important;margin-left:8px;border-radius:50%!important;border:0!important;background:#fff!important;color:var(--ink)!important;box-shadow:0 2px 8px -2px rgba(10,25,80,.18)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .main-nav a.nav-cta{height:46px;margin-left:8px;padding:0 22px;border-radius:999px!important;background:var(--blue)!important;color:#fff!important;font-size:15px;font-weight:600;box-shadow:0 8px 20px -10px rgba(27,63,224,.7)!important}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .main-nav a.nav-cta:hover{background:var(--blue-hover)!important}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .main-nav a.nav-cta svg{color:#fff!important}
+  html.dark-theme body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner{border-color:var(--line);background:color-mix(in srgb,var(--surface) 82%,transparent)}
+  html.dark-theme body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner :is(.nav-search,.account-toggle),html.dark-theme body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .main-nav .theme-toggle{background:var(--surface-raised)!important;border-color:var(--line)!important}
+}
+@media(max-width:1260px) and (min-width:901px){html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .main-nav a:not(.nav-cta){font-size:14px;padding:0 9px}}
+@media(max-width:1100px) and (min-width:901px){html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .main-nav a:not(.nav-cta){font-size:13px;padding:0 6px}}
+
+/* Top bar, tidied: one height (44px) for every control; Search and Sign in read as plain links like the
+   rest of the menu (no pill boxes), and the blue button sits flat, without a glow. */
+@media(min-width:901px){
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner{height:64px;min-height:64px;padding:0 10px 0 20px!important;border-radius:20px}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner :is(.nav-search,.account-toggle){height:44px!important;min-height:44px;padding:0 14px!important;gap:8px;border:0!important;border-radius:999px!important;background:transparent!important;font:500 15px var(--font)!important;letter-spacing:-.01em;color:var(--ink)!important}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner :is(.nav-search,.account-toggle):hover{background:rgba(19,21,23,.06)!important}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .nav-search svg{width:18px;height:18px}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .main-nav a:not(.nav-cta){height:44px;padding:0 12px}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .main-nav .theme-toggle{width:44px!important;min-width:44px;height:44px!important;margin-left:4px;box-shadow:0 1px 3px rgba(10,25,80,.12)!important}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .main-nav a.nav-cta{height:44px;margin-left:6px;padding:0 20px;box-shadow:none!important}
+  html.dark-theme body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner :is(.nav-search,.account-toggle){background:transparent!important}
+}
+
+/* Footer base: the large wordmark sits in the lime footer itself, "wilsy" in near-black and ".in" in blue,
+   both cut by the bottom of the page. */
+html body .site-footer.premium-footer .footer-base{margin:0;padding:0;background:none}
+html body .site-footer.premium-footer .footer-base .footer-giant{background:linear-gradient(180deg,#0a0c10 0%,#161a12 55%,#2a3410 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+html body .site-footer.premium-footer .footer-base .footer-giant span{background:linear-gradient(180deg,#3d6bff 0%,#2b59ff 40%,#1d3fc4 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+/* The footer wordmark as a gradient: "wilsy" from near-black and ".in" from blue, each melting into the lime
+   towards the bottom of the page. */
+html body .site-footer.premium-footer .footer-base .footer-giant{background:linear-gradient(180deg,#0a0c10 0%,#1d2410 40%,#6f8f0a 78%,#d1fe17 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+html body .site-footer.premium-footer .footer-base .footer-giant span{background:linear-gradient(180deg,#1b3fe0 0%,#2b59ff 38%,#5f8cff 70%,rgba(95,140,255,0) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+/* Top bar, smaller: a 56px bar with 38px controls and 14px text. */
+@media(min-width:901px){
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)){padding-top:10px}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner{max-width:1280px;height:56px;min-height:56px;padding:0 8px 0 16px!important;gap:10px;border-radius:18px}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .brand-logo{width:30px;height:30px}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .brand-wordmark{font-size:19px}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner :is(.nav-search,.account-toggle){height:38px!important;min-height:38px;padding:0 11px!important;font-size:14px!important}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .nav-search svg{width:16px;height:16px}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .main-nav a:not(.nav-cta){height:38px;padding:0 10px;font-size:14px}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .main-nav .theme-toggle{width:38px!important;min-width:38px;height:38px!important}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .main-nav a.nav-cta{height:40px;padding:0 16px;font-size:14px}
+  html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .main-nav a.nav-cta svg{width:15px;height:15px}
+}
+@media(max-width:1200px) and (min-width:901px){html body:is(.has-hero,:not(.has-hero)) .site-header:is(.is-scrolled,:not(.is-scrolled)) .header-inner .main-nav a:not(.nav-cta){font-size:13px;padding:0 7px}}
+
+/* The footer wordmark, final: "wilsy" in the smooth deep-green-to-lime fade, ".in" in a single blue that
+   fades into the lime the same way (one hue, so there is no muddy or pale band). The ".in" box is widened
+   slightly so the "n" is fully covered by its own colour. */
+html body .site-footer.premium-footer .footer-base .footer-giant{background:linear-gradient(180deg,#4f7a00 0%,#6f9e00 34%,#9fd200 68%,#d1fe17 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+html body .site-footer.premium-footer .footer-base .footer-giant span{display:inline-block;padding-right:.1em;margin-right:-.1em;background:linear-gradient(180deg,rgba(27,63,224,1) 0%,rgba(43,89,255,.92) 38%,rgba(43,89,255,.5) 72%,rgba(43,89,255,0) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+html body .site-footer.premium-footer .footer-base .footer-giant span{display:inline;background:linear-gradient(180deg,#3a66ff 0%,#2b59ff 45%,#1f45e8 100%);-webkit-background-clip:text;background-clip:text}

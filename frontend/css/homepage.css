@@ -460,31 +460,23 @@ html.dark-theme .home-shell .home-shape{filter:none}
 html.dark-theme .home-route-grid a{border-color:color-mix(in srgb,#fff 9%,transparent)}
 .home-route-grid a:hover{border-color:color-mix(in srgb,var(--blue) 42%,transparent);box-shadow:0 1px 2px rgba(16,24,40,.04),0 26px 48px -18px color-mix(in srgb,var(--blue) 34%,transparent)}
 @media(hover:hover) and (prefers-reduced-motion:no-preference){.home-route-grid a:hover{transform:translateY(-2px)}}
-/* A blurred copy of the lime-and-mint arrow shape glows behind each card's top corner, under the text. */
-.home-route-grid a{overflow:hidden;isolation:isolate}
-.home-route-grid a::before{content:"";position:absolute;top:-58px;right:-70px;z-index:-1;width:310px;height:170px;border-radius:999px;pointer-events:none;background:radial-gradient(circle at 74% 50%,#b6efd9 0 36%,rgba(182,239,217,0) 37%),#d8f8a8;filter:blur(40px);opacity:.8;transition:opacity .35s var(--ease-out,ease)}
-.home-route-grid a:hover::before{opacity:1}
-html.dark-theme .home-route-grid a::before{opacity:.28}
-html.dark-theme .home-route-grid a:hover::before{opacity:.4}
+/* Plain white cards: no colour glow. */
 .home-route-grid strong{margin-top:auto;font-size:20px;font-weight:500;letter-spacing:-.03em;color:var(--home-ink)}
 .home-route-grid a>span:not(.home-route-arrow){font-size:14.5px;color:var(--muted)}
-/* The corner arrow sits on the glow: a round white button, like the company cards. */
-.home-route-arrow{position:absolute;top:28px;right:28px;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.7);color:#0a1d3d;transition:transform .3s var(--ease-out,ease),background .25s,color .25s}
+/* The corner arrow: a round light-grey button. */
+.home-route-arrow{position:absolute;top:28px;right:28px;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:color-mix(in srgb,var(--ink) 6%,transparent);color:var(--home-ink);transition:transform .3s var(--ease-out,ease),background .25s,color .25s}
 .home-route-arrow .icon{width:16px;height:16px;transform:rotate(-45deg)}
 .home-route-grid a:hover .home-route-arrow{background:var(--blue);color:#fff;transform:translate(2px,-2px)}
 
 
-/* DSA banner: an electric panel with the same diagonal light as the hero. */
-.home-dsa-banner{border:0;color:#fff;box-shadow:0 34px 70px -30px rgba(31,69,236,.75);background:
-  linear-gradient(112deg,transparent 0 30%,rgba(255,255,255,.14) 30.15%,rgba(255,255,255,0) 42%),
-  linear-gradient(112deg,transparent 0 62%,rgba(255,255,255,.16) 62.15%,rgba(255,255,255,0) 74%),
-  linear-gradient(120deg,#1a44ef,#3a69ff)}
-.home-dsa-banner:hover{box-shadow:0 40px 80px -30px rgba(31,69,236,.9)}
+/* DSA banner: a solid near-black panel with the count in the footer lime, and no coloured glow. */
+.home-dsa-banner{border:0;color:#fff;background:#0d0f12;box-shadow:0 1px 2px rgba(16,24,40,.06),0 18px 40px -24px rgba(16,24,40,.45)}
+.home-dsa-banner:hover{box-shadow:0 1px 2px rgba(16,24,40,.06),0 24px 48px -24px rgba(16,24,40,.55)}
 .home-dsa-banner .home-kicker{color:rgba(255,255,255,.85)}
 .home-dsa-banner strong{color:#fff;font-weight:500}
 html body .home-dsa-banner>span:nth-child(2)>span:last-child{color:rgba(255,255,255,.82)!important}
-.home-dsa-stat{border-right-color:rgba(255,255,255,.28)}
-.home-dsa-stat b{color:#fff;font-weight:500}
+.home-dsa-stat{border-right-color:rgba(255,255,255,.16)}
+.home-dsa-stat b{color:#d1fe17;font-weight:500}
 .home-dsa-stat small{color:rgba(255,255,255,.8)}
 
 /* ---------- How WILSY works: one statement, then three steps as flowing text ---------- */
