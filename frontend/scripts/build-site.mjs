@@ -252,6 +252,14 @@ await fs.writeFile(path.join(out,'sitemap.xml'),`<?xml version="1.0" encoding="U
 const jobMap = liveJobs ? jobSitemap(liveJobs.jobs,{origin:site.origin,exclude:new Set(sitemap)}) : null;
 if(jobMap){await fs.writeFile(path.join(out,'sitemap-jobs.xml'),jobMap.xml);console.log(`Job sitemap: ${jobMap.count} job pages from ${liveJobs.jobs.length} live jobs.`);}
 await fs.writeFile(path.join(out,'robots.txt'),`User-agent: *\nAllow: /\n\nSitemap: ${site.origin}/sitemap.xml\n${jobMap?`Sitemap: ${site.origin}/sitemap-jobs.xml\n`:''}`);
+// security.txt (RFC 9116): where to report a security issue.
+await fs.mkdir(path.join(out,'.well-known'),{recursive:true});
+await fs.writeFile(path.join(out,'.well-known','security.txt'),`Contact: mailto:${site.email}
+Expires: 2027-11-25T00:00:00.000Z
+Preferred-Languages: en
+Canonical: ${site.origin}/.well-known/security.txt
+Policy: ${site.origin}/privacy#security
+`);
 await fs.writeFile(path.join(out,'ads.txt'),'google.com, pub-5489149193350421, DIRECT, f08c47fec0942fa0\n');
 await fs.mkdir(path.join(out,'js'),{recursive:true});
 await fs.mkdir(path.join(out,'css'),{recursive:true});

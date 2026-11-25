@@ -26,7 +26,7 @@ http.createServer(async(req,res)=>{
   try{
     const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
     let relative=pathname==='/'?'index.html':pathname.slice(1).replace(/\/$/,'');
-    if(relative.split('/').some(segment=>segment.startsWith('.'))){res.writeHead(403);res.end();return;}
+    if(relative.split('/').some(segment=>segment.startsWith('.')&&segment!=='.well-known')){res.writeHead(403);res.end();return;}
     if(!path.extname(relative))relative+='.html';
     const target=path.resolve(root,relative);
     if(!target.startsWith(root+path.sep)){res.writeHead(403);res.end();return;}
