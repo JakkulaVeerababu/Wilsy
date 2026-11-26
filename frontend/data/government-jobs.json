@@ -1,8 +1,8 @@
 {
   "dataset": "India government jobs — official portal snapshot",
-  "checkedAt": "2026-11-23",
+  "checkedAt": "2026-11-26",
   "description": "A dated, curated snapshot of active India government-job notices found on primary official portals. It is not an exhaustive guarantee of every vacancy on the internet; applicants should confirm the complete advertisement, eligibility, dates and application process at the official source before applying.",
-  "coverageNote": "Official-source coverage only. This snapshot includes three open notices from ISRO / the Department of Space and the Bhabha Atomic Research Centre (BARC), checked on 23 Nov 2026, plus selected official discovery hubs; it does not claim complete coverage of all central, state or public-sector vacancies.",
+  "coverageNote": "Official-source coverage only. This snapshot includes one open notice from ISRO / the Department of Space, checked on 26 Nov 2026, plus selected official discovery hubs; it does not claim complete coverage of all central, state or public-sector vacancies.",
   "sourceHubNote": "Some official portals require JavaScript or do not expose a structured feed in this static snapshot. The hub links are provided for direct checking and broader discovery.",
   "classificationNote": "Rank and category are WILSY display and browsing fields, not official merit lists, appointment grades or vacancy counts.",
   "sourceHubs": [
@@ -92,48 +92,6 @@
       "sourceUrl": "https://www.isro.gov.in/DOSRecruitment10.html",
       "sourceDomain": "isro.gov.in",
       "verificationNote": "Official ISRO careers page lists this Department of Space notice as Open, dated 15 Oct 2026. The office memorandum of 6 Nov 2026 extends the last date for receipt of applications to 30 Nov 2026. Checked 12 Nov 2026; confirm each post’s pay level and eligibility in the advertisement."
-    },
-    {
-      "id": "dos-accounts-officer-finance-2026",
-      "rank": 2,
-      "title": "Accounts Officer (Finance) (deputation)",
-      "organization": "Department of Space Secretariat, ISRO",
-      "ministryDepartment": "Department of Space, Government of India",
-      "category": "Finance",
-      "level": "Pay Level 11",
-      "gradeLevel": "Pay Level 11 · Accounts Officer (Finance)",
-      "salaryPayBand": "Pay Level 11 / ₹67,700–₹2,08,700 basic; verify exact terms in the official notice.",
-      "experienceEligibility": "Deputation only: for eligible serving officers, with a maximum age of 56 for deputation; full criteria are in the notice annexure.",
-      "location": "Bengaluru",
-      "openingDate": "2026-10-26",
-      "deadline": "2026-11-25",
-      "status": "Open",
-      "noticeNumber": "A.26012/1/2023-I (Vol.II)",
-      "officialNoticeUrl": "https://www.isro.gov.in/DOSRecruitment11.html",
-      "sourceUrl": "https://www.isro.gov.in/DOSRecruitment11.html",
-      "sourceDomain": "isro.gov.in",
-      "verificationNote": "Official ISRO careers page lists this Department of Space notice as Open, dated 26 Oct 2026. The notice asks for applications within 30 days of the memorandum’s issue, which is about 25 Nov 2026. Checked 12 Nov 2026; confirm the exact date and eligibility in the notice."
-    },
-    {
-      "id": "barc-medical-officer-pathology-2026",
-      "rank": 3,
-      "title": "Medical Officer (Pathology), walk-in interview",
-      "organization": "Bhabha Atomic Research Centre (BARC) Hospital",
-      "ministryDepartment": "Department of Atomic Energy, Government of India",
-      "category": "Medical",
-      "level": "SO/D (ad hoc / locum)",
-      "gradeLevel": "Medical Officer at SO/D emoluments · ad hoc / locum leave vacancy",
-      "salaryPayBand": "Consolidated ₹45,098 per month plus DA, about ₹1,20,000 in hand per month (approx., per the notice).",
-      "experienceEligibility": "MD / DNB in Pathology from a recognised university; age not more than 50 on the interview date. One post, 178 days and not more than 89 days at a time.",
-      "location": "Mumbai",
-      "openingDate": "2026-11-06",
-      "deadline": "2026-11-23",
-      "status": "Open",
-      "noticeNumber": "BARC Medical Division walk-in (MD)",
-      "officialNoticeUrl": "https://www.barc.gov.in/careers/vacancy28.pdf",
-      "sourceUrl": "https://www.barc.gov.in/careers/recruitment.html",
-      "sourceDomain": "barc.gov.in",
-      "verificationNote": "BARC’s official new-vacancies page (last updated 6 Nov 2026) lists this walk-in interview for Monday 23 Nov 2026 at 10.30 am, with reporting at 8.30 am at BARC Hospital, Anushaktinagar, Mumbai. Checked 12 Nov 2026; bring the application format and certificates listed in the notice."
     }
   ]
 }
