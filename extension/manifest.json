@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "WILSY Apply Helper",
+  "version": "1.0.0",
+  "description": "Fills your name, email, phone and links into job application forms when you click. You check everything and press Submit yourself.",
+  "homepage_url": "https://www.wilsy.in/tools",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "action": {"default_popup": "popup.html", "default_title": "WILSY Apply Helper", "default_icon": {"128": "icon-128.png"}},
+  "options_page": "options.html",
+  "icons": {"128": "icon-128.png"}
+}

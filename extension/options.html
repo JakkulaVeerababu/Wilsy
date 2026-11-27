@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>My details · WILSY Apply Helper</title><link rel="stylesheet" href="extension.css"></head>
+<body class="options">
+  <h1>My details</h1>
+  <p>Saved only in this browser (Chrome’s extension storage). Nothing is sent to WILSY or anyone else.</p>
+  <form id="profile">
+    <label>First name <input name="firstName" autocomplete="given-name" maxlength="60"></label>
+    <label>Last name <input name="lastName" autocomplete="family-name" maxlength="60"></label>
+    <label>Email <input name="email" type="email" autocomplete="email" maxlength="120" required></label>
+    <label>Phone <input name="phone" type="tel" autocomplete="tel" maxlength="20"></label>
+    <label>City <input name="location" autocomplete="address-level2" maxlength="80"></label>
+    <label>Current company <input name="currentCompany" autocomplete="organization" maxlength="80"></label>
+    <label>LinkedIn URL <input name="linkedin" type="url" maxlength="200" placeholder="https://www.linkedin.com/in/…"></label>
+    <label>GitHub URL <input name="github" type="url" maxlength="200" placeholder="https://github.com/…"></label>
+    <label>Portfolio or website <input name="website" type="url" maxlength="200"></label>
+    <button type="submit">Save</button> <button type="button" id="clear">Delete my details</button>
+    <p id="status" role="status"></p>
+  </form>
+  <script src="options.js"></script>
+</body></html>
