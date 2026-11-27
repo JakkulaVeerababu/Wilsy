@@ -2,8 +2,13 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import util from 'node:util';
-import {searchJobs,jobFacets,databaseRequest,loadCompanies} from '../js/data-client.js';
+import {databaseRequest,loadCompanies} from '../js/data-client.js';
 import {salaryPeriod} from '../js/pay-format.js';
+import {jobsRequest} from './jobs-db.mjs';
+// The jobs database: Heroku when JOBS_DATABASE_URL is set, else Supabase. Company profiles stay on Supabase.
+const onHeroku=Boolean(process.env.JOBS_DATABASE_URL);
+const searchJobs=(filters,offset=0)=>jobsRequest('rpc/wilsy_search_jobs',{body:{filters,page_size:20,page_offset:offset}});
+const jobFacets=()=>jobsRequest('rpc/wilsy_job_facets',{body:{}});
 const facets=await jobFacets();assert.ok(facets.total>0);assert.ok(facets.companies_count>0);
 const first=await searchJobs({}),second=await searchJobs({},20);
 assert.equal(first.jobs.length,Math.min(20,first.total));
@@ -24,7 +29,8 @@ assert.ok(converted.jobs.some(j=>j.salary_currency==='USD'),'INR filter must inc
 assert.ok(converted.jobs.every(j=>salaryPeriod(j.salary_period,j.salary_text)==='month'&&Math.max(j.salary_min||0,j.salary_max||0)*(j.salary_currency==='USD'?95.56:1)>=500000));
 const annual=await searchJobs({display_currency:'INR',inr_rate:95.56,period:'year',minimum:'1000000'});
 assert.ok(annual.total>0);assert.ok(annual.jobs.every(j=>salaryPeriod(j.salary_period,j.salary_text)==='year'));
-const published=await databaseRequest('jobs?select=id,status,expires_at,deadline_at&limit=1000');assert.ok(published.every(j=>j.status==='published'&&(!j.expires_at||Date.parse(j.expires_at)>Date.now())&&(!j.deadline_at||Date.parse(j.deadline_at)>Date.now())));
+// On Supabase the public key may read published, unexpired jobs only (row security). Heroku has no public access.
+if(!onHeroku){const published=await databaseRequest('jobs?select=id,status,expires_at,deadline_at&limit=1000');assert.ok(published.every(j=>j.status==='published'&&(!j.expires_at||Date.parse(j.expires_at)>Date.now())&&(!j.deadline_at||Date.parse(j.deadline_at)>Date.now())));}
 const local=JSON.parse(await fs.readFile('data/companies.json','utf8')).companies;
 const directory=await loadCompanies();assert.equal(directory.source,'database');assert.equal(directory.companies.length,local.length);
 // Collectors keep these profiles current, so require every reviewed company with renderable fields and report drift.
@@ -36,4 +42,4 @@ for(const c of local){
   assert.ok(row.name&&Number.isFinite(row.salary?.min)&&Number.isFinite(row.salary?.max)&&[1,2,3,4].includes(row.tier),`${c.id} is not renderable`);
   if(rendered.some(k=>!util.isDeepStrictEqual(row[k],c[k])))drifted++;
 }
-console.log(`Live API passed: ${facets.total} jobs, ${facets.companies_count} companies, filtered pagination and detail access. All ${local.length} reviewed companies present; ${drifted} updated since the checked-in snapshot.`);
+console.log(`Live API passed${onHeroku?' (jobs on Heroku)':''}: ${facets.total} jobs, ${facets.companies_count} companies, filtered pagination and detail access. All ${local.length} reviewed companies present; ${drifted} updated since the checked-in snapshot.`);

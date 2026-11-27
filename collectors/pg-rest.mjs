@@ -2,8 +2,9 @@
 // written against Supabase's REST API (PostgREST paths such as `jobs?select=id&status=eq.published`), so this
 // turns the small part of that syntax they use into parameterised SQL, keeping every collector unchanged.
 // Only the job tables and functions below can be reached; names are checked, and every value is a parameter.
+// The reviewed company profiles (public.companies) stay on Supabase, where the company directory reads them.
 
-export const JOB_TABLES = new Set(['jobs', 'job_locations', 'job_categories', 'companies', 'company_watchlist_10k',
+export const JOB_TABLES = new Set(['jobs', 'job_locations', 'job_categories', 'company_watchlist_10k',
   'company_watchlist_11k', 'dedicated_company_watchlist', 'job_ingestion_runs', 'featured_job_orders',
   'wilsy_public_jobs']);
 export const JOB_RPCS = new Set(['wilsy_ingest_board', 'wilsy_ingest_partner', 'wilsy_apply_discovery', 'wilsy_search_jobs',

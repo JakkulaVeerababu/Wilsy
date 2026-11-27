@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import {supabaseConfig} from '../js/supabase-config.js';
+import {routeJobs} from '../../collectors/pg-rest.mjs';
 
 // Featured job: one payment of ₹999 pins a job to the top of WILSY search for 30 days.
 export const FEATURED = {amount: 99900, currency: 'INR', days: 30, label: 'Featured job, 30 days'};
@@ -39,6 +40,9 @@ export function validSignature(orderId, paymentId, signature, secret) {
 }
 
 export function createPayHandlers({env = process.env, fetcher = fetch} = {}) {
+  // The job and its featured orders live in the jobs database: Heroku when JOBS_DATABASE_URL is set, else Supabase.
+  const call = s => routeJobs((path, options) => db(s, path, options, fetcher), {env});
+
   // POST {job_id, company, email} → a Razorpay order for one Featured job.
   async function createOrder(request) {
     if (request.method !== 'POST') return json(405, {error: 'Use POST'});
@@ -50,7 +54,7 @@ export function createPayHandlers({env = process.env, fetcher = fetch} = {}) {
     if (!company) return json(400, {error: 'Enter your company name.'});
     if (!emailOk(email)) return json(400, {error: 'Enter a valid work email.'});
     try {
-      const [job] = await db(s, `wilsy_public_jobs?id=eq.${jobId}&select=id,title,company`, {}, fetcher);
+      const [job] = await call(s)(`wilsy_public_jobs?id=eq.${jobId}&select=id,title,company`, {method: 'GET'});
       if (!job) return json(404, {error: 'That job is not live on WILSY. Check the job link.'});
       const auth = 'Basic ' + Buffer.from(`${s.keyId}:${s.keySecret}`).toString('base64');
       const response = await fetcher('https://api.razorpay.com/v1/orders', {
@@ -59,7 +63,7 @@ export function createPayHandlers({env = process.env, fetcher = fetch} = {}) {
       });
       if (!response.ok) throw new Error(`Razorpay ${response.status}`);
       const order = await response.json();
-      await db(s, 'featured_job_orders', {method: 'POST', prefer: 'return=minimal', body: {job_id: jobId, company, email, razorpay_order_id: order.id, amount_paise: FEATURED.amount, currency: FEATURED.currency, mode: s.mode}}, fetcher);
+      await call(s)('featured_job_orders', {method: 'POST', prefer: 'return=minimal', body: {job_id: jobId, company, email, razorpay_order_id: order.id, amount_paise: FEATURED.amount, currency: FEATURED.currency, mode: s.mode}});
       return json(200, {order_id: order.id, key_id: s.keyId, amount: FEATURED.amount, currency: FEATURED.currency, mode: s.mode, job: {id: job.id, title: job.title, company: job.company}});
     } catch (error) {
       console.error('create-order', error.message);
@@ -78,8 +82,8 @@ export function createPayHandlers({env = process.env, fetcher = fetch} = {}) {
     if (!validSignature(orderId, paymentId, body?.signature, s.keySecret)) return json(400, {error: 'Payment could not be verified.'});
     try {
       const now = new Date(), ends = new Date(now.getTime() + FEATURED.days * 864e5);
-      const rows = await db(s, `featured_job_orders?razorpay_order_id=eq.${orderId}&status=eq.created`, {method: 'PATCH', prefer: 'return=representation', body: {status: 'paid', razorpay_payment_id: paymentId, paid_at: now.toISOString(), starts_at: now.toISOString(), ends_at: ends.toISOString()}}, fetcher);
-      const row = rows?.[0] || (await db(s, `featured_job_orders?razorpay_order_id=eq.${orderId}&select=job_id,status,mode,ends_at`, {}, fetcher))?.[0];
+      const rows = await call(s)(`featured_job_orders?razorpay_order_id=eq.${orderId}&status=eq.created`, {method: 'PATCH', prefer: 'return=representation', body: {status: 'paid', razorpay_payment_id: paymentId, paid_at: now.toISOString(), starts_at: now.toISOString(), ends_at: ends.toISOString()}});
+      const row = rows?.[0] || (await call(s)(`featured_job_orders?razorpay_order_id=eq.${orderId}&select=job_id,status,mode,ends_at`, {method: 'GET'}))?.[0];
       if (!row || row.status !== 'paid') return json(404, {error: 'Order not found.'});
       return json(200, {ok: true, job_id: row.job_id, mode: row.mode, ends_at: row.ends_at});
     } catch (error) {
