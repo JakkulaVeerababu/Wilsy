@@ -9,13 +9,22 @@ export const JOB_FUNCTIONS = {
   wilsy_job_history: [['job_id', 'bigint']],
 };
 
+export const IDLE_SESSION_MS = 20000;
+// Worth one more try: the server refused a new connection (53300, all 20 in use), or closed this idle one
+// (idle_session_timeout, 57P05) or dropped it. The site only calls read-only functions, so a retry is safe.
+export const retryable = error => error?.code === '53300' || error?.code === '57P05' || error?.code === 'ECONNRESET'
+  || /Connection terminated|terminating connection|Client has encountered a connection error/i.test(String(error?.message || ''));
+
 let pool;
 async function getPool(url) {
   if (!pool) {
     const {default: pg} = await import('pg');
-    // One connection per function instance: the database allows 20 in all, and Vercel runs few instances.
+    // One connection per function instance: the database allows 20 in all. A frozen Vercel instance never runs
+    // the pool's idle timer, so its connection would stay open for minutes; idle_session_timeout makes the server
+    // close a session idle for 20 s instead, and the next call reconnects (see the retry below).
     pool = new pg.Pool({connectionString: url, ssl: {rejectUnauthorized: false}, max: 1,
-      idleTimeoutMillis: 10000, connectionTimeoutMillis: 5000, statement_timeout: 8000});
+      idleTimeoutMillis: 10000, connectionTimeoutMillis: 5000, statement_timeout: 8000,
+      options: `-c idle_session_timeout=${IDLE_SESSION_MS}`});
     pool.on('error', () => { pool = undefined; });
   }
   return pool;
@@ -51,7 +60,7 @@ export function createJobsRequest({env = process.env, fallback = databaseRequest
     let rows;
     for (let attempt = 1; ; attempt++) {
       try { ({rows} = await db.query(call)); break; }
-      catch (error) { if (error?.code !== '53300' || attempt >= 3) throw error; await new Promise(r => setTimeout(r, retryMs * attempt)); }
+      catch (error) { if (!retryable(error) || attempt >= 3) throw error; await new Promise(r => setTimeout(r, retryMs * attempt)); }
     }
     return rows[0]?.result ?? null;
   };

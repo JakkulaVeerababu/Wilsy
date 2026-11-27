@@ -66,3 +66,13 @@ test('The deploy pass reads every live job in id order, 2,000 a query, and trims
   assert.equal('description' in result.jobs[0], false, 'descriptions are dropped as rows arrive');
   assert.ok(BULK_COLUMNS.includes('apply_url') && BULK_COLUMNS.includes('description'));
 });
+
+test('A connection the server closed (idle timeout) or refused is retried; real errors are not', async () => {
+  const {retryable, IDLE_SESSION_MS} = await import('../scripts/jobs-db.mjs');
+  assert.ok(IDLE_SESSION_MS <= 30000, 'idle sessions close well before a frozen instance would wake');
+  for(const error of [{code: '53300'}, {code: '57P05'}, {code: 'ECONNRESET'}, new Error('Connection terminated unexpectedly')]) assert.equal(retryable(error), true);
+  for(const error of [{code: '42601'}, {code: '57014'}, new Error('Unsupported job function arguments')]) assert.equal(retryable(error), false);
+  let calls = 0;
+  const connect = async () => ({query: async () => { if(++calls === 1) throw Object.assign(new Error('terminating connection due to idle-session timeout'), {code: '57P05'}); return {rows: [{result: {total: 1}}]}; }});
+  assert.deepEqual(await createJobsRequest({env: {JOBS_DATABASE_URL: 'postgres://x'}, connect, retryMs: 1})('rpc/wilsy_job_facets', {body: {}}), {total: 1});
+});
