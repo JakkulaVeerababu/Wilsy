@@ -1,4 +1,4 @@
-import {jobsRequest} from './jobs-db.mjs';
+import {jobsRequest, createBulkReader} from './jobs-db.mjs';
 import {jobPath} from '../js/jobs-core.js';
 import {escapeHtml as e} from '../js/directory-core.js';
 import {pageWorthy} from './job-pages.mjs';
@@ -18,7 +18,13 @@ const keep = (job, now) => ({id: String(job.id), title: job.title, company: job.
   pay: job.salary_min != null || job.salary_max != null || !!job.salary_text,
   indexable: pageWorthy(job, now)});
 
-export async function fetchAllLiveJobs({request = jobsRequest, pageSize = 50, max = 100000, concurrency = 4, now = Date.now()} = {}) {
+export async function fetchAllLiveJobs({request = jobsRequest, bulk = createBulkReader(), pageSize = 50, max = 100000, concurrency = 4, now = Date.now()} = {}) {
+  // With the jobs database at hand (deploys), read the public view directly: every job, 2,000 rows a query.
+  if(bulk) {
+    const asOf = new Date(now).toISOString(), seen = new Set(), jobs = [];
+    await bulk(rows => { for(const job of rows) if(/^\d+$/.test(String(job?.id)) && !seen.has(String(job.id))) { seen.add(String(job.id)); jobs.push(keep(job, now)); } });
+    return {jobs, total: jobs.length, asOf};
+  }
   const call = offset => request('rpc/wilsy_search_jobs', {body: {filters: {}, page_size: pageSize, page_offset: offset}});
   const first = await call(0);
   if(!Array.isArray(first?.jobs) || !Number.isSafeInteger(first.total)) throw new Error('Invalid public job response');

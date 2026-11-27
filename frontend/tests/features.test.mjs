@@ -182,12 +182,12 @@ test('Live job pass pages through the public search and drops duplicates', async
   const all = Array.from({length: 120}, (_, i) => job(i + 1));
   const offsets = [];
   const request = async (path, {body}) => { offsets.push(body.page_offset); return {jobs: [...all.slice(body.page_offset, body.page_offset + body.page_size), all[0]], total: all.length, as_of: 'now'}; };
-  const result = await fetchAllLiveJobs({request, pageSize: 50, concurrency: 2});
+  const result = await fetchAllLiveJobs({request, bulk: null, pageSize: 50, concurrency: 2});
   assert.equal(result.jobs.length, 120);
   assert.deepEqual(offsets.sort((a, b) => a - b), [0, 50, 100]);
   assert.ok(!('description' in result.jobs[0]), 'rows are trimmed');
   assert.equal(result.jobs[0].indexable, false, 'a short description is not worth its own page');
-  await assert.rejects(fetchAllLiveJobs({request: async () => ({nope: true})}), /Invalid public job response/);
+  await assert.rejects(fetchAllLiveJobs({request: async () => ({nope: true}), bulk: null}), /Invalid public job response/);
 });
 
 test('Job sitemap lists indexable pages not already in the main sitemap', () => {

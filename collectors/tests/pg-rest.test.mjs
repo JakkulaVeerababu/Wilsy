@@ -64,3 +64,20 @@ test('routeJobs leaves Supabase alone until JOBS_DATABASE_URL is set, then split
   const pg = createPgRest({url: 'postgres://x', connect});
   assert.deepEqual(await pg('jobs?select=id', {method: 'GET'}), [{id: 1}]);
 });
+
+test('a refused connection (too many connections) waits and retries; other errors fail at once', async () => {
+  const full = () => Object.assign(new Error('too many connections for role "x"'), {code: '53300'});
+  let calls = 0;
+  const db = {query: async () => { if (++calls < 3) throw full(); return {rows: [{result: 7}]}; }};
+  const waits = [];
+  const pgRest = createPgRest({url: 'postgres://x', connect: async () => db, sleep: async ms => { waits.push(ms); }});
+  assert.equal(await pgRest('rpc/wilsy_ingest_board', {body: {board: {}}}), 7);
+  assert.equal(calls, 3);
+  assert.equal(waits.length, 2);
+  let other = 0;
+  const bad = createPgRest({url: 'postgres://x', connect: async () => ({query: async () => { other++; throw Object.assign(new Error('syntax'), {code: '42601'}); }}), sleep: async () => {}});
+  await assert.rejects(bad('jobs?id=eq.1'), /syntax/);
+  assert.equal(other, 1);
+  const never = createPgRest({url: 'postgres://x', connect: async () => ({query: async () => { throw full(); }}), sleep: async () => {}});
+  await assert.rejects(never('jobs?id=eq.1'), /too many connections/);
+});

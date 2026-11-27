@@ -93,13 +93,13 @@ The jobs data moved from Supabase (500 MB cap, full) to Heroku Postgres (10 GB).
 
 | # | Item | Source | Status |
 |---|---|---|---|
-| 1 | Import jobseek's boards on platforms WILSY reads | colophon-group/jobseek (MIT, notice in `THIRD_PARTY_NOTICES.md`) | In progress: each new board is read once; only boards that answer are added, and only those listing tech roles are collected hourly. |
+| 1 | Import jobseek's boards on platforms WILSY reads | colophon-group/jobseek (MIT, notice in `THIRD_PARTY_NOTICES.md`) | **Done (27 Nov 2026).** Every new board was read once first. 3,436 boards that answered were added (source group `jobseek`); 2,541 list tech roles and are collected hourly, the rest are kept but not collected. 309 were skipped because WILSY already watched that company under another board, name or website. WILSY now collects from 2,986 boards (about 480 before). |
 | 2 | Run more collector shards at once | — | Done in this change: five shards in parallel, two database connections each (Heroku allows 20). |
 | 3 | Workday reader (550 jobseek boards) | JobNavigator, ats-api-reference (MIT) | **Blocked.** Workday's Cloudflare answers WILSY's collector with a block page (HTTP 429) on the job API and even on the published sitemap, while allowing other clients. Getting past it would mean disguising the collector, which rule 3 forbids. Revisit only with a permitted route (a partner feed or an official API). |
-| 4 | Oracle HCM, Phenom, Rippling readers | JobNavigator (MIT) | Next to try. Each is tested the same way as Workday first; any that blocks automated clients is dropped. |
+| 4 | Oracle HCM, Phenom, Rippling readers | JobNavigator (MIT) | **Done.** Readers in `collectors/more-boards.mjs`, tested on jobseek's boards before use: Oracle 151 of 155 answered, Rippling 9 of 10, Phenom 42 of 53 (boards that refused automated clients were left out). Phenom pages are searched for a few tech words, so those reads are always partial and the daily recheck closes removed roles (Phenom answers 410). |
 | 5 | Telegram job alerts | JobNavigator (MIT) | Needs a bot made with Telegram's @BotFather by the WILSY owner; the token goes in GitHub secrets. Then alerts.mjs gains a Telegram sender beside email. |
-| 6 | Tracker: interview rounds, contacts, follow-up dates, funnel stats | jobsync (MIT) | Planned. Stored in the browser like today's tracker, synced to the account for signed-in users (Supabase account tables, which stay small). |
-| 7 | Cross-source deduplication | job_search_tool (MIT) | Planned: one job listed by two sources (a company board and a partner feed) shown once. |
+| 6 | Tracker: interview rounds, contacts, follow-up dates, funnel stats | jobsync (MIT), offeros (Apache-2.0) | **Done** (in the browser): a contact per application, a follow-up list for applications with no reply after 7 days, funnel numbers, and where closed roles stopped with a pointer to the fit check or interview answers. Syncing to the account is not built. |
+| 7 | Cross-source deduplication | job_search_tool (MIT) | **Measured, not needed yet:** on 27 Nov 2026 only 1 of about 8,600 live jobs was listed by two sources. The jobseek import skips a company already watched under another board, name or website, so the same company is not collected twice. Revisit if partner feeds grow. |
 | 8 | Chrome extension that fills application forms | applyai (MIT) | Planned in `docs/wilsy-pro-plan.md`; the user always presses Submit. Needs a Chrome Web Store developer account. |
 | 9 | AI resume tailoring, cover letters, interview practice | Resume-Matcher (Apache-2.0), ResuLLMe (MIT) | WILSY Pro; needs a paid AI API. |
 
@@ -107,7 +107,7 @@ The jobs data moved from Supabase (500 MB cap, full) to Heroku Postgres (10 GB).
 
 | # | Feature | WILSY |
 |---|---|---|
-| 1 | Jobs from many sources | Done: Greenhouse, Lever, Ashby, Workable, SmartRecruiters, Recruitee, government notices, Unstop, The Job Company. Next: jobseek boards, Workday. |
+| 1 | Jobs from many sources | Done: Greenhouse, Lever, Ashby, Workable, SmartRecruiters, Recruitee, Oracle HCM, Rippling, Phenom, government notices, Unstop, The Job Company, and jobseek's board list. Workday is blocked (see above). |
 | 2 | One job format, duplicates removed | Done in the collectors. |
 | 3 | Search, filters, saved searches | Done. |
 | 4 | Resume upload and parsing | Done in the browser (`/resume-match`). |
@@ -116,7 +116,7 @@ The jobs data moved from Supabase (500 MB cap, full) to Heroku Postgres (10 GB).
 | 7 | Skill gap | Done (missing skills), extended by the fit check. |
 | 8 | Personal alerts | Saved-search emails exist (`collectors/alerts.mjs`). |
 | 9–10 | AI resume tailoring, cover letters | WILSY Pro (needs a paid AI API). The copy check is the free first step. |
-| 11 | Application tracker | Done (`/tracker`). |
+| 11 | Application tracker | Done (`/tracker`), with contacts, follow-ups, funnel numbers and where closed roles stopped. |
 | 12 | Interview preparation | `/interview-answers` exists; AI practice is WILSY Pro. |
 | 13–14 | Autofill extension, human-approved applying | Planned in `docs/wilsy-pro-plan.md`; the user always presses Submit. |
 | 15 | Career recommendations | `/my-wilsy` has skills to learn next. |

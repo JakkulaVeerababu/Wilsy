@@ -42,3 +42,27 @@ test('the jobs-rpc endpoint accepts only job functions and JSON objects', async 
   const failing = createJobsRpcHandler({request: async () => { throw new Error('down'); }});
   assert.equal((await failing(new Request('http://x/api/jobs-rpc?fn=wilsy_job_facets', {method: 'POST', body: '{}'}))).status, 502);
 });
+
+test('a search waits briefly when the database is full of connections, then answers', async () => {
+  let calls = 0;
+  const connect = async () => ({query: async () => { if (++calls < 2) throw Object.assign(new Error('too many connections'), {code: '53300'}); return {rows: [{result: {jobs: [], total: 0}}]}; }});
+  const request = createJobsRequest({env: {JOBS_DATABASE_URL: 'postgres://x'}, connect, retryMs: 1});
+  assert.deepEqual(await request('rpc/wilsy_job_facets', {body: {}}), {jobs: [], total: 0});
+  assert.equal(calls, 2);
+});
+
+test('The deploy pass reads every live job in id order, 2,000 a query, and trims each batch', async () => {
+  const {createBulkReader, BULK_COLUMNS} = await import('../scripts/jobs-db.mjs');
+  const {fetchAllLiveJobs} = await import('../scripts/live-jobs.mjs');
+  assert.equal(createBulkReader({env: {}}), null, 'without the jobs database the search is paged instead');
+  const all = Array.from({length: 5}, (_, i) => ({id: String(i + 1), title: `Engineer ${i + 1}`, company: 'Acme', description: 'x'.repeat(50)}));
+  const queries = [];
+  const connect = async () => ({query: async ({text, values: [after, limit]}) => { queries.push([after, limit]); return {rows: all.filter(j => Number(j.id) > Number(after)).slice(0, limit)}; }});
+  const bulk = createBulkReader({env: {JOBS_DATABASE_URL: 'postgres://x'}, connect, batch: 2});
+  const result = await fetchAllLiveJobs({bulk, request: async () => { throw new Error('search not used'); }});
+  assert.deepEqual(result.jobs.map(j => j.id), ['1', '2', '3', '4', '5']);
+  assert.equal(result.total, 5);
+  assert.deepEqual(queries, [[0, 2], ['2', 2], ['4', 2]]);
+  assert.equal('description' in result.jobs[0], false, 'descriptions are dropped as rows arrive');
+  assert.ok(BULK_COLUMNS.includes('apply_url') && BULK_COLUMNS.includes('description'));
+});

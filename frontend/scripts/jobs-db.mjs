@@ -38,7 +38,7 @@ export function functionCall(name, body = {}) {
 }
 
 // Same shape as databaseRequest('rpc/<name>', {body}), so callers do not change.
-export function createJobsRequest({env = process.env, fallback = databaseRequest, connect = getPool} = {}) {
+export function createJobsRequest({env = process.env, fallback = databaseRequest, connect = getPool, retryMs = 400} = {}) {
   return async function jobsRequest(path, options = {}) {
     const url = env.JOBS_DATABASE_URL;
     const name = String(path).replace(/^rpc\//, '');
@@ -46,9 +46,47 @@ export function createJobsRequest({env = process.env, fallback = databaseRequest
     const call = functionCall(name, options.body || {});
     if (!call) throw new Error('Unsupported job function arguments');
     const db = await connect(url);
-    const {rows} = await db.query(call);
+    // A refused connection (53300, the shared 20-connection limit is full) is retried briefly: the statement
+    // never ran. Kept short so a visitor's search answers or fails quickly.
+    let rows;
+    for (let attempt = 1; ; attempt++) {
+      try { ({rows} = await db.query(call)); break; }
+      catch (error) { if (error?.code !== '53300' || attempt >= 3) throw error; await new Promise(r => setTimeout(r, retryMs * attempt)); }
+    }
     return rows[0]?.result ?? null;
   };
 }
 
 export const jobsRequest = createJobsRequest();
+
+// Columns the deploy-time pass needs (live-jobs.mjs `keep` and job-pages.mjs `pageWorthy`).
+export const BULK_COLUMNS = ['id', 'title', 'company', 'company_slug', 'location', 'city', 'country', 'country_code', 'work_mode', 'job_type',
+  'posted_at', 'posted_at_precision', 'first_seen_at', 'discovered_at', 'skills', 'tech_stack', 'description', 'is_internship', 'is_fresher',
+  'is_new_grad', 'salary_min', 'salary_max', 'salary_text', 'apply_url', 'deadline_at', 'expires_at'];
+
+/**
+ * Every live job straight from the public view, in id order, `batch` rows per query (deploy builds only).
+ * The public search pages 50 rows at a time and stops at offset 100,000, which is too slow and too short
+ * once there are 100,000+ jobs. Returns null when the jobs database is not set (the caller then pages the search).
+ */
+export function createBulkReader({env = process.env, connect = getPool, batch = 2000} = {}) {
+  const url = env.JOBS_DATABASE_URL;
+  if (!url) return null;
+  const text = `select ${BULK_COLUMNS.join(', ')} from public.wilsy_public_jobs where id > $1 order by id limit $2`;
+  // Each batch goes to onRows as it arrives, so the caller can trim it (descriptions are large). Returns the row count.
+  return async function readAll(onRows) {
+    const db = await connect(url);
+    let count = 0;
+    for (let after = 0; ;) {
+      let rows;
+      for (let attempt = 1; ; attempt++) {
+        try { ({rows} = await db.query({text, values: [after, batch]})); break; }
+        catch (error) { if (attempt >= 3) throw error; await new Promise(r => setTimeout(r, 1000 * attempt)); }
+      }
+      onRows(rows);
+      count += rows.length;
+      if (rows.length < batch) return count;
+      after = rows[rows.length - 1].id;
+    }
+  };
+}

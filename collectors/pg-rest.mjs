@@ -170,12 +170,28 @@ async function defaultConnect(url) {
   return pool;
 }
 
+const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
+/**
+ * Runs a query, waiting and retrying while the server refuses new connections (53300 "too many connections":
+ * the 20-connection limit is shared by the collector shards, the website and deploys). The refused attempt
+ * never ran the statement, so retrying is safe for writes too.
+ */
+export async function queryWithRetry(db, query, {tries = 6, sleep = pause} = {}) {
+  for (let attempt = 1; ; attempt++) {
+    try { return await db.query(query); }
+    catch (error) {
+      if (error?.code !== '53300' || attempt >= tries) throw error;
+      await sleep(Math.min(2000 * 2 ** (attempt - 1), 20000) + Math.floor(Math.random() * 500));
+    }
+  }
+}
+
 /** A REST-shaped caller backed by Postgres: same arguments and results as the Supabase one for job paths. */
-export function createPgRest({url, connect = defaultConnect}) {
+export function createPgRest({url, connect = defaultConnect, sleep}) {
   return async function pgRest(path, options = {}) {
     const call = toSql(path, options);
     const db = await connect(url);
-    const {rows} = await db.query({text: call.text, values: call.values});
+    const {rows} = await queryWithRetry(db, {text: call.text, values: call.values}, {sleep});
     if (call.rpc) return rows[0]?.result ?? null;
     if ((options.method || (options.body ? 'POST' : 'GET')) === 'GET' || returning(options.prefer)) return rows;
     return null;
