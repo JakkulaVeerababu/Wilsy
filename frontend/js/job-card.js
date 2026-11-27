@@ -23,8 +23,9 @@ export function jobTags(job) {
 export function renderJobCard(job, {companies = [], fx, saved = [], comparison = [], interactive = false, compare = false, now = Date.now()} = {}) {
   const id = String(job.id), salary = jobSalary(job, fx), url = applyUrl(job.apply_url);
   const selected = saved.includes(id), compared = comparison.some(j => String(j.id) === id);
-  return `<article class="job-result-card" data-job-card="${e(id)}">
-    <div class="job-company-line">${jobLogo(job, companies)}<span class="job-employer-name">${e(job.company)}</span>${job.is_company_verified === true ? `<span class="job-verified" title="Employer verified">${icon('check')}<span class="sr-only">Employer verified</span></span>` : ''}</div>
+  const featured = job.is_featured === true;
+  return `<article class="job-result-card${featured ? ' is-featured' : ''}" data-job-card="${e(id)}">
+    <div class="job-company-line">${jobLogo(job, companies)}<span class="job-employer-name">${e(job.company)}</span>${job.is_company_verified === true ? `<span class="job-verified" title="Employer verified">${icon('check')}<span class="sr-only">Employer verified</span></span>` : ''}${featured ? '<span class="job-featured-badge" title="Paid placement: this employer paid to show the job here">Featured</span>' : ''}</div>
     <h3 class="job-card-title"><a href="/jobs?job=${encodeURIComponent(id)}" data-job="${e(id)}">${e(job.title)}</a></h3>
     <div class="job-card-tags">${jobTags(job)}</div><p class="job-card-description">${e(previewJobText(job.description, 220))}</p>
     <div class="job-card-bottom"><div class="job-card-pay${salary.primary === 'Salary not disclosed' ? ' is-undisclosed' : ''}"><strong>${e(salary.primary)}</strong>${salary.secondary ? `<span>${e(salary.secondary)}</span>` : ''}</div><span class="job-card-time" title="${e(postingLabel(job))}">${e(relativePostingLabel(job,now))}</span></div>
