@@ -861,3 +861,8 @@ html body .site-footer.premium-footer .footer-base .footer-giant span{background
 html body .site-footer.premium-footer .footer-base .footer-giant{background:linear-gradient(180deg,#4f7a00 0%,#6f9e00 34%,#9fd200 68%,#d1fe17 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 html body .site-footer.premium-footer .footer-base .footer-giant span{display:inline-block;padding-right:.1em;margin-right:-.1em;background:linear-gradient(180deg,rgba(27,63,224,1) 0%,rgba(43,89,255,.92) 38%,rgba(43,89,255,.5) 72%,rgba(43,89,255,0) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 html body .site-footer.premium-footer .footer-base .footer-giant span{display:inline;background:linear-gradient(180deg,#3a66ff 0%,#2b59ff 45%,#1f45e8 100%);-webkit-background-clip:text;background-clip:text}
+.job-history{margin:14px 0;padding:12px 14px;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface);font-size:14px;line-height:1.5}
+.job-history strong{display:block;color:var(--ink)}
+.job-history p{margin:4px 0 0;color:var(--ink-soft)}
+.job-history.is-warn{border-color:color-mix(in srgb,#b26a00 45%,transparent);background:color-mix(in srgb,#b26a00 7%,var(--surface))}
+.job-history.is-warn strong{color:#9a5b00}

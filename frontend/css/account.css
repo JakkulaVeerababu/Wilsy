@@ -110,3 +110,6 @@ html.dark-theme .account-brand{background:repeating-linear-gradient(118deg,trans
 .signin-app:not(:has(.has-brand)){max-width:520px}
 .signin-app .account-panel{padding:clamp(24px,4vw,44px)}
 @media(min-width:820px){.signin-app .account-brand{padding:44px;min-height:520px}}
+.account-weekly{display:flex;align-items:flex-start;gap:10px;margin:0 0 16px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:14px;line-height:1.5;cursor:pointer}
+.account-weekly input{width:18px;height:18px;margin:2px 0 0;flex:none;accent-color:var(--accent,#0866ff)}
+.account-weekly input:disabled+span{opacity:.6}

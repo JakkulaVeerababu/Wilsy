@@ -1,12 +1,12 @@
 import {createAuth,SESSION_KEY} from './auth-client.js';
-import {syncAccount,setAlert,forgetAccount} from './account-sync.js';
+import {syncAccount,setAlert,forgetAccount,getWeekly,setWeekly} from './account-sync.js';
 import {searchName} from './job-workspace-core.js';
 import {escapeHtml as e} from './directory-core.js';
 import {track} from './analytics.js';
 
 // Optional accounts: the header button, sign-in dialog and background sync of saved lists.
 const auth=createAuth();
-const state={view:'email',email:'',code:'',message:'',busy:false,counts:null,alerts:{},syncError:'',providers:null};
+const state={view:'email',email:'',code:'',message:'',busy:false,counts:null,alerts:{},weekly:null,syncError:'',providers:null};
 let dialog,host,inline=false,button,pending=null,again=false,debounce; // host: the dialog, or the /sign-in page's panel
 const shown=()=>inline||!!dialog?.open;
 const METHOD_KEY='wilsy-sign-in-method'; // remembers a Google or GitHub sign-in across the redirect, for analytics
@@ -54,6 +54,8 @@ function accountView() {
     <h3>Job alerts</h3>
     ${queries.length?`<ul class="account-alerts">${alertRows}</ul><p class="account-note">Choose how often to hear about new roles for each saved search. Emails go out around 9 a.m. India time, only when a search has new roles. Choose No alerts, or use the unsubscribe link in any alert email, to stop them.</p>`
       :`<p class="account-note">Save a search on <a href="/jobs">Find jobs</a> to choose alerts for it.</p>`}
+    <h3>Weekly email</h3>
+    <label class="account-weekly"><input type="checkbox" data-weekly${state.weekly?' checked':''}${state.weekly==null?' disabled':''}> <span>Send me the weekly WILSY email: new internships and fresher jobs in India, once a week.</span></label>
     <button class="account-secondary" type="button" data-signout>Sign out</button>
     <p class="account-note">Signing out removes your saved items from this browser. They stay in your account.</p>`;
 }
@@ -99,6 +101,7 @@ export function sync() {
       const token=await auth.accessToken();if(!token)return;
       const result=await syncAccount({token,userId:s.user.id,storage:localStorage});
       Object.assign(state,{counts:result.counts,alerts:result.alerts,syncError:''});
+      state.weekly=await getWeekly(token).catch(()=>state.weekly);
       for(const key of result.changed)window.dispatchEvent(new StorageEvent('storage',{key}));
     }while(again);
   })().catch(()=>{state.syncError='Some changes have not synced yet. WILSY will retry automatically.';})
@@ -116,7 +119,7 @@ function bind() {
     if(provider)return run(async()=>{try{sessionStorage.setItem(METHOD_KEY,provider);}catch{}location.assign(await auth.providerUrl(provider));});
     if(t.closest('[data-signout]'))return run(async()=>{await auth.signOut();forgetAccount(localStorage);
       for(const key of ['wilsy-saved-jobs','wilsy-saved-hackathons','wilsy-saved-searches-v1'])window.dispatchEvent(new StorageEvent('storage',{key}));
-      Object.assign(state,{view:'email',counts:null,alerts:{}});state.message='Signed out.';});
+      Object.assign(state,{view:'email',counts:null,alerts:{},weekly:null});state.message='Signed out.';});
   });
   host.addEventListener('submit',event=>{
     event.preventDefault();
@@ -130,6 +133,11 @@ function bind() {
     else if(event.target.id==='account-code')state.code=event.target.value;
   });
   host.addEventListener('change',event=>{
+    const box=event.target.closest('[data-weekly]');
+    if(box){const previous=state.weekly,on=box.checked;state.weekly=on;
+      auth.accessToken().then(token=>setWeekly(token,auth.session()?.user.id,on)).then(()=>{state.message=on?'Weekly email turned on.':'Weekly email turned off.';render();})
+        .catch(()=>{state.weekly=previous;state.message='That setting did not save. Try again.';render();});
+      return;}
     const select=event.target.closest('[data-alert]');if(!select)return;
     const query=select.dataset.alert,previous=state.alerts[query];state.alerts[query]=select.value;
     auth.accessToken().then(token=>setAlert(token,query,select.value)).then(()=>{if((previous||'off')==='off'&&select.value!=='off')track('alert_on',{frequency:select.value});state.message='Alert preference saved.';render();})

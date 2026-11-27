@@ -79,7 +79,9 @@ test('The email lists each role with company, place, INR pay and links, and esca
   const sections=[{query:'q=%3Cimg+src%3Dx+onerror%3Dalert(1)%3E',alert:'daily',since:new Date(ago(24)),jobs:[hostile,usd,quiet],count:3,more:false}];
   const {subject,html,text}=renderEmail(sections,{fx});
   assert.equal(subject,'3 new roles for <img src=x onerror=alert(1)>');
-  assert.ok(!html.includes('<img'));assert.ok(!html.includes('<script'));
+  // The only image is WILSY's own logo; an <img> in a job title stays escaped text.
+  assert.deepEqual(html.match(/<img [^>]*>/g).map(tag=>tag.match(/src="([^"]+)"/)[1]),['https://www.wilsy.in/assets/icon-192.png']);
+  assert.ok(!html.includes('<img src=x'));assert.ok(!html.includes('<script'));
   assert.ok(html.includes('&lt;script&gt;alert(1)&lt;/script&gt; R&amp;D Lead'));
   assert.ok(!html.includes('&amp;amp;'));
   assert.ok(html.includes('Fish &amp; &quot;Chips&quot; &lt;Ltd&gt; · Pune India'));

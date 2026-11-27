@@ -117,7 +117,9 @@ export function jobBody(job, {companies, fx, now, pages, similar=[], similarTitl
   ${referralBox(job, site.origin+jobPath(job))}
   <div class="job-page-layout"><article class="prose job-page-description"><h2>About the role</h2>${descriptionParagraphs(job.description)||`<p>The full description is on the <a href="${e(url)}" target="_blank" rel="noopener noreferrer">employer’s listing</a>.</p>`}<p class="jobs-date-note">This is the description captured from the source. The employer’s listing is the final word on requirements.</p></article>
   <aside class="job-page-facts"><dl>${fact('Pay',pay.primary+(pay.secondary?` (${pay.secondary})`:''))}${fact('Location',place)}${fact('Workplace',mode)}${fact('Experience',exp)}${fact('Job type',employment[job.job_type]?label(job.job_type):'')}${fact('Seniority',job.seniority_level?label(job.seniority_level):'')}${fact('Posted',postingLabel(job))}${fact('Source',job.source_name||(job.ats_platform?label(job.ats_platform):''))}</dl>
+  <div class="job-history" data-job-history="${e(String(job.id))}" hidden></div>
   <a href="mailto:${site.email}?subject=${encodeURIComponent('Report listing: '+job.id+' '+job.title)}">Report this listing</a></aside></div>
+  <script type="module" src="/js/job-history.js"></script>
   ${similar.length?`<section class="job-page-similar" aria-labelledby="similar-title"><h2 id="similar-title">${e(similarTitle)}</h2><ol class="job-list">${similar.map(j=>jobRow(j,{companies,fx,now,pages})).join('')}</ol></section>`:''}
 </main>`;
 }

@@ -22,6 +22,7 @@ import {unsubscribeUrl} from '../frontend/scripts/unsubscribe-handler.mjs';
 export const FROM='WILSY Alerts <alerts@wilsy.in>';
 export const REPLY_TO=site.email;
 export const MANAGE_URL=`${site.origin}/jobs?saved=1`;
+export const LOGO_URL=`${site.origin}/assets/icon-192.png`; // shown at 32 px; 192 px keeps it sharp on phones
 export const MAX_JOBS_PER_SEARCH=10;
 export const DEFAULT_MAX_EMAILS=100; // Resend's free plan allows 100 emails a day
 export const SEARCH_PAGE=50; // the most wilsy_search_jobs returns in one page
@@ -106,7 +107,7 @@ export function clean(value,max=160) {
   const text=decodeEntities(String(value??'')).replace(/[\u0000-\u001f\u007f-\u009f]+/g,' ').replace(/\s+/g,' ').trim();
   return text.length>max?text.slice(0,max-1).trimEnd()+'…':text;
 }
-const tracking=cadence=>`utm_source=wilsy_alerts&utm_medium=email&utm_campaign=${cadence==='weekly'?'weekly':'daily'}_alert`;
+export const tracking=cadence=>`utm_source=wilsy_alerts&utm_medium=email&utm_campaign=${cadence==='weekly'?'weekly':'daily'}_alert`;
 // The role's own page. Every live job has one (pre-built, or rendered on request by api/job-page.mjs),
 // and a changed title only redirects to the new slug, keeping these parameters.
 export const jobUrl=(job,cadence)=>`${site.origin}${jobPath({...job,id:encodeURIComponent(String(job.id))})}?${tracking(cadence)}`;
@@ -130,7 +131,7 @@ export function jobPay(job,fx) {
   if(!pay.primary||pay.primary==='Salary not disclosed')return '';
   return clean(pay.primary,80)+(pay.secondary==='INR estimate'?' (INR estimate)':'');
 }
-const dateIst=value=>new Intl.DateTimeFormat('en-IN',{day:'numeric',month:'short',timeZone:'Asia/Kolkata'}).format(value);
+export const dateIst=value=>new Intl.DateTimeFormat('en-IN',{day:'numeric',month:'short',timeZone:'Asia/Kolkata'}).format(value);
 const plural=(n,word)=>`${n} ${word}${n===1?'':/(s|sh|ch)$/.test(word)?'es':'s'}`;
 const countLabel=s=>s.more?`${s.count}+`:String(s.count);
 
@@ -168,7 +169,7 @@ ${s.jobs.map(job=>jobHtml(job,s)).join('\n')}
 <div style="display:none;max-height:0;overflow:hidden;">${escapeHtml(preheader)}</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f6f7;"><tr><td align="center" style="padding:24px 12px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border:1px solid #e4e6eb;border-radius:8px;">
-<tr><td style="padding:24px 24px 0;${font}"><span style="color:#1c1e21;font-size:20px;font-weight:bold;letter-spacing:1px;">WILSY</span><span style="color:#65676b;font-size:14px;"> &nbsp;Job alerts</span></td></tr>
+<tr><td style="padding:24px 24px 0;${font}"><a href="${escapeHtml(site.origin)}" style="text-decoration:none;"><img src="${escapeHtml(LOGO_URL)}" width="32" height="32" alt="WILSY" style="vertical-align:middle;border:0;border-radius:8px;"></a><span style="color:#1c1e21;font-size:20px;font-weight:bold;letter-spacing:1px;vertical-align:middle;"> &nbsp;WILSY</span><span style="color:#65676b;font-size:14px;vertical-align:middle;"> &nbsp;Job alerts</span></td></tr>
 <tr><td style="padding:0 24px 24px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">
 ${named.map(sectionHtml).join('\n')}
 </table></td></tr>
@@ -219,9 +220,9 @@ export const unsubscribeHeaders=url=>url
 export function createResendSender({apiKey,fetcher=globalThis.fetch,sleep=pause,retries=3,minIntervalMs=600,now=()=>Date.now()}) {
   if(!apiKey)throw new Error('Set RESEND_API_KEY to send alerts.');
   let last=-Infinity;
-  return async function send({to,subject,html,text,idempotencyKey:key,unsubscribe=null}) {
-    const body=JSON.stringify({from:FROM,to:[to],reply_to:REPLY_TO,subject,html,text,
-      headers:unsubscribeHeaders(unsubscribe),tags:[{name:'category',value:'job_alert'}]});
+  return async function send({to,subject,html,text,idempotencyKey:key,unsubscribe=null,from=FROM,category='job_alert'}) {
+    const body=JSON.stringify({from,to:[to],reply_to:REPLY_TO,subject,html,text,
+      headers:unsubscribeHeaders(unsubscribe),tags:[{name:'category',value:category}]});
     for(let attempt=0;;attempt++){
       const wait=last+minIntervalMs-now();if(wait>0)await sleep(wait);
       last=now();

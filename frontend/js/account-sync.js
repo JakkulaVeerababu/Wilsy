@@ -63,6 +63,11 @@ export async function syncAccount({token,userId,storage}) {
 export const setAlert=(token,query,alert)=>databaseRequest(`user_saved_searches?query=eq.${encodeURIComponent(query)}`,
   {token,method:'PATCH',body:{alert},prefer:minimal});
 
+// The weekly WILSY email (public.user_email_prefs): one row per person, readable and changeable only by them.
+export const getWeekly=token=>databaseRequest('user_email_prefs?select=weekly_digest',{token}).then(rows=>!!rows?.[0]?.weekly_digest);
+export const setWeekly=(token,userId,on)=>databaseRequest('user_email_prefs?on_conflict=user_id',
+  {token,method:'POST',body:{user_id:userId,weekly_digest:!!on},prefer:'resolution=merge-duplicates,return=minimal'});
+
 // Signing out leaves the account intact but removes its copy from this browser.
 export function forgetAccount(storage) {
   for(const key of [...Object.values(LISTS).map(l=>l.key),SYNC_KEY])try{storage.removeItem(key);}catch{}

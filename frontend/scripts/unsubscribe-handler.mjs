@@ -11,18 +11,32 @@ import {site} from '../js/site-config.js';
 export const UNSUBSCRIBE_PATH = '/api/alerts/unsubscribe';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
-export function unsubscribeToken(userId, secret) {
-  return crypto.createHmac('sha256', secret).update(`wilsy-alerts-unsubscribe:${String(userId).toLowerCase()}`).digest('base64url').slice(0, 32);
+// kind 'alerts' (job alerts, the default) or 'weekly' (the weekly email). A token works for its own kind only.
+export const KINDS = ['alerts', 'weekly'];
+const kindOf = value => KINDS.includes(value) ? value : 'alerts';
+
+export function unsubscribeToken(userId, secret, kind = 'alerts') {
+  return crypto.createHmac('sha256', secret).update(`wilsy-${kindOf(kind)}-unsubscribe:${String(userId).toLowerCase()}`).digest('base64url').slice(0, 32);
 }
 
-export function unsubscribeUrl(userId, secret, origin = site.origin) {
-  return `${origin}${UNSUBSCRIBE_PATH}?u=${encodeURIComponent(userId)}&t=${unsubscribeToken(userId, secret)}`;
+export function unsubscribeUrl(userId, secret, origin = site.origin, kind = 'alerts') {
+  return `${origin}${UNSUBSCRIBE_PATH}?u=${encodeURIComponent(userId)}&t=${unsubscribeToken(userId, secret, kind)}${kindOf(kind) === 'alerts' ? '' : `&k=${kindOf(kind)}`}`;
 }
 
-export function validToken(userId, token, secret) {
+export function validToken(userId, token, secret, kind = 'alerts') {
   if (!secret || !UUID.test(String(userId || '')) || typeof token !== 'string' || !/^[A-Za-z0-9_-]{32}$/.test(token)) return false;
-  return crypto.timingSafeEqual(Buffer.from(unsubscribeToken(userId, secret)), Buffer.from(token));
+  return crypto.timingSafeEqual(Buffer.from(unsubscribeToken(userId, secret, kind)), Buffer.from(token));
 }
+
+// What each kind turns off, and the words on its pages.
+const TARGET = {
+  alerts: {path: userId => `user_saved_searches?user_id=eq.${userId}&alert=neq.off`, body: {alert: 'off'},
+    ask: ['Stop WILSY job alerts?', 'This turns off the emails for every search you saved. Your saved jobs and searches stay in your account.', 'Stop all job alerts'],
+    done: ['You’re unsubscribed', 'You won’t get WILSY job alert emails any more. To turn them back on, sign in and choose Daily or Weekly in Account.']},
+  weekly: {path: userId => `user_email_prefs?user_id=eq.${userId}`, body: {weekly_digest: false},
+    ask: ['Stop the weekly WILSY email?', 'You’ll stop getting the weekly email of new internships and fresher jobs. Your account and any job alerts stay as they are.', 'Stop the weekly email'],
+    done: ['You’re unsubscribed', 'You won’t get the weekly WILSY email any more. To turn it back on, sign in and tick it in Account.']}
+};
 
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 
@@ -49,30 +63,32 @@ export function createUnsubscribeHandlers({env = process.env, fetcher = fetch} =
   const secret = env.WILSY_UNSUBSCRIBE_SECRET, serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
   const dbUrl = env.SUPABASE_URL || supabaseConfig.url;
   const ready = () => Boolean(secret && serviceKey);
-  const read = request => { const url = new URL(request.url); return {userId: (url.searchParams.get('u') || '').toLowerCase(), token: url.searchParams.get('t') || ''}; };
+  const read = request => { const url = new URL(request.url); return {userId: (url.searchParams.get('u') || '').toLowerCase(), token: url.searchParams.get('t') || '', kind: kindOf(url.searchParams.get('k'))}; };
   const unavailable = () => page('Try again later', `<h1>Unsubscribe isn’t available right now</h1><p>Please try again later, or reply to the alert email and we’ll stop your alerts.</p>`, 503);
 
   async function get(request) {
     if (!ready()) return unavailable();
-    const {userId, token} = read(request);
-    if (!validToken(userId, token, secret)) return invalid();
-    const action = `${UNSUBSCRIBE_PATH}?u=${encodeURIComponent(userId)}&t=${encodeURIComponent(token)}`;
-    return page('Stop job alerts', `<h1>Stop WILSY job alerts?</h1><p>This turns off the emails for every search you saved. Your saved jobs and searches stay in your account.</p>
-<form method="post" action="${escapeHtml(action)}"><button type="submit">Stop all job alerts</button></form>`);
+    const {userId, token, kind} = read(request);
+    if (!validToken(userId, token, secret, kind)) return invalid();
+    const action = `${UNSUBSCRIBE_PATH}?u=${encodeURIComponent(userId)}&t=${encodeURIComponent(token)}${kind === 'alerts' ? '' : `&k=${kind}`}`;
+    const [title, text, button] = TARGET[kind].ask;
+    return page(title, `<h1>${escapeHtml(title)}</h1><p>${escapeHtml(text)}</p>
+<form method="post" action="${escapeHtml(action)}"><button type="submit">${escapeHtml(button)}</button></form>`);
   }
 
   // Gmail's one-click button and the confirm form both POST here.
   async function post(request) {
     if (!ready()) return unavailable();
-    const {userId, token} = read(request);
-    if (!validToken(userId, token, secret)) return invalid();
-    const response = await fetcher(`${dbUrl}/rest/v1/user_saved_searches?user_id=eq.${userId}&alert=neq.off`, {
-      method: 'PATCH', body: JSON.stringify({alert: 'off'}),
+    const {userId, token, kind} = read(request);
+    if (!validToken(userId, token, secret, kind)) return invalid();
+    const response = await fetcher(`${dbUrl}/rest/v1/${TARGET[kind].path(userId)}`, {
+      method: 'PATCH', body: JSON.stringify(TARGET[kind].body),
       headers: {apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json', Prefer: 'return=minimal'},
       signal: AbortSignal.timeout(8000)
     });
     if (!response.ok) return unavailable();
-    return page('Unsubscribed', `<h1>You’re unsubscribed</h1><p>You won’t get WILSY job alert emails any more. To turn them back on, <a href="${site.origin}/jobs?saved=1">sign in</a> and choose Daily or Weekly in Account.</p>`);
+    const [title, text] = TARGET[kind].done;
+    return page('Unsubscribed', `<h1>${escapeHtml(title)}</h1><p>${escapeHtml(text)} <a href="${site.origin}/jobs?saved=1">Open WILSY</a></p>`);
   }
 
   return {get, post};
