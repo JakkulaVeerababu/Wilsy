@@ -5,6 +5,7 @@ import fs from 'node:fs/promises';
 import {parseArgs} from 'node:util';
 import {READERS,TECH_ROLE} from './boards.mjs';
 import {createClient,pool} from './http.mjs';
+import {routeJobs} from './pg-rest.mjs';
 
 // Every API call runs under an 8-second statement timeout, and rewriting one stored job costs far
 // more than reading it (two full-text indexes over its description), so calls are kept small by job
@@ -130,9 +131,9 @@ export function retryableDbError(status,text='') {
 
 // PostgREST calls as the service role, with up to three attempts. With retryTimeouts:false a statement
 // timeout is thrown at once (error.timeout), because the same payload would only time out again:
-// collectBoard splits it instead.
-export function createDb({url,key,fetcher=globalThis.fetch,sleep=pause}) {
-  return async(path,{body,method=body?'POST':'GET',prefer,retryTimeouts=true}={})=>{
+// collectBoard splits it instead. With JOBS_DATABASE_URL set, job tables and functions go to that database.
+export function createDb({url,key,fetcher=globalThis.fetch,sleep=pause,env=process.env}) {
+  return routeJobs(async(path,{body,method=body?'POST':'GET',prefer,retryTimeouts=true}={})=>{
     for(let attempt=0;;attempt++){
       try{
         const response=await fetcher(`${url}/rest/v1/${path}`,{method,headers:{apikey:key,Authorization:`Bearer ${key}`,'Content-Type':'application/json',...(prefer?{Prefer:prefer}:{})},
@@ -150,7 +151,7 @@ export function createDb({url,key,fetcher=globalThis.fetch,sleep=pause}) {
         await sleep(500*4**attempt);
       }
     }
-  };
+  },{env});
 }
 
 async function main() {

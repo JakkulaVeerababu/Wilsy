@@ -17,6 +17,7 @@ import {decodeEntities} from '../frontend/js/job-text.js';
 import {supabaseConfig} from '../frontend/js/supabase-config.js';
 import {site} from '../frontend/js/site-config.js';
 import {retryableDbError} from './collect.mjs';
+import {routeJobs} from './pg-rest.mjs';
 import {unsubscribeUrl} from '../frontend/scripts/unsubscribe-handler.mjs';
 
 export const FROM='WILSY Alerts <alerts@wilsy.in>';
@@ -251,8 +252,9 @@ export function createResendSender({apiKey,fetcher=globalThis.fetch,sleep=pause,
 
 // --- Database access --------------------------------------------------------------------------
 
-export function createRest({url,key,fetcher=globalThis.fetch,sleep=pause,retries=2}) {
-  return async function rest(path,{body,method=body?'POST':'GET',prefer,base='rest/v1'}={}) {
+// With JOBS_DATABASE_URL set, the job search goes to that database; account tables stay on Supabase.
+export function createRest({url,key,fetcher=globalThis.fetch,sleep=pause,retries=2,env=process.env}) {
+  return routeJobs(async function rest(path,{body,method=body?'POST':'GET',prefer,base='rest/v1'}={}) {
     for(let attempt=0;;attempt++){
       try{
         const response=await fetcher(`${url}/${base}/${path}`,{method,signal:AbortSignal.timeout(30000),
@@ -270,7 +272,7 @@ export function createRest({url,key,fetcher=globalThis.fetch,sleep=pause,retries
         await sleep(500*4**attempt);
       }
     }
-  };
+  },{env});
 }
 
 export async function loadAlertSearches(db) {

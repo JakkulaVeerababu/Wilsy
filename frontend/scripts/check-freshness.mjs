@@ -2,7 +2,11 @@
 // public job has been re-confirmed recently, when the GitHub collector has not finished a run
 // recently, or when no new job has appeared for too many weekday hours.
 import path from 'node:path';
-import {databaseRequest} from '../js/data-client.js';
+import {databaseRequest as supabaseRequest} from '../js/data-client.js';
+import {routeJobs} from '../../collectors/pg-rest.mjs';
+
+// The jobs database: Heroku when JOBS_DATABASE_URL is set, else Supabase.
+const databaseRequest = routeJobs(supabaseRequest);
 
 // The collectors run every hour and re-confirm each live job at least every 12 hours, so while they
 // work some public job is always re-seen within the hour. Worker D (pg_cron) re-confirms jobs too, so

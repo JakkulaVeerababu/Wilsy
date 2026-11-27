@@ -1,4 +1,5 @@
-import {databaseRequest, searchFromQuery} from '../js/data-client.js';
+import {searchFromQuery} from '../js/data-client.js';
+import {jobsRequest} from './jobs-db.mjs';
 
 // GET /api/search: the public job search behind a shared edge cache. The same search from many visitors
 // (the homepage, company pages, popular filters) is answered from Vercel's cache for a minute, and a stale
@@ -13,7 +14,7 @@ const json = (status, body, cache) => new Response(JSON.stringify(body), {status
   'Access-Control-Allow-Origin': '*',
 }});
 
-export function createSearchHandler({request = databaseRequest} = {}) {
+export function createSearchHandler({request = jobsRequest} = {}) {
   return async function handle(incoming) {
     const url = new URL(incoming.url);
     const search = searchFromQuery(url.searchParams);

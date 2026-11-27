@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import {databaseRequest} from '../js/data-client.js';
+import {jobsRequest} from './jobs-db.mjs';
 import {jobPath, publishable, jobPageOptions, missingJobOptions} from './job-pages.mjs';
 import {documentPage, bundleCss, finishHead} from './page-shell.mjs';
 
@@ -20,9 +20,9 @@ export const SECURITY_HEADERS = {
   'Cross-Origin-Opener-Policy':'same-origin-allow-popups',
 };
 
-// Public, read-only search with the anon key the site already uses.
+// Public, read-only search: the jobs database when JOBS_DATABASE_URL is set, else Supabase with the anon key.
 export const searchPublicJobs = (filters, pageSize, signal) =>
-  databaseRequest('rpc/wilsy_search_jobs',{body:{filters,page_size:pageSize,page_offset:0},signal});
+  jobsRequest('rpc/wilsy_search_jobs',{body:{filters,page_size:pageSize,page_offset:0},signal});
 
 // Literal paths so Vercel's file tracing sees them; vercel.json includeFiles also lists them.
 const companiesFile = new URL('../data/companies.json', import.meta.url);

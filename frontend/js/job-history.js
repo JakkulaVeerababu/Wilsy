@@ -1,4 +1,4 @@
-import {databaseRequest} from './data-client.js';
+import {jobHistory} from './data-client.js';
 import {historyNote} from './job-history-core.js';
 import {escapeHtml as e} from './directory-core.js';
 
@@ -6,7 +6,7 @@ import {escapeHtml as e} from './directory-core.js';
 const slot = document.querySelector('[data-job-history]');
 const id = slot?.dataset.jobHistory;
 if(slot && /^\d{1,15}$/.test(id || '')) {
-  databaseRequest('rpc/wilsy_job_history', {body: {job_id: Number(id)}}).then(history => {
+  jobHistory(id).then(history => {
     const note = historyNote(history);
     if(!note) return;
     slot.className = `job-history is-${note.level}`;

@@ -1,6 +1,10 @@
-import {searchJobs, jobFacets} from '../js/data-client.js';
+import {jobsRequest} from './jobs-db.mjs';
 import {plainJobText} from '../js/job-text.js';
 import {applyUrl} from '../js/jobs-core.js';
+
+// Reads the jobs database (Heroku when JOBS_DATABASE_URL is set, else Supabase).
+const searchJobs = (filters, offset = 0) => jobsRequest('rpc/wilsy_search_jobs', {body: {filters, page_size: 20, page_offset: offset}});
+const jobFacets = () => jobsRequest('rpc/wilsy_job_facets', {body: {}});
 
 // Public search results only. Never read ingestion payloads or private tables.
 export async function fetchJobSnapshot() {

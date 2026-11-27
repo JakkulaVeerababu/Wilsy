@@ -30,10 +30,13 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
+      - run: npm ci --omit=dev
       - name: ${{ (inputs.dry_run == false || inputs.dry_run == 'false') && 'Send job alerts' || 'Dry run job alerts' }}
         env:
           SUPABASE_URL: https://pnkthqatdlozrojwefnc.supabase.co
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # Job tables move to Heroku Postgres when the repository variable WILSY_JOBS_DB is 'heroku' (collectors/pg-rest.mjs).
+          JOBS_DATABASE_URL: ${{ vars.WILSY_JOBS_DB == 'heroku' && secrets.HEROKU_DATABASE_URL || '' }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           # Signs each email's one-click unsubscribe link; the same value is set in Vercel. Without it,
           # emails link to Manage alerts instead.

@@ -1,7 +1,7 @@
 {
   "framework": null,
   "buildCommand": "cd frontend && WILSY_REFRESH_JOBS=1 node scripts/build-site.mjs",
-  "installCommand": "",
+  "installCommand": "npm ci --omit=dev",
   "outputDirectory": "frontend/dist",
   "cleanUrls": true,
   "redirects": [
@@ -32,6 +32,9 @@
       "maxDuration": 10
     },
     "api/alerts/unsubscribe.mjs": {
+      "maxDuration": 10
+    },
+    "api/jobs-rpc.mjs": {
       "maxDuration": 10
     }
   },

@@ -55,9 +55,20 @@ export async function searchJobs(filters,offset=0,signal){
       if(response.ok){const data=await response.json();if(Array.isArray(data?.jobs))return data;}
     }catch(error){if(signal?.aborted)throw error;}
   }
-  return databaseRequest('rpc/wilsy_search_jobs',{body:{filters,page_size:20,page_offset:offset},signal});
+  return jobCall('wilsy_search_jobs',{filters,page_size:20,page_offset:offset},signal);
 }
-export const jobFacets=()=>databaseRequest('rpc/wilsy_job_facets',{body:{}});
+// Job functions go through /api/jobs-rpc on wilsy.in, which reads the jobs database (Heroku Postgres once
+// JOBS_DATABASE_URL is set). Elsewhere, such as local previews of the built site, they call Supabase directly.
+export async function jobCall(name,body,signal){
+  if(!cachedSearchHost())return databaseRequest('rpc/'+name,{body,signal});
+  const timeout=AbortSignal.timeout(15000);
+  const response=await fetch('/api/jobs-rpc?fn='+encodeURIComponent(name),{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(body),signal:signal?AbortSignal.any([signal,timeout]):timeout});
+  if(!response.ok)throw new Error(`Job data unavailable (${response.status})`);
+  return response.json();
+}
+export const jobFacets=()=>jobCall('wilsy_job_facets',{});
+export const jobHistory=id=>jobCall('wilsy_job_history',{job_id:Number(id)});
 export const searchHackathons=(filters,offset=0,signal)=>databaseRequest('rpc/wilsy_search_hackathons',{
   body:{filters,page_size:12,page_offset:offset},signal
 });

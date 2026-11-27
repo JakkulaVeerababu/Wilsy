@@ -17,6 +17,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
+      - run: npm ci --omit=dev
       - name: Find boards
         run: node collectors/discover.mjs --out discovery.json
       - uses: actions/upload-artifact@v5
@@ -28,6 +29,8 @@ jobs:
         env:
           SUPABASE_URL: https://pnkthqatdlozrojwefnc.supabase.co
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # Job tables move to Heroku Postgres when the repository variable WILSY_JOBS_DB is 'heroku' (collectors/pg-rest.mjs).
+          JOBS_DATABASE_URL: ${{ vars.WILSY_JOBS_DB == 'heroku' && secrets.HEROKU_DATABASE_URL || '' }}
         run: |
           if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then echo "No SUPABASE_SERVICE_ROLE_KEY secret; results kept as an artifact only."; exit 0; fi
           node collectors/apply-discovery.mjs discovery.json
