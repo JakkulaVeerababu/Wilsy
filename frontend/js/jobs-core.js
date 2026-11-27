@@ -82,3 +82,14 @@ export function jobSalary(job,fx) {
 export function readSaved(storage) {
   try {const ids=JSON.parse(storage.getItem('wilsy-saved-jobs')||'[]');return Array.isArray(ids)?[...new Set(ids.filter(id=>/^\d+$/.test(String(id))).map(String))].slice(0,500):[];}catch{return [];}
 }
+
+// Search results as a spreadsheet (opens in Excel or Google Sheets). Cells that a spreadsheet could read as
+// a formula (=, +, -, @) are prefixed with an apostrophe. Idea from job-automation (MIT): export to Excel.
+export const EXPORT_MAX=200;
+const csvCell=value=>{let v=String(value??'');if(/^[=+\-@\t\r]/.test(v))v="'"+v;return /[",\n\r]/.test(v)?`"${v.replace(/"/g,'""')}"`:v;};
+export function jobsCsv(jobs,{origin='https://www.wilsy.in',fx}={}){
+  const head=['Title','Company','Location','Work mode','Job type','Salary','Posted','Found','WILSY page','Apply link'];
+  const day=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?new Date(t).toISOString().slice(0,10):'';};
+  const rows=jobs.map(job=>[job.title,job.company,job.location,label(job.work_mode),label(job.job_type),jobSalary(job,fx).primary,day(job.posted_at),day(job.first_seen_at||job.discovered_at),origin+jobPath(job),applyUrl(job.apply_url)]);
+  return '﻿'+[head,...rows].map(r=>r.map(csvCell).join(',')).join('\r\n');
+}

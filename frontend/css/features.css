@@ -1015,3 +1015,5 @@ html.dark-theme .copy-lift{background:#5c4300;color:#fff2c7}
 .kit-actions [role=status]{font-size:13px;color:var(--ink-soft)}
 .kit-questions{margin-top:18px}
 .kit-questions ol{margin:0;padding-left:20px;display:grid;gap:6px;color:var(--ink-soft)}
+.jobs-search-tips{margin:8px 2px 0;font-size:13px;color:var(--ink-soft)}
+.jobs-search-tips code{font:inherit;font-weight:650;color:var(--ink);background:none;padding:0}

@@ -1,5 +1,5 @@
 import {searchJobs,jobFacets} from './data-client.js';
-import {PAGE_SIZE,filterValue,filterKeys,readState,stateQuery,apiFilters,applyUrl,jobPath,label,dateLabel,postingLabel,jobSalary,readSaved} from './jobs-core.js';
+import {PAGE_SIZE,filterValue,filterKeys,readState,stateQuery,apiFilters,applyUrl,jobPath,label,dateLabel,postingLabel,jobSalary,readSaved,jobsCsv,EXPORT_MAX} from './jobs-core.js';
 import {escapeHtml as e} from './directory-core.js';
 import {usdTextToInr} from './pay-format.js';
 import {site} from './site-config.js';
@@ -178,6 +178,19 @@ $('#job-filter-form').addEventListener('submit',e=>e.preventDefault());
 $('#job-filter-form').addEventListener('change',event=>{const el=event.target;if(!filterKeys.includes(el.name))return;const value=el.type==='checkbox'?(el.checked?'yes':''):el.value;change({[el.name]:value,...(el.name==='period'?{minimum:''}:{})});});
 $('#job-sort').addEventListener('change',event=>change({sort:event.target.value}));
 $('#job-refresh').addEventListener('click',()=>{feedback('');load({facets:true});});
+// Download: this search's first EXPORT_MAX jobs as a CSV spreadsheet, read 20 at a time like the results.
+$('#job-export').addEventListener('click',async event=>{
+  const button=event.currentTarget;if(button.disabled)return;button.disabled=true;
+  try{
+    const filters=apiFilters(state,saved,fx),jobs=[];
+    for(let offset=0;offset<EXPORT_MAX;offset+=PAGE_SIZE){const r=await searchJobs(filters,offset);jobs.push(...(r.jobs||[]));feedback(`Preparing the spreadsheet: ${jobs.length} jobs…`);if((r.jobs||[]).length<PAGE_SIZE||jobs.length>=Math.min(EXPORT_MAX,r.total||0))break;}
+    if(!jobs.length){feedback('No jobs to download for this search.');return;}
+    const link=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([jobsCsv(jobs.slice(0,EXPORT_MAX),{origin:location.origin,fx})],{type:'text/csv;charset=utf-8'})),download:`wilsy-jobs-${new Date().toISOString().slice(0,10)}.csv`});
+    link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000);
+    feedback(`Downloaded ${Math.min(jobs.length,EXPORT_MAX)} jobs${total>EXPORT_MAX?` (the first ${EXPORT_MAX} of ${total.toLocaleString('en-IN')})`:''}.`);track('tool_use',{tool:'jobs_export'});
+  }catch{feedback('The download failed. Try again in a moment.');}
+  finally{button.disabled=false;}
+});
 $('#saved-toggle').addEventListener('click',()=>change({saved:!state.saved}));
 const filterDialog=$('#jobs-filter-dialog'),filterPanel=$('#jobs-filters'),filterHome=filterPanel.parentNode;
 function closeFilters(){if(filterDialog.open)filterDialog.close();}

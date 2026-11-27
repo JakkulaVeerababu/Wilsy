@@ -46,3 +46,12 @@ test('Apply kit page: on the tools hub, quick search, footer and every job page'
   const fs = await import('node:fs/promises');
   assert.match(await fs.readFile('scripts/job-pages.mjs', 'utf8'), /\/apply-kit\?job=/);
 });
+
+test('Search results download as a spreadsheet: safe cells, links and a BOM for Excel', async () => {
+  const {jobsCsv} = await import('../js/jobs-core.js');
+  const csv = jobsCsv([{id: 7, title: '=HYPERLINK("x")', company: 'Acme, Inc', location: 'Pune', work_mode: 'remote', job_type: 'full_time', apply_url: 'https://acme.com/jobs/7', posted_at: '2026-11-20T10:00:00Z', first_seen_at: '2026-11-21T10:00:00Z'}], {origin: 'https://www.wilsy.in'});
+  assert.ok(csv.startsWith('﻿Title,Company,'));
+  const row = csv.split('\r\n')[1];
+  assert.match(row, /^"'=HYPERLINK\(""x""\)","Acme, Inc",Pune,Remote,Full time,/);
+  assert.match(row, /,2026-11-20,2026-11-21,https:\/\/www\.wilsy\.in\/jobs\/7-[a-z0-9-]+,https:\/\/acme\.com\/jobs\/7$/);
+});
