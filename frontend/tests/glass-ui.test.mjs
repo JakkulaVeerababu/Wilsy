@@ -23,7 +23,7 @@ test('Cards are text-first: no icon tiles on the tools hub or the homepage', asy
   const tools = await read('dist/tools.html'), home = await read('dist/index.html');
   assert.doesNotMatch(tools, /tool-card-icon/);
   assert.doesNotMatch(home, /home-route-icon|tool-card-icon/);
-  assert.equal((tools.match(/class="tool-card"/g) || []).length, 27);
+  assert.equal((tools.match(/class="tool-card"/g) || []).length, 28);
 });
 
 test('Glass UI: a frosted header, search and menu, with plain fallbacks', async () => {

@@ -40,6 +40,7 @@ export const TOOLS = [
   ['/resume-builder', 'pen', 'Resume builder', 'Write a clean one-page resume and save it as a PDF. Nothing is uploaded.', 'Apply'],
   ['/resume-match', 'file', 'Resume match and job fit', 'Your fit for a job, part by part: skills, experience, level, education, and whether you can apply at all.', 'Apply'],
   ['/copy-check', 'search', 'Copy check', 'Does your resume or cover letter copy the job posting? See the copied lines and fix them.', 'Apply'],
+  ['/apply-kit', 'pen', 'Apply kit', 'One job, one page: your fit, a cover-letter draft from your own resume lines, keywords and likely interview questions.', 'Apply'],
   ['/deadlines', 'calendar', 'Deadlines calendar', 'Last dates for hackathons, competitions, scholarships and exams, soonest first.', 'Apply'],
   ['/scam-check', 'shield', 'Job scam check', 'Paste an offer or a WhatsApp message to check it for the signs of a job scam.', 'Apply'],
   ['/age-calculator', 'cake', 'Age calculator for government jobs', 'Your age on a notice’s cut-off date, the birth dates that qualify and your relaxation.', 'Apply'],
@@ -216,6 +217,33 @@ export function copyBody() {
     </ul></section>
   <p class="quiet-callout">The check runs in your browser; nothing you paste is sent to WILSY or kept. Rules adapted from the “echo traps” guide of the open-source <a href="https://github.com/ai-job-search-dev/ai-job-search" target="_blank" rel="noopener noreferrer">ai-job-search</a> project (MIT licence). To check your skills against the job, use <a href="/resume-match">resume match</a>.</p>
   <script type="module" src="/js/copy-check.js"></script></main>`;
+}
+
+export function applyKitBody() {
+  return `<main id="main-content" class="editorial-shell copy-shell">${toolCrumbs('Apply kit')}
+  ${hero('APPLY KIT', 'Everything for one application', 'Your fit for the job, a cover-letter draft built only from lines already in your resume, the keywords to keep, and the questions the interview is likely to ask. Runs in your browser; nothing is sent or kept.')}
+  <section class="copy-check apply-kit" data-kit aria-label="Apply kit">
+    <p class="resume-job" data-kit-job role="status" hidden></p>
+    <div class="resume-inputs">
+      <div class="calc-field"><label for="kit-posting">The job posting</label><textarea id="kit-posting" rows="10" maxlength="30000" spellcheck="false" placeholder="Paste the whole job posting, or open the kit from a job."></textarea></div>
+      <div class="calc-field"><label for="kit-resume">Your resume</label><textarea id="kit-resume" rows="10" maxlength="30000" placeholder="Paste your resume text."></textarea></div>
+    </div>
+    <div class="resume-inputs">
+      <div class="calc-field"><label for="kit-title">Role</label><input id="kit-title" type="text" maxlength="120" autocomplete="off"></div>
+      <div class="calc-field"><label for="kit-company">Company</label><input id="kit-company" type="text" maxlength="120" autocomplete="organization"></div>
+      <div class="calc-field"><label for="kit-name">Your name</label><input id="kit-name" type="text" maxlength="60" autocomplete="name"></div>
+    </div>
+    <div class="copy-result" data-kit-result aria-live="polite"><p class="match-empty">Paste the job posting and your resume to build the kit.</p></div>
+    <noscript><p class="tracker-status">The apply kit needs JavaScript.</p></noscript>
+  </section>
+  <section class="copy-rules" aria-labelledby="kit-rules-title"><h2 id="kit-rules-title">How the kit is made</h2>
+    <ul>
+      <li><strong>Nothing invented.</strong> The letter quotes only lines already in your resume, next to the skill the job asks for. What it can’t know, such as why you want the job or the result of your work, stays as a [placeholder] for you to write.</li>
+      <li><strong>Keywords kept exactly.</strong> Applicant tracking systems often search for a tool or skill word for word, so use the posting’s spelling. Add a missing one only if you really have it.</li>
+      <li><strong>Questions from the posting.</strong> Projects for the skills you show, how you would learn the ones you don’t, and the experience it asks for.</li>
+    </ul></section>
+  <p class="quiet-callout">Ideas from the open-source <a href="https://github.com/kbaas-ai/reparse-oss" target="_blank" rel="noopener noreferrer">Reparse</a> and <a href="https://github.com/EMZStudio/career-materials-builder" target="_blank" rel="noopener noreferrer">career-materials-builder</a> projects (MIT licence). Before sending, run your letter through the <a href="/copy-check">copy check</a> and track the application in the <a href="/tracker">tracker</a>.</p>
+  <script type="module" src="/js/apply-kit.js"></script></main>`;
 }
 
 export function scamBody() {
@@ -724,6 +752,7 @@ export function searchIndex({companies, guides = [], landing = [], curated = [],
     ['Compare job offers', '/offer-compare', 'Which offer pays more in hand', 'offer compare ctc joining bonus esop which offer'],
     ['Resume match', '/resume-match', 'Check your resume against a job', 'resume cv ats keywords skills match check fit gap eligibility'],
     ['Copy check', '/copy-check', 'Did you copy the job posting?', 'copy copied cover letter resume plagiarism echo posting job description ats'],
+    ['Apply kit', '/apply-kit', 'Cover letter draft, keywords and interview questions for one job', 'apply kit cover letter application packet interview questions keywords tailor resume'],
     ['Hiring trends', '/hiring-trends', 'What is hiring right now, from live jobs', 'trends market skills in demand hiring report statistics'],
     ['RSS feed of new jobs', '/feed.xml', 'Follow new jobs in a feed reader', 'rss feed subscribe telegram'],
     ['Government jobs', '/government-jobs', 'Official notices and exams', 'sarkari exam upsc ssc psu'],
