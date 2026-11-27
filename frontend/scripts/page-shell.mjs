@@ -30,12 +30,14 @@ export function footer() {
   </div><div class="footer-base" aria-hidden="true"><div class="footer-giant">wilsy<span>.in</span></div></div></footer>`;
 }
 export const jsonld = value => `<script type="application/ld+json">${JSON.stringify(value).replace(/</g,'\\u003c')}</script>`;
-// AdSense loads once the page is idle so it never competes with the content for bandwidth.
+// Ads run only on pages of original writing (guides, About, methodology, interview answers, scam check,
+// government jobs). Directory, listing, calculator and policy pages stay ad-free: AdSense rejects ads on
+// template-generated pages. The script sits in the head, as Google recommends, so its reviewers detect it.
 // Every page, ad-free ones included, carries the AdSense account tag: Google reads it on the homepage to
 // confirm the site belongs to the account. It shows no ads; adTag (the script) is what loads them.
 const adsAccount = `<meta name="google-adsense-account" content="${site.publisher}">`;
-const adTag = `<script>addEventListener('load',()=>(window.requestIdleCallback||setTimeout)(()=>{const s=document.createElement('script');s.async=true;s.crossOrigin='anonymous';s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${site.publisher}';document.head.append(s)},{timeout:4000}))</script>`;
-export function documentPage({hero=true,title,description,route,body,active='',type='website',noindex=false,ads=true,structured,canonicalRoute=route}) {
+const adTag = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${site.publisher}" crossorigin="anonymous"></script>`;
+export function documentPage({hero=true,title,description,route,body,active='',type='website',noindex=false,ads=false,structured,canonicalRoute=route}) {
   const url = site.origin+canonicalRoute;
   const isHome = route === '/';
   const legacy = isHome || active==='dsa' ? [] : ['editorial',...(active==='jobs'?['jobs']:['hackathons','competitions','events','contests','open-source','research','scholarships','courses','grants'].includes(active)?['hackathons']:active==='government-jobs'?['government-jobs']:[]),'polish', 'refined',...(active==='jobs'?['job-workspace']:[])];

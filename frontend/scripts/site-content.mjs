@@ -1,3 +1,5 @@
+import {moreGuides} from './guides-extra.mjs';
+
 export const guides = [
   {
     slug: 'compare-tech-salary-offers', category: 'SALARY & EQUITY', minutes: 5,
@@ -36,6 +38,9 @@ export const guides = [
     ]
   }
 ];
+
+// The newer student guides lead, so the homepage and guide lists open with them.
+guides.unshift(...moreGuides);
 
 // Employer and campus programme pages. Requests go by email: nothing on these pages is stored by WILSY.
 const mailto = (email,subject,body='') => `mailto:${email}?subject=${encodeURIComponent(subject)}${body?'&amp;body='+encodeURIComponent(body):''}`;

@@ -44,7 +44,7 @@ test('Sitemap covers exactly the public pages and excludes the error page',async
   // research internship, scholarship and startup grant) plus every indexable /jobs/<page> (job pages, and landing
   // pages that have jobs).
   const jobPages=htmlFiles.filter(f=>f.startsWith('jobs'+path.sep)&&!/noindex/.test(pages.get(f)));
-  assert.equal(urls.length,1082+jobPages.length);
+  assert.equal(urls.length,1092+jobPages.length);
   for(const route of ['competitions','contests','open-source-programs','open-source-programs/google-summer-of-code','research-internships','research-internships/science-academies-srfp','scholarships','scholarships/aicte-pragati'])assert.ok(urls.includes('https://www.wilsy.in/'+route),route);
   assert.ok(urls.includes('https://www.wilsy.in/employers'));
   assert.ok(urls.includes('https://www.wilsy.in/campus'));assert.equal(new Set(urls).size,urls.length);
@@ -98,8 +98,9 @@ test('WILSY routes share the premium shell and preserved feature entry points',(
   // The core product pages carry no ads; elsewhere AdSense loads only after the page is idle.
   // They still carry the account tag, which only tells AdSense the site is ours (it checks the homepage).
   for(const file of ['index.html','jobs.html']){assert.doesNotMatch(pages.get(file),/pagead2/);assert.match(pages.get(file),/<meta name="google-adsense-account" content="ca-pub-5489149193350421">/);}
-  assert.match(pages.get('guides.html'),/requestIdleCallback[^<]*pagead2\.googlesyndication\.com/);
-  assert.doesNotMatch(pages.get('guides.html'),/<script async src="https:\/\/pagead2/);
+  // Ads run only on original writing, with the script in the head; listings and company profiles carry none.
+  for(const file of ['guides.html','guides/spot-fake-job-offers.html','about.html','scam-check.html'])assert.match(pages.get(file.replace('/',path.sep)),/<head>[\s\S]*<script async src="https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js\?client=ca-pub-5489149193350421" crossorigin="anonymous"><\/script>[\s\S]*<\/head>/,file);
+  for(const file of ['companies.html','companies/all.html','companies/10x.html','hackathons.html','salary-calculator.html','privacy.html'])assert.doesNotMatch(pages.get(file.replace('/',path.sep)),/pagead2/,file);
   const home=pages.get('index.html'),jobs=pages.get('jobs.html');
   assert.match(home,/class="home-shell"/);
   assert.match(home,/data-sources="[^"]*\bhomepage\b/);
