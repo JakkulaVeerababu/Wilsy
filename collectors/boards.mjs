@@ -1,6 +1,6 @@
 // Full job inventories from public job-board APIs, normalised to one shape for wilsy_ingest_board.
 // Apply URLs follow the original Worker D conventions exactly, since they are the jobs table's unique key.
-import {readOracle,readRippling} from './more-boards.mjs';
+import {readOracle,readRippling,readPhenom} from './more-boards.mjs';
 
 const ENTITIES={nbsp:' ',amp:'&',lt:'<',gt:'>',quot:'"',apos:"'",ndash:'–',mdash:'—',lsquo:'‘',rsquo:'’',ldquo:'“',rdquo:'”',bull:'•',hellip:'…'};
 const decode=s=>s.replace(/&(#x?[\da-f]+|[a-z]+);/gi,(m,n)=>{
@@ -144,5 +144,10 @@ export const READERS={
   },
   rippling(slug,get) {
     return readRippling(slug,get,{build:job,isTech:title=>TECH_ROLE.test(String(title).toLowerCase()),plainText,jobType,workMode});
+  },
+  // Phenom career sites: slug "host/locale"; reads HTML pages, so it takes the page getter.
+  async phenom(slug,get,page) {
+    if(typeof page!=='function')throw new Error('Phenom needs the page getter');
+    return readPhenom(slug,page,{build:job,plainText,jobType,workMode});
   }
 };

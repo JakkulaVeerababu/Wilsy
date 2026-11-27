@@ -14,7 +14,7 @@ export const CHUNK_JOBS=20;
 export const CHUNK_BYTES=40_000;
 const MAX_BOARD_TIMEOUTS=6; // a board stops splitting after this many timed-out calls
 const PAGE=1000; // the API returns at most this many rows per request
-const PLATFORMS=['greenhouse','ashby','lever','workable','smartrecruiters','recruitee','oracle_hcm','rippling'];
+const PLATFORMS=['greenhouse','ashby','lever','workable','smartrecruiters','recruitee','oracle_hcm','rippling','phenom'];
 export const MAX_FAILURE_RATE=0.3;
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
 
@@ -165,7 +165,7 @@ async function main() {
   const boards=shardOf(await loadBoards(db),shard,shards);
   const client=createClient();
   const results=await pool(boards,concurrency,board=>collectBoard(board,{
-    read:(ats,slug)=>READERS[ats](slug,client.json),
+    read:(ats,slug)=>READERS[ats](slug,client.json,client.page),
     // A timed-out call of several jobs is split by collectBoard; a single job is retried here.
     ingest:payload=>db('rpc/wilsy_ingest_board',{body:{board:payload},retryTimeouts:!(payload.jobs?.length>1)})
   }).catch(error=>({failed:1,error:`${board.company}: ${error.message}`})));

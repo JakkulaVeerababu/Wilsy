@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {READERS} from '../boards.mjs';
-import {oracleId} from '../more-boards.mjs';
+import {oracleId, phenomId, phenomData, PHENOM_WORDS} from '../more-boards.mjs';
 
 const fake = routes => async url => {
   for (const [pattern, body] of routes) if (pattern.test(url)) return typeof body === 'function' ? body(url) : body;
@@ -56,4 +56,36 @@ test('Rippling: list plus details for tech roles; a role closed in between is sk
   assert.equal(jobs[0].team, 'CloudOps');
   assert.equal(jobs[0].posted_at, '2026-11-10T18:39:18.000Z');
   await assert.rejects(READERS.rippling('a/b', get), /Bad Rippling identifier/);
+});
+
+test('phenomId reads host and locale; phenomData reads the page object even with braces inside strings', () => {
+  assert.equal(phenomId('https://careers.allianz.com/us/en/search-results'), 'careers.allianz.com/us/en');
+  assert.equal(phenomId('https://jobs.baesystems.com/global/en'), 'jobs.baesystems.com/global/en');
+  assert.equal(phenomId('https://jobs.example.com/'), null);
+  const html = '<script>phApp.ddo = {"a":{"t":"curly } and \\" quote"}}; phApp.more = {"x":1};</script>';
+  assert.deepEqual(phenomData(html), {a: {t: 'curly } and " quote'}});
+  assert.equal(phenomData('<html>no data</html>'), null);
+});
+
+test('Phenom: searches the tech words, keeps each role once, links the role page, and is always partial', async () => {
+  const page = (word, jobs) => `<script>phApp.ddo = ${JSON.stringify({eagerLoadRefineSearch: {totalHits: jobs.length, data: {jobs}}})}; x();</script>`;
+  const dev = {jobId: '7', title: 'Software Developer', multi_location: ['Pune, India', 'Remote, India'], category: 'IT', type: 'Full-Time', remote: 'Hybrid working', postedDate: '2026-11-20T10:00:00.000+0000', descriptionTeaser: 'Build things.'};
+  const data = {jobId: '8', title: 'Data Engineer', location: 'Munich, Germany'};
+  const urls = [];
+  const get = async url => { urls.push(url); const w = new URL(url).searchParams.get('keywords'); return {url, text: page(w, w === 'software' ? [dev] : w === 'data' ? [data, dev] : [])}; };
+  const jobs = await READERS.phenom('careers.example.com/us/en', null, get);
+  assert.equal(urls.length, PHENOM_WORDS.length);
+  assert.match(urls[0], /^https:\/\/careers\.example\.com\/us\/en\/search-results\?keywords=software&size=100$/);
+  assert.equal(jobs.length, 2);
+  assert.equal(jobs.partial, true);
+  const [a, b] = jobs;
+  assert.equal(a.url, 'https://careers.example.com/us/en/job/7');
+  assert.equal(a.location, 'Pune, India; Remote, India');
+  assert.equal(a.work_mode, 'hybrid');
+  assert.equal(a.job_type, 'full_time');
+  assert.equal(a.posted_at, '2026-11-20T10:00:00.000Z');
+  assert.equal(b.location, 'Munich, Germany');
+  await assert.rejects(READERS.phenom('careers.example.com/us/en', null, async url => ({url, text: '<html></html>'})), /Unexpected Phenom page/);
+  await assert.rejects(READERS.phenom('../evil/us/en', null, get), /Bad Phenom identifier/);
+  await assert.rejects(READERS.phenom('careers.example.com/us/en', null), /page getter/);
 });

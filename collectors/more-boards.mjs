@@ -94,3 +94,64 @@ export async function readRippling(slug, get, {build, isTech, plainText, jobType
   if (list.filter(j => isTech(j?.name)).length > maxDetails) jobs.partial = true;
   return jobs;
 }
+
+// Phenom career sites put the search results in the page itself (phApp.ddo). A board is "host/locale",
+// e.g. "careers.allianz.com/us/en". Phenom sites list every kind of role, so the reader asks the site's own
+// search for a few tech words (one page each, up to PHENOM_SIZE results) instead of paging through all of
+// them. It never sees the full list, so every read is partial: missing roles are closed by the daily recheck.
+export const PHENOM_WORDS = ['software', 'developer', 'data', 'engineer'];
+const PHENOM_SIZE = 100;
+
+/** Phenom identifier "host/locale" from a career-site URL such as https://jobs.x.com/us/en/search-results, or null. */
+export function phenomId(url) {
+  let parsed;
+  try { parsed = new URL(url); } catch { return null; }
+  const locale = parsed.pathname.match(/^\/([a-z]{2,6}\/[a-z]{2}(?:[_-][a-z]{2})?)(?:\/|$)/i)?.[1];
+  const host = parsed.hostname.toLowerCase();
+  return locale && HOST.test(host) ? `${host}/${locale.toLowerCase()}` : null;
+}
+
+/** The phApp.ddo object from a Phenom page, read by matching braces (the page carries more script after it). */
+export function phenomData(html) {
+  const at = String(html).indexOf('phApp.ddo = ');
+  if (at < 0) return null;
+  const s = html.slice(at + 12);
+  let depth = 0, inString = false, escaped = false;
+  for (let k = 0; k < s.length; k++) {
+    const ch = s[k];
+    if (inString) {
+      if (escaped) escaped = false; else if (ch === '\\') escaped = true; else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') inString = true;
+    else if (ch === '{') depth++;
+    else if (ch === '}' && --depth === 0) {
+      try { return JSON.parse(s.slice(0, k + 1)); } catch { return null; }
+    }
+  }
+  return null;
+}
+
+export async function readPhenom(id, page, {build, plainText, jobType, workMode, words = PHENOM_WORDS}) {
+  const m = String(id).match(/^([^/]+)\/([a-z]{2,6}\/[a-z]{2}(?:[_-][a-z]{2})?)$/i);
+  if (!m || !HOST.test(m[1])) throw new Error(`Bad Phenom identifier ${id}`);
+  const base = `https://${m[1]}/${m[2]}`;
+  const seen = new Map();
+  for (const word of words) {
+    const {text} = await page(`${base}/search-results?keywords=${encodeURIComponent(word)}&size=${PHENOM_SIZE}`);
+    const result = phenomData(text)?.eagerLoadRefineSearch;
+    const list = result?.data?.jobs;
+    if (!Array.isArray(list)) throw new Error('Unexpected Phenom page');
+    for (const j of list) if (j?.jobId && j?.title && !seen.has(String(j.jobId))) seen.set(String(j.jobId), j);
+  }
+  const jobs = [...seen.values()].map(j => {
+    const places = Array.isArray(j.multi_location) && j.multi_location.length ? j.multi_location : [j.location || j.cityStateCountry].filter(Boolean);
+    return build({external_id: String(j.jobId), title: j.title, url: `${base}/job/${encodeURIComponent(j.jobId)}`,
+      location: places.join('; '), department: j.category || j.department, description: plainText(j.descriptionTeaser) || null,
+      job_type: jobType(j.type || j.employmentType || '', j.title), employment_type_raw: j.type || j.employmentType,
+      work_mode: workMode(j.remote, j.workLocationType, j.psRemoteStatus, places.join(' ')),
+      workplace_type_raw: j.remote || j.workLocationType, posted_at: j.postedDate || j.dateCreated});
+  });
+  jobs.partial = true;
+  return jobs;
+}
