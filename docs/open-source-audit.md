@@ -16,7 +16,7 @@ Rules WILSY follows (see also `docs/wilsy-pro-plan.md`):
 
 | Repository | Licence | Stars | What WILSY takes |
 |---|---|---|---|
-| [colophon-group/jobseek](https://github.com/colophon-group/jobseek) | MIT | 234 | Its list of 8,307 company job boards (`apps/crawler/data/boards.csv`). About 4,060 are on platforms WILSY already reads (Greenhouse 2,571, Ashby 937, Lever 200, SmartRecruiters 149, Recruitee 119, Workable 84), and 550 are on Workday. To be imported once the jobs database has room (the move to Heroku Postgres). Credit in the import script. |
+| [colophon-group/jobseek](https://github.com/colophon-group/jobseek) | MIT | 234 | Its list of 8,307 company job boards (`apps/crawler/data/boards.csv`). About 4,060 are on platforms WILSY already reads (Greenhouse 2,571, Ashby 937, Lever 200, SmartRecruiters 149, Recruitee 119, Workable 84), and 550 are on Workday. Imported on 27 Nov 2026 after the move to Heroku Postgres (`source_group = 'jobseek'` in the watchlist); credit and licence in `THIRD_PARTY_NOTICES.md`. The Workday boards are not usable (see the plan below). |
 | [ai-job-search-dev/ai-job-search](https://github.com/ai-job-search-dev/ai-job-search) | MIT | 73,686 | Its job-evaluation rules (eligibility and language gates before scoring, separate scores per dimension) power the **job fit check** on `/resume-match`, and its "echo traps" rules power the **copy check** (`/copy-check`). Rewritten in WILSY's own code; credited on both pages. |
 
 ## Learn from next (MIT or Apache-2.0)
@@ -86,6 +86,22 @@ serves search, and `pgvector` inside Postgres can hold embeddings later without 
 | [fastapi/fastapi](https://github.com/fastapi/fastapi) | MIT | Only with a Python service. |
 | [microsoft/playwright](https://github.com/microsoft/playwright) | Apache-2.0 | Testing WILSY's own pages. Never for applying or scraping protected sites. |
 | [meilisearch/meilisearch](https://github.com/meilisearch/meilisearch), [opensearch-project/OpenSearch](https://github.com/opensearch-project/OpenSearch), [redis/redis](https://github.com/redis/redis), [celery/celery](https://github.com/celery/celery) | mixed or custom | Only at much larger scale. Check each licence first. |
+
+## Plan now that jobs live on Heroku Postgres (27 Nov 2026)
+
+The jobs data moved from Supabase (500 MB cap, full) to Heroku Postgres (10 GB). Items that waited for space:
+
+| # | Item | Source | Status |
+|---|---|---|---|
+| 1 | Import jobseek's boards on platforms WILSY reads | colophon-group/jobseek (MIT, notice in `THIRD_PARTY_NOTICES.md`) | In progress: each new board is read once; only boards that answer are added, and only those listing tech roles are collected hourly. |
+| 2 | Run more collector shards at once | — | Done in this change: five shards in parallel, two database connections each (Heroku allows 20). |
+| 3 | Workday reader (550 jobseek boards) | JobNavigator, ats-api-reference (MIT) | **Blocked.** Workday's Cloudflare answers WILSY's collector with a block page (HTTP 429) on the job API and even on the published sitemap, while allowing other clients. Getting past it would mean disguising the collector, which rule 3 forbids. Revisit only with a permitted route (a partner feed or an official API). |
+| 4 | Oracle HCM, Phenom, Rippling readers | JobNavigator (MIT) | Next to try. Each is tested the same way as Workday first; any that blocks automated clients is dropped. |
+| 5 | Telegram job alerts | JobNavigator (MIT) | Needs a bot made with Telegram's @BotFather by the WILSY owner; the token goes in GitHub secrets. Then alerts.mjs gains a Telegram sender beside email. |
+| 6 | Tracker: interview rounds, contacts, follow-up dates, funnel stats | jobsync (MIT) | Planned. Stored in the browser like today's tracker, synced to the account for signed-in users (Supabase account tables, which stay small). |
+| 7 | Cross-source deduplication | job_search_tool (MIT) | Planned: one job listed by two sources (a company board and a partner feed) shown once. |
+| 8 | Chrome extension that fills application forms | applyai (MIT) | Planned in `docs/wilsy-pro-plan.md`; the user always presses Submit. Needs a Chrome Web Store developer account. |
+| 9 | AI resume tailoring, cover letters, interview practice | Resume-Matcher (Apache-2.0), ResuLLMe (MIT) | WILSY Pro; needs a paid AI API. |
 
 ## The suggested 15-phase roadmap against WILSY today
 

@@ -160,7 +160,8 @@ let pool;
 async function defaultConnect(url) {
   if (!pool) {
     const {default: pg} = await import('pg');
-    pool = new pg.Pool({connectionString: url, ssl: {rejectUnauthorized: false}, max: 4, idleTimeoutMillis: 10000,
+    // Two connections per process: the database allows 20, shared by up to five collector shards and the website.
+    pool = new pg.Pool({connectionString: url, ssl: {rejectUnauthorized: false}, max: 2, idleTimeoutMillis: 10000,
       connectionTimeoutMillis: 10000, statement_timeout: 60000});
     pool.on('error', () => {});
   }

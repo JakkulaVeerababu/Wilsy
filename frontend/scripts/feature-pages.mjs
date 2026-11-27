@@ -85,6 +85,10 @@ export function trackerBody({fx}) {
       <div class="tracker-tools"><button class="primary-button" type="button" data-add-open>Add an application</button><a class="secondary-button" href="/jobs">Find roles to save</a><button class="secondary-button" type="button" data-export disabled>Download spreadsheet</button></div></div>
     <p class="tracker-status" data-tracker-status role="status" aria-live="polite"></p>
     <section class="tracker-upcoming" data-upcoming aria-labelledby="upcoming-title" hidden><h2 id="upcoming-title">Coming up</h2><ol></ol></section>
+    <section class="tracker-insights" data-insights aria-labelledby="insights-title" hidden><h2 id="insights-title">How your search is going</h2>
+      <dl class="tracker-funnel" data-funnel></dl>
+      <div class="tracker-followups" data-followups hidden><h3>Time to follow up</h3><p>Applied a week or more ago, with no reply booked. A short, polite note to the recruiter often gets an answer.</p><ol></ol></div>
+    </section>
     <details class="tracker-add" id="add" data-add><summary>Add an application from another site</summary>
       <form class="tracker-add-form" data-add-form novalidate>
         <div class="calc-field"><label for="add-title">Role</label><input id="add-title" name="title" maxlength="200" autocomplete="off" placeholder="Software Engineer"></div>

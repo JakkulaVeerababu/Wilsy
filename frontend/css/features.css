@@ -979,3 +979,26 @@ html.dark-theme .copy-lift{background:#5c4300;color:#fff2c7}
 .fit-evidence li{padding:10px 14px;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface);font-size:14px;line-height:1.5;color:var(--ink)}
 .fit-evidence li span{color:var(--muted-strong)}
 .fit-evidence q{display:block;margin-top:4px;color:var(--ink-soft);overflow-wrap:anywhere;quotes:'“' '”'}
+/* Tracker: funnel numbers, follow-ups due, and a contact on each card. */
+.tracker-insights{margin:0 0 16px;padding:16px 18px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}
+.tracker-insights h2{margin:0 0 12px;font-size:16px;color:var(--ink)}
+.tracker-funnel{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(110px,40%),1fr));gap:8px;margin:0}
+.tracker-funnel div{padding:10px 12px;border-radius:12px;background:var(--blue-soft,rgba(8,102,255,.08))}
+.tracker-funnel dt{font-size:12px;font-weight:650;color:var(--ink-soft)}
+.tracker-funnel dd{margin:2px 0 0;font-size:22px;font-weight:750;color:var(--ink);font-variant-numeric:tabular-nums}
+.tracker-funnel dd span{display:block;font-size:12px;font-weight:500;color:var(--muted)}
+.tracker-followups{margin-top:14px}
+.tracker-followups h3{margin:0 0 4px;font-size:14px;color:var(--ink)}
+.tracker-followups p{margin:0 0 8px;font-size:13px;color:var(--ink-soft)}
+.tracker-followups ol{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.tracker-followups li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:14px;color:var(--ink-soft)}
+.tracker-followups a{font-weight:650;color:var(--blue)}
+.tracker-contact{margin-top:10px;font-size:13px}
+.tracker-contact summary{cursor:pointer;font-weight:650;color:var(--ink-soft)}
+.tracker-contact summary span{font-weight:500;color:var(--muted)}
+.tracker-contact summary strong{color:var(--ink)}
+.tracker-contact-reach{margin:6px 0 0;overflow-wrap:anywhere}
+.tracker-contact-reach a{color:var(--blue)}
+.tracker-contact form{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tracker-contact input{flex:1 1 140px;min-width:0;min-height:36px;padding:0 9px;box-sizing:border-box;border:1px solid var(--line-strong);border-radius:9px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px}
+.tracker-contact button{min-height:36px;padding:0 12px;border:1px solid var(--line-strong);border-radius:9px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px;font-weight:650;cursor:pointer}

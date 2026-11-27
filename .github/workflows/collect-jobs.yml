@@ -25,8 +25,9 @@ jobs:
     timeout-minutes: 20
     strategy:
       fail-fast: false
-      # Ten writers at once hit the database's 8-second statement timeout on the free plan.
-      max-parallel: 2
+      # Five at a time: each opens at most two connections to the jobs database (Heroku Postgres allows 20,
+      # and the website needs some). On Supabase's free plan more than two hit its 8-second statement timeout.
+      max-parallel: 5
       matrix:
         shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     concurrency: collect-jobs-shard-${{ matrix.shard }}
@@ -80,7 +81,7 @@ jobs:
           node collectors/thejobcompany.mjs --pages "$PAGES"
   # Job details (collectors/enrich.mjs): skills, years of experience, the lowest degree accepted,
   # graduation years, fresher / new-grad flags and seniority, read from each job's own text once the
-  # collectors have stored it. Each hour: jobs not read yet, at most 300, written one at a time.
+  # collectors have stored it. Each hour: jobs not read yet, at most 1,000 (300 while jobs were on Supabase), written one at a time.
   # It runs only when every collector and the partner feed succeeded, so it never adds load to a
   # database that is already struggling. (On 24 Nov 2026 a first pass of 3,000 writes, plus a planned
   # daily pass over every live job, left the database timing out for hours.) A full pass (--all) is
@@ -106,4 +107,4 @@ jobs:
           JOBS_DATABASE_URL: ${{ vars.WILSY_JOBS_DB == 'heroku' && secrets.HEROKU_DATABASE_URL || '' }}
         run: |
           if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then echo "::error::SUPABASE_SERVICE_ROLE_KEY is missing; no job details were read."; exit 1; fi
-          node collectors/enrich.mjs --limit 300
+          node collectors/enrich.mjs --limit 1000

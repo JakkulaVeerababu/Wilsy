@@ -14,7 +14,7 @@ export const CHUNK_JOBS=20;
 export const CHUNK_BYTES=40_000;
 const MAX_BOARD_TIMEOUTS=6; // a board stops splitting after this many timed-out calls
 const PAGE=1000; // the API returns at most this many rows per request
-const PLATFORMS=['greenhouse','ashby','lever','workable','smartrecruiters','recruitee'];
+const PLATFORMS=['greenhouse','ashby','lever','workable','smartrecruiters','recruitee','oracle_hcm','rippling'];
 export const MAX_FAILURE_RATE=0.3;
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
 

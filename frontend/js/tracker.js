@@ -5,7 +5,7 @@ import {announceSaved} from './ui-helpers.js';
 import {track} from './analytics.js';
 import {eventActions} from './calendar-core.js';
 import {STAGES, readTracker, writeTracker, snapshot, syncSaved, setStage, setNotes, removeItem, columns, toCsv, TRACKER_KEY,
-  isCustom, addCustom, setNext, upcoming, fromShare} from './tracker-core.js';
+  isCustom, addCustom, setNext, upcoming, fromShare, setContact, needsFollowUp, funnel} from './tracker-core.js';
 
 // The /tracker page: a board of saved roles by application stage, plus roles added by hand from any
 // other site, with the next step (an interview, a test) on each. Everything stays in this browser.
@@ -39,6 +39,29 @@ function start(root) {
           <label class="sr-only" for="next-at-${id}">Date and time</label><input id="next-at-${id}" name="at" type="datetime-local" value="${next ? e(localInput(next.at)) : ''}" required>
           <button type="submit">Save</button>${next ? `<button type="button" data-next-clear="${id}">Remove</button>` : ''}</form></details></div>`;
   }
+  // The person to follow up with: shown on the card, edited in place.
+  function contactBlock(item) {
+    const id = e(item.id), c = item.contact;
+    const reach = c?.reach ? (c.link ? `<a href="${e(c.link)}"${/^https:/.test(c.link) ? ' target="_blank" rel="noopener noreferrer"' : ''}>${e(c.reach)}</a>` : e(c.reach)) : '';
+    return `<details class="tracker-contact"><summary>${c ? `Contact: <strong>${e(c.name || c.reach)}</strong>${c.role ? ` · ${e(c.role)}` : ''}` : 'Contact <span>(add)</span>'}</summary>
+      ${c && reach ? `<p class="tracker-contact-reach">${reach}</p>` : ''}
+      <form data-contact-form="${id}"><label class="sr-only" for="contact-name-${id}">Contact name</label><input id="contact-name-${id}" name="name" maxlength="80" value="${e(c?.name || '')}" placeholder="Name">
+        <label class="sr-only" for="contact-role-${id}">Their role</label><input id="contact-role-${id}" name="role" maxlength="80" value="${e(c?.role || '')}" placeholder="Recruiter, referrer…">
+        <label class="sr-only" for="contact-reach-${id}">Email, phone or profile link</label><input id="contact-reach-${id}" name="reach" maxlength="200" value="${e(c?.reach || '')}" placeholder="Email, phone or https:// link">
+        <button type="submit">Save</button>${c ? `<button type="button" data-contact-clear="${id}">Remove</button>` : ''}</form></details>`;
+  }
+  function insights() {
+    const box = root.querySelector('[data-insights]'), f = funnel(tracker);
+    box.hidden = !f.applied;
+    if(!f.applied) return;
+    const stat = (label, value, note = '') => `<div><dt>${label}</dt><dd>${value}${note ? `<span>${note}</span>` : ''}</dd></div>`;
+    box.querySelector('[data-funnel]').innerHTML = stat('Applied', f.applied) + stat('Interviews', f.interviewing, f.interviewRate === null ? '' : `${f.interviewRate}% of applications`)
+      + stat('Offers', f.offer, f.offerRate === null ? '' : `${f.offerRate}% of interviews`)
+      + (f.daysToInterview === null ? '' : stat('Days to an interview', f.daysToInterview, 'typical wait after applying'));
+    const due = needsFollowUp(tracker), list = box.querySelector('[data-followups]');
+    list.hidden = !due.length;
+    list.querySelector('ol').innerHTML = due.slice(0, 8).map(item => `<li><span><strong>${e(item.title)}</strong> at ${e(item.company)} · applied ${e(dateLabel(item.history.applied))}</span>${item.contact?.link ? `<a href="${e(item.contact.link)}"${/^https:/.test(item.contact.link) ? ' target="_blank" rel="noopener noreferrer"' : ''}>Contact ${e(item.contact.name || '')}</a>` : ''}</li>`).join('');
+  }
   function card(item) {
     const since = item.history[item.stage] || item.addedAt;
     const title = item.path ? `<a class="tracker-title" href="${e(item.path)}">${e(item.title)}</a>` : `<span class="tracker-title">${e(item.title)}</span>`;
@@ -47,6 +70,7 @@ function start(root) {
       ${item.place || item.pay ? `<p class="tracker-meta">${[item.place, item.pay].filter(Boolean).map(e).join(' · ')}</p>` : ''}
       <div class="tracker-row"><label class="sr-only" for="stage-${e(item.id)}">Stage for ${e(item.title)}</label><select id="stage-${e(item.id)}" data-stage="${e(item.id)}">${stageOptions(item.stage)}</select>${since ? `<span class="tracker-since">since ${e(dateLabel(since))}</span>` : ''}</div>
       ${item.stage === 'closed' ? '' : nextStep(item)}
+      ${item.stage === 'saved' ? '' : contactBlock(item)}
       <details class="tracker-notes"${item.notes ? ' open' : ''}><summary>Notes${item.notes ? '' : ' <span>(add)</span>'}</summary><label class="sr-only" for="notes-${e(item.id)}">Notes for ${e(item.title)}</label><textarea id="notes-${e(item.id)}" data-notes="${e(item.id)}" rows="3" maxlength="2000" placeholder="Recruiter, salary discussed, follow-up…">${e(item.notes)}</textarea></details>
       <div class="tracker-actions">${item.apply ? `<a href="${e(item.apply)}" target="_blank" rel="noopener noreferrer">${isCustom(item.id) ? 'Job link' : 'Employer page'}</a>` : ''}<button type="button" data-remove="${e(item.id)}" aria-label="Remove ${e(item.title)} from the tracker">Remove</button></div>
     </li>`;
@@ -65,6 +89,7 @@ function start(root) {
     const next = upcoming(tracker);
     soon.hidden = !next.length;
     soon.querySelector('ol').innerHTML = next.map(item => `<li><time datetime="${e(item.next.at)}">${e(whenLabel(item.next.at))}</time><span><strong>${e(item.next.what)}</strong> · ${e(item.title)} at ${e(item.company)}</span></li>`).join('');
+    insights();
   }
   function move(id, stage) {
     const item = tracker.items[id]; if(!item || item.stage === stage) return;
@@ -83,6 +108,15 @@ function start(root) {
     typing = setTimeout(() => { saveBoard(setNotes(tracker, field.dataset.notes, field.value)); say('Notes saved on this device.'); }, 500);
   });
   board.addEventListener('submit', event => {
+    const contact = event.target.closest('[data-contact-form]');
+    if(contact) {
+      event.preventDefault();
+      const f = contact.elements, id = contact.dataset.contactForm;
+      saveBoard(setContact(tracker, id, {name: f.name.value, role: f.role.value, reach: f.reach.value})); render();
+      say(tracker.items[id]?.contact ? 'Contact saved on this device.' : 'Add a name or a way to reach them.');
+      track('tool_use', {tool: 'tracker_contact'});
+      return;
+    }
     const form = event.target.closest('[data-next-form]'); if(!form) return;
     event.preventDefault();
     const id = form.dataset.nextForm, at = Date.parse(form.elements.at.value);
@@ -95,6 +129,8 @@ function start(root) {
   board.addEventListener('click', event => {
     const clear = event.target.closest('[data-next-clear]');
     if(clear) { saveBoard(setNext(tracker, clear.dataset.nextClear, null)); render(); say('Next step removed.'); return; }
+    const dropContact = event.target.closest('[data-contact-clear]');
+    if(dropContact) { saveBoard(setContact(tracker, dropContact.dataset.contactClear, null)); render(); say('Contact removed.'); return; }
     const remove = event.target.closest('[data-remove]'); if(!remove) return;
     const id = remove.dataset.remove, item = tracker.items[id];
     saveBoard(removeItem(tracker, id));

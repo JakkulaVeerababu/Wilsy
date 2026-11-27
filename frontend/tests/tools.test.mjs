@@ -77,7 +77,7 @@ test('Tracker: roles from other sites, kept apart from the saved list', () => {
   assert.equal(error, undefined);
   assert.equal(id, 'c-abc123');
   assert.ok(isCustom(id) && !isCustom('123'));
-  assert.deepEqual({...tracker.items[id], history: undefined}, {id, stage: 'applied', title: 'Data Analyst', company: 'Acme', path: '', apply: 'https://jobs.lever.co/acme/1', place: 'Pune', pay: '', notes: 'via referral', addedAt: now, updatedAt: now, history: undefined, via: 'custom', next: null});
+  assert.deepEqual({...tracker.items[id], history: undefined}, {id, stage: 'applied', title: 'Data Analyst', company: 'Acme', path: '', apply: 'https://jobs.lever.co/acme/1', place: 'Pune', pay: '', notes: 'via referral', addedAt: now, updatedAt: now, history: undefined, via: 'custom', next: null, contact: null});
   assert.equal(addCustom(tracker, {title: '', company: ''}).error, 'Add the role or the company.');
   assert.match(addCustom(tracker, {title: 'X'}, {id: 'bad id'}).error, /Couldn’t add/);
   const full = {version: 1, items: Object.fromEntries(Array.from({length: TRACKER_LIMIT}, (_, i) => [String(i + 1), {id: String(i + 1)}]))};
@@ -119,8 +119,8 @@ test('Tracker: next steps, the coming-up list and the spreadsheet', () => {
   assert.deepEqual(upcoming(t, Date.parse('2026-12-20T00:00:00Z')), [], 'past steps drop off');
   assert.equal(setNext(t, 'c-pm0001', {what: 'x', at: 'not a date'}).items['c-pm0001'].next, null);
   const [head, row] = toCsv(t, 'https://www.wilsy.in', {timeZone: 'Asia/Kolkata'}).split('\r\n');
-  assert.match(head, /,Notes,Next step,Next step on$/);
-  assert.match(row, /,Interview,2026-11-23 15:00$/);
+  assert.match(head, /,Notes,Next step,Next step on,Contact,Contact role,Contact details$/);
+  assert.match(row, /,Interview,2026-11-23 15:00,,,$/);
 });
 
 test('Tracker: shared links fill in the role, company and link', () => {
@@ -257,4 +257,28 @@ test('Jobs widget: same job links as the site, safe DOM building, readable by an
     const response = await handle(new Request(url));
     assert.equal(response.headers.get('access-control-allow-origin'), '*', url);
   }
+});
+
+test('Tracker: contacts, follow-up nudges and funnel numbers', async () => {
+  const {setContact, needsFollowUp, funnel, FOLLOW_UP_DAYS} = await import('../js/tracker-core.js');
+  const day = n => new Date(Date.parse('2026-11-01T09:00:00Z') + n * 864e5).toISOString();
+  const now = Date.parse(day(20));
+  let t = {version: 1, items: {
+    'c-aaaa01': {id: 'c-aaaa01', stage: 'applied', title: 'SDE', company: 'A', notes: '', history: {applied: day(1)}, next: null},
+    'c-aaaa02': {id: 'c-aaaa02', stage: 'applied', title: 'SDE', company: 'B', notes: '', history: {applied: day(18)}, next: null},
+    'c-aaaa03': {id: 'c-aaaa03', stage: 'interviewing', title: 'SDE', company: 'C', notes: '', history: {applied: day(2), interviewing: day(6)}, next: null},
+    'c-aaaa04': {id: 'c-aaaa04', stage: 'offer', title: 'SDE', company: 'D', notes: '', history: {applied: day(3), interviewing: day(13), offer: day(15)}, next: null},
+    'c-aaaa05': {id: 'c-aaaa05', stage: 'closed', title: 'SDE', company: 'E', notes: '', history: {applied: day(1), closed: day(9)}, next: null},
+    'c-aaaa06': {id: 'c-aaaa06', stage: 'saved', title: 'SDE', company: 'F', notes: '', history: {saved: day(1)}, next: null},
+    'c-aaaa07': {id: 'c-aaaa07', stage: 'applied', title: 'SDE', company: 'G', notes: '', history: {applied: day(1)}, next: {what: 'Test', at: day(22)}}}};
+  assert.equal(FOLLOW_UP_DAYS, 7);
+  assert.deepEqual(needsFollowUp(t, now).map(i => i.company), ['A'], 'recent, booked and later-stage roles are left out');
+  assert.deepEqual(funnel(t), {applied: 6, interviewing: 2, offer: 1, closed: 1, interviewRate: 33, offerRate: 50, daysToInterview: 7});
+  assert.deepEqual(funnel({items: {}}), {applied: 0, interviewing: 0, offer: 0, closed: 0, interviewRate: null, offerRate: null, daysToInterview: null});
+  t = setContact(t, 'c-aaaa01', {name: ' Priya  S ', role: 'Recruiter', reach: 'priya@acme.com'});
+  assert.deepEqual(t.items['c-aaaa01'].contact, {name: 'Priya S', role: 'Recruiter', reach: 'priya@acme.com', link: 'mailto:priya@acme.com'});
+  assert.equal(setContact(t, 'c-aaaa01', {name: 'R', reach: '+91 98765 43210'}).items['c-aaaa01'].contact.link, 'tel:+919876543210');
+  assert.equal(setContact(t, 'c-aaaa01', {name: 'R', reach: 'javascript:alert(1)'}).items['c-aaaa01'].contact.link, '', 'only safe links');
+  assert.equal(setContact(t, 'c-aaaa01', {name: '', reach: ''}).items['c-aaaa01'].contact, null);
+  assert.equal(setContact(t, 'c-aaaa01', null).items['c-aaaa01'].contact, null);
 });

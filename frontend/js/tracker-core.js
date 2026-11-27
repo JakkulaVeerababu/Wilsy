@@ -24,6 +24,13 @@ export const isCustom = id => /^c-[a-z0-9]{4,24}$/.test(String(id));
 const validId = id => /^\d+$/.test(id) || isCustom(id);
 // The next step on an application (an interview, a test, a call), with its date and time.
 const cleanNext = next => { const at = next && typeof next === 'object' ? isoOrNull(next.at) : null; return at ? {what: text(next.what, 80) || 'Interview', at} : null; };
+// The person to follow up with (a recruiter, a referrer): a name, their role and one link (email, phone or profile).
+const contactLink = value => { const v = text(value, 200); return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? 'mailto:' + v : /^\+?[\d\s-]{7,20}$/.test(v) ? 'tel:' + v.replace(/[\s-]/g, '') : httpsUrl(v); };
+const cleanContact = c => {
+  if(!c || typeof c !== 'object') return null;
+  const name = text(c.name, 80), role = text(c.role, 80), reach = text(c.reach, 200);
+  return name || reach ? {name, role, reach, link: contactLink(reach)} : null;
+};
 
 function cleanItem(id, item) {
   if(!validId(id) || !item || typeof item !== 'object') return null;
@@ -35,6 +42,7 @@ function cleanItem(id, item) {
     path: isCustom(id) ? '' : localPath(item.path), apply: httpsUrl(item.apply), place: text(item.place, 120), pay: text(item.pay, 120),
     notes: String(item.notes ?? '').slice(0, NOTE_LIMIT), addedAt: isoOrNull(item.addedAt), updatedAt: isoOrNull(item.updatedAt), history,
     via: isCustom(id) ? 'custom' : VIA.includes(item.via) ? item.via : 'saved', next: cleanNext(item.next),
+    contact: cleanContact(item.contact),
   };
 }
 
@@ -115,6 +123,44 @@ export function setNext(tracker, id, next, now = new Date().toISOString()) {
   return {version: 1, items: {...tracker.items, [id]: {...item, next: cleanNext(next), updatedAt: now}}};
 }
 
+/** Set or clear (contact = null) the person to follow up with. */
+export function setContact(tracker, id, contact, now = new Date().toISOString()) {
+  const item = tracker.items[id];
+  if(!item) return tracker;
+  return {version: 1, items: {...tracker.items, [id]: {...item, contact: cleanContact(contact), updatedAt: now}}};
+}
+
+export const FOLLOW_UP_DAYS = 7;
+/**
+ * Applications worth a follow-up: still at Applied, applied FOLLOW_UP_DAYS or more days ago, with no next step
+ * booked. Oldest first. A follow-up a week after applying is a common, polite norm.
+ */
+export function needsFollowUp(tracker, now = Date.now(), days = FOLLOW_UP_DAYS) {
+  return Object.values(tracker.items)
+    .filter(item => item.stage === 'applied' && !item.next && Date.parse(item.history.applied || '') <= now - days * 864e5)
+    .sort((a, b) => Date.parse(a.history.applied) - Date.parse(b.history.applied));
+}
+
+const ORDER = ['applied', 'interviewing', 'offer'];
+const median = values => { if(!values.length) return null; const s = [...values].sort((a, b) => a - b), m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+/**
+ * Funnel numbers from the board's own history: how many roles reached Applied, Interviewing and Offer (a role
+ * that skipped a stage still counts as having passed it), the share of applications that led to an interview,
+ * and the median days from applying to the first interview stage. Closed roles count for the stages they reached.
+ */
+export function funnel(tracker) {
+  const items = Object.values(tracker.items);
+  const reached = stage => items.filter(item => ORDER.slice(ORDER.indexOf(stage)).some(s => item.history[s] || item.stage === s)).length;
+  const applied = reached('applied'), interviewing = reached('interviewing'), offer = reached('offer');
+  const waits = items.filter(item => item.history.applied && item.history.interviewing)
+    .map(item => (Date.parse(item.history.interviewing) - Date.parse(item.history.applied)) / 864e5).filter(d => d >= 0);
+  const days = median(waits);
+  return {applied, interviewing, offer, closed: items.filter(item => item.stage === 'closed').length,
+    interviewRate: applied ? Math.round(interviewing / applied * 100) : null,
+    offerRate: interviewing ? Math.round(offer / interviewing * 100) : null,
+    daysToInterview: days === null ? null : Math.round(days)};
+}
+
 /** Next steps from two hours ago to `days` ahead, soonest first. */
 export function upcoming(tracker, now = Date.now(), days = 14) {
   return Object.values(tracker.items).filter(item => item.next && item.stage !== 'closed')
@@ -133,10 +179,11 @@ const cell = value => { let v = String(value ?? ''); if(/^[=+\-@\t\r]/.test(v)) 
 const day = value => value ? value.slice(0, 10) : '';
 const when = (iso, timeZone) => iso ? new Intl.DateTimeFormat('en-CA', {timeZone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'}).format(new Date(iso)).replace(', ', ' ') : '';
 export function toCsv(tracker, origin = 'https://www.wilsy.in', {timeZone} = {}) {
-  const head = ['Stage', 'Role', 'Company', 'Location', 'Pay', 'Saved on', 'Applied on', 'Interviewing since', 'Offer on', 'Closed on', 'WILSY page', 'Apply link', 'Notes', 'Next step', 'Next step on'];
+  const head = ['Stage', 'Role', 'Company', 'Location', 'Pay', 'Saved on', 'Applied on', 'Interviewing since', 'Offer on', 'Closed on', 'WILSY page', 'Apply link', 'Notes', 'Next step', 'Next step on', 'Contact', 'Contact role', 'Contact details'];
   const rows = columns(tracker).flatMap(col => col.items.map(item => [col.name, item.title, item.company, item.place, item.pay,
     day(item.history.saved || item.addedAt), day(item.history.applied), day(item.history.interviewing), day(item.history.offer), day(item.history.closed),
-    item.path ? origin + item.path : '', item.apply, item.notes, item.next?.what || '', when(item.next?.at, timeZone)]));
+    item.path ? origin + item.path : '', item.apply, item.notes, item.next?.what || '', when(item.next?.at, timeZone),
+    item.contact?.name || '', item.contact?.role || '', item.contact?.reach || '']));
   return [head, ...rows].map(row => row.map(cell).join(',')).join('\r\n');
 }
 

@@ -1,5 +1,6 @@
 // Full job inventories from public job-board APIs, normalised to one shape for wilsy_ingest_board.
 // Apply URLs follow the original Worker D conventions exactly, since they are the jobs table's unique key.
+import {readOracle,readRippling} from './more-boards.mjs';
 
 const ENTITIES={nbsp:' ',amp:'&',lt:'<',gt:'>',quot:'"',apos:"'",ndash:'–',mdash:'—',lsquo:'‘',rsquo:'’',ldquo:'“',rdquo:'”',bull:'•',hellip:'…'};
 const decode=s=>s.replace(/&(#x?[\da-f]+|[a-z]+);/gi,(m,n)=>{
@@ -136,5 +137,12 @@ export const READERS={
       job_type:jobType(j.employment_type_code,j.title),work_mode:workMode(j.remote&&'remote',j.hybrid&&'hybrid',j.on_site&&'onsite',j.location),
       posted_at:j.published_at||j.created_at,employment_type_raw:j.employment_type_code,salary_min:j.salary?.min,salary_max:j.salary?.max,
       salary_currency:j.salary?.currency,salary_period:salaryPeriod(j.salary?.period)}));
+  },
+  // Oracle Recruiting Cloud: slug "host/site" (collectors/more-boards.mjs).
+  oracle_hcm(slug,get) {
+    return readOracle(slug,get,{build:job,isTech:title=>TECH_ROLE.test(String(title).toLowerCase()),plainText,jobType,workMode});
+  },
+  rippling(slug,get) {
+    return readRippling(slug,get,{build:job,isTech:title=>TECH_ROLE.test(String(title).toLowerCase()),plainText,jobType,workMode});
   }
 };
