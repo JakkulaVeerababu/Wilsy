@@ -1002,3 +1002,9 @@ html.dark-theme .copy-lift{background:#5c4300;color:#fff2c7}
 .tracker-contact form{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .tracker-contact input{flex:1 1 140px;min-width:0;min-height:36px;padding:0 9px;box-sizing:border-box;border:1px solid var(--line-strong);border-radius:9px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px}
 .tracker-contact button{min-height:36px;padding:0 12px;border:1px solid var(--line-strong);border-radius:9px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px;font-weight:650;cursor:pointer}
+.tracker-closed{margin-top:14px}
+.tracker-closed h3{margin:0 0 4px;font-size:14px;color:var(--ink)}
+.tracker-closed ul{display:flex;flex-wrap:wrap;gap:4px 16px;margin:0;padding:0;list-style:none;font-size:14px;color:var(--ink-soft)}
+.tracker-closed strong{color:var(--ink)}
+.tracker-tip{margin:8px 0 0;font-size:13px;color:var(--ink-soft)}
+.tracker-tip a{font-weight:650;color:var(--blue)}

@@ -161,6 +161,25 @@ export function funnel(tracker) {
     daysToInterview: days === null ? null : Math.round(days)};
 }
 
+/**
+ * Where closed roles stopped: the furthest stage each closed role reached before it was closed (saved = closed
+ * before applying). `pattern` names a clear trend once at least 3 applications closed and one stopping point
+ * holds 60% or more of them: 'before-interview' (applied, never interviewed) or 'after-interview'.
+ */
+export function closedAt(tracker) {
+  const counts = {saved: 0, applied: 0, interviewing: 0, offer: 0};
+  for(const item of Object.values(tracker.items)) {
+    if(item.stage !== 'closed') continue;
+    const last = [...ORDER].reverse().find(stage => item.history[stage]) || 'saved';
+    counts[last]++;
+  }
+  const applications = counts.applied + counts.interviewing + counts.offer;
+  const pattern = applications < 3 ? null
+    : counts.applied / applications >= 0.6 ? 'before-interview'
+    : counts.interviewing / applications >= 0.6 ? 'after-interview' : null;
+  return {...counts, applications, total: applications + counts.saved, pattern};
+}
+
 /** Next steps from two hours ago to `days` ahead, soonest first. */
 export function upcoming(tracker, now = Date.now(), days = 14) {
   return Object.values(tracker.items).filter(item => item.next && item.stage !== 'closed')

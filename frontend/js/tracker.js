@@ -5,7 +5,7 @@ import {announceSaved} from './ui-helpers.js';
 import {track} from './analytics.js';
 import {eventActions} from './calendar-core.js';
 import {STAGES, readTracker, writeTracker, snapshot, syncSaved, setStage, setNotes, removeItem, columns, toCsv, TRACKER_KEY,
-  isCustom, addCustom, setNext, upcoming, fromShare, setContact, needsFollowUp, funnel} from './tracker-core.js';
+  isCustom, addCustom, setNext, upcoming, fromShare, setContact, needsFollowUp, funnel, closedAt} from './tracker-core.js';
 
 // The /tracker page: a board of saved roles by application stage, plus roles added by hand from any
 // other site, with the next step (an interview, a test) on each. Everything stays in this browser.
@@ -58,6 +58,18 @@ function start(root) {
     box.querySelector('[data-funnel]').innerHTML = stat('Applied', f.applied) + stat('Interviews', f.interviewing, f.interviewRate === null ? '' : `${f.interviewRate}% of applications`)
       + stat('Offers', f.offer, f.offerRate === null ? '' : `${f.offerRate}% of interviews`)
       + (f.daysToInterview === null ? '' : stat('Days to an interview', f.daysToInterview, 'typical wait after applying'));
+    const stops = closedAt(tracker), why = box.querySelector('[data-closed]');
+    why.hidden = !stops.total;
+    if(stops.total) {
+      const part = (n, text) => n ? `<li><strong>${n}</strong> ${text}</li>` : '';
+      const tip = stops.pattern === 'before-interview'
+        ? '<p class="tracker-tip">Most closed applications ended before an interview. Before the next one, compare your resume with the role in the <a href="/resume-match">job fit check</a> and fill the gaps it finds.</p>'
+        : stops.pattern === 'after-interview'
+          ? '<p class="tracker-tip">Most closed applications ended after interviews, so your resume is getting you in. Practise answers with <a href="/interview-answers">interview answers</a>.</p>' : '';
+      why.querySelector('ul').innerHTML = part(stops.saved, 'closed before applying') + part(stops.applied, 'after applying, with no interview')
+        + part(stops.interviewing, 'after interviews') + part(stops.offer, 'after an offer');
+      why.querySelector('[data-closed-tip]').innerHTML = tip;
+    }
     const due = needsFollowUp(tracker), list = box.querySelector('[data-followups]');
     list.hidden = !due.length;
     list.querySelector('ol').innerHTML = due.slice(0, 8).map(item => `<li><span><strong>${e(item.title)}</strong> at ${e(item.company)} · applied ${e(dateLabel(item.history.applied))}</span>${item.contact?.link ? `<a href="${e(item.contact.link)}"${/^https:/.test(item.contact.link) ? ' target="_blank" rel="noopener noreferrer"' : ''}>Contact ${e(item.contact.name || '')}</a>` : ''}</li>`).join('');

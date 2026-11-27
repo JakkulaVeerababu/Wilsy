@@ -282,3 +282,17 @@ test('Tracker: contacts, follow-up nudges and funnel numbers', async () => {
   assert.equal(setContact(t, 'c-aaaa01', {name: '', reach: ''}).items['c-aaaa01'].contact, null);
   assert.equal(setContact(t, 'c-aaaa01', null).items['c-aaaa01'].contact, null);
 });
+
+test('Tracker: where closed roles stopped, and a tip only for a clear pattern', async () => {
+  const {closedAt} = await import('../js/tracker-core.js');
+  const closed = (id, history) => [id, {id, stage: 'closed', title: 'SDE', company: id, notes: '', history: {...history, closed: '2026-11-20T09:00:00Z'}, next: null}];
+  const a = '2026-11-01T09:00:00Z', i = '2026-11-05T09:00:00Z', o = '2026-11-09T09:00:00Z';
+  const board = entries => ({version: 1, items: Object.fromEntries(entries)});
+  assert.deepEqual(closedAt(board([])), {saved: 0, applied: 0, interviewing: 0, offer: 0, applications: 0, total: 0, pattern: null});
+  const mixed = closedAt(board([closed('c-aaaa01', {saved: a}), closed('c-aaaa02', {applied: a}), closed('c-aaaa03', {applied: a, interviewing: i}), closed('c-aaaa04', {applied: a, interviewing: i, offer: o}),
+    ['c-aaaa05', {id: 'c-aaaa05', stage: 'applied', title: 'SDE', company: 'X', notes: '', history: {applied: a}, next: null}]]));
+  assert.deepEqual([mixed.saved, mixed.applied, mixed.interviewing, mixed.offer, mixed.applications, mixed.total, mixed.pattern], [1, 1, 1, 1, 3, 4, null], 'open roles are not counted; no 60% majority, no tip');
+  assert.equal(closedAt(board([closed('c-b1aaaa', {applied: a}), closed('c-b2aaaa', {applied: a}), closed('c-b3aaaa', {applied: a, interviewing: i})])).pattern, 'before-interview');
+  assert.equal(closedAt(board([closed('c-b1aaaa', {interviewing: i}), closed('c-b2aaaa', {applied: a, interviewing: i}), closed('c-b3aaaa', {applied: a})])).pattern, 'after-interview', 'a skipped stage still counts');
+  assert.equal(closedAt(board([closed('c-b1aaaa', {applied: a}), closed('c-b2aaaa', {applied: a})])).pattern, null, 'too few to call a pattern');
+});

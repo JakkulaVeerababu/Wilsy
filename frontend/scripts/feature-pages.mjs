@@ -87,7 +87,7 @@ export function trackerBody({fx}) {
     <section class="tracker-upcoming" data-upcoming aria-labelledby="upcoming-title" hidden><h2 id="upcoming-title">Coming up</h2><ol></ol></section>
     <section class="tracker-insights" data-insights aria-labelledby="insights-title" hidden><h2 id="insights-title">How your search is going</h2>
       <dl class="tracker-funnel" data-funnel></dl>
-      <div class="tracker-followups" data-followups hidden><h3>Time to follow up</h3><p>Applied a week or more ago, with no reply booked. A short, polite note to the recruiter often gets an answer.</p><ol></ol></div>
+      <div class="tracker-closed" data-closed hidden><h3>Where closed roles stopped</h3><ul></ul><div data-closed-tip></div></div><div class="tracker-followups" data-followups hidden><h3>Time to follow up</h3><p>Applied a week or more ago, with no reply booked. A short, polite note to the recruiter often gets an answer.</p><ol></ol></div>
     </section>
     <details class="tracker-add" id="add" data-add><summary>Add an application from another site</summary>
       <form class="tracker-add-form" data-add-form novalidate>
