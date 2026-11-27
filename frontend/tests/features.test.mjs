@@ -196,6 +196,11 @@ test('Job sitemap lists indexable pages not already in the main sitemap', () => 
   assert.equal(count, 1);
   assert.match(xml, /<loc>https:\/\/www\.wilsy\.in\/jobs\/1-engineer-1-acme<\/loc><lastmod>2026-11-11<\/lastmod>/);
   assert.match(xml, /^<\?xml/);
+  const split = jobSitemap(Array.from({length: 5}, (_, i) => ({...job(i + 1), indexable: true})), {origin: 'https://www.wilsy.in', perFile: 2});
+  assert.deepEqual(split.files.map(f => f.name), ['sitemap-jobs.xml', 'sitemap-jobs-2.xml', 'sitemap-jobs-3.xml']);
+  assert.deepEqual(split.files.map(f => f.xml.match(/<url>/g).length), [2, 2, 1]);
+  assert.equal(split.count, 5);
+  assert.deepEqual(jobSitemap([], {origin: 'https://www.wilsy.in'}).files.map(f => f.name), ['sitemap-jobs.xml'], 'always one file');
 });
 
 test('Company roles match by slug, then by name, newest six first', () => {

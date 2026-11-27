@@ -255,8 +255,8 @@ await write('/offline',documentPage({title:'You’re offline',description:'WILSY
 await fs.writeFile(path.join(out,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemap.map(route=>`<url><loc>${e(site.origin+route)}</loc><lastmod>${site.updatedAt}</lastmod></url>`).join('\n')}</urlset>`);
 // Every indexable job page beyond the pre-built ones in sitemap.xml (live builds only).
 const jobMap = liveJobs ? jobSitemap(liveJobs.jobs,{origin:site.origin,exclude:new Set(sitemap)}) : null;
-if(jobMap){await fs.writeFile(path.join(out,'sitemap-jobs.xml'),jobMap.xml);console.log(`Job sitemap: ${jobMap.count} job pages from ${liveJobs.jobs.length} live jobs.`);}
-await fs.writeFile(path.join(out,'robots.txt'),`User-agent: *\nAllow: /\n\nSitemap: ${site.origin}/sitemap.xml\n${jobMap?`Sitemap: ${site.origin}/sitemap-jobs.xml\n`:''}`);
+if(jobMap){for(const file of jobMap.files)await fs.writeFile(path.join(out,file.name),file.xml);console.log(`Job sitemap: ${jobMap.count} job pages in ${jobMap.files.length} file(s) from ${liveJobs.jobs.length} live jobs.`);}
+await fs.writeFile(path.join(out,'robots.txt'),`User-agent: *\nAllow: /\n\nSitemap: ${site.origin}/sitemap.xml\n${jobMap?jobMap.files.map(file=>`Sitemap: ${site.origin}/${file.name}\n`).join(''):''}`);
 // security.txt (RFC 9116): where to report a security issue.
 await fs.mkdir(path.join(out,'.well-known'),{recursive:true});
 await fs.writeFile(path.join(out,'.well-known','security.txt'),`Contact: mailto:${site.email}

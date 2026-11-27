@@ -18,7 +18,7 @@ const keep = (job, now) => ({id: String(job.id), title: job.title, company: job.
   pay: job.salary_min != null || job.salary_max != null || !!job.salary_text,
   indexable: pageWorthy(job, now)});
 
-export async function fetchAllLiveJobs({request = jobsRequest, pageSize = 50, max = 30000, concurrency = 4, now = Date.now()} = {}) {
+export async function fetchAllLiveJobs({request = jobsRequest, pageSize = 50, max = 100000, concurrency = 4, now = Date.now()} = {}) {
   const call = offset => request('rpc/wilsy_search_jobs', {body: {filters: {}, page_size: pageSize, page_offset: offset}});
   const first = await call(0);
   if(!Array.isArray(first?.jobs) || !Number.isSafeInteger(first.total)) throw new Error('Invalid public job response');
@@ -42,10 +42,17 @@ export async function fetchAllLiveJobs({request = jobsRequest, pageSize = 50, ma
 }
 
 const day = job => { const t = Date.parse(job.posted_at || job.first_seen_at || job.discovered_at || ''); return Number.isFinite(t) ? new Date(t).toISOString().slice(0, 10) : ''; };
-/** Sitemap of indexable job pages, leaving out routes already in the main sitemap. */
-export function jobSitemap(jobs, {origin, exclude = new Set()} = {}) {
+/**
+ * Sitemap of indexable job pages, leaving out routes already in the main sitemap. A sitemap file may hold at
+ * most 50,000 URLs, so the pages are split into files of `perFile`: sitemap-jobs.xml, sitemap-jobs-2.xml, …
+ */
+export const SITEMAP_URLS = 45000;
+export function jobSitemap(jobs, {origin, exclude = new Set(), perFile = SITEMAP_URLS} = {}) {
   const urls = jobs.filter(job => job.indexable).map(job => [jobPath(job), day(job)]).filter(([route]) => !exclude.has(route));
-  return {count: urls.length, xml: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map(([route, lastmod]) => `<url><loc>${e(origin + route)}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}</url>`).join('\n')}</urlset>`};
+  const xmlOf = list => `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${list.map(([route, lastmod]) => `<url><loc>${e(origin + route)}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}</url>`).join('\n')}</urlset>`;
+  const files = [];
+  for(let i = 0; i === 0 || i < urls.length; i += perFile) files.push({name: i ? `sitemap-jobs-${i / perFile + 1}.xml` : 'sitemap-jobs.xml', xml: xmlOf(urls.slice(i, i + perFile))});
+  return {count: urls.length, xml: files[0].xml, files};
 }
 
 const normalized = value => String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
