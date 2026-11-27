@@ -17,6 +17,7 @@ import {decodeEntities} from '../frontend/js/job-text.js';
 import {supabaseConfig} from '../frontend/js/supabase-config.js';
 import {site} from '../frontend/js/site-config.js';
 import {retryableDbError} from './collect.mjs';
+import {unsubscribeUrl} from '../frontend/scripts/unsubscribe-handler.mjs';
 
 export const FROM='WILSY Alerts <alerts@wilsy.in>';
 export const REPLY_TO=site.email;
@@ -134,7 +135,8 @@ const plural=(n,word)=>`${n} ${word}${n===1?'':/(s|sh|ch)$/.test(word)?'es':'s'}
 const countLabel=s=>s.more?`${s.count}+`:String(s.count);
 
 // sections: [{query, alert, since: Date, jobs, count, more}], already filtered to those with roles.
-export function renderEmail(sections,{fx}={}) {
+// unsubscribe: the person's one-click unsubscribe URL, or null (then only "Manage alerts" is shown).
+export function renderEmail(sections,{fx,unsubscribe=null}={}) {
   const cadence=sections.some(s=>s.alert==='daily')?'daily':'weekly';
   const named=sections.map(s=>({...s,name:clean(searchName(s.query),120)||'All opportunities'}));
   const total=named.reduce((n,s)=>n+s.count,0),anyMore=named.some(s=>s.more);
@@ -172,7 +174,7 @@ ${named.map(sectionHtml).join('\n')}
 </table></td></tr>
 <tr><td style="padding:16px 24px 24px;border-top:1px solid #e4e6eb;color:#65676b;font-size:12px;line-height:18px;${font}">
 <p style="margin:0 0 8px;">${escapeHtml(why)}</p>
-<p style="margin:0 0 8px;"><a href="${escapeHtml(MANAGE_URL)}" style="color:#0866ff;">Manage alerts</a></p>
+<p style="margin:0 0 8px;"><a href="${escapeHtml(MANAGE_URL)}" style="color:#0866ff;">Manage alerts</a>${unsubscribe?` · <a href="${escapeHtml(unsubscribe)}" style="color:#0866ff;">Unsubscribe from all alerts</a>`:''}</p>
 <p style="margin:0;">Roles link to the employer's own application page. Check details with the employer before you apply.<br>WILSY · <a href="${escapeHtml(site.origin)}" style="color:#65676b;">wilsy.in</a></p>
 </td></tr>
 </table></td></tr></table>
@@ -182,7 +184,7 @@ ${named.map(sectionHtml).join('\n')}
       ...s.jobs.flatMap(job=>{const pay=jobPay(job,fx);
         return [`- ${clean(job.title,140)||'Untitled role'}`,`  ${clean(job.company,80)||'Company not specified'} · ${jobPlace(job)}${pay?` · ${pay}`:''}`,`  ${jobUrl(job,s.alert)}`];}),
       `View all matches: ${searchUrl(s.query,s.alert)}`,'']),
-    `Manage alerts: ${MANAGE_URL}`,why,'','WILSY · wilsy.in',''].join('\n');
+    `Manage alerts: ${MANAGE_URL}`,...(unsubscribe?[`Unsubscribe from all alerts: ${unsubscribe}`]:[]),why,'','WILSY · wilsy.in',''].join('\n');
   return {subject,html,text};
 }
 
@@ -206,14 +208,20 @@ export function retryDelay(response,attempt) {
   return Math.min(60000,seconds?seconds*1000:1000*2**attempt);
 }
 
+// With a signed URL: RFC 8058 one-click unsubscribe (Gmail and Yahoo show their own button). Without
+// one: a plain link to the Manage alerts page, as before.
+export const unsubscribeHeaders=url=>url
+  ?{'List-Unsubscribe':`<${url}>`,'List-Unsubscribe-Post':'List-Unsubscribe=One-Click'}
+  :{'List-Unsubscribe':`<${MANAGE_URL}>`};
+
 // Sends one email at a time, at most about two a second (Resend's default limit), retrying rate
 // limits, server errors and network failures. A bad key or a spent quota stops the whole run.
 export function createResendSender({apiKey,fetcher=globalThis.fetch,sleep=pause,retries=3,minIntervalMs=600,now=()=>Date.now()}) {
   if(!apiKey)throw new Error('Set RESEND_API_KEY to send alerts.');
   let last=-Infinity;
-  return async function send({to,subject,html,text,idempotencyKey:key}) {
+  return async function send({to,subject,html,text,idempotencyKey:key,unsubscribe=null}) {
     const body=JSON.stringify({from:FROM,to:[to],reply_to:REPLY_TO,subject,html,text,
-      headers:{'List-Unsubscribe':`<${MANAGE_URL}>`},tags:[{name:'category',value:'job_alert'}]});
+      headers:unsubscribeHeaders(unsubscribe),tags:[{name:'category',value:'job_alert'}]});
     for(let attempt=0;;attempt++){
       const wait=last+minIntervalMs-now();if(wait>0)await sleep(wait);
       last=now();
@@ -287,7 +295,7 @@ export async function markAlerted(db,userId,searches,at) {
 // Everything outside is passed in, so tests can run it with fakes. Nothing is sent or written
 // unless `live` is true.
 export async function runAlerts({now=new Date(),live=false,maxEmails=DEFAULT_MAX_EMAILS,fx,
-  loadSearches,getUser,search,send,mark,log=console.log,verbose=false}) {
+  loadSearches,getUser,search,send,mark,unsubscribeFor=()=>null,log=console.log,verbose=false}) {
   const until=new Date(now.getTime()-SETTLE_MS);
   const rows=await loadSearches();
   const users=groupByUser(rows,now);
@@ -316,14 +324,15 @@ export async function runAlerts({now=new Date(),live=false,maxEmails=DEFAULT_MAX
       if(live&&checked.length)await markChecked(user.userId,checked);
       continue;
     }
-    const message=renderEmail(sections,{fx});
+    const unsubscribe=unsubscribeFor(user.userId);
+    const message=renderEmail(sections,{fx,unsubscribe});
     // The repository is public, and so are its Actions logs: by default a line names no address
     // and no search terms. WILSY_ALERTS_VERBOSE=1 adds a masked address and the subject, for local runs.
     const counts=`${plural(sections.length,'search')}, ${plural(sections.reduce((n,s)=>n+s.jobs.length,0),'role')} shown`;
     const summary=verbose?`${maskEmail(email)}: "${message.subject}" (${counts})`:`person ${index+1}: ${counts}`;
     if(!live){report.emails++;log(`[dry run] would email ${summary}`);continue;}
     try{
-      await send({to:email,...message,idempotencyKey:idempotencyKey(user.userId,checked)});
+      await send({to:email,...message,unsubscribe,idempotencyKey:idempotencyKey(user.userId,checked)});
       report.emails++;log(`sent ${summary}`);
     }catch(error){
       if(!error.duplicate){
@@ -378,9 +387,11 @@ async function main() {
   const publicDb=createRest({url,key:supabaseConfig.publishableKey});
   const send=live?createResendSender({apiKey:process.env.RESEND_API_KEY}):async()=>{throw new Error('Dry run: sending is disabled.');};
   console.log(live?`Live run: sending up to ${maxEmails} emails.`:'Dry run: nothing will be sent or written. Set WILSY_ALERTS_SEND=1 to send.');
+  const secret=process.env.WILSY_UNSUBSCRIBE_SECRET||'';
+  if(!secret)console.log('WILSY_UNSUBSCRIBE_SECRET is not set: emails link to Manage alerts instead of one-click unsubscribe.');
   const report=await runAlerts({live,maxEmails,fx:await loadFx(),verbose:process.env.WILSY_ALERTS_VERBOSE==='1'&&!process.env.GITHUB_ACTIONS,
     loadSearches:()=>loadAlertSearches(db),getUser:id=>loadUser(db,id),search:filters=>searchJobs(publicDb,filters),
-    send,mark:(userId,searches,at)=>markAlerted(db,userId,searches,at)});
+    send,mark:(userId,searches,at)=>markAlerted(db,userId,searches,at),unsubscribeFor:secret?id=>unsubscribeUrl(id,secret):()=>null});
   const {errors,...totals}=report;
   console.log(JSON.stringify({...totals,errors:errors.slice(0,5)}));
   if(process.env.GITHUB_STEP_SUMMARY)await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,summaryMarkdown(report)).catch(()=>{});

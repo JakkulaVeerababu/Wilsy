@@ -35,6 +35,9 @@ jobs:
           SUPABASE_URL: https://pnkthqatdlozrojwefnc.supabase.co
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          # Signs each email's one-click unsubscribe link; the same value is set in Vercel. Without it,
+          # emails link to Manage alerts instead.
+          WILSY_UNSUBSCRIBE_SECRET: ${{ secrets.WILSY_UNSUBSCRIBE_SECRET }}
           # Only an explicit "false" sends; a run started without inputs stays a dry run.
           WILSY_ALERTS_SEND: ${{ (inputs.dry_run == false || inputs.dry_run == 'false') && '1' || '0' }}
           WILSY_ALERTS_MAX_EMAILS: ${{ inputs.max_emails || '100' }}

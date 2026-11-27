@@ -30,6 +30,9 @@
     },
     "api/pay/verify.mjs": {
       "maxDuration": 10
+    },
+    "api/alerts/unsubscribe.mjs": {
+      "maxDuration": 10
     }
   },
   "headers": [
