@@ -2,7 +2,7 @@ import {RESUME_KEY, RESUME_MAX, RESUME_HANDOFF} from './resume-core.js';
 import {jobFit} from './fit-core.js';
 import {resumeYears, rankJobs, searchSkills} from './resume-jobs-core.js';
 import {readResumeFile} from './resume-file.js';
-import {findSkills} from './skills-core.js';
+import {findSkills, skillEvidence} from './skills-core.js';
 import {searchJobs} from './data-client.js';
 import {jobPath, applyUrl} from './jobs-core.js';
 import {escapeHtml as e} from './directory-core.js';
@@ -28,6 +28,7 @@ if(root) {
     const typed = root.querySelector('#resume-years')?.value.trim() ?? '';
     const fit = jobFit(mine, theirs, typed !== '' && Number.isFinite(Number(typed)) ? Math.max(0, Number(typed)) : null), m = fit.match;
     if(!counted) { counted = true; track('tool_use', {tool: 'resume_match'}); }
+    const proof = skillEvidence(mine);
     if(m.score == null) { result.innerHTML = '<p class="match-empty">No skills we recognise appear in this job text. Paste the full description, including the requirements.</p>'; return; }
     const tone = s => s == null ? 'none' : s >= 75 ? 'high' : s >= 55 ? 'good' : s >= 35 ? 'fair' : 'low';
     const gateWord = {fail: 'Can’t apply', flag: 'Check this', pass: 'OK', unknown: 'Not stated'};
@@ -38,6 +39,7 @@ if(root) {
       <p>Your overall fit for this job, from the parts below that the job and your resume both describe.${fit.workMode ? ` Work mode: ${e(fit.workMode)}.` : ''}</p></div>
       <section class="fit-gates"><h3>Can you apply?</h3><ul>${gates}</ul></section>
       <section class="fit-parts"><h3>Fit, part by part</h3><ul>${parts}</ul></section>
+      ${m.matched.length ? `<section class="fit-evidence"><h3>Proof from your resume</h3><p class="salary-note">The line where your resume shows each skill the job asks for. A recruiter looks for the same thing.</p><ul>${m.matched.map(s => `<li><strong>${e(s)}</strong>${proof.get(s) ? `<q>${e(proof.get(s))}</q>` : ''}</li>`).join('')}${m.close.map(([s, near]) => `<li class="is-close"><strong>${e(s)}</strong> <span>(you show ${e(near)})</span>${proof.get(near) ? `<q>${e(proof.get(near))}</q>` : ''}</li>`).join('')}</ul></section>` : ''}
       <div class="match-lists"><section><h3>Skills you show (${m.matched.length})</h3>${chips(m.matched, 'have')}</section>
       <section><h3>Skill gaps: add these if you have them (${m.missing.length + m.close.length})</h3>${m.close.length ? `<ul class="match-chips is-close">${m.close.map(([skill, near]) => `<li>${e(skill)} <span>you show ${e(near)}</span></li>`).join('')}</ul>` : ''}${chips(m.missing, 'missing')}</section></div>
       <ul class="match-tips"><li>Use the job’s own words for skills: if it says “Kubernetes”, write “Kubernetes”, not only “containers”.</li><li>Don’t copy its sentences, though: <a href="/copy-check">run the copy check</a> on your resume or cover letter.</li><li>Only add skills you can talk about in an interview.</li></ul>

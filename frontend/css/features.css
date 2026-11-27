@@ -945,8 +945,8 @@ html.dark-theme .mywilsy-job-fit.is-short,html.dark-theme .mywilsy-soon span{col
 /* Job fit check (/resume-match) and copy check (/copy-check) */
 .resume-one-job-lead{margin:6px 0 14px;color:var(--ink-soft);font-size:15px;line-height:1.55}
 .fit-score.is-blocked strong{color:#c62828}
-.fit-gates,.fit-parts,.copy-lifts{margin-top:22px}
-.fit-gates h3,.fit-parts h3,.copy-lifts h3,.copy-result section h3{margin:0 0 10px;font-size:16px;color:var(--ink)}
+.fit-gates,.fit-parts,.fit-evidence,.copy-lifts{margin-top:22px}
+.fit-gates h3,.fit-parts h3,.fit-evidence h3,.copy-lifts h3,.copy-result section h3{margin:0 0 10px;font-size:16px;color:var(--ink)}
 .fit-gates ul,.fit-parts ul{display:grid;gap:10px;margin:0;padding:0;list-style:none}
 .fit-gates li{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface)}
 .fit-gates li p{margin:2px 0 0;font-size:14px;line-height:1.5;color:var(--ink-soft)}
@@ -975,3 +975,7 @@ html.dark-theme .fit-gates li.is-flag .fit-gate-word{background:#3a2a10;color:#f
 html.dark-theme .fit-gates li.is-pass .fit-gate-word{background:#123d27;color:#bff0d3}
 html.dark-theme .copy-lift{background:#5c4300;color:#fff2c7}
 @media (max-width:560px){.fit-gates li{flex-direction:column;gap:6px}.fit-gate-word{min-width:0}}
+.fit-evidence ul{display:grid;gap:8px;margin:10px 0 0;padding:0;list-style:none}
+.fit-evidence li{padding:10px 14px;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface);font-size:14px;line-height:1.5;color:var(--ink)}
+.fit-evidence li span{color:var(--muted-strong)}
+.fit-evidence q{display:block;margin-top:4px;color:var(--ink-soft);overflow-wrap:anywhere;quotes:'“' '”'}

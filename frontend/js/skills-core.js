@@ -49,6 +49,20 @@ export function findSkills(text) {
   return SKILLS.map(([name]) => name).filter(name => found.has(name));
 }
 
+/**
+ * Where each skill shows up: skill name → the first line of the text that names it (trimmed, at most 160
+ * characters). Lets the job fit check show the resume line behind each matched skill.
+ */
+export function skillEvidence(text) {
+  const lines = String(text || '').slice(0, 60000).split(/\r?\n|(?<=[.;•])\s+/), found = new Map();
+  for(const raw of lines) {
+    const line = raw.replace(/^[\s•\-–*·]+/, '').replace(/\s+/g, ' ').trim();
+    if(!line) continue;
+    for(const skill of findSkills(line)) if(!found.has(skill)) found.set(skill, line.length > 160 ? line.slice(0, 157) + '…' : line);
+  }
+  return found;
+}
+
 // Job families for trends, checked in this order (a "Data Engineer" is Data & AI, a "Sales Engineer" is Sales).
 export const ROLE_FAMILIES = [
   ['Data & AI', /\b(?:data|machine learning|ml|ai|analytics|business analyst|scientist|research engineer|mlops)\b/],

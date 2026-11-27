@@ -83,3 +83,13 @@ test('The copy check page and the fit check are built, linked and say nothing is
   const sitemap = await fs.readFile('dist/sitemap.xml', 'utf8');
   assert.match(sitemap, /\/copy-check</);
 });
+
+test('skillEvidence quotes the resume line behind each skill', async () => {
+  const {skillEvidence} = await import('../js/skills-core.js');
+  const proof = skillEvidence('Jane Doe\n• Built a REST API in Python and Django for 2,000 users\n- Wrote SQL reports. Deployed on AWS.\nSkills: Python, Excel at teamwork');
+  assert.equal(proof.get('Python'), 'Built a REST API in Python and Django for 2,000 users');
+  assert.equal(proof.get('SQL'), 'Wrote SQL reports.');
+  assert.equal(proof.get('AWS'), 'Deployed on AWS.');
+  assert.equal(proof.has('Excel'), false);
+  assert.ok([...skillEvidence('x '.repeat(200) + 'Python').values()][0].length <= 160);
+});

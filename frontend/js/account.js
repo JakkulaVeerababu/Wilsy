@@ -52,7 +52,7 @@ function accountView() {
     <dl class="account-counts">${c?`<div><dt>Saved jobs</dt><dd>${c.job}</dd></div><div><dt>Saved hackathons</dt><dd>${c.hackathon}</dd></div><div><dt>Saved searches</dt><dd>${c.search}</dd></div>`:'<div><dt>Syncing</dt><dd>…</dd></div>'}</dl>
     ${state.syncError?`<p class="account-warning">${e(state.syncError)}</p>`:''}
     <h3>Job alerts</h3>
-    ${queries.length?`<ul class="account-alerts">${alertRows}</ul><p class="account-note">Choose how often to hear about new roles for each saved search. Alert emails begin once delivery is switched on for WILSY; your choices are kept until then.</p>`
+    ${queries.length?`<ul class="account-alerts">${alertRows}</ul><p class="account-note">Choose how often to hear about new roles for each saved search. Emails go out around 9 a.m. India time, only when a search has new roles. Choose No alerts, or use the unsubscribe link in any alert email, to stop them.</p>`
       :`<p class="account-note">Save a search on <a href="/jobs">Find jobs</a> to choose alerts for it.</p>`}
     <button class="account-secondary" type="button" data-signout>Sign out</button>
     <p class="account-note">Signing out removes your saved items from this browser. They stay in your account.</p>`;
