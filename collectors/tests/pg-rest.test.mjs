@@ -27,8 +27,11 @@ test('GET paths become parameterised selects', () => {
 
 test('writes and functions', () => {
   assert.deepEqual(toSql('jobs?id=in.(1,2)&status=eq.published', {method: 'PATCH', body: {status: 'expired', metadata: {a: 1}}, prefer: 'return=minimal'}), {
-    text: 'update public."jobs" set "status" = $1, "metadata" = $2 where "id"::text = any($3::text[]) and "status" = $4',
-    values: ['expired', '{"a":1}', ['1', '2'], 'published']});
+    text: 'update public."jobs" set ("status", "metadata") = (select "status", "metadata" from json_populate_record(null::public."jobs", $1::json)) where "id"::text = any($2::text[]) and "status" = $3',
+    values: ['{"status":"expired","metadata":{"a":1}}', ['1', '2'], 'published']});
+  assert.deepEqual(toSql('jobs?id=eq.7', {method: 'PATCH', body: {skills: ['go', 'sql']}}), {
+    text: 'update public."jobs" set "skills" = (select "skills" from json_populate_record(null::public."jobs", $1::json)) where "id" = $2',
+    values: ['{"skills":["go","sql"]}', '7']}, 'arrays reach text[] columns typed, not as JSON text');
   const insert = toSql('job_ingestion_runs', {body: {run_key: 'r', metadata: {x: 1}}, prefer: 'return=minimal'});
   assert.equal(insert.text, 'insert into public."job_ingestion_runs" ("run_key", "metadata") select "run_key", "metadata" from json_populate_recordset(null::public."job_ingestion_runs", $1::json)');
   assert.deepEqual(insert.values, ['[{"run_key":"r","metadata":{"x":1}}]']);

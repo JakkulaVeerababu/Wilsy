@@ -134,14 +134,16 @@ export function toSql(path, {body, method = body ? 'POST' : 'GET', prefer} = {})
   }
   if (method === 'PATCH') {
     if (!body || typeof body !== 'object' || Array.isArray(body)) throw new Error('PATCH needs an object');
-    const values = [];
-    const sets = Object.entries(body).map(([col, value]) => {
-      values.push(value !== null && typeof value === 'object' ? JSON.stringify(value) : value);
-      return `${quote(col)} = $${values.length}`;
-    });
+    const cols = Object.keys(body);
+    if (!cols.length) throw new Error('PATCH needs an object');
+    // Like POST: json_populate_record gives each value its column's type (text[] arrays, jsonb, numbers).
+    const values = [JSON.stringify(body)];
+    const list = cols.map(quote).join(', ');
     const q = parseQuery(search, values);
     if (!q.where) throw new Error('PATCH without a filter is not allowed');
-    return {text: `update ${table} set ${sets.join(', ')}${q.where}${returning(prefer) ? ' returning *' : ''}`, values};
+    const sets = cols.length === 1 ? `${list} = (select ${list} from json_populate_record(null::${table}, $1::json))`
+      : `(${list}) = (select ${list} from json_populate_record(null::${table}, $1::json))`;
+    return {text: `update ${table} set ${sets}${q.where}${returning(prefer) ? ' returning *' : ''}`, values};
   }
   if (method === 'POST') {
     const rows = Array.isArray(body) ? body : [body];
