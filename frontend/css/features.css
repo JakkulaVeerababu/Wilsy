@@ -217,7 +217,7 @@ html.dark-theme .palette-option[aria-selected="true"] strong{color:#9bc2ff}
 .resume-inputs textarea,.ask-referral textarea{display:block;width:100%;box-sizing:border-box;padding:12px 13px;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-size:14px;line-height:1.55;resize:vertical}
 .resume-keep{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
 .resume-keep .text-button{padding:6px 2px;border:0;background:none;color:var(--muted-strong);font:inherit;font-size:13px;text-decoration:underline;cursor:pointer}
-.resume-result{padding:22px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.resume-result,.copy-result{padding:22px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
 .match-empty{margin:0;font-size:15px;color:var(--muted)}
 .match-score>div{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px}
 .match-score strong{font-size:clamp(40px,5vw,56px);font-weight:800;letter-spacing:-.04em;color:var(--ink);font-variant-numeric:tabular-nums}
@@ -941,3 +941,37 @@ html.dark-theme .mywilsy-job-fit.is-short,html.dark-theme .mywilsy-soon span{col
 .feature-job-status[data-kind=success]{color:#1b7f3b;font-weight:650}
 .feature-job-mode{margin:0 0 16px;padding:10px 14px;border-radius:12px;background:#fff6db;color:#6b4d00;font-size:14px}
 .feature-job .quiet-callout{margin-top:20px}
+
+/* Job fit check (/resume-match) and copy check (/copy-check) */
+.resume-one-job-lead{margin:6px 0 14px;color:var(--ink-soft);font-size:15px;line-height:1.55}
+.fit-score.is-blocked strong{color:#c62828}
+.fit-gates,.fit-parts,.copy-lifts{margin-top:22px}
+.fit-gates h3,.fit-parts h3,.copy-lifts h3,.copy-result section h3{margin:0 0 10px;font-size:16px;color:var(--ink)}
+.fit-gates ul,.fit-parts ul{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.fit-gates li{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface)}
+.fit-gates li p{margin:2px 0 0;font-size:14px;line-height:1.5;color:var(--ink-soft)}
+.fit-gates blockquote{margin:8px 0 0;padding:6px 10px;border-left:3px solid var(--line-strong);font-size:13px;color:var(--muted-strong);overflow-wrap:anywhere}
+.fit-gate-word{flex:none;min-width:84px;padding:3px 8px;border-radius:999px;font-size:12px;font-weight:750;text-align:center;background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--ink-soft)}
+.fit-gates li.is-fail{border-color:color-mix(in srgb,#c62828 45%,transparent)}
+.fit-gates li.is-fail .fit-gate-word{background:color-mix(in srgb,#c62828 14%,transparent);color:#c62828}
+.fit-gates li.is-flag .fit-gate-word{background:color-mix(in srgb,#b26a00 16%,transparent);color:#9a5b00}
+.fit-gates li.is-pass .fit-gate-word{background:color-mix(in srgb,#1b7f3b 14%,transparent);color:#1b7f3b}
+.fit-parts ul{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.fit-parts li{padding:12px 14px;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface)}
+.fit-parts li p{margin:6px 0 0;font-size:13px;line-height:1.5;color:var(--ink-soft)}
+.fit-part-head{display:flex;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:15px}
+.fit-part-head span{font-weight:750;font-variant-numeric:tabular-nums;color:var(--ink)}
+.fit-parts li.is-none .fit-part-head span{color:var(--muted-strong);font-weight:600}
+.copy-check{display:grid;gap:18px}
+.copy-lifts ol{margin:0 0 16px;padding-left:22px;display:grid;gap:6px;font-size:14px;line-height:1.5;color:var(--ink)}
+.copy-marked{padding:14px;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface);white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;line-height:1.65;max-height:420px;overflow:auto}
+.copy-lift{background:color-mix(in srgb,#f5b400 38%,transparent);color:inherit;border-radius:3px;padding:0 1px}
+.copy-rules{margin-top:28px}
+.copy-rules ul{display:grid;gap:10px;padding-left:20px;line-height:1.6}
+html.dark-theme .fit-score.is-blocked strong,html.dark-theme .fit-gates li.is-fail .fit-gate-word{color:#ff8a80}
+html.dark-theme .fit-gates li.is-fail{border-color:#7a2a2a}
+html.dark-theme .fit-gates li.is-fail .fit-gate-word{background:#3d1717}
+html.dark-theme .fit-gates li.is-flag .fit-gate-word{background:#3a2a10;color:#ffd79a}
+html.dark-theme .fit-gates li.is-pass .fit-gate-word{background:#123d27;color:#bff0d3}
+html.dark-theme .copy-lift{background:#5c4300;color:#fff2c7}
+@media (max-width:560px){.fit-gates li{flex-direction:column;gap:6px}.fit-gate-word{min-width:0}}

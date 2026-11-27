@@ -13,6 +13,7 @@ const QUICK = [
   ['In-hand salary calculator', '/salary-calculator', 'CTC to monthly take-home'],
   ['Compare job offers', '/offer-compare', 'Which offer pays more in hand'],
   ['Resume match', '/resume-match', 'Check your resume against a job'],
+  ['Copy check', '/copy-check', 'Did your cover letter copy the job posting?'],
   ['Hiring trends', '/hiring-trends', 'What is hiring right now'],
   ['Job scam check', '/scam-check', 'Is this job offer real?'],
   ['Resume builder', '/resume-builder', 'A one-page resume, saved as a PDF'],

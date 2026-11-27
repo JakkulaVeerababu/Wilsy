@@ -38,7 +38,8 @@ export const TOOLS = [
   ['/my-wilsy', 'sparkle', 'My WILSY', 'Your best job matches, the jobs you qualify for, skills to learn next and a free 30-day plan.', 'Apply'],
   ['/tracker', 'kanban', 'Application tracker', 'Saved → Applied → Interviewing → Offer, with interview reminders. Add jobs from any site.', 'Apply'],
   ['/resume-builder', 'pen', 'Resume builder', 'Write a clean one-page resume and save it as a PDF. Nothing is uploaded.', 'Apply'],
-  ['/resume-match', 'file', 'Resume match', 'See which of a job’s skills your resume shows, and which are missing.', 'Apply'],
+  ['/resume-match', 'file', 'Resume match and job fit', 'Your fit for a job, part by part: skills, experience, level, education, and whether you can apply at all.', 'Apply'],
+  ['/copy-check', 'search', 'Copy check', 'Does your resume or cover letter copy the job posting? See the copied lines and fix them.', 'Apply'],
   ['/deadlines', 'calendar', 'Deadlines calendar', 'Last dates for hackathons, competitions, scholarships and exams, soonest first.', 'Apply'],
   ['/scam-check', 'shield', 'Job scam check', 'Paste an offer or a WhatsApp message to check it for the signs of a job scam.', 'Apply'],
   ['/age-calculator', 'cake', 'Age calculator for government jobs', 'Your age on a notice’s cut-off date, the birth dates that qualify and your relaxation.', 'Apply'],
@@ -176,7 +177,8 @@ export function resumeBody() {
       <button class="primary-button" type="button" data-resume-jobs>Find matching jobs</button></div></div>
       <div data-resume-jobs-list aria-live="polite"><p class="match-empty">Upload or paste your resume, then find matching jobs.</p></div>
       <p class="salary-note">The chance is an estimate: the share of each job’s listed skills your resume shows (a related skill counts half), lowered when the job asks for more years than your resume shows. It can’t see everything an employer weighs, so read each job before you apply.</p></section>
-    <h2 class="resume-one-job">Check against one job</h2>
+    <h2 class="resume-one-job">Job fit check: one job</h2>
+    <p class="resume-one-job-lead">See whether you can apply at all (citizenship, visas, languages), then your fit for skills, experience, level and education, and the skills you are missing.</p>
     <p class="resume-job" data-resume-job role="status" hidden></p>
     <div class="resume-inputs">
       <div class="calc-field"><label for="resume-text">Your resume (uploaded, or paste the text)</label><textarea id="resume-text" rows="12" maxlength="30000" spellcheck="false" placeholder="Open your resume, select all, copy, and paste it here."></textarea>
@@ -188,6 +190,28 @@ export function resumeBody() {
     <p class="quiet-callout">The check runs in your browser. Your resume, uploaded or pasted, is never sent to WILSY, and it is kept on this device only if you tick “Remember”. To find matching jobs, WILSY searches live jobs by the skill names found in it, never the resume itself. It looks for ${SKILLS.length} common skills and tools, so treat it as a quick check, not a verdict. <a href="/jobs">Find a job to check against</a></p>
   </section>
   <script type="module" src="/js/resume-match.js"></script></main>`;
+}
+
+export function copyBody() {
+  return `<main id="main-content" class="editorial-shell copy-shell">${toolCrumbs('Copy check')}
+  ${hero('COPY CHECK', 'Did you copy the job posting?', 'Recruiters notice when a resume or cover letter hands their own sentences back. Paste the posting and your text to see the copied lines, and the posting’s informal words you picked up.')}
+  <section class="copy-check" data-copy aria-label="Copy check">
+    <p class="resume-job" data-copy-job role="status" hidden></p>
+    <div class="resume-inputs">
+      <div class="calc-field"><label for="copy-posting">The job posting</label><textarea id="copy-posting" rows="12" maxlength="30000" spellcheck="false" placeholder="Paste the whole job posting."></textarea></div>
+      <div class="calc-field"><label for="copy-text">Your resume, cover letter or answer</label><textarea id="copy-text" rows="12" maxlength="30000" placeholder="Paste what you wrote for this job."></textarea></div>
+    </div>
+    <div class="copy-result" data-copy-result aria-live="polite"><p class="match-empty">Paste the job posting and your text to check them.</p></div>
+    <noscript><p class="tracker-status">The copy check needs JavaScript.</p></noscript>
+  </section>
+  <section class="copy-rules" aria-labelledby="copy-rules-title"><h2 id="copy-rules-title">What it checks</h2>
+    <ul>
+      <li><strong>Copied lines.</strong> Any run of 5 or more words taken in order from the posting. Rewrite it from what you actually did: which project, which result. Words in “quotation marks” don’t count, so you can still quote the posting openly.</li>
+      <li><strong>The posting’s voice words.</strong> Informal or company words such as “messy”, “ship fast” or “rockstar”. Would you use the word when talking about your own work in an interview? If not, say it plainly.</li>
+      <li><strong>Keywords, kept exactly.</strong> Tools, skills and the job title should match the posting word for word, because applicant tracking systems often search for them literally. The check lists the ones you kept and the ones you didn’t mention.</li>
+    </ul></section>
+  <p class="quiet-callout">The check runs in your browser; nothing you paste is sent to WILSY or kept. Rules adapted from the “echo traps” guide of the open-source <a href="https://github.com/ai-job-search-dev/ai-job-search" target="_blank" rel="noopener noreferrer">ai-job-search</a> project (MIT licence). To check your skills against the job, use <a href="/resume-match">resume match</a>.</p>
+  <script type="module" src="/js/copy-check.js"></script></main>`;
 }
 
 export function scamBody() {
@@ -694,7 +718,8 @@ export function searchIndex({companies, guides = [], landing = [], curated = [],
     ['Salary explorer', '/salaries', 'Pay at 1,000 companies, in INR', 'salary pay compensation ctc compare'],
     ['In-hand salary calculator', '/salary-calculator', 'CTC to monthly take-home', 'take home in hand ctc tax calculator monthly'],
     ['Compare job offers', '/offer-compare', 'Which offer pays more in hand', 'offer compare ctc joining bonus esop which offer'],
-    ['Resume match', '/resume-match', 'Check your resume against a job', 'resume cv ats keywords skills match check'],
+    ['Resume match', '/resume-match', 'Check your resume against a job', 'resume cv ats keywords skills match check fit gap eligibility'],
+    ['Copy check', '/copy-check', 'Did you copy the job posting?', 'copy copied cover letter resume plagiarism echo posting job description ats'],
     ['Hiring trends', '/hiring-trends', 'What is hiring right now, from live jobs', 'trends market skills in demand hiring report statistics'],
     ['RSS feed of new jobs', '/feed.xml', 'Follow new jobs in a feed reader', 'rss feed subscribe telegram'],
     ['Government jobs', '/government-jobs', 'Official notices and exams', 'sarkari exam upsc ssc psu'],

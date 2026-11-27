@@ -1,4 +1,5 @@
-import {matchResume, verdict, RESUME_KEY, RESUME_MAX, RESUME_HANDOFF} from './resume-core.js';
+import {RESUME_KEY, RESUME_MAX, RESUME_HANDOFF} from './resume-core.js';
+import {jobFit} from './fit-core.js';
 import {resumeYears, rankJobs, searchSkills} from './resume-jobs-core.js';
 import {readResumeFile} from './resume-file.js';
 import {findSkills} from './skills-core.js';
@@ -23,16 +24,24 @@ if(root) {
   function render() {
     const mine = resume.value.trim(), theirs = job.value.trim();
     if(!mine || !theirs) { result.innerHTML = `<p class="match-empty">${!theirs ? 'Paste a job description, or open this page from a job with “Check your resume”.' : 'Paste your resume text to see how well it matches.'}</p>`; return; }
-    const m = matchResume(mine, theirs);
+    // Years: the visitor's own number when typed, otherwise read from the resume.
+    const typed = root.querySelector('#resume-years')?.value.trim() ?? '';
+    const fit = jobFit(mine, theirs, typed !== '' && Number.isFinite(Number(typed)) ? Math.max(0, Number(typed)) : null), m = fit.match;
     if(!counted) { counted = true; track('tool_use', {tool: 'resume_match'}); }
     if(m.score == null) { result.innerHTML = '<p class="match-empty">No skills we recognise appear in this job text. Paste the full description, including the requirements.</p>'; return; }
-    result.innerHTML = `<div class="match-score"><div><strong>${m.score}%</strong><span>${e(verdict(m.score))}</span></div>
-      <div class="match-meter" role="img" aria-label="${m.score}% of the job's skills appear in your resume"><span style="width:${m.score}%"></span></div>
-      <p>Your resume shows ${m.matched.length} of the ${m.want.length} skills this job mentions${m.close.length ? `, and something close to ${m.close.length} more (half credit)` : ''}.</p></div>
+    const tone = s => s == null ? 'none' : s >= 75 ? 'high' : s >= 55 ? 'good' : s >= 35 ? 'fair' : 'low';
+    const gateWord = {fail: 'Can’t apply', flag: 'Check this', pass: 'OK', unknown: 'Not stated'};
+    const gates = fit.gates.map(g => `<li class="is-${g.verdict}"><span class="fit-gate-word">${gateWord[g.verdict]}</span><div><strong>${e(g.label)}</strong><p>${e(g.note)}</p>${g.quote ? `<blockquote>“${e(g.quote)}”</blockquote>` : ''}</div></li>`).join('');
+    const parts = fit.parts.map(p => `<li class="is-${tone(p.score)}"><div class="fit-part-head"><strong>${e(p.label)}</strong><span>${p.score == null ? 'Not scored' : `${p.score}%`}</span></div>${p.score == null ? '' : `<div class="match-meter" role="img" aria-label="${e(p.label)}: ${p.score}%"><span style="width:${p.score}%"></span></div>`}<p>${e(p.note)}</p></li>`).join('');
+    result.innerHTML = `<div class="match-score fit-score is-${fit.blocked ? 'blocked' : tone(fit.score)}"><div><strong>${fit.score}%</strong><span>${e(fit.verdict)}</span></div>
+      <div class="match-meter" role="img" aria-label="${fit.score}% overall fit"><span style="width:${fit.score}%"></span></div>
+      <p>Your overall fit for this job, from the parts below that the job and your resume both describe.${fit.workMode ? ` Work mode: ${e(fit.workMode)}.` : ''}</p></div>
+      <section class="fit-gates"><h3>Can you apply?</h3><ul>${gates}</ul></section>
+      <section class="fit-parts"><h3>Fit, part by part</h3><ul>${parts}</ul></section>
       <div class="match-lists"><section><h3>Skills you show (${m.matched.length})</h3>${chips(m.matched, 'have')}</section>
-      <section><h3>Add these if you have them (${m.missing.length + m.close.length})</h3>${m.close.length ? `<ul class="match-chips is-close">${m.close.map(([skill, near]) => `<li>${e(skill)} <span>you show ${e(near)}</span></li>`).join('')}</ul>` : ''}${chips(m.missing, 'missing')}</section></div>
-      ${m.years ? `<p class="match-note">The listing asks for ${m.years}+ years of experience. Make your dates and project lengths easy to find.</p>` : ''}
-      <ul class="match-tips"><li>Use the job’s own words: if it says “Kubernetes”, write “Kubernetes”, not only “containers”.</li><li>Put the skills inside real projects and results, not just in a list.</li><li>Only add skills you can talk about in an interview.</li></ul>`;
+      <section><h3>Skill gaps: add these if you have them (${m.missing.length + m.close.length})</h3>${m.close.length ? `<ul class="match-chips is-close">${m.close.map(([skill, near]) => `<li>${e(skill)} <span>you show ${e(near)}</span></li>`).join('')}</ul>` : ''}${chips(m.missing, 'missing')}</section></div>
+      <ul class="match-tips"><li>Use the job’s own words for skills: if it says “Kubernetes”, write “Kubernetes”, not only “containers”.</li><li>Don’t copy its sentences, though: <a href="/copy-check">run the copy check</a> on your resume or cover letter.</li><li>Only add skills you can talk about in an interview.</li></ul>
+      <p class="salary-note">Skills count for half of the fit, experience for a quarter, the job’s level for 15% and education for 10%. A part the job doesn’t describe is left out. Rules adapted from the open-source <a href="https://github.com/ai-job-search-dev/ai-job-search" target="_blank" rel="noopener noreferrer">ai-job-search</a> project (MIT licence).</p>`;
   }
   const later = () => { clearTimeout(timer); timer = setTimeout(render, 200); };
   const keep = () => { try { if(remember.checked) localStorage.setItem(RESUME_KEY, resume.value.slice(0, RESUME_MAX)); else localStorage.removeItem(RESUME_KEY); } catch {} };
@@ -74,6 +83,7 @@ if(root) {
     } finally { fileInput.value = ''; }
   });
   resume.addEventListener('input', fillYears);
+  yearsInput?.addEventListener('input', later);
 
   // Matching jobs: live jobs for the resume's main skills, scored here and listed highest chance first.
   const PER_SKILL_PAGES = 2;
